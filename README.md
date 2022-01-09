@@ -6,6 +6,8 @@ To install the Labdoo platform, run the lbd-install.sh script on a Debian system
 
 $ ./lbd-install.sh
 
+(Note: it is recommended that you add your developer user to the sudo list by running this command: 'sudo usermod -aG sudo YOURUSERNAME')
+
 This will take care of everything, including installing MYSQL, PHP, Apache, Composer, Drupal, Drush, and all Labdoo modules,
 as well as configuring the base installation.
 

@@ -4,6 +4,7 @@ set -x
 
 LBD_PSWD="grassroots"
 LBD_DOMAIN="www.labdoo-dev.org"
+LBD_EMAIL="development@labdoo.org"
 
 # Ensure system is up to date
 sudo apt update
@@ -79,7 +80,7 @@ cd ./drupal9
 composer require --no-interaction drush/drush:^10
 
 # Install the base Drupal site
-./vendor/bin/drush site-install standard --yes --db-url='mysql://root:grassroots@localhost:3306/lbd_db' --account-name=admin --account-pass=grassroots --site-name=${LBD_DOMAIN} --site-mail=jordi.ros@labdoo.org
+./vendor/bin/drush site-install standard --yes --db-url='mysql://root:grassroots@localhost:3306/lbd_db' --account-name=admin --account-pass=grassroots --site-name=${LBD_DOMAIN} --site-mail=${LBD_EMAIL}
 
 # Adjust development settings
 chmod +w web/sites/default
@@ -114,13 +115,25 @@ sudo sed -i "s/DocumentRoot .*/DocumentRoot \/var\/www\/lbd/" /etc/apache2/sites
 # Set AllowOverride to All for our Apache path
 sudo sed -i '/Directory \/var\/www/{n;n;s/.*/\tAllowOverride All/}' /etc/apache2/apache2.conf
 
-# Have Apache user own the Drupal tree
-sudo chown -R www-data:www-data ./drupal9
+# Apache user must only be able to read the source code files
+# while the current (developer) user should be able to read and write
+sudo chown -R ${USER}:www-data ./drupal9
 
 # Add a development host entry to the hosts file if it's not there already
 grep -q ${LBD_DOMAIN} /etc/hosts || sudo sed -i -e "\$a127.0.0.1       ${LBD_DOMAIN}" /etc/hosts
+
+# Install and enble bootstrap theme
+cd ./drupal9/
+composer require --no-interaction drupal/bootstrap
+./vendor/bin/drush -y theme:enable bootstrap
+./vendor/bin/drush -y config-set system.theme default bootstrap
+./vendor/bin/drush -y cr
+
+cd ../
 
 # Restart the services
 sudo /etc/init.d/apache2 restart
 sudo /etc/init.d/php7.4-fpm restart
 sudo /etc/init.d/mysql restart
+
+
