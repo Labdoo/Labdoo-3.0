@@ -106,7 +106,7 @@ cp web/sites/example.settings.local.php web/sites/default/settings/settings.loca
 cd ../
 
 # Create link from Apache path to Drupal installation
-sudo ln -s $(pwd)/drupal9/web/ /var/www/lbd
+sudo ln -nsf $(pwd)/drupal9/web/ /var/www/lbd
 
 sudo sed -i "s/DocumentRoot .*/DocumentRoot \/var\/www\/lbd/" /etc/apache2/sites-available/000-default.conf
 sudo sed -i "s/DocumentRoot .*/DocumentRoot \/var\/www\/lbd/" /etc/apache2/sites-available/default-ssl.conf 

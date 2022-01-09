@@ -10,6 +10,6 @@ This will take care of everything, including installing MYSQL, PHP, Apache, Comp
 as well as configuring the base installation.
 
 After running the above command, open your web browser and go to the URL http://www.labdoo-dev.org/. (Alternatively, http://localhost.)
-This should take you to your fresh installation of the Labdoo platform. You can login using the 'admin' account and using 
+This should take you to your fresh installation of the Labdoo platform. You can login using the 'admin' account and 
 the password 'grassroots'.
 
