@@ -28,8 +28,8 @@ Watch a 5 minutes walkthrough video:
 ### Try it out:
 1. Click on the following link
   https://gitpod.io/#hhttps://github.com/greggmarshall/Labdoo-3.0
-1. Your environment is being prepared, wait about 40 seconds (A splash screen will appear)
-1. VScode IDE will be displayed, a few seconds later you will see Umami demo.
+1. Your environment is being prepared, wait a few minutes the first time, less than a minute after that. (A splash screen will appear)
+1. VScode IDE will be displayed, a few seconds later you will see an empty Drupal site.  User 1 login is 
 1. Run in terminal `ddev xdebug on`
 1. Open VScode's debugger, place a new breakpoint in `web/index.php`
 1. Open your website's URL in a browser.
@@ -55,7 +55,7 @@ Watch a 5 minutes walkthrough video:
 
 ### Thank you
 [@rfay](https://github.com/rfay) for your endless patience and relentless support that made this project possible.
-
+[@shaal](https://github.com/shaal) for the repository this one started out copying, [https://github.com/shaal/ddev-gitpod](https://github.com/shaal/ddev-gitpod)
 #### Persistent Storage:
 * Gitpod backs up the state of the `/workspace/` folder between workspace starts, so that you can revisit them later. Attention: Files in other locations will not be saved!
 * [Additional Storage Solutions](https://www.gitpod.io/docs/self-hosted/latest/install/storage)
