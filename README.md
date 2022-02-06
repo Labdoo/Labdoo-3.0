@@ -1,4 +1,4 @@
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/greggmarshall/Labdoo-3.0)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Labdoo/Labdoo-3.0)
 
 # Labdoo 3.0
 ### Moving the Labdoo platform to Drupal 9/10
@@ -12,7 +12,9 @@ You can install and develop locally using DDEV or entirely in the Cloud using Gi
 2. [Docker](https://docs.docker.com/)
 
 Once those are installed and this repository is cloned, from the project root you cloned the repository into, start the DDEV environment using the command
-`ddev start`
+`ddev start`.
+
+Note that unlike the Gitpod start below, DDEV locally doesn't automatically install a Drupal site.
 
 Remembering to prefix most commands like composer, drush, etc with ddev.
 ## Developing entirely in the cloud using Gitpod.
@@ -27,9 +29,9 @@ Watch a 5 minutes walkthrough video:
 
 ### Try it out:
 1. Click on the following link
-  https://gitpod.io/#hhttps://github.com/greggmarshall/Labdoo-3.0
+  https://gitpod.io/#https://github.com/Labdoo/Labdoo-3.0
 1. Your environment is being prepared, wait a few minutes the first time, less than a minute after that. (A splash screen will appear)
-1. VScode IDE will be displayed, a few seconds later you will see an empty Drupal site.  User 1 login is 
+1. VScode IDE will be displayed, a few seconds later you will see an empty Drupal site.  User 1 login is admin/admin.
 1. Run in terminal `ddev xdebug on`
 1. Open VScode's debugger, place a new breakpoint in `web/index.php`
 1. Open your website's URL in a browser.
@@ -46,7 +48,7 @@ Watch a 5 minutes walkthrough video:
         1. Run prebuild commands:
             1. Start ddev
             1. Run `composer install`
-            1. Install Umami demo website
+            1. Install empty website using standard profile
     1. [.gitpod.Dockerfile](https://github.com/shaal/ddev-gitpod/blob/main/.gitpod.Dockerfile)
         1. Set base image to Gitpod's `workspace-full` ([link](https://github.com/gitpod-io/workspace-images/tree/master/full))
         1. Install ddev using brew
