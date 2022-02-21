@@ -7,7 +7,7 @@ tasks:
   - init: |
       ddev start -y
       ddev composer install
-      ddev drush si -y --account-pass=admin --site-name='Labdoo3.0' standard
+      ./scripts/dev-setup.sh
     command: |
       ddev start -y
       gp await-port 8080 && gp preview $(gp url 8080)
