@@ -34,7 +34,8 @@
         "allow-plugins": {
             "composer/installers": true,
             "drupal/core-composer-scaffold": true,
-            "drupal/core-project-message": true
+            "drupal/core-project-message": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "extra": {
@@ -74,6 +75,11 @@
                 "homepage",
                 "support"
             ]
-        }
+        },
+        "phpcodesniffer-search-depth": "4"
+    },
+    "require-dev": {
+        "brainmaestro/composer-git-hooks": "^2.8",
+        "drupal/coder": "^8.3"
     }
 }
