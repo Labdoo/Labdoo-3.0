@@ -200,6 +200,7 @@ circleci/database/*
 
 # DDev
 /web/sites/default/drushrc.php
+install_ddev.sh
 
 # Gitpod
 .ddev/docker-compose.host-docker-internal.yaml
