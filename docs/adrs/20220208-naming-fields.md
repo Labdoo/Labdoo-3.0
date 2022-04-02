@@ -11,12 +11,9 @@ tags:
   - drupal
 
 deciders:
-  - Mateu Aguiló Bosch
-  - Andrew Berry
-  - Marcos Cano
-  - Nate Lampton
-  - Megh Plunkett
-  - Matthew Tift
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

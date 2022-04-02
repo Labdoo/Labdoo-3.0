@@ -13,10 +13,9 @@ tags:
   - drupal
 
 deciders:
-  - Andrew Berry
-  - Marcos Cano
-  - Mateu Aguiló Bosch
-  - James Sansbury
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

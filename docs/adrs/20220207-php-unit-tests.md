@@ -13,11 +13,9 @@ tags:
   - testing
 
 deciders:
-  - Darren Petersen
-  - James Sansbury
-  - Marcos Cano
-  - Mateu Aguiló Bosch
-  - Andrew Berry
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

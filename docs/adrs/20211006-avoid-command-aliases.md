@@ -12,7 +12,9 @@ tags:
   - scripting
 
 deciders:
-  - Mateu Aguiló Bosch
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

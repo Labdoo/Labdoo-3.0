@@ -14,7 +14,9 @@ tags:
   - devops
 
 deciders:
-  - Local Environments Working Group
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

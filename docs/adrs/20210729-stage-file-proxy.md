@@ -14,10 +14,9 @@ tags:
   - drupal
 
 deciders:
-  - Andrew Berry
-  - Darren Petersen
-  - Marcos Cano
-  - Chris Albrecht
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

@@ -15,11 +15,9 @@ tags:
   - devops
 
 deciders:
-  - David Burns
-  - Andrew Berry
-  - Matthew Tift
-  - Mateu Aguiló Bosch
-  - Marcos Cano
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

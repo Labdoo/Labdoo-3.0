@@ -14,12 +14,9 @@ tags:
   - composer
 
 deciders:
-  - Mateu Aguiló Bosch
-  - Andrew Berry
-  - David Burns
-  - Marcos Cano
-  - James Sansbury
-  - Cathy Theys
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 
 ---

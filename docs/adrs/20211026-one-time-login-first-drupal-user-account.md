@@ -13,13 +13,9 @@ tags:
   - security
 
 deciders:
-  - Andrew Berry
-  - Andy Blum
-  - Marcos Cano
-  - Mateu Aguiló Bosch
-  - Cathy Theys
-  - David Burns
-  - Zequi Vázquez
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

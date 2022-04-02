@@ -13,9 +13,9 @@ tags:
   - deployments
 
 deciders:
-  - Andrew Berry
-  - Sally Young
-  - Marcos Cano
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 

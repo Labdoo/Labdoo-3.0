@@ -14,8 +14,9 @@ tags:
   - coding
 
 deciders:
-  - Mateu Aguiló Bosch
-  - Andrew Berry
+  - Jordi Ros-Giralt
+  - Javier Prieto
+  - Gregg Marshall
 
 ---
 
