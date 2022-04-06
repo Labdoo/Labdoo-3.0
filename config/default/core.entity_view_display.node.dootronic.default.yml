@@ -1,0 +1,28 @@
+uuid: a5729365-7331-417d-9943-a39a55b08553
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.dootronic.field_status
+    - node.type.dootronic
+  module:
+    - options
+    - user
+id: node.dootronic.default
+targetEntityType: node
+bundle: dootronic
+mode: default
+content:
+  field_status:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

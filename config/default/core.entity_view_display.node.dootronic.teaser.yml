@@ -1,0 +1,22 @@
+uuid: 41a3b1ef-039a-4531-8c7c-ab0faba11f34
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.dootronic.field_status
+    - node.type.dootronic
+  module:
+    - user
+id: node.dootronic.teaser
+targetEntityType: node
+bundle: dootronic
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_status: true

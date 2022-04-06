@@ -1,0 +1,60 @@
+uuid: f1574179-73d0-48be-8ce1-d1849828cce8
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_status
+field_name: field_status
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: S0
+      label: '[S0] Tagged with a Labdoo ID'
+    -
+      value: S1
+      label: '[S1] Donated, waiting to pass quality assurance'
+    -
+      value: S2
+      label: '[S2] Passed quality assurance'
+    -
+      value: S3
+      label: '[S3] Assigned to an edoovillage, waiting to be shipped'
+    -
+      value: S4
+      label: '[S4] Deployed and being used'
+    -
+      value: S5
+      label: '[S5] Waiting to be repaired or recycled'
+    -
+      value: S6
+      label: '[S6] Recycled'
+    -
+      value: S7
+      label: '[S7] (Library) Checked out'
+    -
+      value: S8
+      label: '[S8] (Library) Available'
+    -
+      value: S9
+      label: '[S9] Deployed but not working'
+    -
+      value: T1
+      label: '[T1] In transit going to an edoovillage'
+    -
+      value: T2
+      label: '[T2] In transit going to a recycling factory'
+    -
+      value: L1
+      label: '[L1] Dootronic was lost'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
