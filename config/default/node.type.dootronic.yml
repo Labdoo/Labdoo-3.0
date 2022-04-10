@@ -1,0 +1,18 @@
+uuid: c41c25b1-64ab-4af2-ab05-4a58fdd556a9
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - main
+    parent: 'main:'
+name: Dootronic
+type: dootronic
+description: 'Use this content type to tag and register a device (e.g., a laptop, a tablet, etc.)'
+help: '<p align=''right''><a href="../../content/about-dootronics" target="_blank" align="right">Help about dootronics</a>&nbsp;&nbsp;&nbsp;</p>'
+new_revision: true
+preview_mode: 0
+display_submitted: true
