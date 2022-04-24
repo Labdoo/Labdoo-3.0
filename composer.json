@@ -16,14 +16,20 @@
     ],
     "require": {
         "composer/installers": "^2.0",
+        "drupal/address": "^1.10",
         "drupal/admin_toolbar": "^3.1",
         "drupal/core-composer-scaffold": "^9",
         "drupal/core-project-message": "^9",
         "drupal/core-recommended": "^9",
         "drupal/field_group": "^3.2",
+        "drupal/geocoder": "^3.26",
+        "drupal/geocoder_address": "^3.26",
+        "drupal/geocoder_field": "^3.26",
+        "drupal/geolocation": "^3.9",
         "drupal/gin": "^3.0@alpha",
         "drupal/gin_toolbar": "^1.0@beta",
-        "drush/drush": "^11.0"
+        "drush/drush": "^11.0",
+        "geocoder-php/google-maps-provider": "^4.6"
     },
     "conflict": {
         "drupal/drupal": "*"

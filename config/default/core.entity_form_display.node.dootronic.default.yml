@@ -3,16 +3,22 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_geolocation
+    - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_status
     - node.type.dootronic
   module:
+    - address
     - field_group
+    - geolocation
     - path
 third_party_settings:
   field_group:
     group_basic_information:
       children:
         - field_status
+        - field_location
+        - field_geolocation
       label: 'Basic Information'
       region: content
       parent_name: ''
@@ -33,6 +39,18 @@ content:
   created:
     type: datetime_timestamp
     weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_geolocation:
+    type: geolocation_latlng
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_location:
+    type: address_default
+    weight: 1
     region: content
     settings: {  }
     third_party_settings: {  }
