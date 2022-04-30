@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_status
@@ -16,9 +17,10 @@ third_party_settings:
   field_group:
     group_basic_information:
       children:
-        - field_status
         - field_location
         - field_geolocation
+        - field_status
+        - field_edoovillage_destination
       label: 'Basic Information'
       region: content
       parent_name: ''
@@ -28,7 +30,7 @@ third_party_settings:
         classes: ''
         show_empty_fields: false
         id: ''
-        formatter: closed
+        formatter: open
         description: ''
         required_fields: true
 id: node.dootronic.default
@@ -42,21 +44,47 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_edoovillage_destination:
+    type: entity_reference_autocomplete
+    weight: 5
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings:
+      conditional_fields:
+        fb26a82c-fe7b-446f-8b9c-18468bb1205a:
+          entity_type: node
+          bundle: dootronic
+          dependee: field_status
+          settings:
+            state: visible
+            condition: value
+            grouping: AND
+            values_set: 3
+            value: ''
+            values: "S3\r\nS4\r\nS7\r\nS8\r\nS9\r\nT1"
+            value_form: {  }
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_geolocation:
     type: geolocation_latlng
-    weight: 2
+    weight: 3
     region: content
     settings: {  }
     third_party_settings: {  }
   field_location:
     type: address_default
-    weight: 1
+    weight: 2
     region: content
     settings: {  }
     third_party_settings: {  }
   field_status:
     type: options_select
-    weight: 0
+    weight: 4
     region: content
     settings: {  }
     third_party_settings: {  }

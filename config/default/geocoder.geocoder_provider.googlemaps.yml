@@ -9,5 +9,5 @@ configuration:
   throttle:
     period: null
     limit: null
-  apiKey: AIzaSyCbMksgOrypsx8JrTRd-vMqwTvtJJcwLp4
+  apiKey: AIzaSyDFmXjShABeMe0RIeI6Zxc3angQFBS1MPE
   region: ''

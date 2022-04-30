@@ -1,0 +1,28 @@
+uuid: 01db782c-06e1-4bc8-aeab-6a306078ec44
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.edoovillage.body
+    - node.type.edoovillage
+  module:
+    - text
+    - user
+id: node.edoovillage.default
+targetEntityType: node
+bundle: edoovillage
+mode: default
+content:
+  body:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

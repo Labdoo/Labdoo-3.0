@@ -39,3 +39,13 @@ ddev drush cache-rebuild
 ```
 
 Remember to enable Google Maps API and Google Places modules.
+
+### Conditional fields
+
+Install conditional fields module:
+
+```
+ddev composer require drupal/conditional_fields 
+ddev drush pm-enable conditional_fields
+```
+
