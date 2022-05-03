@@ -1,6 +1,7 @@
 _core:
   default_config_hash: R4IF-ClDHXxblLcG0L7MgsLvfBIMAvi_skumNFQwkDc
 module:
+  address: 0
   admin_toolbar: 0
   admin_toolbar_tools: 0
   automated_cron: 0
@@ -10,6 +11,7 @@ module:
   breakpoint: 0
   ckeditor: 0
   color: 0
+  conditional_fields: 0
   config: 0
   contact: 0
   contextual: 0
@@ -22,6 +24,12 @@ module:
   field_ui: 0
   file: 0
   filter: 0
+  geocoder: 0
+  geocoder_address: 0
+  geocoder_field: 0
+  geolocation: 0
+  geolocation_google_maps: 0
+  geolocation_google_places_api: 0
   gin_toolbar: 0
   help: 0
   image: 0

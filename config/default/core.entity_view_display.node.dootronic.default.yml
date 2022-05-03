@@ -3,9 +3,15 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_edoovillage_destination
+    - field.field.node.dootronic.field_geolocation
+    - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_status
+    - filter.format.plain_text
     - node.type.dootronic
   module:
+    - address
+    - geolocation
     - options
     - user
 id: node.dootronic.default
@@ -13,16 +19,57 @@ targetEntityType: node
 bundle: dootronic
 mode: default
 content:
+  field_edoovillage_destination:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_geolocation:
+    type: geolocation_map
+    label: above
+    settings:
+      set_marker: true
+      show_label: false
+      common_map: true
+      show_delta_label: false
+      use_overridden_map_settings: false
+      title: ''
+      info_text:
+        value: ''
+        format: plain_text
+      centre:
+        fit_bounds:
+          enable: true
+          weight: -101
+          settings:
+            reset_zoom: true
+          map_center_id: fit_bounds
+      map_provider_id: ''
+      map_provider_settings: {  }
+      data_provider_settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_location:
+    type: address_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
   field_status:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 101
+    weight: 3
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 100
+    weight: 1
     region: content
 hidden: {  }

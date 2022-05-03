@@ -1,0 +1,23 @@
+uuid: ae52138e-93c5-42e7-bb01-6664fd525247
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.edoovillage
+  module:
+    - text
+id: node.edoovillage.body
+field_name: body
+entity_type: node
+bundle: edoovillage
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+  required_summary: false
+field_type: text_with_summary

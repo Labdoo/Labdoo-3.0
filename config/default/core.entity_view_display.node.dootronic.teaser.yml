@@ -4,6 +4,9 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.dootronic.field_edoovillage_destination
+    - field.field.node.dootronic.field_geolocation
+    - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_status
     - node.type.dootronic
   module:
@@ -19,4 +22,7 @@ content:
     weight: 100
     region: content
 hidden:
+  field_edoovillage_destination: true
+  field_geolocation: true
+  field_location: true
   field_status: true
