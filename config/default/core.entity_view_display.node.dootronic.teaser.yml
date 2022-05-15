@@ -7,6 +7,9 @@ dependencies:
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_location
+    - field.field.node.dootronic.field_model
+    - field.field.node.dootronic.field_picture
+    - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
     - node.type.dootronic
   module:
@@ -25,4 +28,7 @@ hidden:
   field_edoovillage_destination: true
   field_geolocation: true
   field_location: true
+  field_model: true
+  field_picture: true
+  field_serial_number: true
   field_status: true

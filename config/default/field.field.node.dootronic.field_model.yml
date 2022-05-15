@@ -1,0 +1,19 @@
+uuid: a5ece562-51b9-47d6-8666-a0cf3aeeeede
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_model
+    - node.type.dootronic
+id: node.dootronic.field_model
+field_name: field_model
+entity_type: node
+bundle: dootronic
+label: model
+description: 'Brand name and model'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
