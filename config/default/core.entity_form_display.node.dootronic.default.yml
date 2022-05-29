@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
+    - field.field.node.dootronic.field_hub_laptop
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_model
     - field.field.node.dootronic.field_picture
@@ -83,6 +84,16 @@ content:
     weight: 15
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_hub_laptop:
+    type: entity_reference_autocomplete
+    weight: 26
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_location:
     type: address_default

@@ -1,0 +1,28 @@
+uuid: 8379e919-c391-4cf9-8da5-a3fd4a389b0a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.hub.body
+    - node.type.hub
+  module:
+    - text
+    - user
+id: node.hub.default
+targetEntityType: node
+bundle: hub
+mode: default
+content:
+  body:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

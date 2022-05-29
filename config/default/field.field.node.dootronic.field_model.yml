@@ -9,7 +9,7 @@ id: node.dootronic.field_model
 field_name: field_model
 entity_type: node
 bundle: dootronic
-label: model
+label: Model
 description: 'Brand name and model'
 required: true
 translatable: false

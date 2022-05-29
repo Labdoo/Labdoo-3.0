@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
+    - field.field.node.dootronic.field_hub_laptop
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_model
     - field.field.node.dootronic.field_picture
@@ -78,6 +79,14 @@ content:
       data_provider_settings: {  }
     third_party_settings: {  }
     weight: 0
+    region: content
+  field_hub_laptop:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 9
     region: content
   field_location:
     type: address_default
