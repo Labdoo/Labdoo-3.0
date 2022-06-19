@@ -34,6 +34,7 @@ module:
   help: 0
   image: 0
   inline_form_errors: 0
+  lbd_lib: 0
   link: 0
   media: 0
   media_library: 0
