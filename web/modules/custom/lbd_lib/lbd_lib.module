@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Provides core functionality used across all Labdoo custom modules 
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_presave().
+ */
+function lbd_lib_entity_insert(EntityInterface $entity) {
+    \Drupal::messenger()->addStatus(t('[Labdoo] Successful creation of an entity.'));
+}

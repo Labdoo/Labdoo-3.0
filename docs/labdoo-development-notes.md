@@ -49,3 +49,9 @@ ddev composer require drupal/conditional_fields
 ddev drush pm-enable conditional_fields
 ```
 
+### Bringing a branch up-to-date with the main branch
+
+```
+git checkout branch_name
+git merge main
+```

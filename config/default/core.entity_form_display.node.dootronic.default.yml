@@ -5,22 +5,31 @@ dependencies:
   config:
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
+    - field.field.node.dootronic.field_hub_laptop
     - field.field.node.dootronic.field_location
+    - field.field.node.dootronic.field_model
+    - field.field.node.dootronic.field_picture
+    - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
+    - image.style.thumbnail
     - node.type.dootronic
   module:
     - address
     - field_group
     - geolocation
+    - image
     - path
 third_party_settings:
   field_group:
     group_basic_information:
       children:
-        - field_location
-        - field_geolocation
+        - field_model
         - field_status
         - field_edoovillage_destination
+        - field_serial_number
+        - field_location
+        - field_geolocation
+        - field_picture
       label: 'Basic Information'
       region: content
       parent_name: ''
@@ -46,7 +55,7 @@ content:
     third_party_settings: {  }
   field_edoovillage_destination:
     type: entity_reference_autocomplete
-    weight: 5
+    weight: 12
     region: content
     settings:
       match_operator: CONTAINS
@@ -72,19 +81,53 @@ content:
             selector: ''
   field_geolocation:
     type: geolocation_latlng
-    weight: 3
+    weight: 15
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_hub_laptop:
+    type: entity_reference_autocomplete
+    weight: 26
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_location:
     type: address_default
-    weight: 2
+    weight: 14
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_model:
+    type: string_textfield
+    weight: 10
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_picture:
+    type: image_image
+    weight: 16
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_serial_number:
+    type: string_textfield
+    weight: 13
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_status:
     type: options_select
-    weight: 4
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
