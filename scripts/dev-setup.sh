@@ -1,3 +1,7 @@
+# Start ddev
+ddev start -y
+# Install dependencies, which includes drush
+ddev composer install
 # Install empty Drupal site with user 1 as admin/admin
 ddev drush site:install -y --account-pass=admin --site-name='Labdoo3.0' minimal
 # Force the new site UUID to be the same as the configuration
