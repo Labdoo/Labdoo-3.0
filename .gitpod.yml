@@ -4,8 +4,6 @@ image: drupalpod/drupalpod-gitpod-base:latest
 # when starting a workspace all docker images are ready
 tasks:
   - init: |
-      ddev start -y
-      ddev composer install
       ./scripts/dev-setup.sh
     command: |
       ddev start -y
