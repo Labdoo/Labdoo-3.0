@@ -13,7 +13,7 @@ use Drupal\Core\Entity\EntityInterface;
  */
 function lbd_lib_entity_presave(EntityInterface $entity) {
 
-    if ($entity->isNew()) {  // Upon a new dootronic
+    if ($entity->getType() == 'dootronic' && $entity->isNew()) {  // Upon a new dootronic
       // Assign its title to be equal to the next available ID
       // without letting the user set it. (See also lbd_lib_form_node_form_alter
       // where we disable showing the title in edit form mode.)
