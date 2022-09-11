@@ -6,6 +6,21 @@ This project is the Labdoo 3.0 source code base for the Labdoo platform using Dr
 
 You can install and develop locally using DDEV or entirely in the Cloud using Gitpod.
 
+## Custom Code Static Checking
+Before submitting a pull request, please make sure any custom code meets [Drupal Coding Standards](https://drupal.org/coding-standards) and is using the latest Drupal APIs in anticipation of the project being released on Drupal 10 when it is released December 2022, using phpstan with phpstan-drupal.  To run those tests use the following commands:
+````
+ddev ssh
+phpcs --standard="Drupal,DrupalPractice" --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/modules/custom
+phpstan --level=5 analyze web/modules/custom
+````
+
+If a PR is modifying code in the theme, add the command
+````
+phpcs --standard="Drupal,DrupalPractice" --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/modules/themes
+````
+
+Pull requests that have errors will not be approved and merged.
+
 ## Installing and developing locally using DDEV
 ### Prerequisites:
 1. [DDEV](https://ddev.readthedocs.io/en/stable/), which itself requires
