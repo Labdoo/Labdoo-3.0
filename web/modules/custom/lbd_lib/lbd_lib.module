@@ -2,65 +2,61 @@
 
 /**
  * @file
- * Provides core functionality used across all Labdoo custom modules 
+ * Provides core functionality used across all Labdoo custom modules.
  */
 
 use Drupal\Core\Entity\EntityInterface;
 
-
 /**
- * Implements lbd_lib_entity_presave().
+ * Implements hook_entity_presave().
  */
 function lbd_lib_entity_presave(EntityInterface $entity) {
 
-    if ($entity->getType() == 'dootronic' && $entity->isNew()) {  // Upon a new dootronic
-      // Assign its title to be equal to the next available ID
-      // without letting the user set it. (See also lbd_lib_form_node_form_alter
-      // where we disable showing the title in edit form mode.)
-      $did = lbd_next_dootronic_id();
-      $entity->title = sprintf("%09d", $did);
-    }
-    
+  if ($entity->getType() == 'dootronic' && $entity->isNew()) {
+    // Assign its title to be equal to the next available ID
+    // without letting the user set it. (See also lbd_lib_form_node_form_alter
+    // where we disable showing the title in edit form mode.)
+    $did = lbd_next_dootronic_id();
+    $entity->title = sprintf("%09d", $did);
+  }
+
 }
 
-
-
 /**
- * Allocate a new dootronic ID
+ * Allocate a new dootronic ID.
  *
- * @return The new ID
- *
+ * @return string
+ *   The new ID
  */
 function lbd_next_dootronic_id() {
   $database = \Drupal::database();
-   // TODO: Optimize this query
+  // @todo Optimize this query
   $query = $database->query("SELECT title FROM node_field_data WHERE type='dootronic' ORDER BY title ASC");
   $result = $query->fetchAll();
 
   // The following algorithm searches for any possible
-  // holes in the Labdoo ID space and if none, allocates the next 
-  // smallest ID
+  // holes in the Labdoo ID space and if none, allocates the next
+  // smallest ID.
   $potential_id = 1;
-  foreach($result as $item) {
+  foreach ($result as $item) {
     $current_id = intval($item->title);
-    if($potential_id < $current_id)
+    if ($potential_id < $current_id) {
       break;
+    }
     $potential_id++;
   }
-  return($potential_id); 
+  return($potential_id);
 }
 
-
 /**
- * Implementation of hook_form_node_form_alter
- *
+ * Implements hook_form_node_form_alter().
  */
 function lbd_lib_form_node_form_alter(&$form, &$form_state, $form_id) {
 
   /*
    * Node is a dootronic
    */
-  if($form_id == 'node_dootronic_form' || $form_id == 'node_dootronic_edit_form') {
+  if ($form_id == 'node_dootronic_form' || $form_id == 'node_dootronic_edit_form') {
 
     /*
      * Hide the title from the form
@@ -70,5 +66,5 @@ function lbd_lib_form_node_form_alter(&$form, &$form_state, $form_id) {
      * the dootronic's Labdoo ID
      */
     unset($form['title']);
-    }
+  }
 }
