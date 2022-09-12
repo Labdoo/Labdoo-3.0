@@ -2,14 +2,69 @@
 
 /**
  * @file
- * Provides core functionality used across all Labdoo custom modules 
+ * Provides core functionality used across all Labdoo custom modules.
  */
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
- * Implements hook_entity_presave().
+ * Implements hook_ENTITY_TYPE_presave().
  */
-function lbd_lib_entity_insert(EntityInterface $entity) {
-    \Drupal::messenger()->addStatus(t('[Labdoo] Successful creation of an entity.'));
+function lbd_lib_entity_node_presave(NodeInterface $entity) {
+
+  if (($entity->bundle() == 'dootronic') && $entity->isNew()) {
+    // Assign its title to be equal to the next available ID
+    // without letting the user set it. (See also lbd_lib_form_node_form_alter
+    // where we disable showing the title in edit form mode.)
+    $did = lbd_next_dootronic_id();
+    $entity->set('title', sprintf("%09d", $did));
+  }
+
+}
+
+/**
+ * Allocate a new dootronic ID.
+ *
+ * @return string
+ *   The new ID
+ */
+function lbd_next_dootronic_id() {
+  $database = \Drupal::database();
+  // @todo Optimize this query
+  $query = $database->query("SELECT title FROM node_field_data WHERE type='dootronic' ORDER BY title ASC");
+  $result = $query->fetchAll();
+
+  // The following algorithm searches for any possible
+  // holes in the Labdoo ID space and if none, allocates the next
+  // smallest ID.
+  $potential_id = 1;
+  foreach ($result as $item) {
+    $current_id = intval($item->title);
+    if ($potential_id < $current_id) {
+      break;
+    }
+    $potential_id++;
+  }
+  return(strval($potential_id));
+}
+
+/**
+ * Implements hook_form_node_form_alter().
+ */
+function lbd_lib_form_node_form_alter(&$form, &$form_state, $form_id) {
+
+  /*
+   * Node is a dootronic
+   */
+  if ($form_id == 'node_dootronic_form' || $form_id == 'node_dootronic_edit_form') {
+
+    /*
+     * Hide the title from the form
+     * so that users can't write to it.
+     * That's done because the title is
+     * programmatically given the value of
+     * the dootronic's Labdoo ID
+     */
+    unset($form['title']);
+  }
 }
