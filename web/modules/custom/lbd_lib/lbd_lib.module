@@ -5,19 +5,19 @@
  * Provides core functionality used across all Labdoo custom modules.
  */
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_entity_presave().
  */
-function lbd_lib_entity_presave(EntityInterface $entity) {
+function lbd_lib_entity_presave(NodeInterface $entity) {
 
   if ($entity->getType() == 'dootronic' && $entity->isNew()) {
     // Assign its title to be equal to the next available ID
     // without letting the user set it. (See also lbd_lib_form_node_form_alter
     // where we disable showing the title in edit form mode.)
     $did = lbd_next_dootronic_id();
-    $entity->title = sprintf("%09d", $did);
+    $entity->set('title', sprintf("%09d", $did));
   }
 
 }
@@ -45,7 +45,7 @@ function lbd_next_dootronic_id() {
     }
     $potential_id++;
   }
-  return($potential_id);
+  return(strval($potential_id));
 }
 
 /**
