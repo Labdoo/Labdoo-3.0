@@ -55,3 +55,22 @@ ddev drush pm-enable conditional_fields
 git checkout branch_name
 git merge main
 ```
+### Exporting default content
+
+We do this by using the default_content module. With this module enabled, 
+create first the content you want to have by default and then use the following
+command to export it:
+
+```
+ddev drush dce node 1 --file=modules/custom/lbd_content/node/100.json
+```
+
+where dce stands for 'default content export', node is the entity type that you 
+are exporting, 1 is its ID, and the --file argument includes the path to the file
+where you want to export the configuration to. Note that we store all the 
+default content in modules/custom/lbd_content/, and that inside this folder
+you need to follow the convention $entity_type_name/$node_id.json, were 
+$entity_type_name is the name of the entity you are exporting (e.g., 'node')
+and $node_id is the ID that you want it to have upon building a new site.
+The content will be created at module initialization time.
+
