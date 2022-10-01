@@ -90,6 +90,10 @@
     },
     "require-dev": {
         "brainmaestro/composer-git-hooks": "^2.8",
-        "drupal/coder": "^8.3"
+        "drupal/coder": "^8.3",
+        "mglaman/phpstan-drupal": "^1.1",
+        "phpstan/extension-installer": "^1.1",
+        "phpstan/phpstan": "^1.8",
+        "phpstan/phpstan-deprecation-rules": "^1.0"
     }
 }
