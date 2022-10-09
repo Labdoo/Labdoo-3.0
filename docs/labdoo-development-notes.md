@@ -55,6 +55,17 @@ ddev drush pm-enable conditional_fields
 git checkout branch_name
 git merge main
 ```
+
+### Running the code chekers
+
+Before committing code, please run the code checkers:
+
+```
+ddev ssh
+./vendor/bin/phpcs --standard="Drupal,DrupalPractice" --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/modules/custom
+phpstan --level=5 analyze web/modules/custom
+```
+
 ### Exporting default content
 
 We do this by using the default_content module. With this module enabled, 
