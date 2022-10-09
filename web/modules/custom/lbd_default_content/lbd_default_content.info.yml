@@ -1,0 +1,9 @@
+name: Labdoo Default Content Module
+description: 'This module creates default entities (e.g., nodes, etc.) in Labdoo. The entities get automatically created upon installation of this module.'
+type: module
+package: Labdoo
+core_version_requirement: ^9
+
+default_content:
+  node:
+    - 719984f0-b0bf-4d42-a036-7ed6a43e9f11

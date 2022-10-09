@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * @file
+ * Module to automatically generate default content.
+ *
+ * Leave this file empty since this module installs default 
+ * content in Labdoo via the JSON files under its content folder.
+ */
