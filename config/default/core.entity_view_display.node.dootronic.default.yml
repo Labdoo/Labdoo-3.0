@@ -11,6 +11,7 @@ dependencies:
     - field.field.node.dootronic.field_picture
     - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
+    - field.field.node.dootronic.field_tagger
     - filter.format.plain_text
     - node.type.dootronic
     - responsive_image.styles.narrow
@@ -25,15 +26,16 @@ third_party_settings:
   field_group:
     group_basic_information:
       children:
+        - field_status
         - field_model
         - field_serial_number
-        - field_status
         - field_edoovillage_destination
+        - field_hub_laptop
         - field_picture
       label: 'Basic Information'
-      parent_name: ''
+      parent_name: group_laptop_information
       region: content
-      weight: 3
+      weight: 4
       format_type: tab
       format_settings:
         classes: ''
@@ -41,6 +43,35 @@ third_party_settings:
         id: ''
         formatter: open
         description: ''
+    group_additional_information:
+      children:
+        - field_tagger
+      label: 'Additional Information'
+      parent_name: group_laptop_information
+      region: content
+      weight: 5
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: true
+        id: ''
+        formatter: open
+        description: ''
+    group_laptop_information:
+      children:
+        - group_basic_information
+        - group_additional_information
+      label: 'Laptop Information'
+      parent_name: ''
+      region: content
+      weight: 3
+      format_type: tabs
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        direction: vertical
+        width_breakpoint: 640
 id: node.dootronic.default
 targetEntityType: node
 bundle: dootronic
@@ -52,7 +83,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 7
+    weight: 24
     region: content
   field_geolocation:
     type: geolocation_map
@@ -86,7 +117,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 9
+    weight: 25
     region: content
   field_location:
     type: address_default
@@ -101,7 +132,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 4
+    weight: 22
     region: content
   field_picture:
     type: responsive_image
@@ -110,7 +141,7 @@ content:
       responsive_image_style: narrow
       image_link: ''
     third_party_settings: {  }
-    weight: 8
+    weight: 26
     region: content
   field_serial_number:
     type: string
@@ -118,14 +149,22 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 5
+    weight: 23
     region: content
   field_status:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 6
+    weight: 21
+    region: content
+  field_tagger:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 12
     region: content
   links:
     settings: {  }
