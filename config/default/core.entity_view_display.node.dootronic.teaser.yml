@@ -4,10 +4,12 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.dootronic.field_device_type
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hub_laptop
     - field.field.node.dootronic.field_location
+    - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_model
     - field.field.node.dootronic.field_picture
     - field.field.node.dootronic.field_serial_number
@@ -27,10 +29,12 @@ content:
     weight: 100
     region: content
 hidden:
+  field_device_type: true
   field_edoovillage_destination: true
   field_geolocation: true
   field_hub_laptop: true
   field_location: true
+  field_manager: true
   field_model: true
   field_picture: true
   field_serial_number: true

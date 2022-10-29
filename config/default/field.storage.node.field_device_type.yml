@@ -1,0 +1,60 @@
+uuid: 5ce32062-b16a-44b2-ba9b-5bbc302d4f09
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_device_type
+field_name: field_device_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: laptop
+      label: Laptop
+    -
+      value: desktop
+      label: Desktop
+    -
+      value: internetTablet
+      label: 'Internet tablet'
+    -
+      value: androidTablet
+      label: 'Android tablet'
+    -
+      value: ipad
+      label: iPad
+    -
+      value: ebook
+      label: eBook
+    -
+      value: smartphone
+      label: SmartPhone
+    -
+      value: googlePhone
+      label: 'Android phone'
+    -
+      value: iphone
+      label: iPhone
+    -
+      value: blackberry
+      label: BlackBerry
+    -
+      value: diyDevice
+      label: 'Do-it-yourselve device'
+    -
+      value: arduino
+      label: Arduino
+    -
+      value: blackberryPi
+      label: 'Raspberry Pi'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

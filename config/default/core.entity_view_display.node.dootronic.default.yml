@@ -3,10 +3,12 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_device_type
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hub_laptop
     - field.field.node.dootronic.field_location
+    - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_model
     - field.field.node.dootronic.field_picture
     - field.field.node.dootronic.field_serial_number
@@ -27,8 +29,10 @@ third_party_settings:
     group_basic_information:
       children:
         - field_status
+        - field_device_type
         - field_model
         - field_serial_number
+        - field_manager
         - field_edoovillage_destination
         - field_hub_laptop
         - field_picture
@@ -77,13 +81,20 @@ targetEntityType: node
 bundle: dootronic
 mode: default
 content:
+  field_device_type:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 22
+    region: content
   field_edoovillage_destination:
     type: entity_reference_label
     label: above
     settings:
       link: true
     third_party_settings: {  }
-    weight: 24
+    weight: 26
     region: content
   field_geolocation:
     type: geolocation_map
@@ -117,7 +128,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 25
+    weight: 27
     region: content
   field_location:
     type: address_default
@@ -126,13 +137,21 @@ content:
     third_party_settings: {  }
     weight: 1
     region: content
+  field_manager:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 25
+    region: content
   field_model:
     type: string
     label: above
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 22
+    weight: 23
     region: content
   field_picture:
     type: responsive_image
@@ -141,7 +160,7 @@ content:
       responsive_image_style: narrow
       image_link: ''
     third_party_settings: {  }
-    weight: 26
+    weight: 28
     region: content
   field_serial_number:
     type: string
@@ -149,7 +168,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 23
+    weight: 24
     region: content
   field_status:
     type: list_default
