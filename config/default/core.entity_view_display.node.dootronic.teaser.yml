@@ -4,6 +4,8 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.dootronic.field_cpu
+    - field.field.node.dootronic.field_cpu_type
     - field.field.node.dootronic.field_device_type
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
@@ -29,6 +31,8 @@ content:
     weight: 100
     region: content
 hidden:
+  field_cpu: true
+  field_cpu_type: true
   field_device_type: true
   field_edoovillage_destination: true
   field_geolocation: true

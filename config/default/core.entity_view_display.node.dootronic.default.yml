@@ -3,6 +3,8 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_cpu
+    - field.field.node.dootronic.field_cpu_type
     - field.field.node.dootronic.field_device_type
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
@@ -50,6 +52,8 @@ third_party_settings:
     group_additional_information:
       children:
         - field_tagger
+        - field_cpu
+        - field_cpu_type
       label: 'Additional Information'
       parent_name: group_laptop_information
       region: content
@@ -81,6 +85,22 @@ targetEntityType: node
 bundle: dootronic
 mode: default
 content:
+  field_cpu:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_cpu_type:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 14
+    region: content
   field_device_type:
     type: list_default
     label: above
