@@ -1,0 +1,23 @@
+uuid: b8d1c611-7b04-454a-a0a1-10e68a0aadc0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hard_drive
+    - node.type.dootronic
+id: node.dootronic.field_hard_drive
+field_name: field_hard_drive
+entity_type: node
+bundle: dootronic
+label: 'Hard drive'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: GB
+field_type: integer

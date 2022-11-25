@@ -1,0 +1,20 @@
+uuid: 33434abc-4f73-4524-8476-eafb1a26b9a9
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_hard_drive
+field_name: field_hard_drive
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -8,9 +8,11 @@ dependencies:
     - field.field.node.dootronic.field_device_type
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
+    - field.field.node.dootronic.field_hard_drive
     - field.field.node.dootronic.field_hub_laptop
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_manager
+    - field.field.node.dootronic.field_memory
     - field.field.node.dootronic.field_model
     - field.field.node.dootronic.field_picture
     - field.field.node.dootronic.field_serial_number
@@ -54,6 +56,7 @@ third_party_settings:
         - field_tagger
         - field_cpu
         - field_cpu_type
+        - field_memory
       label: 'Additional Information'
       parent_name: group_laptop_information
       region: content
@@ -142,6 +145,15 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
+  field_hard_drive:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 29
+    region: content
   field_hub_laptop:
     type: entity_reference_label
     label: above
@@ -164,6 +176,15 @@ content:
       link: true
     third_party_settings: {  }
     weight: 25
+    region: content
+  field_memory:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 15
     region: content
   field_model:
     type: string
