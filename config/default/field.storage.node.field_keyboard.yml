@@ -1,0 +1,19 @@
+uuid: 8ca244a8-f3cc-431d-8951-a635224ed9bb
+langcode: en
+status: true
+dependencies:
+  module:
+    - address
+    - node
+id: node.field_keyboard
+field_name: field_keyboard
+entity_type: node
+type: address_country
+settings: {  }
+module: address
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

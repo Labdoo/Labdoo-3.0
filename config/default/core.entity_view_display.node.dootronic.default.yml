@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
     - field.field.node.dootronic.field_device_type
@@ -10,6 +11,7 @@ dependencies:
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hard_drive
     - field.field.node.dootronic.field_hub_laptop
+    - field.field.node.dootronic.field_keyboard
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
@@ -57,6 +59,9 @@ third_party_settings:
         - field_cpu
         - field_cpu_type
         - field_memory
+        - field_hard_drive
+        - field_battery
+        - field_keyboard
       label: 'Additional Information'
       parent_name: group_laptop_information
       region: content
@@ -88,6 +93,15 @@ targetEntityType: node
 bundle: dootronic
 mode: default
 content:
+  field_battery:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 17
+    region: content
   field_cpu:
     type: number_integer
     label: above
@@ -152,7 +166,7 @@ content:
       thousand_separator: ''
       prefix_suffix: true
     third_party_settings: {  }
-    weight: 29
+    weight: 16
     region: content
   field_hub_laptop:
     type: entity_reference_label
@@ -161,6 +175,13 @@ content:
       link: true
     third_party_settings: {  }
     weight: 27
+    region: content
+  field_keyboard:
+    type: address_country_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 18
     region: content
   field_location:
     type: address_default

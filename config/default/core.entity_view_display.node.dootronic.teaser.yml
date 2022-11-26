@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
     - field.field.node.dootronic.field_device_type
@@ -11,6 +12,7 @@ dependencies:
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hard_drive
     - field.field.node.dootronic.field_hub_laptop
+    - field.field.node.dootronic.field_keyboard
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
@@ -33,6 +35,7 @@ content:
     weight: 100
     region: content
 hidden:
+  field_battery: true
   field_cpu: true
   field_cpu_type: true
   field_device_type: true
@@ -40,6 +43,7 @@ hidden:
   field_geolocation: true
   field_hard_drive: true
   field_hub_laptop: true
+  field_keyboard: true
   field_location: true
   field_manager: true
   field_memory: true
