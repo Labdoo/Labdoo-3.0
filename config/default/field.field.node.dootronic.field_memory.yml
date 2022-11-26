@@ -1,0 +1,23 @@
+uuid: eddc16ce-651a-4091-ba90-02c6e7837088
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_memory
+    - node.type.dootronic
+id: node.dootronic.field_memory
+field_name: field_memory
+entity_type: node
+bundle: dootronic
+label: Memory
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: MB
+field_type: integer

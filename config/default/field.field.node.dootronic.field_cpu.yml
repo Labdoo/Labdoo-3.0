@@ -1,0 +1,23 @@
+uuid: 6c2b0fd5-2f28-40f2-800b-f39c32f8e002
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_cpu
+    - node.type.dootronic
+id: node.dootronic.field_cpu
+field_name: field_cpu
+entity_type: node
+bundle: dootronic
+label: 'CPU speed (Example: 1200 MHz)'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: MHz
+field_type: integer

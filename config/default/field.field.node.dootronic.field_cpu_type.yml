@@ -1,0 +1,23 @@
+uuid: 9acabc01-b057-4284-a074-994a36456ba4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_cpu_type
+    - node.type.dootronic
+  module:
+    - options
+id: node.dootronic.field_cpu_type
+field_name: field_cpu_type
+entity_type: node
+bundle: dootronic
+label: 'Number of cores (CPU type)'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: '1'
+default_value_callback: ''
+settings: {  }
+field_type: list_string

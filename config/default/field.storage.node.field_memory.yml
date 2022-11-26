@@ -1,0 +1,20 @@
+uuid: 5b98afcd-8f27-430c-a835-65c3c8d5eba9
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_memory
+field_name: field_memory
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -3,14 +3,21 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_cpu
+    - field.field.node.dootronic.field_cpu_type
+    - field.field.node.dootronic.field_device_type
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
+    - field.field.node.dootronic.field_hard_drive
     - field.field.node.dootronic.field_hub_laptop
     - field.field.node.dootronic.field_location
+    - field.field.node.dootronic.field_manager
+    - field.field.node.dootronic.field_memory
     - field.field.node.dootronic.field_model
     - field.field.node.dootronic.field_picture
     - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
+    - field.field.node.dootronic.field_tagger
     - image.style.thumbnail
     - node.type.dootronic
   module:
@@ -23,17 +30,54 @@ third_party_settings:
   field_group:
     group_basic_information:
       children:
+        - title
+        - field_device_type
         - field_model
+        - field_serial_number
         - field_status
         - field_edoovillage_destination
-        - field_serial_number
+        - field_hub_laptop
+        - field_picture
+        - field_manager
         - field_location
         - field_geolocation
-        - field_picture
       label: 'Basic Information'
+      region: content
+      parent_name: group_laptop_data
+      weight: 8
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        formatter: open
+        description: ''
+        required_fields: true
+    group_laptop_data:
+      children:
+        - group_basic_information
+        - group_additional_information
+      label: Data
       region: content
       parent_name: ''
       weight: 7
+      format_type: tabs
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        direction: horizontal
+        width_breakpoint: 640
+    group_additional_information:
+      children:
+        - field_tagger
+        - field_cpu
+        - field_cpu_type
+        - field_memory
+      label: 'Additional Information'
+      region: content
+      parent_name: group_laptop_data
+      weight: 9
       format_type: tab
       format_settings:
         classes: ''
@@ -53,9 +97,28 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_cpu:
+    type: number
+    weight: 10
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_cpu_type:
+    type: options_select
+    weight: 11
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_device_type:
+    type: options_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   field_edoovillage_destination:
     type: entity_reference_autocomplete
-    weight: 12
+    weight: 5
     region: content
     settings:
       match_operator: CONTAINS
@@ -81,13 +144,20 @@ content:
             selector: ''
   field_geolocation:
     type: geolocation_latlng
-    weight: 15
+    weight: 10
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_hard_drive:
+    type: number
+    weight: 26
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
   field_hub_laptop:
     type: entity_reference_autocomplete
-    weight: 26
+    weight: 6
     region: content
     settings:
       match_operator: CONTAINS
@@ -97,13 +167,30 @@ content:
     third_party_settings: {  }
   field_location:
     type: address_default
-    weight: 14
+    weight: 9
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_manager:
+    type: entity_reference_autocomplete
+    weight: 8
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_memory:
+    type: number
+    weight: 12
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
   field_model:
     type: string_textfield
-    weight: 10
+    weight: 2
     region: content
     settings:
       size: 60
@@ -111,7 +198,7 @@ content:
     third_party_settings: {  }
   field_picture:
     type: image_image
-    weight: 16
+    weight: 7
     region: content
     settings:
       progress_indicator: throbber
@@ -119,7 +206,7 @@ content:
     third_party_settings: {  }
   field_serial_number:
     type: string_textfield
-    weight: 13
+    weight: 3
     region: content
     settings:
       size: 60
@@ -127,9 +214,19 @@ content:
     third_party_settings: {  }
   field_status:
     type: options_select
-    weight: 11
+    weight: 4
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_tagger:
+    type: entity_reference_autocomplete
+    weight: 9
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   path:
     type: path

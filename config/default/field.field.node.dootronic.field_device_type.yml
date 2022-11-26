@@ -1,0 +1,21 @@
+uuid: c8e4c3d0-e6d1-4ba4-9a2e-18a9c6d7d460
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_device_type
+    - node.type.dootronic
+  module:
+    - options
+id: node.dootronic.field_device_type
+field_name: field_device_type
+entity_type: node
+bundle: dootronic
+label: 'Device Type'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
