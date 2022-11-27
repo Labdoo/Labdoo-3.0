@@ -6,12 +6,15 @@ dependencies:
     - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
+    - field.field.node.dootronic.field_current_operating_system
     - field.field.node.dootronic.field_device_type
+    - field.field.node.dootronic.field_dooject_weight
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hard_drive
     - field.field.node.dootronic.field_hub_laptop
     - field.field.node.dootronic.field_keyboard
+    - field.field.node.dootronic.field_keyboard_type
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
@@ -79,6 +82,9 @@ third_party_settings:
         - field_hard_drive
         - field_battery
         - field_keyboard
+        - field_keyboard_type
+        - field_current_operating_system
+        - field_dooject_weight
       label: 'Additional Information'
       region: content
       parent_name: group_laptop_data
@@ -122,11 +128,26 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_current_operating_system:
+    type: string_textfield
+    weight: 17
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_device_type:
     type: options_select
     weight: 1
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_dooject_weight:
+    type: number
+    weight: 18
+    region: content
+    settings:
+      placeholder: ''
     third_party_settings: {  }
   field_edoovillage_destination:
     type: entity_reference_autocomplete
@@ -182,6 +203,14 @@ content:
     weight: 15
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_keyboard_type:
+    type: string_textfield
+    weight: 16
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_location:
     type: address_default

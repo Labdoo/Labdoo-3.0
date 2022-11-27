@@ -1,0 +1,23 @@
+uuid: 6b0aa96b-b115-4448-8d2e-15fd639fdfee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dooject_weight
+    - node.type.dootronic
+id: node.dootronic.field_dooject_weight
+field_name: field_dooject_weight
+entity_type: node
+bundle: dootronic
+label: Weight
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: !!float 0
+  max: null
+  prefix: ''
+  suffix: Kgms
+field_type: float

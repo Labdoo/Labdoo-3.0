@@ -1,0 +1,19 @@
+uuid: 9102bc98-1f30-42f5-bbb7-7bfc6e9fc1af
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_current_operating_system
+    - node.type.dootronic
+id: node.dootronic.field_current_operating_system
+field_name: field_current_operating_system
+entity_type: node
+bundle: dootronic
+label: 'Current operating system'
+description: 'Example: Ubuntu 22.04, Mac OS X, Windows 11, etc.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

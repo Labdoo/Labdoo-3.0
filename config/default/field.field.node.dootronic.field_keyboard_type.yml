@@ -1,0 +1,19 @@
+uuid: 19bb4601-f74f-4d55-8a0f-799b904af647
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_keyboard_type
+    - node.type.dootronic
+id: node.dootronic.field_keyboard_type
+field_name: field_keyboard_type
+entity_type: node
+bundle: dootronic
+label: 'Keyboard (layout)'
+description: 'Examples: QWERTZ, QWERTY, etc.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
