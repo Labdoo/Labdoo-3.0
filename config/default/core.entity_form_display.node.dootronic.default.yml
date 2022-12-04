@@ -23,6 +23,7 @@ dependencies:
     - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
     - field.field.node.dootronic.field_tagger
+    - field.field.node.dootronic.field_volts
     - image.style.thumbnail
     - node.type.dootronic
   module:
@@ -85,6 +86,7 @@ third_party_settings:
         - field_keyboard_type
         - field_current_operating_system
         - field_dooject_weight
+        - field_volts
       label: 'Additional Information'
       region: content
       parent_name: group_laptop_data
@@ -273,6 +275,13 @@ content:
       match_operator: CONTAINS
       match_limit: 10
       size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_volts:
+    type: number
+    weight: 19
+    region: content
+    settings:
       placeholder: ''
     third_party_settings: {  }
   path:

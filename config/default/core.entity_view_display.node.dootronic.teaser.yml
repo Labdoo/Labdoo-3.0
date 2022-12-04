@@ -24,6 +24,7 @@ dependencies:
     - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
     - field.field.node.dootronic.field_tagger
+    - field.field.node.dootronic.field_volts
     - node.type.dootronic
   module:
     - user
@@ -58,3 +59,4 @@ hidden:
   field_serial_number: true
   field_status: true
   field_tagger: true
+  field_volts: true
