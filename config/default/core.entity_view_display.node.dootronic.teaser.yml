@@ -4,13 +4,18 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
+    - field.field.node.dootronic.field_current_operating_system
     - field.field.node.dootronic.field_device_type
+    - field.field.node.dootronic.field_dooject_weight
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hard_drive
     - field.field.node.dootronic.field_hub_laptop
+    - field.field.node.dootronic.field_keyboard
+    - field.field.node.dootronic.field_keyboard_type
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
@@ -19,6 +24,7 @@ dependencies:
     - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
     - field.field.node.dootronic.field_tagger
+    - field.field.node.dootronic.field_volts
     - node.type.dootronic
   module:
     - user
@@ -33,13 +39,18 @@ content:
     weight: 100
     region: content
 hidden:
+  field_battery: true
   field_cpu: true
   field_cpu_type: true
+  field_current_operating_system: true
   field_device_type: true
+  field_dooject_weight: true
   field_edoovillage_destination: true
   field_geolocation: true
   field_hard_drive: true
   field_hub_laptop: true
+  field_keyboard: true
+  field_keyboard_type: true
   field_location: true
   field_manager: true
   field_memory: true
@@ -48,3 +59,4 @@ hidden:
   field_serial_number: true
   field_status: true
   field_tagger: true
+  field_volts: true

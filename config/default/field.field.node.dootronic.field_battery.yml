@@ -1,0 +1,23 @@
+uuid: d6be03eb-5809-4094-aae5-2e8cc39f2d48
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_battery
+    - node.type.dootronic
+id: node.dootronic.field_battery
+field_name: field_battery
+entity_type: node
+bundle: dootronic
+label: 'Battery duration'
+description: 'Make an estimate of the battery duration in minutes. If the battery is not working, please remove it from the laptop, bring the battery to your nearest local recycling facility, ship the laptop to school without the battery and mark this field with a value of zero.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: Minutes
+field_type: integer

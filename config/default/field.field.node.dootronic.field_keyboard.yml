@@ -1,0 +1,22 @@
+uuid: d8709f84-7640-49e4-9719-ece899feeaaa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_keyboard
+    - node.type.dootronic
+  module:
+    - address
+id: node.dootronic.field_keyboard
+field_name: field_keyboard
+entity_type: node
+bundle: dootronic
+label: 'Keyboard (country of origin)'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  available_countries: {  }
+field_type: address_country

@@ -3,13 +3,18 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
+    - field.field.node.dootronic.field_current_operating_system
     - field.field.node.dootronic.field_device_type
+    - field.field.node.dootronic.field_dooject_weight
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hard_drive
     - field.field.node.dootronic.field_hub_laptop
+    - field.field.node.dootronic.field_keyboard
+    - field.field.node.dootronic.field_keyboard_type
     - field.field.node.dootronic.field_location
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
@@ -18,6 +23,7 @@ dependencies:
     - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
     - field.field.node.dootronic.field_tagger
+    - field.field.node.dootronic.field_volts
     - filter.format.plain_text
     - node.type.dootronic
     - responsive_image.styles.narrow
@@ -57,6 +63,13 @@ third_party_settings:
         - field_cpu
         - field_cpu_type
         - field_memory
+        - field_hard_drive
+        - field_battery
+        - field_keyboard
+        - field_keyboard_type
+        - field_current_operating_system
+        - field_dooject_weight
+        - field_volts
       label: 'Additional Information'
       parent_name: group_laptop_information
       region: content
@@ -88,6 +101,15 @@ targetEntityType: node
 bundle: dootronic
 mode: default
 content:
+  field_battery:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 17
+    region: content
   field_cpu:
     type: number_integer
     label: above
@@ -104,12 +126,31 @@ content:
     third_party_settings: {  }
     weight: 14
     region: content
+  field_current_operating_system:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 20
+    region: content
   field_device_type:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
     weight: 22
+    region: content
+  field_dooject_weight:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 21
     region: content
   field_edoovillage_destination:
     type: entity_reference_label
@@ -152,7 +193,7 @@ content:
       thousand_separator: ''
       prefix_suffix: true
     third_party_settings: {  }
-    weight: 29
+    weight: 16
     region: content
   field_hub_laptop:
     type: entity_reference_label
@@ -161,6 +202,21 @@ content:
       link: true
     third_party_settings: {  }
     weight: 27
+    region: content
+  field_keyboard:
+    type: address_country_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 18
+    region: content
+  field_keyboard_type:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 19
     region: content
   field_location:
     type: address_default
@@ -225,6 +281,17 @@ content:
       link: true
     third_party_settings: {  }
     weight: 12
+    region: content
+  field_volts:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 22
     region: content
   links:
     settings: {  }
