@@ -1,0 +1,23 @@
+uuid: 2d853d89-ab80-4558-8669-a15f3d09ccb8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_amp_hours
+    - node.type.dootronic
+id: node.dootronic.field_amp_hours
+field_name: field_amp_hours
+entity_type: node
+bundle: dootronic
+label: 'Ampere hours'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: mAh
+field_type: integer
