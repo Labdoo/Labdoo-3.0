@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_amp_hours
     - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
@@ -87,6 +88,7 @@ third_party_settings:
         - field_current_operating_system
         - field_dooject_weight
         - field_volts
+        - field_amp_hours
       label: 'Additional Information'
       region: content
       parent_name: group_laptop_data
@@ -109,6 +111,13 @@ content:
     weight: 2
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_amp_hours:
+    type: number
+    weight: 20
+    region: content
+    settings:
+      placeholder: ''
     third_party_settings: {  }
   field_battery:
     type: number

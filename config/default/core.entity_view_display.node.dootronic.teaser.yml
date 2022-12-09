@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.dootronic.field_amp_hours
     - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
@@ -39,6 +40,7 @@ content:
     weight: 100
     region: content
 hidden:
+  field_amp_hours: true
   field_battery: true
   field_cpu: true
   field_cpu_type: true

@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_amp_hours
     - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
@@ -101,6 +102,15 @@ targetEntityType: node
 bundle: dootronic
 mode: default
 content:
+  field_amp_hours:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 29
+    region: content
   field_battery:
     type: number_integer
     label: above
