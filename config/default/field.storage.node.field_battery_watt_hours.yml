@@ -1,0 +1,19 @@
+uuid: ee4402e6-66d6-4590-8111-03255b309639
+langcode: en
+status: true
+dependencies:
+  module:
+    - computed_field
+    - node
+id: node.field_battery_watt_hours
+field_name: field_battery_watt_hours
+entity_type: node
+type: computed_float
+settings: {  }
+module: computed_field
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

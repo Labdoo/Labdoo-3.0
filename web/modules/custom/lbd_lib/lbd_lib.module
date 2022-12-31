@@ -87,3 +87,22 @@ function lbd_lib_form_alter(array &$form, FormStateInterface $form_state, $form_
     }
   }
 }
+
+/**
+ * Implements the hook function of field_battery_watt_hours.
+ *
+ * Hook function for the computed field field_battery_watt_hours
+ * in the dootronic content type.
+ */
+function computed_field_field_battery_watt_hours_compute($entity_type_manager, $entity, $fields, $delta) {
+  $volts = 0;
+  if ($entity->field_volts->get(0)) {
+    $volts = $entity->field_volts->get(0)->value;
+  }
+  $amp_hours = 0;
+  if ($entity->field_amp_hours->get(0)) {
+    $amp_hours = $entity->field_amp_hours->get(0)->value;
+  }
+  $watt_hours = round($volts * $amp_hours / 1000, 1);
+  return($watt_hours);
+}

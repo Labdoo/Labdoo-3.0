@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.dootronic.field_amp_hours
     - field.field.node.dootronic.field_battery
+    - field.field.node.dootronic.field_battery_watt_hours
     - field.field.node.dootronic.field_cpu
     - field.field.node.dootronic.field_cpu_type
     - field.field.node.dootronic.field_current_operating_system
@@ -29,6 +30,7 @@ dependencies:
     - node.type.dootronic
   module:
     - address
+    - computed_field
     - field_group
     - geolocation
     - image
@@ -89,6 +91,7 @@ third_party_settings:
         - field_dooject_weight
         - field_volts
         - field_amp_hours
+        - field_battery_watt_hours
       label: 'Additional Information'
       region: content
       parent_name: group_laptop_data
@@ -125,6 +128,12 @@ content:
     region: content
     settings:
       placeholder: ''
+    third_party_settings: {  }
+  field_battery_watt_hours:
+    type: computed_number_widget
+    weight: 21
+    region: content
+    settings: {  }
     third_party_settings: {  }
   field_cpu:
     type: number

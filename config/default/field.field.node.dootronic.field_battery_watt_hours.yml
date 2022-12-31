@@ -1,0 +1,25 @@
+uuid: 2de93548-4a9e-4105-a181-b891d7b03d8c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_battery_watt_hours
+    - node.type.dootronic
+  module:
+    - computed_field
+id: node.dootronic.field_battery_watt_hours
+field_name: field_battery_watt_hours
+entity_type: node
+bundle: dootronic
+label: Watt-hours
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  prefix: ''
+  suffix: Wh
+field_type: computed_float
