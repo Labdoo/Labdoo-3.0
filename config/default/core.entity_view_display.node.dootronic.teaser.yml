@@ -12,6 +12,7 @@ dependencies:
     - field.field.node.dootronic.field_current_operating_system
     - field.field.node.dootronic.field_device_type
     - field.field.node.dootronic.field_dooject_weight
+    - field.field.node.dootronic.field_dootrips
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hard_drive
@@ -49,6 +50,7 @@ hidden:
   field_current_operating_system: true
   field_device_type: true
   field_dooject_weight: true
+  field_dootrips: true
   field_edoovillage_destination: true
   field_geolocation: true
   field_hard_drive: true

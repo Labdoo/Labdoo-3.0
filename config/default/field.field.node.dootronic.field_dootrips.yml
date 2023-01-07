@@ -1,0 +1,29 @@
+uuid: 28f71861-b971-417d-814f-1f4dba7ba150
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootrips
+    - node.type.dootrip
+    - node.type.dootronic
+id: node.dootronic.field_dootrips
+field_name: field_dootrips
+entity_type: node
+bundle: dootronic
+label: 'Dootrips assigned to this dootronic'
+description: 'This field is updated automatically once dootrips are assigned to this dootronic. You can also optionally set this field manually adding dootrips by typing their name.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      dootrip: dootrip
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -11,6 +11,7 @@ dependencies:
     - field.field.node.dootronic.field_current_operating_system
     - field.field.node.dootronic.field_device_type
     - field.field.node.dootronic.field_dooject_weight
+    - field.field.node.dootronic.field_dootrips
     - field.field.node.dootronic.field_edoovillage_destination
     - field.field.node.dootronic.field_geolocation
     - field.field.node.dootronic.field_hard_drive
@@ -92,6 +93,7 @@ third_party_settings:
         - field_volts
         - field_amp_hours
         - field_battery_watt_hours
+        - field_dootrips
       label: 'Additional Information'
       region: content
       parent_name: group_laptop_data
@@ -167,6 +169,16 @@ content:
     weight: 18
     region: content
     settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_dootrips:
+    type: entity_reference_autocomplete
+    weight: 22
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
       placeholder: ''
     third_party_settings: {  }
   field_edoovillage_destination:
