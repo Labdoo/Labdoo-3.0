@@ -1,0 +1,18 @@
+uuid: c14d2a6f-9d02-4d59-a867-4375dbe0bf04
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - main
+    parent: 'main:'
+name: Dootrip
+type: dootrip
+description: 'A dootrip is a travel performed by a person or an organization which can be used to carry one or more laptops.  Dootrips enable Labdoo''s CO2-neutral transportation system.'
+help: '<p align=''right''><a href="../../content/dootrip-system" target="_blank" align="right">Help about dootrips</a>&nbsp;&nbsp;&nbsp;</p>'
+new_revision: true
+preview_mode: 0
+display_submitted: true
