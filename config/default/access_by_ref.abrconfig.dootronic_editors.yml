@@ -1,0 +1,14 @@
+uuid: 56bedd8c-9408-4409-8702-066b833bf302
+langcode: en
+status: true
+dependencies: {  }
+id: dootronic_editors
+label: 'Dootronic:Editors'
+bundle: dootronic
+field: field_additional_editors
+reference_type: user
+extra: ''
+rights_type: update
+rights_read: true
+rights_update: true
+rights_delete: false

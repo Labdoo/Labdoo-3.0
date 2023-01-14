@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_additional_editors
     - field.field.node.dootronic.field_amp_hours
     - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_battery_watt_hours
@@ -94,6 +95,7 @@ third_party_settings:
         - field_amp_hours
         - field_battery_watt_hours
         - field_dootrips
+        - field_additional_editors
       label: 'Additional Information'
       region: content
       parent_name: group_laptop_data
@@ -116,6 +118,16 @@ content:
     weight: 2
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_additional_editors:
+    type: entity_reference_autocomplete
+    weight: 23
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_amp_hours:
     type: number
