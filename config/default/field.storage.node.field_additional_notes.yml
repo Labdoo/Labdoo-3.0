@@ -1,0 +1,19 @@
+uuid: ccf3260b-89b6-4d55-9f17-47d844d41728
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_additional_notes
+field_name: field_additional_notes
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

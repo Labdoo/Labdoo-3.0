@@ -1,0 +1,29 @@
+uuid: d7a177bf-8acc-4e3d-9993-8f50f909fe70
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_additional_followers
+    - node.type.dootronic
+id: node.dootronic.field_additional_followers
+field_name: field_additional_followers
+entity_type: node
+bundle: dootronic
+label: 'Additional followers'
+description: 'Add users who want to follow this dootronic'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    filter:
+      type: _none
+    include_anonymous: false
+field_type: entity_reference
