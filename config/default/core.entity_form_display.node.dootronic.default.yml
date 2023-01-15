@@ -26,10 +26,12 @@ dependencies:
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
     - field.field.node.dootronic.field_model
+    - field.field.node.dootronic.field_pick_me_up
     - field.field.node.dootronic.field_picture
     - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
     - field.field.node.dootronic.field_tagger
+    - field.field.node.dootronic.field_technical_notes
     - field.field.node.dootronic.field_volts
     - image.style.thumbnail
     - node.type.dootronic
@@ -103,6 +105,8 @@ third_party_settings:
         - field_additional_notification_em
         - field_additional_followers
         - field_additional_notes
+        - field_technical_notes
+        - field_pick_me_up
       label: 'Additional Information'
       region: content
       parent_name: group_laptop_data
@@ -320,6 +324,13 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_pick_me_up:
+    type: boolean_checkbox
+    weight: 28
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   field_picture:
     type: image_image
     weight: 7
@@ -350,6 +361,14 @@ content:
       match_operator: CONTAINS
       match_limit: 10
       size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_technical_notes:
+    type: text_textarea
+    weight: 27
+    region: content
+    settings:
+      rows: 5
       placeholder: ''
     third_party_settings: {  }
   field_volts:

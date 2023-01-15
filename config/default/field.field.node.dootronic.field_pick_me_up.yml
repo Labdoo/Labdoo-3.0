@@ -1,0 +1,23 @@
+uuid: c278cf27-ec53-432c-a678-5d72d5ce318b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pick_me_up
+    - node.type.dootronic
+id: node.dootronic.field_pick_me_up
+field_name: field_pick_me_up
+entity_type: node
+bundle: dootronic
+label: 'Pick me up'
+description: 'Check this box if you want a Labdoo volunteer to pick up the laptop from your location. <a href="../../content/pick-me" target="_blank">[Help]</a>'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

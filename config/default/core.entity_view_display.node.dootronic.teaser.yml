@@ -27,10 +27,12 @@ dependencies:
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
     - field.field.node.dootronic.field_model
+    - field.field.node.dootronic.field_pick_me_up
     - field.field.node.dootronic.field_picture
     - field.field.node.dootronic.field_serial_number
     - field.field.node.dootronic.field_status
     - field.field.node.dootronic.field_tagger
+    - field.field.node.dootronic.field_technical_notes
     - field.field.node.dootronic.field_volts
     - node.type.dootronic
   module:
@@ -69,8 +71,10 @@ hidden:
   field_manager: true
   field_memory: true
   field_model: true
+  field_pick_me_up: true
   field_picture: true
   field_serial_number: true
   field_status: true
   field_tagger: true
+  field_technical_notes: true
   field_volts: true
