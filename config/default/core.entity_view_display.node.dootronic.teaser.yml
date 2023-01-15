@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.dootronic.field_additional_editors
+    - field.field.node.dootronic.field_additional_notification_em
     - field.field.node.dootronic.field_amp_hours
     - field.field.node.dootronic.field_battery
     - field.field.node.dootronic.field_battery_watt_hours
@@ -44,6 +45,7 @@ content:
     region: content
 hidden:
   field_additional_editors: true
+  field_additional_notification_em: true
   field_amp_hours: true
   field_battery: true
   field_battery_watt_hours: true

@@ -1,0 +1,19 @@
+uuid: 60f95349-47ef-4654-a4e5-2080dd539581
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_additional_notification_em
+    - node.type.dootronic
+id: node.dootronic.field_additional_notification_em
+field_name: field_additional_notification_em
+entity_type: node
+bundle: dootronic
+label: 'Additional notification emails'
+description: 'Add here the email address(es) of additional people that you would like to be notified whenever this laptop changes its status.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email
