@@ -1,0 +1,23 @@
+uuid: b3688ade-c9ff-451c-9302-54c64083122c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootrip_capacity
+    - node.type.dootrip
+id: node.dootrip.field_dootrip_capacity
+field_name: field_dootrip_capacity
+entity_type: node
+bundle: dootrip
+label: 'Number of dootronics you can carry'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer
