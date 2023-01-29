@@ -1,0 +1,20 @@
+uuid: f65febe9-33db-4a3f-adbc-df163fcbd74c
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_dootronics_in_transit
+field_name: field_dootronics_in_transit
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

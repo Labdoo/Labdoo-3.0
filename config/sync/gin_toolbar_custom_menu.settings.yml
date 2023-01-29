@@ -1,0 +1,24 @@
+settings:
+  -
+    menu: main
+    role:
+      anonymous: anonymous
+      authenticated: authenticated
+      administrator: administrator
+    icons:
+      standard_front_page: ''
+      'views_view:views_edoovillages_page_1': ''
+      'views_view:views_dootronics_dashboard_page_1': ''
+      'views_view:views_hubs_dashboard_page_1': ''
+      'views_view:views_actions_page_1': ''
+      labdoo_common_admin_dashboard: ''
+    actions:
+      remove_setting: 'Remove setting'
+  -
+    menu: main
+    role:
+      administrator: administrator
+    icons:
+      system_admin: ''
+    actions:
+      remove_setting: 'Remove setting'

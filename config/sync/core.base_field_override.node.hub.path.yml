@@ -1,0 +1,20 @@
+uuid: 4ec9963e-fd55-4723-97ee-b20ce8cb6b45
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.hub
+  module:
+    - path
+id: node.hub.path
+field_name: path
+entity_type: node
+bundle: hub
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

@@ -1,0 +1,31 @@
+uuid: 953d4636-5e1c-4a83-b8cd-0a8e8961b117
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_parent
+    - node.type.edoovillage
+    - node.type.hub
+    - node.type.labdoo_story
+id: node.labdoo_story.field_parent
+field_name: field_parent
+entity_type: node
+bundle: labdoo_story
+label: Parent
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      edoovillage: edoovillage
+      hub: hub
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: edoovillage
+field_type: entity_reference

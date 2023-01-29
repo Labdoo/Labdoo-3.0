@@ -1,0 +1,55 @@
+uuid: a849f0d7-beb8-48d1-84ec-821c6361def5
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.book
+    - node.type.dootrip
+    - node.type.dootronic
+    - node.type.edoovillage
+    - node.type.hub
+    - node.type.labdoo_story
+  module:
+    - eu_cookie_compliance
+    - file
+    - node
+    - quick_node_clone
+    - role_delegation
+    - system
+    - workbench
+id: superhub_manager
+label: 'Superhub Manager'
+weight: 5
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access files overview'
+  - 'access workbench'
+  - 'administer users'
+  - 'assign hub_manager role'
+  - 'assign wiki_writer role'
+  - 'clone dootrip content'
+  - 'clone dootronic content'
+  - 'clone edoovillage content'
+  - 'clone hub content'
+  - 'clone labdoo_story content'
+  - 'create edoovillage content'
+  - 'create hub content'
+  - 'create labdoo_story content'
+  - 'delete any book content'
+  - 'delete any dootrip content'
+  - 'delete any labdoo_story content'
+  - 'delete labdoo_story revisions'
+  - 'delete own hub content'
+  - 'delete own labdoo_story content'
+  - 'display eu cookie compliance popup'
+  - 'edit any dootrip content'
+  - 'edit any dootronic content'
+  - 'edit any edoovillage content'
+  - 'edit any hub content'
+  - 'edit any labdoo_story content'
+  - 'edit own hub content'
+  - 'edit own labdoo_story content'
+  - 'revert labdoo_story revisions'
+  - 'view labdoo_story revisions'
+  - 'view the administration theme'

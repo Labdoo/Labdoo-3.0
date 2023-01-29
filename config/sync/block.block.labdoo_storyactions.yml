@@ -1,0 +1,28 @@
+uuid: 8a10498b-5439-4a40-b673-9632ab0c5a15
+langcode: es
+status: true
+dependencies:
+  module:
+    - labdoo_story
+    - node
+  theme:
+    - labdoo
+id: labdoo_storyactions
+theme: labdoo
+region: sidebar
+weight: -9
+provider: null
+plugin: story_actions_block_block
+settings:
+  id: story_actions_block_block
+  label: 'Story actions'
+  label_display: '0'
+  provider: labdoo_story
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      labdoo_story: labdoo_story

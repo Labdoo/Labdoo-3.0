@@ -1,0 +1,69 @@
+display:
+  default:
+    display_title: Expert
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Aplică
+          reset_button_label: Resetează
+          exposed_sorts_label: 'Sortare după'
+          sort_asc_label: Ascendent
+          sort_desc_label: Descendent
+      pager:
+        options:
+          tags:
+            previous: '‹ Anterior'
+            next: 'Următor ›'
+            first: '« Primul'
+            last: 'Ultimul »'
+          expose:
+            items_per_page_label: 'Elemente pe pagină'
+            items_per_page_options_all_label: '- Toate -'
+            offset_label: Decalaj
+      fields:
+        nid:
+          separator: ', '
+        title:
+          label: Titlu
+          separator: ', '
+        type:
+          label: Tip
+          separator: ', '
+        status:
+          label: Publicat
+          separator: ', '
+        changed:
+          label: 'Ultima actualizare'
+          separator: ', '
+        uid:
+          label: Autor
+          separator: ', '
+        revision_uid:
+          separator: ', '
+      filters:
+        title:
+          expose:
+            label: Titlu
+        type:
+          expose:
+            label: Tip
+        status:
+          expose:
+            label: Publicat
+      arguments:
+        uid_revision:
+          exception:
+            title: Toate
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Primul'
+            last: 'Ultimul »'
+          expose:
+            items_per_page_label: 'Elemente pe pagină'
+            items_per_page_options_all_label: '- Toate -'
+            offset_label: Decalaj

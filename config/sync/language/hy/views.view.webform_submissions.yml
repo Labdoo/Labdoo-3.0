@@ -1,0 +1,74 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      fields:
+        in_draft:
+          label: Սևագիր
+        created:
+          label: 'Ստեղծվել է'
+        remote_addr:
+          label: 'IP հասցե'
+        view_webform_submission:
+          label: Գործողություններ
+  embed_administer:
+    display_options:
+      fields:
+        webform_submission_bulk_form:
+          action_title: Գործողություն
+        in_draft:
+          label: Սևագիր
+        locked:
+          label: Արգելափակված
+        created:
+          label: 'Ստեղծվել է'
+        remote_addr:
+          label: 'IP հասցե'
+        operations:
+          label: Գործողություններ
+      filters:
+        locked:
+          expose:
+            label: Արգելափակված
+  embed_manage:
+    display_options:
+      fields:
+        webform_submission_bulk_form:
+          action_title: Գործողություն
+        in_draft:
+          label: Սևագիր
+        locked:
+          label: Արգելափակված
+        created:
+          label: 'Ստեղծվել է'
+        remote_addr:
+          label: 'IP հասցե'
+        view_webform_submission:
+          label: Գործողություններ
+        edit_webform_submission:
+          label: Գործողություններ
+          text: խմբագրել
+      filters:
+        locked:
+          expose:
+            label: Արգելափակված
+  embed_review:
+    display_options:
+      fields:
+        in_draft:
+          label: Սևագիր
+        locked:
+          label: Արգելափակված
+        created:
+          label: 'Ստեղծվել է'
+        remote_addr:
+          label: 'IP հասցե'
+        view_webform_submission:
+          label: Գործողություններ
+      filters:
+        locked:
+          expose:
+            label: Արգելափակված

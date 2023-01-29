@@ -1,0 +1,13 @@
+settings:
+  default_submit_button_label: Пошаљи
+  default_delete_button_label: Избриши
+  default_wizard_confirmation_label: 'Успешно завршена поруџбина'
+  default_preview_next_button_label: 'Преглед пре слања.'
+  default_preview_label: 'Преглед пре слања.'
+  dialog_options:
+    narrow:
+      title: Уско
+    wide:
+      title: Широко
+element:
+  default_more_title: Више

@@ -1,0 +1,23 @@
+uuid: 76ed0540-4b5f-4200-8dfe-e993d82cec15
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootronics_needed
+    - node.type.hub
+id: node.hub.field_dootronics_needed
+field_name: field_dootronics_needed
+entity_type: node
+bundle: hub
+label: 'Number of Dootronics needed'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

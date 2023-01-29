@@ -1,0 +1,8 @@
+name: 'Labdoo EdoVillage'
+type: module
+description: 'An edoovillage is a location (most typically a school or an education center) where Labdoo laptops loaded with education software are installed.'
+package: 'Labdoo'
+core_version_requirement: ^10
+dependencies:
+  - drupal:labdoo_common
+  - drupal:labdoo_gallery

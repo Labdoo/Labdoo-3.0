@@ -1,0 +1,28 @@
+uuid: 930cbf66-12ca-4910-a1e6-31661f59def7
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.edoovillages
+  module:
+    - system
+    - views
+  theme:
+    - gin
+id: gin_exposedformedoovillagesblock_1
+theme: gin
+region: content
+weight: -4
+provider: null
+plugin: 'views_exposed_filter_block:edoovillages-block_1'
+settings:
+  id: 'views_exposed_filter_block:edoovillages-block_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/content/edoovillages-dashboard*'

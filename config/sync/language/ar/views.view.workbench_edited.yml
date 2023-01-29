@@ -1,0 +1,60 @@
+display:
+  default:
+    display_title: الرئيسي
+    display_options:
+      exposed_form:
+        options:
+          submit_button: تطبيق
+          reset_button_label: 'إعادة الضبط'
+          exposed_sorts_label: 'الترتيب حسب'
+          sort_asc_label: تصاعدي
+          sort_desc_label: تنازلي
+      pager:
+        options:
+          tags:
+            previous: '‹ السابق'
+            next: 'التالي ›'
+          expose:
+            items_per_page_options_all_label: '- الكل -'
+            offset_label: الإزاحة
+      fields:
+        nid:
+          separator: ', '
+        title:
+          label: العنوان
+          separator: ', '
+        type:
+          label: النوع
+          separator: ', '
+        status:
+          label: منشور
+          separator: ', '
+        changed:
+          label: 'آخر تحديث'
+          separator: ', '
+        uid:
+          label: المؤلف
+          separator: ', '
+        revision_uid:
+          separator: ', '
+      filters:
+        title:
+          expose:
+            label: العنوان
+        type:
+          expose:
+            label: النوع
+        status:
+          expose:
+            label: منشور
+      arguments:
+        uid_revision:
+          exception:
+            title: الكل
+  block_1:
+    display_options:
+      pager:
+        options:
+          expose:
+            items_per_page_options_all_label: '- الكل -'
+            offset_label: الإزاحة

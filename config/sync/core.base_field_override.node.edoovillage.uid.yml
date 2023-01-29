@@ -1,0 +1,20 @@
+uuid: 137fa433-d56a-4abc-982c-66f1b1583730
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.edoovillage
+id: node.edoovillage.uid
+field_name: uid
+entity_type: node
+bundle: edoovillage
+label: 'Authored by'
+description: 'The username of the content author.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: 'Drupal\node\Entity\Node::getDefaultEntityOwner'
+settings:
+  handler: default
+  handler_settings: {  }
+field_type: entity_reference

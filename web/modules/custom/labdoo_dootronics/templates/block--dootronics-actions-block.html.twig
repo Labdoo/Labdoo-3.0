@@ -1,0 +1,32 @@
+<div id="block-dootronics-actions" class="block block-actions-block-block">
+    <div class="views-exposed-form block-views">
+        <div class="block-title-wrapper"><span class="block-title">{{ "Actions available for this dootronic:"|t }}</span></div>
+        <div class="actions">
+            {% if edit_link is not empty %}
+            <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/laptop.png">{{ "Edit this dootronic"|t }}</a></div>
+            {% endif %}
+            {% if revisions_link is not empty %}
+            <div class="action"><a href="{{ revisions_link }}"><img class="icon" src="/themes/custom/labdoo/img/revisions-icon.png">{{ "Review changes"|t }}</a></div>
+            {% endif %}
+            {% if clone_link is not empty %}
+            <div class="action">{% if clone_link is not empty %}<a href="{{ clone_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/clone-icon.png">{{ "Clone this dootronic"|t }}{% if clone_link is not empty %}</a>{% endif %}</div>
+            {% endif %}
+            {% if print_labels_link is not empty %}
+            <div class="action"><a href="{{ print_labels_link }}"><img class="icon" src="/themes/custom/labdoo/img/tag.png">{{ "Print tags"|t }}</a></div>
+            {% endif %}
+            {% if follow_link is not empty %}
+            <div class="action"><a href="{{ follow_link }}"><img class="icon" src="/themes/custom/labdoo/img/signal.png">{{ "Follow this dootronic"|t }}</a></div>
+            {% endif %}
+            {% if unfollow_link is not empty %}
+            <div class="action"><a href="{{ unfollow_link }}"><img class="icon" src="/themes/custom/labdoo/img/signal-off.png">{{ "Unfollow this dootronic"|t }}</a></div>
+            {% endif %}
+            {% if pick_me_up_status == 1 %}
+                <div class="action">{% if pick_me_up_link is not empty %}<a href="{{ pick_me_up_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/truck.png">{{ "Pick me up (activated)"|t }}{% if pick_me_up_link is not empty %}</a>{% endif %}</div>
+            {% else %}
+                <div class="action">{% if pick_me_up_link is not empty %}<a href="{{ pick_me_up_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/truck-off.png">{{ "Pick me up (deactivated)"|t }}{% if pick_me_up_link is not empty %}</a>{% endif %}</div>
+            {% endif %}
+            <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png">{{ "Next dootronic"|t }}</a></div>
+            <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous dootronic"|t }}</a></div>
+        </div>
+    </div>
+</div>

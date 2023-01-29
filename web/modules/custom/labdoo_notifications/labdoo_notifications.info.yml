@@ -1,0 +1,7 @@
+name: 'Labdoo Notifications'
+type: module
+description: 'Implements Labdoo communication features such as automatic email notifications.'
+package: 'Labdoo'
+core_version_requirement: ^10
+dependencies:
+  - drupal:labdoo_common

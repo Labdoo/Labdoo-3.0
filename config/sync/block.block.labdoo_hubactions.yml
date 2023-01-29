@@ -1,0 +1,28 @@
+uuid: 32071454-c3c0-4e07-8371-2fa73681bd4f
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_hub
+    - node
+  theme:
+    - labdoo
+id: labdoo_hubactions
+theme: labdoo
+region: sidebar
+weight: -12
+provider: null
+plugin: hub_actions_block_block
+settings:
+  id: hub_actions_block_block
+  label: 'Hub actions'
+  label_display: '0'
+  provider: labdoo_hub
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      hub: hub

@@ -1,0 +1,23 @@
+uuid: 043a3585-5ff2-4389-98e4-843bd2427f88
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_share_all_members_team
+    - node.type.team_post
+id: node.team_post.field_share_all_members_team
+field_name: field_share_all_members_team
+entity_type: node
+bundle: team_post
+label: 'Share with all members of this team'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: Activado
+  off_label: Desactivado
+field_type: boolean

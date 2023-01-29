@@ -1,0 +1,28 @@
+uuid: 6bcaae96-965f-40b3-bd8e-1944b721ba75
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_edoovillage
+    - node
+  theme:
+    - labdoo
+id: labdoo_edoovillageactions
+theme: labdoo
+region: sidebar
+weight: -14
+provider: null
+plugin: edoovillage_actions_block_block
+settings:
+  id: edoovillage_actions_block_block
+  label: 'EdooVillage actions'
+  label_display: '0'
+  provider: labdoo_edoovillage
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      edoovillage: edoovillage

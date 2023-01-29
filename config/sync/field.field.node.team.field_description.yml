@@ -1,0 +1,26 @@
+uuid: 060f3084-7401-43a2-b278-ad963af74ac0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_description
+    - filter.format.basic_html
+    - node.type.team
+  module:
+    - text
+id: node.team.field_description
+field_name: field_description
+entity_type: node
+bundle: team
+label: 'About this team'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+  required_summary: true
+  allowed_formats:
+    - basic_html
+field_type: text_with_summary

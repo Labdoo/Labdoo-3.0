@@ -1,0 +1,75 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          exposed_sorts_label: 'Сортирај по'
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+      fields:
+        in_draft:
+          label: Предлог
+        created:
+          label: Направљено
+        view_webform_submission:
+          label: Операције
+  embed_administer:
+    display_options:
+      fields:
+        webform_submission_bulk_form:
+          action_title: Акција
+        in_draft:
+          label: Предлог
+        locked:
+          label: Закључан
+        created:
+          label: Направљено
+        completed:
+          label: Завршено
+        operations:
+          label: Операције
+      filters:
+        locked:
+          expose:
+            label: Закључан
+  embed_manage:
+    display_options:
+      fields:
+        webform_submission_bulk_form:
+          action_title: Акција
+        in_draft:
+          label: Предлог
+        locked:
+          label: Закључан
+        created:
+          label: Направљено
+        completed:
+          label: Завршено
+        view_webform_submission:
+          label: Операције
+        edit_webform_submission:
+          label: Операције
+          text: измени
+      filters:
+        locked:
+          expose:
+            label: Закључан
+  embed_review:
+    display_options:
+      fields:
+        in_draft:
+          label: Предлог
+        locked:
+          label: Закључан
+        created:
+          label: Направљено
+        completed:
+          label: Завршено
+        view_webform_submission:
+          label: Операције
+      filters:
+        locked:
+          expose:
+            label: Закључан

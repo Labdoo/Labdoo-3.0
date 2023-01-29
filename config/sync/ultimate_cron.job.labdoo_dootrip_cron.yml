@@ -1,0 +1,30 @@
+uuid: 486c12fe-f676-408c-86d5-98166f8e9ab8
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_dootrip
+title: 'Default cron handler'
+id: labdoo_dootrip_cron
+weight: 0
+module: labdoo_dootrip
+callback: 'labdoo_dootrip#cron'
+scheduler:
+  id: crontab
+  configuration:
+    rules:
+      - '0 23 * * *'
+    catch_up: 0
+launcher:
+  id: serial
+  configuration:
+    timeouts:
+      lock_timeout: 3600
+    launcher:
+      thread: 0
+logger:
+  id: database
+  configuration:
+    method: '3'
+    expire: 1209600
+    retain: 1000

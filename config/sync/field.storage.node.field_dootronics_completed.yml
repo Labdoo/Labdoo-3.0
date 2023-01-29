@@ -1,0 +1,20 @@
+uuid: 93bf3169-52a2-4926-94f6-958a77a0c6c9
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_dootronics_completed
+field_name: field_dootronics_completed
+entity_type: node
+type: decimal
+settings:
+  precision: 10
+  scale: 2
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,28 @@
+uuid: 38a0fea6-b296-4a97-9854-53ae0ec3d312
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_dootrip
+    - node
+  theme:
+    - labdoo
+id: labdoo_dootripactions
+theme: labdoo
+region: sidebar
+weight: -11
+provider: null
+plugin: dootrip_actions_block_block
+settings:
+  id: dootrip_actions_block_block
+  label: 'Dootrip actions'
+  label_display: '0'
+  provider: labdoo_dootrip
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      dootrip: dootrip

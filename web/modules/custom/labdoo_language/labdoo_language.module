@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_url_outbound_alter().
+ */
+function labdoo_language_block_view_alter(array &$build, \Drupal\Core\Block\BlockPluginInterface $block) {
+  // Verificamos si se trata del bloque que queremos alterar.
+  return;
+  if ($block->getBaseId() === 'labdoo_dropdownlanguageinterfacetext') {
+    $build['#pre_render'][] = static function (array $element) {
+      if (isset($element['content'])) {
+        $element['#markup'] = preg_replace_callback(
+          '/href="([^"]*\?language=([a-z]{2}))([^"]*)"/i',
+          function ($matches) {
+            $language = $matches[2];
+            // Elimina el ?language= para reconstruir la ruta con prefijo.
+            $pathSinParam = str_replace('?language=' . $language, '', $matches[1]);
+            // Construye la nueva ruta con el prefijo del idioma.
+            $newPath = '/' . $language . '/' . ltrim($pathSinParam, '/');
+            return 'href="' . $newPath . '"';
+          },
+          $element['#markup']
+        );
+      }
+
+      return $element;
+    };
+  }
+}
+
+function labdoo_language_language_switch_links_alter(array &$links, $type, $path) {
+  $user = \Drupal::currentUser();
+  if ($user->isAuthenticated()) {
+    $preferred_langcode = $user->getPreferredLangcode();
+    \Drupal::languageManager()->setConfigOverrideLanguage(new \Drupal\Core\Language\Language(['id' => $preferred_langcode]));
+  }
+}

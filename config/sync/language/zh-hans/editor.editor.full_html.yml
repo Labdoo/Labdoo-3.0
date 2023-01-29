@@ -1,0 +1,20 @@
+settings:
+  plugins:
+    ckeditor5_codeBlock:
+      languages:
+        0:
+          label: 纯文本
+        1:
+          label: C
+        4:
+          label: CSS
+        5:
+          label: 差异
+        6:
+          label: HTML标记文本
+        8:
+          label: JavaScript
+        9:
+          label: PHP
+        13:
+          label: XML

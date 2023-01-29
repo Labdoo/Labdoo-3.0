@@ -1,0 +1,8 @@
+services:
+  labdoo_story.parent_entity_manager:
+    class: Drupal\labdoo_story\Service\ParentEntityManager
+    arguments:
+      - '@request_stack'
+      - '@entity_type.manager'
+      - '@messenger'
+      - '@logger.factory'

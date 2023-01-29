@@ -1,0 +1,23 @@
+uuid: 3c730bbe-2504-4604-afb9-8820c75484d3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootronics_remaining
+    - node.type.edoovillage
+id: node.edoovillage.field_dootronics_remaining
+field_name: field_dootronics_remaining
+entity_type: node
+bundle: edoovillage
+label: 'Number of dootronics remaining'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

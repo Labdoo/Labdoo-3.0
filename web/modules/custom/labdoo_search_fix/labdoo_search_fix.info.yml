@@ -1,0 +1,7 @@
+name: Labdoo Search Fix
+type: module
+description: 'Fixes Search API configuration issues.'
+package: Labdoo
+core_version_requirement: ^9 || ^10
+dependencies:
+  - drupal:search_api

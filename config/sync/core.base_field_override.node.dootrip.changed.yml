@@ -1,0 +1,18 @@
+uuid: 1d56eb95-b64e-4145-bd1b-4a9fbcf09f33
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootrip
+id: node.dootrip.changed
+field_name: changed
+entity_type: node
+bundle: dootrip
+label: Changed
+description: 'The time that the node was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

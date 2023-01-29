@@ -1,0 +1,22 @@
+uuid: 76c2dc73-2b1a-4734-92e2-1ecd60d17e1f
+langcode: es
+status: true
+dependencies:
+  config:
+    - node.type.labdoo_story
+id: node.labdoo_story.promote
+field_name: promote
+entity_type: node
+bundle: labdoo_story
+label: 'Promocionado a la página principal'
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: Activado
+  off_label: Desactivado
+field_type: boolean

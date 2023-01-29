@@ -1,0 +1,18 @@
+uuid: 11aa8e7d-ed65-42f0-9d0a-8fe20d832316
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootrip
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: node.dootrip
+target_entity_type_id: node
+target_bundle: dootrip
+default_langcode: site_default
+language_alterable: true

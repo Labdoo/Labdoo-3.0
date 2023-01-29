@@ -1,0 +1,53 @@
+settings:
+  default_form_open_message: 'Dit formulier is nog niet geopend voor inzendingen.'
+  default_form_close_message: 'Sorry... Dit formulier is gesloten voor nieuwe inzendingen.'
+  default_form_exception_message: 'Het formulier kan niet getoond worden. Neem contact op met de beheerder.'
+  default_submit_button_label: Indienen
+  default_reset_button_label: Herstellen
+  default_delete_button_label: Verwijderen
+  default_form_confidential_message: 'Dit formulier is vertrouwelijk en kan pas na <a href="[site:login-url]/logout?destination=[current-page:url:relative]">uitloggen</a> worden gebruikt.'
+  default_form_access_denied_message: 'Log in om toegang te krijgen tot dit formulier.'
+  default_form_required_label: 'Aanduiding van verplicht veld'
+  default_wizard_prev_button_label: '< Vorige'
+  default_wizard_next_button_label: 'Volgende >'
+  default_wizard_start_label: Begin
+  default_wizard_confirmation_label: Voltooid
+  default_wizard_toggle_show_label: 'Alles weergeven'
+  default_wizard_toggle_hide_label: 'Alles verbergen'
+  default_preview_next_button_label: Voorbeeldweergave
+  default_preview_prev_button_label: '< Vorige'
+  default_preview_label: Voorbeeldweergave
+  default_preview_title: '[webform:title]: Voorbeeldweergave'
+  default_preview_message: "Controleer uw inzending. Uw inzending is niet voltooid, totdat u klikt op de 'Indienen'-knop."
+  default_draft_button_label: 'Conceptversie opslaan'
+  default_draft_saved_message: 'Inzending opgeslagen. U kunt op een later tijdstip naar dit formulier terugkeren waarbij de huidige waardes zullen worden hersteld.'
+  default_draft_loaded_message: 'Er is een gedeeltelijk ingevuld formulier gevonden, voltooi de overgebleven delen.'
+  default_draft_pending_single_message: 'U heeft een openstaand concept voor dit formulier. <a href="#">Open uw bestaande concept</a>.'
+  default_draft_pending_multiple_message: 'U heeft openstaande concepten voor dit formulier. <a href="#">Bekijk uw openstaande concepten</a>.'
+  default_confirmation_message: 'Nieuwe inzending voor [webform:title] opgeslagen.'
+  default_confirmation_back_label: 'Terug naar formulier'
+  default_submission_label: '[webform_submission:submitted-to]: Inzending #[webform_submission:serial]'
+  default_submission_access_denied_message: 'Log in om toegang te krijgen tot de inzending.'
+  default_submission_exception_message: 'De inzending kan niet verwerkt worden. Neem alstublieft contact op met de site administrator.'
+  default_submission_locked_message: 'Deze inzending is vergrendeld.'
+  default_previous_submission_message: 'U heeft dit formulier reeds ingezonden. <a href="#">Bekijk uw vorige inzending</a>.'
+  default_previous_submissions_message: 'U heeft dit formulier reeds ingezonden. <a href="#">Bekijk uw vorige inzendingen</a>.'
+  default_autofill_message: 'Deze inzending is automatisch ingevuld met uw vorige inzending.'
+  default_limit_total_message: 'Geen nieuwe inzendingen toegestaan.'
+  default_limit_user_message: 'Geen nieuwe inzendingen toegestaan.'
+  dialog_options:
+    narrow:
+      title: Smal
+    normal:
+      title: Normaal
+    wide:
+      title: Breed
+element:
+  empty_message: '{Leeg}'
+  default_more_title: Meer
+file:
+  file_private_redirect_message: 'Log in om toegang te krijgen tot het bestand.'
+mail:
+  default_from_name: '[site:name]'
+  default_body_text: "Ingezonden op [webform_submission:created]\r\nIngezonden door: [webform_submission:user]\r\n\r\nIngezonden waardes:\r\n[webform_submission:values]\n"
+  default_body_html: "<p>Ingezonden op [webform_submission:created]</p>\r\n<p>Ingezonden door: [webform_submission:user]</p>\r\n<p>Ingezonden waardes:</p>\r\n[webform_submission:values]\n"

@@ -1,0 +1,20 @@
+settings:
+  plugins:
+    ckeditor5_codeBlock:
+      languages:
+        0:
+          label: 'Czysty tekst'
+        1:
+          label: C
+        4:
+          label: CSS
+        5:
+          label: Diff
+        6:
+          label: HTML
+        8:
+          label: JavaScript
+        9:
+          label: PHP
+        13:
+          label: XML

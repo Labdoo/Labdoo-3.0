@@ -1,0 +1,15 @@
+_core:
+  default_config_hash: VDJxTZtQR21qB4lvOq8zszJZLvLKrSPQpdn2E3T71Ww
+langcode: en
+uuid: 18f3fa53-a1e0-46d8-994b-7e40721955b6
+name: Labdoo
+mail: contact@labdoo.org
+slogan: ''
+page:
+  403: /customerror/403
+  404: /customerror/404
+  front: /content/edoovillages-dashboard
+admin_compact_mode: false
+weight_select_max: 100
+default_langcode: en
+mail_notification: ''

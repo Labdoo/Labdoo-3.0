@@ -1,0 +1,51 @@
+_core:
+  default_config_hash: CXhei_vpaZk-3f_Mj2cH0YmpK-ZpKHoSzVA3yZrDq0g
+definitions:
+  contact__site_page:
+    menu_name: footer
+    parent: ''
+    weight: 0
+    expanded: false
+    enabled: true
+  standard__front_page:
+    weight: -50
+    menu_name: main
+    parent: ''
+    expanded: false
+    enabled: false
+  labdoo_dootronics__bulk_upload:
+    menu_name: main
+    parent: 'views_view:views.dootronics_dashboard.page_1'
+    weight: -50
+    expanded: false
+    enabled: true
+  labdoo_dootronics__clone_dootronics:
+    weight: -47
+    menu_name: main
+    parent: 'views_view:views.dootronics_dashboard.page_1'
+    expanded: false
+    enabled: true
+  labdoo_dootronics__update_dootronics:
+    weight: -46
+    menu_name: main
+    parent: 'views_view:views.dootronics_dashboard.page_1'
+    expanded: false
+    enabled: true
+  system__admin:
+    menu_name: admin
+    parent: ''
+    weight: 0
+    expanded: false
+    enabled: true
+  labdoo_common__admin_dashboard:
+    weight: -42
+    menu_name: main
+    parent: ''
+    expanded: false
+    enabled: false
+  labdoo_user__profile:
+    menu_name: main
+    parent: ''
+    weight: -41
+    expanded: false
+    enabled: true

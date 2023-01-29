@@ -1,0 +1,21 @@
+uuid: 0359123d-47fe-44d4-abe4-66fc40000487
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_stream_it
+    - node.type.action
+id: node.action.field_stream_it
+field_name: field_stream_it
+entity_type: node
+bundle: action
+label: 'Stream it'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

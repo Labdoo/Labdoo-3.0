@@ -1,0 +1,21 @@
+uuid: 89a19725-8ce3-4680-8d4b-2fe8a907c818
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_socket_voltage
+    - node.type.edoovillage
+  module:
+    - options
+id: node.edoovillage.field_socket_voltage
+field_name: field_socket_voltage
+entity_type: node
+bundle: edoovillage
+label: 'Socket voltage'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

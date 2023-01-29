@@ -1,0 +1,22 @@
+uuid: 12c1f249-8dd9-403e-aa36-368b5c4fb6c3
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootrip
+id: node.dootrip.promote
+field_name: promote
+entity_type: node
+bundle: dootrip
+label: 'Promoted to front page'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

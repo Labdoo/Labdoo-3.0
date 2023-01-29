@@ -1,0 +1,25 @@
+<div id="block-dootronics-chart" class="block block-dootronics-chart-block-block">
+    <div class="view view-watchdog">
+        <div class="view-content">
+            {% set title = '' %}
+
+            {% set series = {} %}
+            {% for key, value in status_info %}
+                {% set series = series|merge({
+                    (key): {
+                        'title' : key ~ ' - ' ~ value.name,
+                        'data' : [value.count],
+                        'color': value.color,
+                    }
+                }) %}
+            {% endfor %}
+
+            {% set xaxis = {
+                'title' : 'Dootronics',
+                'labels' : ['Dootronics by current status']
+            } %}
+
+            {{ chart('dootronics_chart', 'column', title, series, xaxis, [], []) }}
+        </div>
+    </div>
+</div>

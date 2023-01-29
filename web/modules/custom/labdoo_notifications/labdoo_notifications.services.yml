@@ -1,0 +1,64 @@
+services:
+  labdoo_notifications.notification_manager:
+    class: Drupal\labdoo_notifications\Service\NotificationManager
+    arguments:
+      - '@current_user'
+      - '@language_manager'
+      - '@module_handler'
+      - '@file_system'
+      - '@logger.factory'
+      - '@labdoo_notifications.email_processor'
+      - '@entity_type.manager'
+      - '@config.factory'
+
+  labdoo_notifications.email_processor:
+    class: Drupal\labdoo_notifications\Service\EmailProcessor
+    arguments:
+      - '@current_user'
+      - '@language_manager'
+      - '@file_system'
+      - '@logger.factory'
+      - '@plugin.manager.mail'
+      - '@config.factory'
+
+  labdoo_notifications.entity_processor.laptop:
+    class: Drupal\labdoo_notifications\Service\EntityProcessor\LaptopProcessor
+    arguments:
+      - '@labdoo_notifications.notification_manager'
+    tags:
+      - { name: 'labdoo_notifications.entity_processor' }
+
+  labdoo_notifications.entity_processor.dootrip:
+    class: Drupal\labdoo_notifications\Service\EntityProcessor\DootripProcessor
+    arguments:
+      - '@labdoo_notifications.notification_manager'
+    tags:
+      - { name: 'labdoo_notifications.entity_processor' }
+
+  labdoo_notifications.entity_processor.team_page:
+    class: Drupal\labdoo_notifications\Service\EntityProcessor\TeamProcessor
+    arguments:
+      - '@labdoo_notifications.notification_manager'
+    tags:
+      - { name: 'labdoo_notifications.entity_processor' }
+
+  labdoo_notifications.entity_processor.event:
+    class: Drupal\labdoo_notifications\Service\EntityProcessor\TeamProcessor
+    arguments:
+      - '@labdoo_notifications.notification_manager'
+    tags:
+      - { name: 'labdoo_notifications.entity_processor' }
+
+  labdoo_notifications.entity_processor.team_task:
+    class: Drupal\labdoo_notifications\Service\EntityProcessor\TeamProcessor
+    arguments:
+      - '@labdoo_notifications.notification_manager'
+    tags:
+      - { name: 'labdoo_notifications.entity_processor' }
+
+  labdoo_notifications.entity_processor.user:
+    class: Drupal\labdoo_notifications\Service\EntityProcessor\UserProcessor
+    arguments:
+      - '@labdoo_notifications.notification_manager'
+    tags:
+      - { name: 'labdoo_notifications.entity_processor' }

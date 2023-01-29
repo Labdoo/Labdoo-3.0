@@ -1,0 +1,21 @@
+display:
+  default:
+    display_title: Maestro
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Aplicar
+          reset_button_label: Restablecer
+          exposed_sorts_label: 'Ordenar por'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      fields:
+        uid:
+          separator: ', '
+        name:
+          separator: ', '
+        edit_user:
+          text: 'Editar mi perfil'
+        access:
+          label: 'Última visita'
+          separator: ', '

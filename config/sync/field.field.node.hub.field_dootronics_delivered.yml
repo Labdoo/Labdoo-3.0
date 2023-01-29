@@ -1,0 +1,23 @@
+uuid: d9def6d1-3390-4811-9b61-027694371c7e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootronics_delivered
+    - node.type.hub
+id: node.hub.field_dootronics_delivered
+field_name: field_dootronics_delivered
+entity_type: node
+bundle: hub
+label: 'Number of dootronics delivered'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

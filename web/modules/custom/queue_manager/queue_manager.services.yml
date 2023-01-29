@@ -1,0 +1,4 @@
+services:
+  queue_manager.helper:
+    class: Drupal\queue_manager\Service\QueueHelper
+    arguments: [ '@queue', '@database' ]

@@ -1,0 +1,29 @@
+uuid: e073e45c-b13a-4838-9303-596b806b10ee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_project_manager_s_
+    - node.type.edoovillage
+id: node.edoovillage.field_project_manager_s_
+field_name: field_project_manager_s_
+entity_type: node
+bundle: edoovillage
+label: 'Project manager(s)'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    filter:
+      type: _none
+    include_anonymous: true
+field_type: entity_reference

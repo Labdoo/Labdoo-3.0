@@ -1,0 +1,25 @@
+uuid: 2d861215-d179-4a5f-a6ae-d01aec5f8674
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_statistics
+    - system
+  theme:
+    - labdoo
+id: labdoo_statistics
+theme: labdoo
+region: header
+weight: -17
+provider: null
+plugin: statistics_block_block
+settings:
+  id: statistics_block_block
+  label: Statistics
+  label_display: '0'
+  provider: labdoo_statistics
+visibility:
+  request_path:
+    id: request_path
+    negate: true
+    pages: '/dootronics/print-labels*'

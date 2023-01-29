@@ -1,0 +1,21 @@
+uuid: de11e263-3cc5-4011-8553-ee9a55f7b5a8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tagged
+    - node.type.dootronic
+id: node.dootronic.field_tagged
+field_name: field_tagged
+entity_type: node
+bundle: dootronic
+label: Tagged
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

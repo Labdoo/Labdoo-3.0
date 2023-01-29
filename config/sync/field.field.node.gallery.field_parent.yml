@@ -1,0 +1,31 @@
+uuid: 68664f17-17da-4a14-9bef-384d11156416
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_parent
+    - node.type.edoovillage
+    - node.type.gallery
+    - node.type.hub
+id: node.gallery.field_parent
+field_name: field_parent
+entity_type: node
+bundle: gallery
+label: Parent
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      edoovillage: edoovillage
+      hub: hub
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: edoovillage
+field_type: entity_reference

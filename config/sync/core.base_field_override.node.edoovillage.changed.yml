@@ -1,0 +1,18 @@
+uuid: 2f1de2b2-6fe1-4748-8de4-e30b44846b0e
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.edoovillage
+id: node.edoovillage.changed
+field_name: changed
+entity_type: node
+bundle: edoovillage
+label: Changed
+description: 'The time that the node was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

@@ -1,0 +1,17 @@
+uuid: cfd047f3-649c-4141-877a-83ccaea4d377
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: 'Team task'
+type: task_team
+description: 'A task related to a team.'
+help: null
+new_revision: false
+preview_mode: 1
+display_submitted: false

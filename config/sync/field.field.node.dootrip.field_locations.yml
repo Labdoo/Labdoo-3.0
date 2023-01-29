@@ -1,0 +1,21 @@
+uuid: a820f53b-7ce2-403b-bcd7-fccd8c8d4add
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_locations
+    - node.type.dootrip
+  module:
+    - geofield
+id: node.dootrip.field_locations
+field_name: field_locations
+entity_type: node
+bundle: dootrip
+label: Location
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: geofield

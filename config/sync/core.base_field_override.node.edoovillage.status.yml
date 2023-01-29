@@ -1,0 +1,22 @@
+uuid: ee59ab5b-1194-4a62-a693-79a4557202e4
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.edoovillage
+id: node.edoovillage.status
+field_name: status
+entity_type: node
+bundle: edoovillage
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

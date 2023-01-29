@@ -1,0 +1,7 @@
+name: 'Labdoo Global Action'
+type: module
+description: 'Global Action is a content type that powers the main feed of the system.'
+package: 'Labdoo'
+core_version_requirement: ^10
+dependencies:
+  - drupal:labdoo_common

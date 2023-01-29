@@ -1,0 +1,63 @@
+natiboo_migrate_data.export_menu:
+  path: '/admin/config/natiboo-migrate/export-menu/{menuName}'
+  defaults:
+    _controller: '\Drupal\natiboo_migrate_data\Controller\ExportMenusController::exportMenu'
+    _title: 'Export Menu'
+  requirements:
+    _permission: 'administer menus'
+  options:
+    parameters:
+      menu_name:
+        type: string
+
+natiboo_migrate_data.export_entity:
+  path: '/admin/config/natiboo-migrate/export-entity/{entityTypeId}/{entityId}'
+  defaults:
+    _controller: '\Drupal\natiboo_migrate_data\Controller\ExportEntityController::exportContent'
+    _title: 'Export Content'
+  requirements:
+    _permission: 'administer content'
+  options:
+    parameters:
+      nid:
+        type: integer
+
+natiboo_migrate_data.entities_list:
+  path: '/admin/config/natiboo-migrate/entities-list'
+  defaults:
+    _controller: '\Drupal\natiboo_migrate_data\Controller\ExportEntityController::getEntitiesList'
+    _title: 'List Content'
+  requirements:
+    _permission: 'administer content'
+
+natiboo_migrate_data.menus_list:
+  path: '/admin/config/natiboo-migrate/menus-list'
+  defaults:
+    _controller: '\Drupal\natiboo_migrate_data\Controller\ExportMenusController::getMenusList'
+    _title: 'List menus'
+  requirements:
+    _permission: 'administer menus'
+
+natiboo_migrate_data.import_menu_form:
+  path: '/admin/config/natiboo-migrate/import-menu'
+  defaults:
+    _form: '\Drupal\natiboo_migrate_data\Form\ImportMenuForm'
+    _title: 'Import a menu'
+  requirements:
+    _permission: 'administer site configuration'
+
+natiboo_migrate_data.import_entity_form:
+  path: '/admin/config/natiboo-migrate/import-entity'
+  defaults:
+    _form: '\Drupal\natiboo_migrate_data\Form\ImportEntityForm'
+    _title: 'Import an entity'
+  requirements:
+    _permission: 'administer site configuration'
+
+natiboo_migrate_data.delete_paragraphs_form:
+  path: '/admin/config/natiboo-migrate/delete-paragraphs'
+  defaults:
+    _form: '\Drupal\natiboo_migrate_data\Form\DeleteParagraphsForm'
+    _title: 'Delete all paragraphs'
+  requirements:
+    _permission: 'administer site configuration'

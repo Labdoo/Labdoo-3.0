@@ -1,0 +1,375 @@
+{
+  "source_type": "dootrip",
+  "destination_types": [
+    "dootrip"
+  ],
+  "entity_type": "node",
+  "fields_mapping": [
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "nid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "nid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "uid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "uid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "title"
+          }
+        ]
+      },
+      "destination": {
+        "field": "title"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_dootrip_additional_editors",
+            "key": "entity_id",
+            "field": "field_dootrip_additional_editors_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoo_additional_editors"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_dootrip_additional_emails",
+            "key": "entity_id",
+            "field": "field_dootrip_additional_emails_email"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoo_additional_notif_em"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_additional_traveler_s_info",
+            "key": "entity_id",
+            "field": "field_additional_traveler_s_info_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_additional_traveler_s_info"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_announce_this_dootrip",
+            "key": "entity_id",
+            "field": "field_announce_this_dootrip_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_announce_this_dootrip"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_arrival_date",
+            "key": "entity_id",
+            "field": "field_arrival_date_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_arrival_date"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_comments",
+            "key": "entity_id",
+            "field": "field_comments_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_comments"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_departure_date",
+            "key": "entity_id",
+            "field": "field_departure_date_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_departure_date"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "node.nid",
+            "field": "field_destination_of_the_trip",
+            "expression": "CONCAT(location.latitude, ',', location.longitude)",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "node",
+                "condition": "node.nid = location_instance.nid"
+              },
+              {
+                "type": "INNER",
+                "table": "field_data_field_destination_of_the_trip",
+                "condition": "location.lid = field_destination_of_the_trip_lid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_destination_of_the_trip",
+        "special_type": {
+          "type": "geolocation"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_dootripper_s_",
+            "key": "entity_id",
+            "field": "field_dootripper_s__target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_dootripper_s"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_laptops",
+            "key": "entity_id",
+            "field": "field_laptops_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_laptops"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hub",
+            "key": "entity_id",
+            "field": "field_hub_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hub"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_dootrip_notes",
+            "key": "entity_id",
+            "field": "field_dootrip_notes_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_dootrip_notes"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_number_of_days_after",
+            "key": "entity_id",
+            "field": "field_number_of_days_after_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_number_of_days_after"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_number_of_days_before",
+            "key": "entity_id",
+            "field": "field_number_of_days_before_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_number_of_days_before"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_dootrip_capacity",
+            "key": "entity_id",
+            "field": "field_dootrip_capacity_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_dootrip_capacity"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "node.nid",
+            "field": "field_origin_of_the_trip",
+            "expression": "CONCAT(location.latitude, ',', location.longitude)",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "node",
+                "condition": "node.nid = location_instance.nid"
+              },
+              {
+                "type": "INNER",
+                "table": "field_data_field_origin_of_the_trip",
+                "condition": "location.lid = field_origin_of_the_trip_lid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_origin_of_the_trip",
+        "special_type": {
+          "type": "geolocation"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_preferred_edoovillages",
+            "key": "entity_id",
+            "field": "field_preferred_edoovillages_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_preferred_edoovillages"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_status_dootrip",
+            "key": "entity_id",
+            "field": "field_status_dootrip_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_status_dootrip"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "created"
+          }
+        ]
+      },
+      "destination": {
+        "field": "created"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "changed"
+          }
+        ]
+      },
+      "destination": {
+        "field": "changed"
+      }
+    }
+  ]
+}

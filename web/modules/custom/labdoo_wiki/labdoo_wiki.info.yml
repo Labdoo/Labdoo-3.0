@@ -1,0 +1,7 @@
+name: 'Labdoo Wiki'
+type: module
+description: 'Tune up mini_wiki for Labdoo.'
+core_version_requirement: ^10
+package: Custom
+dependencies:
+  - drupal:mini_wiki

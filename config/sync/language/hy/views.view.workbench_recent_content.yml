@@ -1,0 +1,49 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      fields:
+        title:
+          label: Վերնագիր
+        type:
+          label: Տեսակ
+        status:
+          label: Հրապարակված
+        name:
+          label: Հեղինակ
+        changed:
+          label: 'Վերջին թարմացում'
+        edit_node:
+          label: Գործողություններ
+          text: խմբագրել
+      filters:
+        title:
+          expose:
+            label: Վերնագիր
+        type:
+          expose:
+            label: Տեսակ
+        status:
+          expose:
+            label: Հրապարակված
+  block_1:
+    display_options:
+      filters:
+        status:
+          expose:
+            label: Հրապարակված
+      fields:
+        title:
+          label: Վերնագիր
+        type:
+          label: Տեսակ
+        name:
+          label: Հեղինակ
+        changed:
+          label: 'Վերջին թարմացում'
+        edit_node:
+          label: Գործողություններ
+          text: խմբագրել

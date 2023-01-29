@@ -1,0 +1,28 @@
+type: theme
+base theme: gin
+name: Labdoo Theme
+description: Theme for Labdoo project
+package: labdoo
+core_version_requirement: ^8 || ^9 || ^10
+version: 10.x-1.0-beta1
+project: labdoo
+
+libraries:
+  - labdoo/custom-styling
+
+regions:
+  header: 'Header'
+  post_header: 'Post header'
+  pre_content: 'Pre-content'
+  breadcrumb: Breadcrumb
+  highlighted: Highlighted
+  help: Help
+  sidebar: Sidebar
+  content: Content
+  post_content: 'Post-content'
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+  sidebar_first: 'First sidebar'
+  footer: 'Footer'
+regions_hidden:
+  - sidebar_first

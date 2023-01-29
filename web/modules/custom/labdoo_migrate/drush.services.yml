@@ -1,0 +1,61 @@
+services:
+  labdoo_migrate.synchronizer_commands:
+    class: \Drupal\labdoo_migrate\Commands\SynchronizerCommands
+    arguments:
+      - '@labdoo_migrate.config.configuration_manager'
+      - '@labdoo_migrate.mapper.fields_mapper'
+    tags:
+      - { name: drush.command }
+
+  labdoo_migrate.node_delete_commands:
+    class: \Drupal\labdoo_migrate\Commands\NodeDeleteCommands
+    arguments:
+      - '@entity_type.manager'
+    tags:
+      - { name: drush.command }
+
+  labdoo_migrate.synchronizer_story_commands:
+    class: \Drupal\labdoo_migrate\Commands\StorySynchronizerCommands
+    arguments:
+      - '@labdoo_migrate.database.external_connection_manager'
+      - '@labdoo_migrate.media.file_manager'
+      - '@entity_type.manager'
+    tags:
+      - { name: drush.command }
+
+  labdoo_migrate.synchronizer_team_commands:
+    class: \Drupal\labdoo_migrate\Commands\TeamSynchronizerCommands
+    arguments:
+      - '@labdoo_migrate.database.external_connection_manager'
+      - '@labdoo_migrate.media.file_manager'
+      - '@entity_type.manager'
+      - '@labdoo_migrate.media.media_manager'
+    tags:
+      - { name: drush.command }
+
+  labdoo_migrate.synchronizer_gallery_commands:
+    class: \Drupal\labdoo_migrate\Commands\GallerySynchronizerCommands
+    arguments:
+      - '@labdoo_migrate.database.external_connection_manager'
+      - '@labdoo_migrate.media.file_manager'
+      - '@entity_type.manager'
+    tags:
+      - { name: drush.command }
+
+  labdoo_migrate.import_permissions:
+    class: Drupal\labdoo_migrate\Commands\ImportPermissionsCommands
+    arguments:
+      - '@user.permissions'
+    tags:
+      - { name: drush.command }
+
+  labdoo_migrate.synchronizer_basic_page_commands:
+    class: \Drupal\labdoo_migrate\Commands\BasicPageSynchronizerCommands
+    arguments:
+      - '@labdoo_migrate.database.external_connection_manager'
+      - '@labdoo_migrate.media.file_manager'
+      - '@entity_type.manager'
+      - '@labdoo_migrate.source_content.translation_repository'
+      - '@labdoo_migrate.destination_content.translation_repository'
+    tags:
+      - { name: drush.command }

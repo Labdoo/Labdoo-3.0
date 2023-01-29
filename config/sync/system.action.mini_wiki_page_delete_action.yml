@@ -1,0 +1,13 @@
+uuid: 5d948424-9f0f-4aac-a210-ca596f8b1db7
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+_core:
+  default_config_hash: wYAY3hxFDNlnxYVX6D-3JopZJvfGSQwMH2GoZ5MsnxQ
+id: mini_wiki_page_delete_action
+label: 'Delete wiki pages'
+type: mini_wiki_page
+plugin: 'entity:delete_action:mini_wiki_page'
+configuration: {  }

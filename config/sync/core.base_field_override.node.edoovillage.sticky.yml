@@ -1,0 +1,22 @@
+uuid: f6e14ef9-2efe-44cd-bbc4-17ec39741dab
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.edoovillage
+id: node.edoovillage.sticky
+field_name: sticky
+entity_type: node
+bundle: edoovillage
+label: 'Sticky at top of lists'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

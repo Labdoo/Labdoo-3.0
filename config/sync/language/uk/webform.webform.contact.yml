@@ -1,0 +1,18 @@
+title: Контакт
+description: 'Проста електронна контактна вебформа.'
+elements: "name:\r\n  '#title': 'Ваше ім''я'\r\n  '#type': textfield\r\n  '#required': true\r\n  '#default_value': '[current-user:display-name]'\r\nemail:\r\n  '#title': 'Ваша електронна адреса'\r\n  '#type': email\r\n  '#required': true\r\n  '#default_value': '[current-user:mail]'\r\nsubject:\r\n  '#title': Тема\r\n  '#type': textfield\r\n  '#required': true\r\n  '#test': 'Тестування контактної вебформи з сайту [site:name]'\r\nmessage:\r\n  '#title': Message\r\n  '#type': textarea\r\n  '#required': true\r\n  '#test': 'Будь ласка ігноруйте цей лист.'\r\nactions:\r\n  '#type': webform_actions\r\n  '#title': 'Кнопка(и) Надіслати'\r\n  '#submit__label': 'Надіслати повідомлення'\n"
+settings:
+  confirmation_message: 'Ваше повідомлення було відправлене.'
+handlers:
+  email_confirmation:
+    label: 'Підтвердження поштою'
+    settings:
+      from_name: _default
+      subject: '[webform_submission:values:subject:raw]'
+      body: '[webform_submission:values:message:value]'
+  email_notification:
+    label: 'Електронне сповіщення'
+    settings:
+      from_name: '[webform_submission:values:name:raw]'
+      subject: '[webform_submission:values:subject:raw]'
+      body: '[webform_submission:values:message:value]'

@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function labdoo_user_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.labdoo_user':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Labdoo User module centralizes all user functionalities for the Labdoo platform.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function labdoo_user_theme() {
+  return [
+    'labdoo_user_dashboard' => [
+      'variables' => [
+        'username' => '',
+        'common_tasks' => [],
+        'advanced_tasks' => [],
+      ],
+      'template' => 'user-dashboard',
+    ],
+    'labdoo_user_metrics' => [
+      'variables' => [
+        'user_id' => 0,
+        'num_doojects' => 0,
+        'num_dootrips' => 0,
+        'num_edoovillages' => 0,
+        'num_hubs' => 0,
+        'num_wikis' => 0,
+        'footprint_carbon' => 0,
+        'footprint_trees' => 0,
+        'footprint_gas' => 0,
+        'footprint_plastic' => 0,
+        'footprint_water' => 0,
+        'footprint_aluminum' => 0,
+        'footprint_gold' => 0,
+        'footprint_silver' => 0,
+        'footprint_palladium' => 0,
+        'footprint_copper' => 0,
+        'footprint_cobalt' => 0,
+        'footprint_chemical' => 0,
+      ],
+      'template' => 'user-metrics',
+    ],
+    'labdoo_user_my_roles' => [
+      'variables' => [
+        'current_roles' => [],
+        'available_roles' => [],
+      ],
+      'template' => 'user-my-roles',
+    ],
+  ];
+}

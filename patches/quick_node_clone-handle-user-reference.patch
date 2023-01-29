@@ -1,0 +1,57 @@
+diff --git a/src/Entity/QuickNodeCloneEntityFormBuilder.php b/src/Entity/QuickNodeCloneEntityFormBuilder.php
+index 3678999..46923e7 100755
+--- a/src/Entity/QuickNodeCloneEntityFormBuilder.php
++++ b/src/Entity/QuickNodeCloneEntityFormBuilder.php
+@@ -131,6 +131,7 @@ class QuickNodeCloneEntityFormBuilder extends EntityFormBuilder {
+       /** @var \Drupal\node\Entity\Node $translated_node */
+       $translated_node = $new_node->getTranslation($langcode);
+       $translated_node = $this->cloneParagraphs($translated_node);
++      $translated_node = $this->handleUserReferenceFields($translated_node);
+ 
+       // Unset excluded fields.
+       $config_name = 'exclude.node.' . $translated_node->getType();
+@@ -243,6 +244,44 @@ class QuickNodeCloneEntityFormBuilder extends EntityFormBuilder {
+     return $node;
+   }
+ 
++  /**
++   * Handle user reference fields in a node.
++   *
++   * Ensures that user reference fields have their target_bundles set to null
++   * since the user entity type doesn't support bundles.
++   *
++   * @param \Drupal\node\Entity\Node $node
++   *   The node to process.
++   *
++   * @return \Drupal\node\Entity\Node
++   *   The node with properly configured user reference fields.
++   */
++  public function handleUserReferenceFields(Node $node) {
++    foreach ($node->getFieldDefinitions() as $field_definition) {
++      $field_storage_definition = $field_definition->getFieldStorageDefinition();
++      $field_settings = $field_storage_definition->getSettings();
++      $field_name = $field_storage_definition->getName();
++
++      // Check if this is an entity reference field that points to users.
++      if (isset($field_settings['target_type']) && $field_settings['target_type'] == 'user') {
++        if (!$node->get($field_name)->isEmpty()) {
++          // Get the field's handler settings.
++          $handler_settings = $field_definition->getSetting('handler_settings');
++
++          // If target_bundles is set, set it to null for user entity references.
++          if (isset($handler_settings['target_bundles'])) {
++            $handler_settings['target_bundles'] = null;
++
++            // Update the field's handler settings.
++            $field_definition->setSetting('handler_settings', $handler_settings);
++          }
++        }
++      }
++    }
++
++    return $node;
++  }
++
+   /**
+    * Check whether to exclude the paragraph field.
+    *

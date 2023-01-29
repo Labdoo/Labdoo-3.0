@@ -1,0 +1,18 @@
+uuid: 012fb242-aa69-47fc-9179-26c7a7074362
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.hub
+id: node.hub.changed
+field_name: changed
+entity_type: node
+bundle: hub
+label: Changed
+description: 'The time that the node was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

@@ -1,0 +1,18 @@
+uuid: f8b75bc4-9791-4ee8-a4ae-9093463fe25b
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.team_post
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: node.team_post
+target_entity_type_id: node
+target_bundle: team_post
+default_langcode: site_default
+language_alterable: false

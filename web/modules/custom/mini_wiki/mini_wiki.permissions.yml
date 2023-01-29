@@ -1,0 +1,17 @@
+administer mini_wiki_page:
+  title: 'Administer wiki pages'
+  restrict access: true
+view mini_wiki_page:
+  title: 'View wiki page'
+edit mini_wiki_page:
+  title: 'Edit wiki page'
+delete mini_wiki_page:
+  title: 'Delete wiki page'
+create mini_wiki_page:
+  title: 'Create wiki page'
+view mini_wiki_page revision:
+  title: 'View wiki page revision'
+revert mini_wiki_page revision:
+  title: 'Revert wiki page revision'
+delete mini_wiki_page revision:
+  title: 'Delete wiki page revision'

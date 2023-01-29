@@ -1,0 +1,40 @@
+display:
+  default:
+    display_title: 主
+    display_options:
+      exposed_form:
+        options:
+          submit_button: 应用
+          reset_button_label: 重置
+          exposed_sorts_label: 排序依据
+          sort_asc_label: 升序
+          sort_desc_label: 降序
+      pager:
+        options:
+          expose:
+            items_per_page_label: 每页条目数
+            items_per_page_options_all_label: '- 全部 -'
+            offset_label: 偏移量
+          tags:
+            previous: '‹ 上一个'
+            next: '下一个 ›'
+            first: '« 首页'
+            last: '末页 »'
+      fields:
+        name:
+          label: 名称
+          separator: ', '
+        version:
+          label: 版本
+        language:
+          label: 语言
+        revision:
+          label: 修订
+        accepted:
+          label: 接受时间
+      title: 已接受
+      empty:
+        area:
+          admin_label: 已接受
+  page_1:
+    display_title: 页面

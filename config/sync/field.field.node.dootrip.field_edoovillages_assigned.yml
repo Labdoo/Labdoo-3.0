@@ -1,0 +1,29 @@
+uuid: 54cea97f-3ac3-4b0c-b272-470fc49f8c35
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_edoovillages_assigned
+    - node.type.dootrip
+    - node.type.edoovillage
+id: node.dootrip.field_edoovillages_assigned
+field_name: field_edoovillages_assigned
+entity_type: node
+bundle: dootrip
+label: 'Edoovillages assigned'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      edoovillage: edoovillage
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

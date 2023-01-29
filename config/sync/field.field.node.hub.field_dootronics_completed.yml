@@ -1,0 +1,23 @@
+uuid: 71ed2e44-6edd-444b-a7cd-6f474143cd02
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootronics_completed
+    - node.type.hub
+id: node.hub.field_dootronics_completed
+field_name: field_dootronics_completed
+entity_type: node
+bundle: hub
+label: 'Number of Dootronics completed'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: '%'
+field_type: decimal

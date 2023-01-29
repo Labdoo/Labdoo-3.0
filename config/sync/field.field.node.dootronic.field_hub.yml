@@ -1,0 +1,29 @@
+uuid: 220ac4df-c98b-45db-9742-def88d6f8a87
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hub
+    - node.type.dootronic
+    - node.type.hub
+id: node.dootronic.field_hub
+field_name: field_hub
+entity_type: node
+bundle: dootronic
+label: 'Source hub'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      hub: hub
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -1,0 +1,20 @@
+entity.mini_wiki_page.settings:
+  path: 'admin/structure/mini-wiki-page'
+  defaults:
+    _form: '\Drupal\mini_wiki\Form\MiniWikiPageSettingsForm'
+    _title: 'Wiki Page'
+  requirements:
+    _permission: 'administer mini_wiki_page'
+
+entity.mini_wiki_page.add_form:
+  path: '/wiki-page/add/{parent}'
+  defaults:
+    _entity_form: 'mini_wiki_page.add'
+    _title: 'Create mini Wiki Page'
+    parent: NULL
+  requirements:
+    _entity_create_access: 'mini_wiki_page'
+  options:
+    parameters:
+      parent:
+        type: entity:mini_wiki_page

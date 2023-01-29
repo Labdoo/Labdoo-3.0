@@ -1,0 +1,36 @@
+uuid: d624089b-44da-48c3-a6f7-64693bc7b913
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_task_type
+field_name: field_task_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: general_task
+      label: 'General task'
+    -
+      value: website_bug
+      label: 'Website bug'
+    -
+      value: feature_request
+      label: 'Feature request'
+    -
+      value: dootronic_sanitation_event
+      label: 'Dootronic sanitation event'
+    -
+      value: outreaching_activity
+      label: 'Outreaching activity'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,11 @@
+services:
+  mini_wiki.tree_manager:
+    class: Drupal\mini_wiki\Service\MiniWikiTreeManager
+    arguments:
+      - '@entity_type.manager'
+      - '@language_manager'
+
+  mini_wiki.repository:
+    class: Drupal\mini_wiki\Service\MiniWikiRepository
+    arguments:
+      - '@entity_type.manager'

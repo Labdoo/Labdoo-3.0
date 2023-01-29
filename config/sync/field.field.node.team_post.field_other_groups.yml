@@ -1,0 +1,25 @@
+uuid: 24e230d4-c81c-49fa-9453-4172b0970b6b
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_other_groups
+    - node.type.team_post
+id: node.team_post.field_other_groups
+field_name: field_other_groups
+entity_type: node
+bundle: team_post
+label: 'Other teams'
+description: 'As teams administrator, associate this content with teams you do not belong to.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: my_teams
+      display_name: entity_reference_2
+      arguments: {  }
+field_type: entity_reference

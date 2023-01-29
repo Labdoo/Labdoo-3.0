@@ -1,0 +1,7 @@
+name: Labdoo Admin Toolbar
+description: 'Custom admin toolbar with horizontal layout and dropdown menus.'
+type: module
+core_version_requirement: ^8 || ^9 || ^10
+package: Labdoo
+dependencies:
+  - drupal:toolbar

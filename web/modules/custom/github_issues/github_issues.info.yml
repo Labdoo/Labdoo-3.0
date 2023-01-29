@@ -1,0 +1,7 @@
+name: 'GitHub issues'
+type: module
+description: 'Lists, creates and edits GitHub issues.'
+core_version_requirement: ^10
+package: 'Custom'
+dependencies: {}
+configure: github_issues.configuration

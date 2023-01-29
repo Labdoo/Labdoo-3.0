@@ -1,0 +1,71 @@
+display:
+  default:
+    display_title: Maestro
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Aplicar
+          reset_button_label: Restablecer
+          exposed_sorts_label: 'Ordenar por'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      pager:
+        options:
+          tags:
+            previous: '‹ Anterior'
+            next: 'Siguiente >'
+            first: '« Primero'
+            last: 'Último »'
+          expose:
+            items_per_page_label: 'Elementos por página'
+            items_per_page_options_all_label: '- Todo -'
+            offset_label: Desplazamiento
+      fields:
+        nid:
+          separator: ', '
+        title:
+          label: Título
+          separator: ', '
+        type:
+          label: Tipo
+          separator: ', '
+        status:
+          label: Publicado
+          separator: ', '
+        changed:
+          label: 'Última actualización'
+          separator: ', '
+        uid:
+          label: Autor
+          separator: ', '
+        revision_uid:
+          separator: ', '
+      filters:
+        title:
+          expose:
+            label: Título
+        type:
+          expose:
+            label: Tipo
+        status:
+          expose:
+            label: Publicado
+      title: 'Mis ediciones'
+      arguments:
+        uid_revision:
+          exception:
+            title: Todo(s)
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Primero'
+            last: 'Último »'
+          expose:
+            items_per_page_label: 'Elementos por página'
+            items_per_page_options_all_label: '- Todo -'
+            offset_label: Desplazamiento
+      use_more_text: 'ver todo'

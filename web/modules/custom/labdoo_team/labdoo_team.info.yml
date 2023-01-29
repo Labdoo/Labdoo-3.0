@@ -1,0 +1,7 @@
+name: 'Labdoo Team'
+type: module
+description: 'A team is a space where members can share ideas and proposals.'
+package: 'Labdoo'
+core_version_requirement: ^10
+dependencies:
+  - drupal:labdoo_common

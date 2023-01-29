@@ -1,0 +1,22 @@
+uuid: 45082080-8586-4f94-9973-97bb2692f763
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootronic
+id: node.dootronic.promote
+field_name: promote
+entity_type: node
+bundle: dootronic
+label: 'Promoted to front page'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

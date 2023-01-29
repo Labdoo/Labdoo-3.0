@@ -1,0 +1,18 @@
+uuid: e1b9948e-8012-47ac-a7da-f6b45b24e2ca
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.edoovillage
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: node.edoovillage
+target_entity_type_id: node
+target_bundle: edoovillage
+default_langcode: site_default
+language_alterable: false

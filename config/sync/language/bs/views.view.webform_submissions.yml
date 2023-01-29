@@ -1,0 +1,67 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Primjeni
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sortiraj prema'
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+      fields:
+        created:
+          label: Kreiran
+        view_webform_submission:
+          label: Operacije
+          text: view
+      arguments:
+        in_draft:
+          exception:
+            title: Sve
+  embed_administer:
+    display_options:
+      fields:
+        locked:
+          label: Zaključano
+        created:
+          label: Kreiran
+        operations:
+          label: Operacije
+      filters:
+        locked:
+          expose:
+            label: Zaključano
+  embed_manage:
+    display_options:
+      fields:
+        locked:
+          label: Zaključano
+        created:
+          label: Kreiran
+        view_webform_submission:
+          label: Operacije
+          text: view
+        edit_webform_submission:
+          label: Operacije
+          text: izmijeni
+      filters:
+        locked:
+          expose:
+            label: Zaključano
+  embed_review:
+    display_options:
+      fields:
+        locked:
+          label: Zaključano
+        created:
+          label: Kreiran
+        view_webform_submission:
+          label: Operacije
+          text: view
+      filters:
+        locked:
+          expose:
+            label: Zaključano

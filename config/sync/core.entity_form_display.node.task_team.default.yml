@@ -1,0 +1,109 @@
+uuid: ce99f911-1f2f-4c3e-af45-2cc689c350aa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.task_team.body
+    - field.field.node.task_team.field_assigned_to
+    - field.field.node.task_team.field_due_date
+    - field.field.node.task_team.field_share_additional_users
+    - field.field.node.task_team.field_share_members
+    - field.field.node.task_team.field_task_priority
+    - field.field.node.task_team.field_task_status
+    - field.field.node.task_team.field_task_type
+    - field.field.node.task_team.field_team
+    - field.field.node.task_team.field_team_comments
+    - node.type.task_team
+  module:
+    - comment
+    - datetime
+    - text
+id: node.task_team.default
+targetEntityType: node
+bundle: task_team
+mode: default
+content:
+  body:
+    type: text_textarea_with_summary
+    weight: 4
+    region: content
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+      show_summary: false
+    third_party_settings: {  }
+  field_assigned_to:
+    type: entity_reference_autocomplete
+    weight: 5
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_due_date:
+    type: datetime_default
+    weight: 6
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_share_additional_users:
+    type: entity_reference_autocomplete
+    weight: 8
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_share_members:
+    type: boolean_checkbox
+    weight: 7
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  field_task_priority:
+    type: options_select
+    weight: 3
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_task_status:
+    type: options_select
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_task_type:
+    type: options_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_team_comments:
+    type: comment_default
+    weight: 26
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_team: true
+  langcode: true
+  path: true
+  promote: true
+  status: true
+  sticky: true
+  uid: true

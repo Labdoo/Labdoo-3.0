@@ -1,0 +1,44 @@
+{
+  "files_config": {
+    "replacement_token": "public://",
+    "source_files_folder": "/home/emartos/Projects/labdoo2/sites/default/files/",
+    "destination_files_folder": "/var/www/html/labdoo3/web/sites/default/files/",
+    "media_location": "public://media/",
+    "copy_files_content": "true"
+  },
+  "content_translation": {
+    "table_name": "node",
+    "field_id_name": "nid",
+    "field_lang_name": "language",
+    "key_name": "tnid",
+    "create_translations": "true"
+  },
+  "dynamic_paragraphs": {
+    "source_data": {
+      "bundles": {
+        "table": "paragraphs_item",
+        "field": "bundle",
+        "key": "item_id"
+      },
+      "fieldname": {
+        "table": "field_config_instance",
+        "field": "field_name",
+        "key": "bundle"
+      },
+      "value": {
+        "table_prefix": "field_data_",
+        "field_suffix": [
+          "_value",
+          "_url",
+          "_video_url",
+          "_fid",
+          "_email",
+          "_target_id"
+        ],
+        "key": "entity_id"
+      }
+    },
+    "mapping": {
+    }
+  }
+}

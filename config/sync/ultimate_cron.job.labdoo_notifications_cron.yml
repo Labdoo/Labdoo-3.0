@@ -1,0 +1,17 @@
+uuid: 72243741-c0ee-4259-8294-4ed13e2cf7ff
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_notifications
+title: 'Default cron handler'
+id: labdoo_notifications_cron
+weight: 0
+module: labdoo_notifications
+callback: 'labdoo_notifications#cron'
+scheduler:
+  id: simple
+launcher:
+  id: serial
+logger:
+  id: database

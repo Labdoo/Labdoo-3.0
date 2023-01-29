@@ -1,0 +1,43 @@
+label: Ֆայլեր
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      title: Ֆայլեր
+      fields:
+        filename:
+          label: Անուն
+        filemime:
+          label: 'MIME տեսակը'
+        filesize:
+          label: Չափ
+        status:
+          label: Կարգավիճակ
+        count:
+          label: 'Օգտագործվել է'
+        operations:
+          label: Գործողություններ
+      exposed_form:
+        options:
+          submit_button: Ֆիլտր
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      filters:
+        filename:
+          expose:
+            label: 'ֆայլի անունը'
+        filemime:
+          expose:
+            label: 'MIME տեսակը'
+        status:
+          expose:
+            label: Կարգավիճակ
+  page_1:
+    display_options:
+      menu:
+        title: Ֆայլեր
+  page_2:
+    display_options:
+      fields:
+        type:
+          label: 'Կազմակերպության տեսակը'

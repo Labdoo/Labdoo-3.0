@@ -1,0 +1,58 @@
+label: Մարդիկ
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      title: Մարդիկ
+      fields:
+        name:
+          label: 'Օգտագործողի անուն'
+        status:
+          label: Կարգավիճակ
+          settings:
+            format_custom_false: Արգելափակված
+            format_custom_true: Ակտիվ
+        roles_target_id:
+          label: Դերեր
+        created:
+          settings:
+            future_format: '@interval'
+            past_format: '@interval'
+        access:
+          label: 'Վերջին մուտքը'
+          settings:
+            future_format: '@interval անց'
+            past_format: '@interval առաջ'
+        operations:
+          label: Գործողություններ
+      exposed_form:
+        options:
+          submit_button: Ֆիլտր
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      empty:
+        area_text_custom:
+          content: 'Ոչ մի մարդ հասանելի չի'
+      filters:
+        combine:
+          expose:
+            label: 'Անունը կամ էլ-հասցեն պարունակում են'
+        status:
+          group_info:
+            label: Կարգավիճակ
+            group_items:
+              1:
+                title: Ակտիվ
+              2:
+                title: Արգելափակված
+        roles_target_id:
+          expose:
+            label: Դեր
+      use_more_text: ավելի
+  page_1:
+    display_title: Էջ
+    display_options:
+      menu:
+        title: Ցանկ
+      tab_options:
+        title: Մարդիկ

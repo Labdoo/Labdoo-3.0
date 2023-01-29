@@ -1,0 +1,31 @@
+uuid: 0378552a-4ac0-4fbb-aaa4-284c2e5fdc6d
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_story_section
+    - node.type.labdoo_story
+    - paragraphs.paragraphs_type.story_section
+  module:
+    - entity_reference_revisions
+id: node.labdoo_story.field_story_section
+field_name: field_story_section
+entity_type: node
+bundle: labdoo_story
+label: 'Story section'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      story_section: story_section
+    negate: 0
+    target_bundles_drag_drop:
+      story_section:
+        weight: 2
+        enabled: true
+field_type: entity_reference_revisions

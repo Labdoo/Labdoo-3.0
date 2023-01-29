@@ -1,0 +1,19 @@
+uuid: 99d27cff-a518-4657-b5a2-c86b1424c894
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_local_language_s_
+    - node.type.edoovillage
+id: node.edoovillage.field_local_language_s_
+field_name: field_local_language_s_
+entity_type: node
+bundle: edoovillage
+label: 'Local language(s)'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,17 @@
+<div id="block-story-actions" class="block block-actions-block-block">
+    <div class="views-exposed-form block-views">
+        <div class="block-title-wrapper"><span class="block-title">{{ "Actions available for this story:"|t }}</span></div>
+        <div class="actions">
+            {% if edit_link is not empty %}
+            <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/house.png">{{ "Edit this story"|t }}</a></div>
+            {% endif %}
+            <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png">{{ "Next story"|t }}</a></div>
+            <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous story"|t }}</a></div>
+            {% if parent_link is not empty %}
+                <div class="action"><a href="{{ parent_link }}"><img class="icon" src="/themes/custom/labdoo/img/{{ parent_type }}.png">This story comes from&nbsp;{{ parent_title }}</a></div>
+            {% endif %}
+            <div class="action"><strong>{{ 'Date it was created:'|t }}</strong> {{ created }}</div>
+            <div class="action"><strong>{{ 'Date it was last updated:'|t }}</strong> {{ updated }}</div>
+        </div>
+    </div>
+</div>

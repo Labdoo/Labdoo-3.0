@@ -1,0 +1,184 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ *
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Url;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function mini_wiki_theme(): array {
+  return [
+    'mini_wiki_page' => [
+      'render element' => 'elements'
+    ],
+    'mini_wiki_navigation_block' => [
+      'variables' => [
+        'entity_id' => '',
+        'parent_link' => '',
+        'children_links' => '',
+      ],
+      'template' => 'block--wiki-navigation-block',
+    ],
+  ];
+}
+
+/**
+ * Prepares variables for wiki page templates.
+ *
+ * Default template: mini-wiki-page.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the wiki page information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_mini_wiki_page(array &$variables): void {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function mini_wiki_user_cancel($edit, UserInterface $account, $method): void {
+  switch ($method) {
+    case 'user_cancel_block_unpublish':
+      // Unpublish wiki pages.
+      $storage = \Drupal::entityTypeManager()->getStorage('mini_wiki_page');
+      $mini_wiki_page_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->condition('status', 1)
+        ->accessCheck(FALSE)
+        ->execute();
+      foreach ($storage->loadMultiple($mini_wiki_page_ids) as $mini_wiki_page) {
+        $mini_wiki_page->set('status', FALSE)->save();
+      }
+      break;
+
+    case 'user_cancel_reassign':
+      // Anonymize wiki pages.
+      $storage = \Drupal::entityTypeManager()->getStorage('mini_wiki_page');
+      $mini_wiki_page_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->accessCheck(FALSE)
+        ->execute();
+      foreach ($storage->loadMultiple($mini_wiki_page_ids) as $mini_wiki_page) {
+        $mini_wiki_page->setOwnerId(0)->save();
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for user entities.
+ */
+function mini_wiki_user_predelete(UserInterface $account): void {
+  // Delete wiki pages that belong to this account.
+  $storage = \Drupal::entityTypeManager()->getStorage('mini_wiki_page');
+  $mini_wiki_page_ids = $storage->getQuery()
+    ->condition('uid', $account->id())
+    ->accessCheck(FALSE)
+    ->execute();
+  $storage->delete(
+    $storage->loadMultiple($mini_wiki_page_ids)
+  );
+  // Delete old revisions.
+  $mini_wiki_page_ids = $storage->getQuery()
+    ->allRevisions()
+    ->condition('uid', $account->id())
+    ->accessCheck(FALSE)
+    ->execute();
+  foreach (array_keys($mini_wiki_page_ids) as $revision_id) {
+    $storage->deleteRevision($revision_id);
+  }
+}
+
+/**
+ * Returns an array of allowed text formats for a mini-wiki.
+ *
+ * @param FieldStorageDefinitionInterface $definition
+ *   The field storage definition interface.
+ * @param ContentEntityInterface|null $entity
+ *   The content entity interface.
+ * @param bool $cacheable
+ *   A boolean indicating whether the result is cacheable.
+ *
+ * @return array An array of allowed text formats as key-value pairs.
+ */
+function mini_wiki_allowed_text_formats(FieldStorageDefinitionInterface $definition, ContentEntityInterface $entity = NULL, $cacheable = TRUE): array {
+  return [
+    'basic_html' => 'Basic HTML',
+    'markdown' => 'Markdown',
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for field templates.
+ */
+function mini_wiki_preprocess_field(&$variables, $hook) {
+  if ($variables['entity_type'] !== 'mini_wiki_page') {
+    return;
+  }
+
+  $element = $variables['element'];
+  if ($element['#field_name'] == 'field_tags') {
+    foreach ($variables['items'] as $key => $item) {
+      $url = Url::fromRoute(
+        'view.wiki_tags.page_1',
+        [
+          'arg_0' => $item['content']['#entity']->id(),
+        ]
+      );
+      $variables['items'][$key]['content']['#url'] = $url;
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function mini_wiki_entity_presave(EntityInterface $entity) {
+  __mini_wiki_clear_cachetag($entity);
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function mini_wiki_entity_delete(EntityInterface $entity) {
+  __mini_wiki_clear_cachetag($entity);
+}
+
+/**
+ * Invalidate the entity cache tag.
+ *
+ * @return void
+ */
+function __mini_wiki_clear_cachetag(EntityInterface $entity) {
+  $entityTag = sprintf(
+    'wiki-page:%d',
+    $entity->id()
+  );
+  $cacheTags = [
+    $entityTag,
+    'wiki-page:list-date',
+  ];
+
+  \Drupal::service('cache_tags.invalidator')->invalidateTags($cacheTags);
+}

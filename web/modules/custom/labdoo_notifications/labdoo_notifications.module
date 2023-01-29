@@ -1,0 +1,163 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\comment\CommentInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_help().
+ */
+function labdoo_notifications_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.labdoo_notifications':
+      return '<p>' . t('Implements Labdoo communication features such as automatic email notifications.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function labdoo_notifications_theme() {
+  return [
+    'notification_email' => [
+      'variables' => [
+        'subject' => '',
+        'body' => '',
+      ],
+      'template' => 'notification-email',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_mail().
+ */
+function labdoo_notifications_mail($key, &$message, $email_params) {
+  $message['subject'] = $email_params['subject'];
+  $message['body'][] = $email_params['body'];
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function labdoo_notifications_node_presave(EntityInterface $node) {
+  if (!$node instanceof NodeInterface) {
+    return;
+  }
+
+  // Process laptop notifications.
+  if ($node->getType() === 'laptop') {
+    /** @var Drupal\labdoo_notifications\Service\EntityProcessor\ $processor */
+    $processor = \Drupal::service('labdoo_notifications.entity_processor.laptop');
+    $processor->process($node, 'presave', NULL);
+  }
+
+  // Process dootrip notifications.
+  if ($node->getType() === 'dootrip') {
+    /** @var Drupal\labdoo_notifications\Service\EntityProcessor\ $processor */
+    $processor = \Drupal::service('labdoo_notifications.entity_processor.dootrip');
+    $processor->process($node, 'presave', NULL);
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function labdoo_notifications_node_insert(EntityInterface $node) {
+  if (!$node instanceof NodeInterface) {
+    return;
+  }
+
+  // Process dootrip notifications.
+  if ($node->getType() === 'dootrip') {
+    $processor = \Drupal::service('labdoo_notifications.entity_processor.dootrip');
+    $processor->process($node, 'insert', NULL);
+  }
+
+  // Process team-related notifications.
+  if (in_array($node->getType(), ['team_page', 'event', 'team_task'])) {
+    $processor = \Drupal::service("labdoo_notifications.entity_processor.{$node->getType()}");
+    $processor->process($node, 'insert', NULL);
+  }
+}
+
+/**
+ * Implements hook_comment_insert().
+ */
+function labdoo_notifications_comment_insert(CommentInterface $comment) {
+  $entity = $comment->getCommentedEntity();
+  if (!$entity instanceof NodeInterface) {
+    return;
+  }
+
+  // Process team-related notifications for comments.
+  if (in_array($entity->getType(), ['team_page', 'event', 'team_task'])) {
+    $processor = \Drupal::service("labdoo_notifications.entity_processor.{$entity->getType()}");
+    $processor->process($entity, 'insert', $comment);
+  }
+}
+
+/**
+ * Implements hook_user_insert().
+ */
+function labdoo_notifications_user_insert(&$edit, $account, $category) {
+  $processor = \Drupal::service('labdoo_notifications.entity_processor.user');
+  $processor->process($account, 'insert', NULL);
+
+  // The processor doesn't have access to $edit and $category, so we'll call the notification manager directly.
+  $notificationManager = \Drupal::service('labdoo_notifications.notification_manager');
+  $notificationManager->sendUserCreatedEmail($edit, $account, $category);
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function labdoo_notifications_mail_alter(&$message) {
+  // Disable the default user registration email.
+  if ($message['id'] === 'user_register_no_approval_required') {
+    $message['send'] = FALSE;
+  }
+
+  // Ensure there's a 'to' field.
+  if (empty($message['to'])) {
+    \Drupal::logger('labdoo_notifications')->warning('Trying to send a message without a \'to\' field');
+    $message['send'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function labdoo_notifications_cron() {
+  // Check for expired dootrips.
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $query = $storage->getQuery()
+    ->condition('type', 'dootrip')
+    ->condition('field_trip_date', date('Y-m-d'), '<')
+    ->condition('field_expired', 0)
+    ->accessCheck(FALSE);
+  $nids = $query->execute();
+
+  if (!empty($nids)) {
+    $dootrips = $storage->loadMultiple($nids);
+    $processor = \Drupal::service('labdoo_notifications.entity_processor.dootrip');
+
+    foreach ($dootrips as $dootrip) {
+      // Mark the dootrip as expired.
+      $dootrip->set('field_expired', 1);
+      $dootrip->save();
+
+      // Send notification.
+      $processor->process($dootrip, 'expired', NULL);
+    }
+  }
+
+}

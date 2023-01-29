@@ -1,0 +1,9 @@
+services:
+  labdoo_team.membership.manager:
+    class: Drupal\labdoo_team\Service\MembershipManager
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+      - '@logger.factory'
+      - '@request_stack'
+      - '@event_dispatcher'

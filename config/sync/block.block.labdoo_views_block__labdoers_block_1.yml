@@ -1,0 +1,29 @@
+uuid: 787b390f-dbbe-4b8b-8f6e-bf6d89537cc1
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.labdoers
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_views_block__labdoers_block_1
+theme: labdoo
+region: content
+weight: -9
+provider: null
+plugin: 'views_block:labdoers-block_1'
+settings:
+  id: 'views_block:labdoers-block_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /labdoers

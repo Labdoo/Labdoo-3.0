@@ -1,0 +1,21 @@
+uuid: 55da556f-cf57-4449-b67d-106b3cccacf4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_hub_manager_notifications
+  module:
+    - options
+    - user
+id: user.user.field_hub_manager_notifications
+field_name: field_hub_manager_notifications
+entity_type: user
+bundle: user
+label: 'Types of notifications'
+description: 'Select which types of notifications you want to receive as a hub manager. [<a href="../../content/managing-your-hub-notification-triggers" target="_blank">Help</a>]'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

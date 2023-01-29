@@ -1,0 +1,22 @@
+uuid: b7aaf963-6dbd-4d5b-98be-5510205c6e39
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootronic
+id: node.dootronic.status
+field_name: status
+entity_type: node
+bundle: dootronic
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

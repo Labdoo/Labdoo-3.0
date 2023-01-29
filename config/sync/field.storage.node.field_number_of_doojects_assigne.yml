@@ -1,0 +1,20 @@
+uuid: 9fb19960-cbe1-486c-97fd-7c1840d337d0
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_number_of_doojects_assigne
+field_name: field_number_of_doojects_assigne
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

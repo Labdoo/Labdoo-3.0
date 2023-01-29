@@ -1,0 +1,19 @@
+uuid: f2d4c3d8-9cd2-4a46-8f4e-4860306bdde8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_on_site_point_of_contact
+    - node.type.edoovillage
+id: node.edoovillage.field_on_site_point_of_contact
+field_name: field_on_site_point_of_contact
+entity_type: node
+bundle: edoovillage
+label: 'On-site point of contact'
+description: 'Email address, phone number, website, etc.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

@@ -1,0 +1,18 @@
+uuid: bc250b21-13fd-42e7-bf1c-5adf3335685d
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+    - serialization
+    - user
+id: mini_wiki_page_date_resource
+plugin_id: mini_wiki_page_date_resource
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - cookie

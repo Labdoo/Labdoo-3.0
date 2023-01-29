@@ -1,0 +1,28 @@
+uuid: 68ff7cdd-b45f-45bf-b846-d2136a2ba49f
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.dootrips_dashboard
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_exposedformdootrips_dashboardpage_1
+theme: labdoo
+region: sidebar
+weight: -16
+provider: null
+plugin: 'views_exposed_filter_block:dootrips_dashboard-page_1'
+settings:
+  id: 'views_exposed_filter_block:dootrips_dashboard-page_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /content/dootrips-dashboard

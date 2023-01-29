@@ -1,0 +1,7 @@
+services:
+  labdoo_edoovillage.export.csv:
+    class: Drupal\labdoo_edoovillage\Service\Export\CsvExport
+    arguments: ['@labdoo_common.repository.view']
+
+  labdoo_edoovillage.permission.dootronic:
+    class: Drupal\labdoo_edoovillage\Service\Permission\DootronicPermissionChecker

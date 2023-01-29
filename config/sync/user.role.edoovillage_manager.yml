@@ -1,0 +1,20 @@
+uuid: 66d8706f-e0e7-457e-9e50-2604314f5481
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.edoovillage
+    - node.type.labdoo_story
+  module:
+    - eu_cookie_compliance
+    - node
+id: edoovillage_manager
+label: 'Edoovillage Manager'
+weight: 7
+is_admin: null
+permissions:
+  - 'create edoovillage content'
+  - 'create labdoo_story content'
+  - 'display eu cookie compliance popup'
+  - 'edit own edoovillage content'
+  - 'edit own labdoo_story content'

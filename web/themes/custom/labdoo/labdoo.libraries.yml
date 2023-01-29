@@ -1,0 +1,8 @@
+custom-styling:
+  css:
+    theme:
+      css/main.css: {}
+
+labdoo_ui:
+  js:
+    js/labdoo-ui.js: { minified: true }

@@ -1,0 +1,23 @@
+uuid: b3fad598-4809-480b-b15a-ba57f3f2818a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hub_status
+    - node.type.hub
+  module:
+    - options
+id: node.hub.field_hub_status
+field_name: field_hub_status
+entity_type: node
+bundle: hub
+label: Semaphore
+description: "Open: the hub is open and active\r\n<br/>\r\nInactive: the hub is temporarily inactive and it cannot accept nor provide any dootronics\r\n<br/>\r\nClosed: the hub is closed (new volunteers are welcome to help reopen this hub)\r\n<a href=\"../../content/managing-your-hub-semaphore\" target='_blank'>[more help]</a>"
+required: false
+translatable: false
+default_value:
+  -
+    value: open
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,20 @@
+uuid: 528f2cbe-f5da-4f20-a536-c8e7e8ea55c5
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootronic
+id: node.dootronic.uid
+field_name: uid
+entity_type: node
+bundle: dootronic
+label: 'Authored by'
+description: 'The username of the content author.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: 'Drupal\node\Entity\Node::getDefaultEntityOwner'
+settings:
+  handler: default
+  handler_settings: {  }
+field_type: entity_reference

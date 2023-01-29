@@ -1,0 +1,14 @@
+uuid: ee3a4849-50d7-45c5-a8fb-a798d9a1780c
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+id: mini_wiki_page
+label: 'Mini wiki Page'
+type: 'canonical_entities:mini_wiki_page'
+pattern: 'content/[mini_wiki_page:label]'
+selection_criteria: {  }
+selection_logic: and
+weight: 0
+relationships: {  }

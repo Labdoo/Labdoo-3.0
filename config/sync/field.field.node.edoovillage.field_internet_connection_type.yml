@@ -1,0 +1,21 @@
+uuid: 35bffae8-00a3-4748-9a6f-1fa86b805409
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_internet_connection_type
+    - node.type.edoovillage
+  module:
+    - options
+id: node.edoovillage.field_internet_connection_type
+field_name: field_internet_connection_type
+entity_type: node
+bundle: edoovillage
+label: 'Internet connection type'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

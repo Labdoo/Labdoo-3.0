@@ -1,0 +1,37 @@
+<div id="block-dootrips-chart" class="block block-dootrips-chart-block-block">
+    <div class="view view-watchdog">
+        <div class="view-content">
+            {% set title = '' %}
+
+            {% set series = {
+                'needed' : {
+                    'title' : 'Capcity',
+                    'data' : [capacity],
+                    'color': '#a5682a'
+                },
+                'delivered' : {
+                    'title' : 'In transit',
+                    'data' : [in_transit],
+                    'color' : '#dc3d1f'
+                },
+                'in_transit' : {
+                    'title' : 'Transported',
+                    'data' : [transported],
+                    'color' : '#49971c'
+                },
+                'remaining' : {
+                    'title' : 'Total number of dootrips',
+                    'data' : [total],
+                    'color' : '#115e7a'
+                },
+            } %}
+
+            {% set xaxis = {
+                'title' : 'Dootrips',
+                'labels' : ['Dootrips by current status']
+            } %}
+
+            {{ chart('dootrips_chart', 'column', title, series, xaxis, [], []) }}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+uuid: 186e3b43-873c-468e-835e-37becd9bc66a
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.edoovillages
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_exposedformedoovillagesblock_1
+theme: labdoo
+region: sidebar
+weight: -19
+provider: null
+plugin: 'views_exposed_filter_block:edoovillages-block_1'
+settings:
+  id: 'views_exposed_filter_block:edoovillages-block_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/content/edoovillages-dashboard*'

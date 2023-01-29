@@ -1,0 +1,44 @@
+uuid: 504ab5fd-4a08-4d5c-8c01-93c13028f578
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.mini_wiki_page.mini_wiki_page.field_tags
+  module:
+    - mini_wiki
+    - text
+id: mini_wiki_page.mini_wiki_page.default
+targetEntityType: mini_wiki_page
+bundle: mini_wiki_page
+mode: default
+content:
+  body:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_tags:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  label:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  created: true
+  langcode: true
+  parent: true
+  search_api_excerpt: true
+  status: true
+  uid: true

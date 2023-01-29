@@ -1,0 +1,15 @@
+services:
+  github_issues.auth:
+    class: Drupal\github_issues\Service\GithubAuth
+    arguments:
+      - '@http_client'
+      - '@key.repository'
+      - '@config.factory'
+
+  github_issues.client:
+    class: Drupal\github_issues\Service\GithubClient
+    arguments:
+      - '@http_client'
+      - '@key.repository'
+      - '@github_issues.auth'
+      - '@config.factory'

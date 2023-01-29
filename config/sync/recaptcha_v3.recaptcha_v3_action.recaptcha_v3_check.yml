@@ -1,0 +1,8 @@
+uuid: 0d2e2aa7-bafe-46db-9b7e-23cf857d7263
+langcode: en
+status: true
+dependencies: {  }
+id: recaptcha_v3_check
+label: 'reCAPTCHA v3 check'
+threshold: 0.6
+challenge: default

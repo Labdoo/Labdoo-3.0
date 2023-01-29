@@ -1,0 +1,58 @@
+uuid: 6432383d-3d73-43f6-aa3a-d47dd4aa9736
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.basic_html
+    - filter.format.restricted_html
+    - node.type.dootronic
+    - node.type.edoovillage
+    - node.type.hub
+    - rest.resource.mini_wiki_page_date_resource
+    - rest.resource.mini_wiki_page_resource
+    - rest.resource.statistics_resource
+    - search_api_autocomplete.search.search_content
+    - search_api_autocomplete.search.search_results
+  module:
+    - book
+    - comment
+    - contact
+    - eu_cookie_compliance
+    - filter
+    - labdoo_dootronics
+    - legal
+    - media
+    - mini_wiki
+    - node
+    - rest
+    - search_api_autocomplete
+    - system
+    - toolbar
+_core:
+  default_config_hash: 6WavjUYXIegP9AAg2zXGx54MWIVoomC3SZhNiqe-Dyk
+id: anonymous
+label: 'Usuario anónimo'
+weight: 0
+is_admin: false
+permissions:
+  - 'access comments'
+  - 'access content'
+  - 'access printer-friendly version'
+  - 'access site-wide contact form'
+  - 'access toolbar'
+  - 'display eu cookie compliance popup'
+  - 'print dootronic tags'
+  - 'restful get mini_wiki_page_date_resource'
+  - 'restful get mini_wiki_page_resource'
+  - 'restful get statistics_resource'
+  - 'use search_api_autocomplete for search_content'
+  - 'use search_api_autocomplete for search_results'
+  - 'use text format basic_html'
+  - 'use text format restricted_html'
+  - 'view Terms and Conditions'
+  - 'view dootronic revisions'
+  - 'view edoovillage revisions'
+  - 'view hub revisions'
+  - 'view media'
+  - 'view mini_wiki_page'
+  - 'view mini_wiki_page revision'

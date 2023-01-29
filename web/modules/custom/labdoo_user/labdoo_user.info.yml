@@ -1,0 +1,7 @@
+name: 'Labdoo User'
+type: module
+description: 'Centralizes all user functionalities for the Labdoo platform.'
+package: 'Labdoo'
+core_version_requirement: ^10
+dependencies:
+  - drupal:labdoo_common

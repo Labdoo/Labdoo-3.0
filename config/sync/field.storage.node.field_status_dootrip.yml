@@ -1,0 +1,30 @@
+uuid: 76a11f58-a729-4ef4-ac49-fd2ec088c7fc
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_status_dootrip
+field_name: field_status_dootrip
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: DS0
+      label: Pending
+    -
+      value: DS1
+      label: Completed
+    -
+      value: DS2
+      label: Cancelled
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

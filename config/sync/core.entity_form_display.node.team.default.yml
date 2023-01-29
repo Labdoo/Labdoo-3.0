@@ -1,0 +1,62 @@
+uuid: e9c3f182-6e62-4c95-a1ae-b98fbf52b101
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.team.field_description
+    - field.field.node.team.field_team_members
+    - field.field.node.team.field_team_picture
+    - field.field.node.team.field_team_topic
+    - image.style.thumbnail
+    - node.type.team
+  module:
+    - image
+    - text
+id: node.team.default
+targetEntityType: node
+bundle: team
+mode: default
+content:
+  field_description:
+    type: text_textarea_with_summary
+    weight: 3
+    region: content
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+      show_summary: false
+    third_party_settings: {  }
+  field_team_picture:
+    type: image_image
+    weight: 1
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+  field_team_topic:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_team_members: true
+  langcode: true
+  path: true
+  promote: true
+  status: true
+  sticky: true
+  uid: true

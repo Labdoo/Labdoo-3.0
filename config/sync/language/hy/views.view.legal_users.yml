@@ -1,0 +1,16 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      fields:
+        name:
+          label: Անուն
+        version:
+          label: Տաբերակ
+        language:
+          label: Լեզու
+  page_1:
+    display_title: Էջ

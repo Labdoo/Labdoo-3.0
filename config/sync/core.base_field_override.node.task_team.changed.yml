@@ -1,0 +1,18 @@
+uuid: 797b2215-5928-40b3-8cb7-24c485f0c262
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.task_team
+id: node.task_team.changed
+field_name: changed
+entity_type: node
+bundle: task_team
+label: Changed
+description: 'The time that the node was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

@@ -1,0 +1,6 @@
+services:
+  labdoo_dootronics.commands:
+    class: \Drupal\labdoo_dootronics\Commands\ComputeCommands
+    arguments: ['@labdoo_dootronics.repository']
+    tags:
+      - { name: drush.command }

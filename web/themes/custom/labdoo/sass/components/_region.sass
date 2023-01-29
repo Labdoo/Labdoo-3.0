@@ -1,0 +1,43 @@
+.main-wrapper
+  display: flex
+  @media only screen and (max-width: 1024px)
+    display: block
+
+.sidebar-wrapper
+  position: sticky
+  top: 140px
+
+.region-sidebar
+  margin-right: 40px
+
+.region-post-content, .region-highlighted
+  display: flex
+  justify-content: space-between
+  flex-wrap: wrap
+  @media only screen and (max-width: 1024px)
+    display: block
+  .block-worklog-widgets
+    flex-basis: 45%
+    input
+      width: 100%
+    .entity-meta
+      display: none
+
+.client-wrapper
+  border-bottom: 1px solid white
+  padding-bottom: 30px
+  margin-bottom: 50px
+  .project-wrapper
+    margin: 15px 0 15px 30px
+
+.region-header
+  display: flex
+  justify-content: space-between
+  @media only screen and (max-width: 1024px)
+    display: block
+
+.page-wrapper
+  padding-top: 45px
+
+.page-content
+  width: 100%

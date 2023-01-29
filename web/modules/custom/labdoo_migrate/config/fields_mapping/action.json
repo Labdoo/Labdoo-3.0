@@ -1,0 +1,202 @@
+{
+  "source_type": "action",
+  "destination_types": [
+    "action"
+  ],
+  "entity_type": "node",
+  "fields_mapping": [
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "nid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "nid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "uid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "uid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "title"
+          }
+        ]
+      },
+      "destination": {
+        "field": "title"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "created"
+          }
+        ]
+      },
+      "destination": {
+        "field": "created"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "changed"
+          }
+        ]
+      },
+      "destination": {
+        "field": "changed"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_body",
+            "key": "entity_id",
+            "field": "body_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "body",
+        "special_type": {
+          "type": "formatted_text_with_replacement",
+          "metadata": {
+            "format": "basic_html",
+            "search": "/profiles/labdoo/files/pictures/",
+            "replace": "/themes/custom/labdoo/img/"
+          }
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_action_type",
+            "key": "entity_id",
+            "field": "field_action_type_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_action_type"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_edoovillage_action",
+            "key": "entity_id",
+            "field": "field_edoovillage_action_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoovillage_action"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hub_action",
+            "key": "entity_id",
+            "field": "field_hub_action_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hub_action"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_labdooer_action",
+            "key": "entity_id",
+            "field": "field_labdooer_action_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_labdooer_action"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_stream_it",
+            "key": "entity_id",
+            "field": "field_stream_it_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_stream_it"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "node.nid",
+            "field": "coords",
+            "expression": "CONCAT(location.latitude, ',', location.longitude)",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "node",
+                "condition": "node.nid = location_instance.nid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_locations",
+        "special_type": {
+          "type": "geolocation"
+        }
+      }
+    }
+  ]
+}

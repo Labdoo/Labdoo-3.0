@@ -1,0 +1,21 @@
+uuid: dcde1e5b-fb1a-4a2a-ab44-da0c1d014fa2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_origin_of_the_trip
+    - node.type.dootrip
+  module:
+    - geofield
+id: node.dootrip.field_origin_of_the_trip
+field_name: field_origin_of_the_trip
+entity_type: node
+bundle: dootrip
+label: 'Origin of the trip'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: geofield

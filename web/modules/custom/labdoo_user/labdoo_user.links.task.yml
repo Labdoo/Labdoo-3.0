@@ -1,0 +1,17 @@
+labdoo_user.dashboard:
+  title: 'Getting started'
+  route_name: labdoo_user.dashboard
+  base_route: entity.user.canonical
+  weight: 10
+
+labdoo_user.metrics:
+  title: 'Global contributions'
+  route_name: labdoo_user.metrics
+  base_route: entity.user.canonical
+  weight: 20
+
+labdoo_user.my_roles:
+  title: 'My roles'
+  route_name: labdoo_user.my_roles
+  base_route: entity.user.canonical
+  weight: 30

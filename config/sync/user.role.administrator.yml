@@ -1,0 +1,18 @@
+uuid: 346a21c7-ff1c-4669-813d-2a8fb01f5d17
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+_core:
+  default_config_hash: OeKGIkmZA_c-t6QLH81WNQx8gDCc1MRmxaTuQgxBByU
+id: administrator
+label: Administrador
+weight: 3
+is_admin: true
+permissions:
+  - 'create field_skills'
+  - 'edit field_skills'
+  - 'edit own field_skills'
+  - 'view field_skills'
+  - 'view own field_skills'

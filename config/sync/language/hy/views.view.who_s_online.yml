@@ -1,0 +1,26 @@
+label: '"Ով է կայքում" բլոկ'
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      title: 'Ով է կայքում'
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      empty:
+        area_text_custom:
+          content: 'Ոչ մի օգտատեր այժմ օնլայն չէ:'
+      filters:
+        access:
+          expose:
+            label: 'Վերջին մուտքը'
+            description: 'Օգտագործողը համարվում է առցանց այնքան ժամանակ, սկսած էջ մուտք գործելու վերջին պահից:'
+      header:
+        result:
+          content: '@total օգտատեր այժմ օնլայն է:'
+  who_s_online_block:
+    display_title: 'Ով է կայքում'
+    display_options:
+      display_description: 'Օգտատերերի ցուցակը, որոնք այս պահին մուտք են գործել համակարգ'
+      block_description: 'Ով է կայքում'

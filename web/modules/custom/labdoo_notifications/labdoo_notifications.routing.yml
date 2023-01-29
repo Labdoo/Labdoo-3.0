@@ -1,0 +1,23 @@
+labdoo_notifications.contact_form:
+  path: '/contact'
+  defaults:
+    _form: '\Drupal\labdoo_notifications\Form\ContactForm'
+    _title: 'Contact Labdoo'
+  requirements:
+    _permission: 'access content'
+
+labdoo_notifications.notification_email:
+  path: '/content/notification-email'
+  defaults:
+    _controller: '\Drupal\labdoo_notifications\Controller\NotificationController::displayNotificationEmail'
+    _title: 'Email Notification'
+  requirements:
+    _permission: 'access content'
+
+labdoo_notifications.test_email_settings:
+  path: '/admin/config/labdoo/test-email-settings'
+  defaults:
+    _form: '\Drupal\labdoo_notifications\Form\TestEmailSettingsForm'
+    _title: 'Test Email Settings'
+  requirements:
+    _permission: 'administer site configuration'

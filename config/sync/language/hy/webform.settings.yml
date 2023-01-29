@@ -1,0 +1,13 @@
+settings:
+  default_submit_button_label: Կիրառել
+  default_reset_button_label: Վերականգնել
+  default_delete_button_label: Ջնջել
+  default_preview_next_button_label: Նախադիտում
+  default_preview_label: Նախադիտում
+  dialog_options:
+    narrow:
+      title: Նեղ
+    wide:
+      title: Լայն
+element:
+  default_more_title: Ավելին

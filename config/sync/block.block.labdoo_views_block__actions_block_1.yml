@@ -1,0 +1,29 @@
+uuid: 5d2789e2-bf70-4209-9466-a32da25d3ffc
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.actions
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_views_block__actions_block_1
+theme: labdoo
+region: sidebar
+weight: -5
+provider: null
+plugin: 'views_block:actions-block_1'
+settings:
+  id: 'views_block:actions-block_1'
+  label: ''
+  label_display: visible
+  provider: views
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    negate: true
+    pages: /actions

@@ -1,0 +1,88 @@
+display:
+  default:
+    display_title: Основной
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Применить
+          reset_button_label: Сбросить
+          exposed_sorts_label: 'Сортировать по'
+          sort_asc_label: 'По возрастанию'
+          sort_desc_label: 'По убыванию'
+      pager:
+        options:
+          tags:
+            previous: '‹ Предыдущий'
+            next: 'Следующий ›'
+            first: '« Первая'
+            last: 'Последняя »'
+          expose:
+            items_per_page_label: 'Элементов на страницу'
+            items_per_page_options_all_label: '- Все -'
+            offset_label: Пропустить
+      fields:
+        title:
+          label: Заголовок
+          separator: ', '
+        type:
+          label: Тип
+          separator: ', '
+        status:
+          label: Опубликовано
+          separator: ', '
+        name:
+          label: Автор
+          separator: ', '
+        changed:
+          label: 'Последнее обновление'
+          separator: ', '
+        edit_node:
+          label: Действия
+          text: изменить
+      filters:
+        title:
+          expose:
+            label: Заголовок
+        type:
+          expose:
+            label: Тип
+        status:
+          expose:
+            label: Опубликовано
+      empty:
+        area:
+          content: 'Нет содержимого, доступного вам для редактирования.'
+      use_more_text: 'посмотреть всё'
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Первая'
+            last: 'Последняя »'
+          expose:
+            items_per_page_label: 'Элементов на страницу'
+            items_per_page_options_all_label: '- Все -'
+            offset_label: Пропустить
+      filters:
+        status:
+          expose:
+            label: Опубликовано
+      fields:
+        title:
+          label: Заголовок
+          separator: ', '
+        type:
+          label: Тип
+          separator: ', '
+        name:
+          label: Автор
+          separator: ', '
+        changed:
+          label: 'Последнее обновление'
+          separator: ', '
+        edit_node:
+          label: Действия
+          text: изменить

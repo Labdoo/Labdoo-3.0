@@ -1,0 +1,81 @@
+<?php declare(strict_types = 1);
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
+
+function labdoo_statistics_theme() {
+  return [
+    'statistics_block_block' => [
+      'variables' => [
+        'dootronics_tagged' => 0,
+        'dootronics_delivered' => 0,
+        'edoovillages' => 0,
+        'students' => 0,
+        'hubs' => 0,
+        'co2' => 0,
+        'countries' => 0,
+        'dootronics_url' => '',
+        'edoovillages_url' => '',
+        'hubs_url' => '',
+      ],
+      'template' => 'block--statistics-block',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function labdoo_statistics_entity_insert(EntityInterface $entity) {
+  if (
+    $entity->bundle() !== 'dootronic'
+    && $entity->bundle() !== 'edoovillage'
+    && $entity->bundle() !== 'hub'
+    && $entity->bundle() !== 'dootrip'
+  ) {
+    return;
+  }
+
+  __labdoo_statistics_clear_cachetag($entity);
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function labdoo_statistics_entity_delete(EntityInterface $entity) {
+  if (
+    $entity->bundle() !== 'dootronic'
+    && $entity->bundle() !== 'edoovillage'
+    && $entity->bundle() !== 'hub'
+    && $entity->bundle() !== 'dootrip'
+  ) {
+    return;
+  }
+
+  __labdoo_statistics_clear_cachetag($entity);
+}
+
+/**
+ * Invalidate the node type cache tag.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ *
+ * @return void
+ */
+function __labdoo_statistics_clear_cachetag(EntityInterface $entity): void {
+  $tag = sprintf('node:%s', $entity->bundle());
+  $event = new InvalidateCacheTagsEvent();
+  $event->setCacheTags([$tag]);
+
+  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
+  $eventDispatcher = \Drupal::service('event_dispatcher');
+  $eventDispatcher->dispatch($event, InvalidateCacheTagsEvent::EVENT_NAME);
+}

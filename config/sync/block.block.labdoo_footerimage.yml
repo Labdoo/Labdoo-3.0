@@ -1,0 +1,30 @@
+uuid: c7215c90-bc98-42dd-9c21-ed854b30994d
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:e21948ff-924b-4ed2-82f7-ca6198545fdc'
+  module:
+    - block_content
+    - system
+  theme:
+    - labdoo
+id: labdoo_footerimage
+theme: labdoo
+region: footer
+weight: -14
+provider: null
+plugin: 'block_content:e21948ff-924b-4ed2-82f7-ca6198545fdc'
+settings:
+  id: 'block_content:e21948ff-924b-4ed2-82f7-ca6198545fdc'
+  label: 'Footer image'
+  label_display: '0'
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    negate: true
+    pages: '/dootronics/print-labels/*'

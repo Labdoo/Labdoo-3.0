@@ -1,0 +1,6 @@
+services:
+  labdoo_dootrip.commands:
+    class: \Drupal\labdoo_dootrip\Commands\ComputeCommands
+    arguments: ['@entity_type.manager', '@labdoo_dootrip.queue.feeder.dootrip_capacity']
+    tags:
+      - { name: drush.command }

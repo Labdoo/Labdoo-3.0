@@ -1,0 +1,6 @@
+labdoo_notifications.test_email_settings:
+  title: 'Test Email Settings'
+  description: 'Configure test email settings for Labdoo Notifications.'
+  parent: system.admin_config_system
+  route_name: labdoo_notifications.test_email_settings
+  weight: 100

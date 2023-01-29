@@ -1,0 +1,21 @@
+uuid: 5ffec3a7-6951-4c78-8931-d9a730c424b4
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_send_edoovillage_managers
+    - node.type.team_post
+id: node.team_post.field_send_edoovillage_managers
+field_name: field_send_edoovillage_managers
+entity_type: node
+bundle: team_post
+label: ' Send to all edoovillage managers'
+description: 'Please don''t select unless it is necessary that all hub or edoovillage managers receive this message. <a href="/content/writing-message-all-hub-andor-edoovillage-managers" target="_blank">[Help]</a>'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Activado
+  off_label: Desactivado
+field_type: boolean

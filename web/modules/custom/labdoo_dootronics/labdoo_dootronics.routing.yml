@@ -1,0 +1,68 @@
+labdoo_dootronics.export_csv:
+  path: '/dootronics/export/csv/{viewId}/{displayId}'
+  defaults:
+    _controller: '\Drupal\labdoo_dootronics\Controller\ExportController::exportCSV'
+    _title: 'CSV data export'
+  requirements:
+    _permission: 'access content'
+
+labdoo_dootronics.print_labels:
+  path: '/dootronics/print-labels/{startingDootronicId}/{endingDootronicId}'
+  defaults:
+    _controller: '\Drupal\labdoo_dootronics\Controller\LabelController::printLabels'
+    _title: 'Print labels'
+    endingDootronicId: ''
+  requirements:
+    _permission: 'print dootronic tags'
+
+labdoo_dootronics.view_dootronic:
+  path: '/laptop/{dootronicLabel}'
+  defaults:
+    _controller: '\Drupal\labdoo_dootronics\Controller\ActionsController::viewDootronic'
+    _title: 'View Dootronic'
+  requirements:
+    _permission: 'access content'
+
+labdoo_dootronics.follow_dootronic:
+  path: '/dootronic/{dootronicId}/follow'
+  defaults:
+    _controller: '\Drupal\labdoo_dootronics\Controller\ActionsController::followDootronic'
+    _title: 'Follow Dootronic'
+  requirements:
+    _permission: 'follow dootronic'
+
+labdoo_dootronics.unfollow_dootronic:
+  path: '/dootronic/{dootronicId}/unfollow'
+  defaults:
+    _controller: '\Drupal\labdoo_dootronics\Controller\ActionsController::unfollowDootronic'
+    _title: 'Follow Dootronic'
+  requirements:
+    _permission: 'follow dootronic'
+
+labdoo_dootronics.pick_me_up:
+  path: '/dootronic/{dootronicId}/pick-me-up/{status}'
+  defaults:
+    _controller: '\Drupal\labdoo_dootronics\Controller\ActionsController::togglePickMeUp'
+    _title: 'Toggle pick me up for Dootronic'
+  requirements:
+    _permission: 'pick me up dootronic'
+
+labdoo_dootronics.clone_dootronics:
+  path: '/clone-dootronics'
+  defaults:
+    _form: '\Drupal\labdoo_dootronics\Form\CloneDootronicForm'
+    _title: 'Clone a dootronic multiple times in a shot'
+  requirements:
+    _permission: 'bulk upload dootronic'
+  options:
+    _admin_route: TRUE
+
+labdoo_dootronics.update_dootronics:
+  path: '/update-dootronics'
+  defaults:
+    _form: '\Drupal\labdoo_dootronics\Form\UpdateDootronicForm'
+    _title: 'Update a list of dootronics in one shot'
+  requirements:
+    _permission: 'bulk upload dootronic'
+  options:
+    _admin_route: TRUE

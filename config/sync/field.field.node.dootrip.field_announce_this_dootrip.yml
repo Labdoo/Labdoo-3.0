@@ -1,0 +1,21 @@
+uuid: 4c29a0a6-ec80-4f29-8389-1480b0c3037b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_announce_this_dootrip
+    - node.type.dootrip
+id: node.dootrip.field_announce_this_dootrip
+field_name: field_announce_this_dootrip
+entity_type: node
+bundle: dootrip
+label: 'Announce this dootrip'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

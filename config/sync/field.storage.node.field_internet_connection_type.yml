@@ -1,0 +1,33 @@
+uuid: dbd4bccb-6158-4da8-b4a6-214301c88c1d
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_internet_connection_type
+field_name: field_internet_connection_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: none
+      label: None
+    -
+      value: wired
+      label: Wired
+    -
+      value: wireless
+      label: Wireless
+    -
+      value: wiredOrWireless
+      label: 'Wired or Wireless'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

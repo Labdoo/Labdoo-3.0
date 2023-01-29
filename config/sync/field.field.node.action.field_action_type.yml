@@ -1,0 +1,21 @@
+uuid: 0a261e4e-277a-42d3-865d-7ec807ba2d8c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_action_type
+    - node.type.action
+  module:
+    - options
+id: node.action.field_action_type
+field_name: field_action_type
+entity_type: node
+bundle: action
+label: 'Action type'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

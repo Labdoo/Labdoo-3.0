@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+/**
+ * Implements hook_preprocess_HOOK() for html.
+ */
+function labdoo_preprocess_html(&$variables) {
+  $roles = \Drupal::currentUser()->getRoles();
+  array_walk($roles, function(&$value, $index) {
+    $value = sprintf('role-%s', $value);
+  });
+  $variables['roles'] = implode(' ', $roles);
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for page_attachments.
+ */
+function labdoo_page_attachments_alter(&$page) {
+  $page['#attached']['library'][] = 'labdoo/labdoo_ui';
+}

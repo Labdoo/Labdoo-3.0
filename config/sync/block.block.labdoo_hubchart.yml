@@ -1,0 +1,25 @@
+uuid: ce5ffa6b-422c-4580-96be-d100a5abd3de
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_hub
+    - system
+  theme:
+    - labdoo
+id: labdoo_hubchart
+theme: labdoo
+region: content
+weight: -16
+provider: null
+plugin: hub_chart_block_block
+settings:
+  id: hub_chart_block_block
+  label: 'Hub chart'
+  label_display: '0'
+  provider: labdoo_hub
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /content/hubs-dashboard

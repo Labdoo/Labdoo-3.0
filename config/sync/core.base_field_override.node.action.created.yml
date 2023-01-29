@@ -1,0 +1,18 @@
+uuid: b17aa7b3-ae14-4d15-9208-4be29667778f
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.action
+id: node.action.created
+field_name: created
+entity_type: node
+bundle: action
+label: 'Authored on'
+description: 'The date and time that the content was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

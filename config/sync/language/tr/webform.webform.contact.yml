@@ -1,0 +1,6 @@
+title: İletişim
+settings:
+  confirmation_message: 'İletiniz gönderildi.'
+handlers:
+  email_notification:
+    label: 'E-Posta bildirimi'

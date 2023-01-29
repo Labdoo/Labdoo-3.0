@@ -1,0 +1,17 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Primjeni
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sortiraj prema'
+      fields:
+        version:
+          label: Verzija
+        language:
+          label: Jezik
+        revision:
+          label: Revizije
+  page_1:
+    display_title: Strana

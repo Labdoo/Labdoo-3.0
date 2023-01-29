@@ -1,0 +1,12 @@
+uuid: 95222feb-0a20-4340-918a-bd366cca20d9
+langcode: en
+status: true
+dependencies:
+  module:
+    - eu_cookie_compliance
+id: laptop_manager
+label: 'Laptop Manager'
+weight: 10
+is_admin: null
+permissions:
+  - 'display eu cookie compliance popup'

@@ -1,0 +1,74 @@
+{#
+/**
+ * @file
+ * Template for the user dashboard.
+ *
+ * Available variables:
+ * - username: The username of the user viewing the dashboard.
+ * - common_tasks: Array of common tasks with their links and images.
+ * - advanced_tasks: Array of advanced tasks with their links and images.
+ */
+#}
+
+<div class="user-dashboard">
+  {% if username %}
+    <h2>{{ 'Welcome, @username!'|t({'@username': username}) }}</h2>
+  {% endif %}
+  <span class="title">
+    {{ 'In this page you will find quick pointers to help you initiate your contributions to the Labdoo cause.'|t }}
+  </span>
+  <hr>
+  <span class="subtitle">{{ 'Common tasks:'|t }}</span>
+  <hr>
+
+  <table>
+    <tbody>
+      <tr></tr>
+      <tr></tr>
+      <tr></tr>
+      <tr></tr>
+
+      {% for task in common_tasks %}
+        <tr>
+          <td>
+            <img src="{{ task.image }}" alt="{{ task.title }}" width="20">
+          </td>
+          <td>
+            <ul>
+              <li>
+                <a href="{{ task.url }}">{{ task.title }}</a>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <hr>
+  <span class="subtitle">{{ 'More advanced tasks:'|t }}</span>
+  <hr>
+
+  <table>
+    <tbody>
+      <tr></tr>
+      <tr></tr>
+      <tr></tr>
+
+      {% for task in advanced_tasks %}
+        <tr>
+          <td>
+            <img src="{{ task.image }}" alt="{{ task.title }}" width="20">
+          </td>
+          <td>
+            <ul>
+              <li>
+                <a href="{{ task.url }}">{{ task.title }}</a>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

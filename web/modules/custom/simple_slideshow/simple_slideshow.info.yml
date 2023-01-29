@@ -1,0 +1,7 @@
+name: Simple Slideshow
+type: module
+description: 'Provides a simple slideshow field formatter for media fields.'
+core_version_requirement: ^9 || ^10
+package: Custom
+dependencies:
+  - drupal:media

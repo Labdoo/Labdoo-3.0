@@ -1,0 +1,18 @@
+<div id="block-team-actions" class="block block-actions-block-block">
+    <div class="views-exposed-form block-views">
+        <div class="block-title-wrapper"><span class="block-title">{{ 'Team'|t }} {{ team_name }}</span></div>
+        <div class="actions">
+            <div class="action"><a href="/teams"><img class="icon" src="/themes/custom/labdoo/img/all-teams.png">{{ "All teams"|t }}</a></div>
+            <div class="action"><a href="{{ wall_link }}"><img class="icon" src="/themes/custom/labdoo/img/wall.png">{{ "View wall"|t }}</a></div>
+            {% if edit_link is not empty %}
+                <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/house.png">{{ "Edit this team"|t }}</a></div>
+            {% endif %}
+            {% if post_link is not empty %}
+                <div class="action"><a href="{{ tasks_link }}"><img class="icon" src="/themes/custom/labdoo/img/check.png">{{ "View tasks"|t }}</a></div>
+                <div class="action"><a href="{{ post_link }}"><img class="icon" src="/themes/custom/labdoo/img/conversation.png">{{ "Start conversation"|t }}</a></div>
+                <div class="action"><a href="{{ members_link }}"><img class="icon" src="/themes/custom/labdoo/img/team-members.png">{{ "Team members"|t }}</a></div>
+            {% endif %}
+            <div class="action"><a href="{{ membership_link }}"><img class="icon" src="/themes/custom/labdoo/img/feed.png">{{ membership_label }}</a></div>
+        </div>
+    </div>
+</div>

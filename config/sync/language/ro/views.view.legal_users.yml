@@ -1,0 +1,38 @@
+display:
+  default:
+    display_title: Expert
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Aplică
+          reset_button_label: Resetează
+          exposed_sorts_label: 'Sortare după'
+          sort_asc_label: Ascendent
+          sort_desc_label: Descendent
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'Elemente pe pagină'
+            items_per_page_options_all_label: '- Toate -'
+            offset_label: Decalaj
+          tags:
+            previous: '‹ Anterior'
+            next: 'Următor ›'
+            first: '« Primul'
+            last: 'Ultimul »'
+      fields:
+        name:
+          label: Nume
+          separator: ', '
+        version:
+          label: Versiune
+        language:
+          label: Limba
+        revision:
+          label: Revizie
+      title: Admis
+      empty:
+        area:
+          admin_label: Admis
+  page_1:
+    display_title: Pagina

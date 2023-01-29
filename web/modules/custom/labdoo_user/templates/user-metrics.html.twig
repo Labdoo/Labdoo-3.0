@@ -1,0 +1,193 @@
+{#
+/**
+ * @file
+ * Template for the user metrics page.
+ *
+ * Available variables:
+ * - user_id: The ID of the user viewing the metrics.
+ * - num_doojects: Number of doojects contributed by the user.
+ * - num_dootrips: Number of dootrips contributed by the user.
+ * - num_edoovillages: Number of edoovillages contributed by the user.
+ * - num_hubs: Number of hubs contributed by the user.
+ * - num_wikis: Number of wiki articles contributed by the user.
+ * - footprint_carbon: Carbon emissions saved.
+ * - footprint_trees: Trees saved.
+ * - footprint_gas: Liters of gas saved.
+ * - footprint_plastic: Plastic bottles saved.
+ * - footprint_water: Water saved in liters.
+ * - footprint_aluminum: Aluminum cans saved.
+ * - footprint_gold: Gold saved in grams.
+ * - footprint_silver: Silver saved in grams.
+ * - footprint_palladium: Palladium saved in grams.
+ * - footprint_copper: Copper saved in kilograms.
+ * - footprint_cobalt: Cobalt saved in kilograms.
+ * - footprint_chemical: Chemical substances saved in kilograms.
+ */
+#}
+
+<div class="user-metrics">
+  <strong><span class="title">{{ 'My contributions'|t }}</span></strong>
+  <hr/>
+  <table> 
+    <tr>
+      <td style="width:275px">
+        {{ 'Dootronics*: '|t }}
+      </td>
+      <td style="width:100px">
+        {{ num_doojects }}
+      </td>
+      <td>
+        <a href="/content/dootronics-dashboard?u={{ user_id }}" target="_blank">{{ '[See all contributed dootronics]'|t }}</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        {{ 'Dootrips*: '|t }}
+      </td>
+      <td>
+        {{ num_dootrips }}
+      </td>
+      <td>
+        <a href="/content/dootrips-dashboard?u={{ user_id }}" target="_blank">{{ '[See all contributed dootrips]'|t }}</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        {{ 'Edoovillages: '|t }}
+      </td>
+      <td>
+        {{ num_edoovillages }}
+      </td>
+      <td>
+        <a href="/content/edoovillages-dashboard?u={{ user_id }}" target="_blank">{{ '[See all contributed edoovillages]'|t }}</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        {{ 'Hubs: '|t }}
+      </td>
+      <td>
+        {{ num_hubs }}
+      </td>
+      <td>
+        <a href="/content/hubs-dashboard?u={{ user_id }}" target="_blank">{{ '[See all contributed hubs]'|t }}</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        {{ 'Wiki articles: '|t }}
+      </td>
+      <td>
+        {{ num_wikis }}
+      </td>
+      <td>
+        <a href="/wiki?u={{ user_id }}" target="_blank">{{ '[See all contributed wikis]'|t }}</a>
+      </td>
+    </tr>
+  </table>
+  <hr/>
+  <br>
+  <strong><span class="title">{{ 'My carbon footprint savings**'|t }}</span></strong>
+  <hr/>
+  <table> 
+    <tr>
+      <td style="width:275px">
+        {{ 'Carbon emissions (kg): '|t }}
+      </td>
+      <td>
+        {{ footprint_carbon }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Trees: '|t }}
+      </td>
+      <td>
+        {{ footprint_trees }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Water (Liter): '|t }}
+      </td>
+      <td>
+        {{ footprint_water }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Liters of gas: '|t }}
+      </td>
+      <td>
+        {{ footprint_gas }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Plastic bottles: '|t }}
+      </td>
+      <td>
+        {{ footprint_plastic }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Aluminum cans: '|t }}
+      </td>
+      <td>
+        {{ footprint_aluminum }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Gold (gr): '|t }}
+      </td>
+      <td>
+        {{ footprint_gold }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Silver (gr): '|t }}
+      </td>
+      <td>
+        {{ footprint_silver }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Palladium (gr): '|t }}
+      </td>
+      <td>
+        {{ footprint_palladium }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Copper (kg): '|t }}
+      </td>
+      <td>
+        {{ footprint_copper }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Cobalt (kg): '|t }}
+      </td>
+      <td>
+        {{ footprint_cobalt }}
+      </td>
+    </tr>
+    <tr>
+      <td style="width:275px">
+        {{ 'Chemical substances (kg): '|t }}
+      </td>
+      <td>
+        {{ footprint_chemical }}
+      </td>
+    </tr>
+  </table>
+  <hr/>
+  <br>
+  {{ '(*) dootronics and dootrips that you have participated with.<br>(**) measured based on number of dootronics that you have participated with.'|t }}
+</div>

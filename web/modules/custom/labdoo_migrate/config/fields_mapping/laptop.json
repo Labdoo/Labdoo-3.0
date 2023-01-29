@@ -1,0 +1,513 @@
+{
+  "source_type": "laptop",
+  "destination_types": [
+    "dootronic"
+  ],
+  "entity_type": "node",
+  "fields_mapping": [
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "nid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "nid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "title"
+          }
+        ]
+      },
+      "destination": {
+        "field": "title"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "uid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "uid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_status",
+            "key": "entity_id",
+            "field": "field_status_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_dootronic_status"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_model",
+            "key": "entity_id",
+            "field": "field_model_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_model"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_serial_number",
+            "key": "entity_id",
+            "field": "field_serial_number_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_serial_number"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_edoovillage_destination",
+            "key": "entity_id",
+            "field": "field_edoovillage_destination_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoovillage_destination"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hub_laptop",
+            "key": "entity_id",
+            "field": "field_hub_laptop_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hub"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_picture",
+            "key": "entity_id",
+            "field": "field_picture_fid",
+            "join": {
+              "table": "file_managed",
+              "key_field": "fid",
+              "value_field": "uri"
+            }
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_picture",
+        "special_type": {
+          "type": "managed_file"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_device_type",
+            "key": "entity_id",
+            "field": "field_device_type_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_device_type"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_manager",
+            "key": "entity_id",
+            "field": "field_manager_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_manager"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_tagger",
+            "key": "entity_id",
+            "field": "field_tagger_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_tagger"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_cpu",
+            "key": "entity_id",
+            "field": "field_cpu_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_cpu"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_cpu_type",
+            "key": "entity_id",
+            "field": "field_cpu_type_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_cpu_type"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_memory",
+            "key": "entity_id",
+            "field": "field_memory_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_memory"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hard_drive",
+            "key": "entity_id",
+            "field": "field_hard_drive_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hard_drive"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_battery_duration",
+            "key": "entity_id",
+            "field": "field_battery_duration_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_battery_duration"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_keyboard",
+            "key": "entity_id",
+            "field": "field_keyboard_iso2"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_keyboard"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_keyboard_type",
+            "key": "entity_id",
+            "field": "field_keyboard_type_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_keyboard_type"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_current_operating_system",
+            "key": "entity_id",
+            "field": "field_current_operating_system_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_current_operating_system"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_dooject_weight",
+            "key": "entity_id",
+            "field": "field_dooject_weight_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_weight"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_volts",
+            "key": "entity_id",
+            "field": "field_volts_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_volts"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_amp_hours",
+            "key": "entity_id",
+            "field": "field_amp_hours_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_amp_hours"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_battery_watt_hours",
+            "key": "entity_id",
+            "field": "field_battery_watt_hours_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_battery_watt_hours",
+        "special_type": {
+          "type": "watt_hours"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_dootrips",
+            "key": "entity_id",
+            "field": "field_dootrips_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_dootrips"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_additional_editors",
+            "key": "entity_id",
+            "field": "field_additional_editors_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoo_additional_editors"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_additional_notification_em",
+            "key": "entity_id",
+            "field": "field_additional_notification_em_email"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoo_additional_notif_em"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_additional_followers",
+            "key": "entity_id",
+            "field": "field_additional_followers_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoo_additional_followers"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_additional_notes",
+            "key": "entity_id",
+            "field": "field_additional_notes_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_doojects_additional_notes"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_technical_notes",
+            "key": "entity_id",
+            "field": "field_technical_notes_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_technical_notes"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_pick_me_up",
+            "key": "entity_id",
+            "field": "field_pick_me_up_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_pick_me_up"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "node.nid",
+            "field": "coords",
+            "expression": "CONCAT(location.latitude, ',', location.longitude)",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "node",
+                "condition": "node.nid = location_instance.nid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_location",
+        "special_type": {
+          "type": "geolocation"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "created"
+          }
+        ]
+      },
+      "destination": {
+        "field": "created"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "changed"
+          }
+        ]
+      },
+      "destination": {
+        "field": "changed"
+      }
+    }
+  ]
+}

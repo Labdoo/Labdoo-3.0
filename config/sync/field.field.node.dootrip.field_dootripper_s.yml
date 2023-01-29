@@ -1,0 +1,29 @@
+uuid: a6ea9add-f125-4f83-9743-1226123f0739
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootripper_s
+    - node.type.dootrip
+id: node.dootrip.field_dootripper_s
+field_name: field_dootripper_s
+entity_type: node
+bundle: dootrip
+label: Dootripper(s)
+description: 'User(s) who will be part of this dootrip'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    filter:
+      type: _none
+    include_anonymous: true
+field_type: entity_reference

@@ -1,0 +1,15 @@
+print dootronic tags:
+  title: 'Print dootronic tags'
+  restrict access: true
+
+follow dootronic:
+  title: 'Follow dootronic'
+  restrict access: true
+
+pick me up dootronic:
+  title: 'Pick me up dootronic'
+  restrict access: true
+
+bulk upload dootronic:
+  title: 'Bulk upload dootronic'
+  restrict access: true

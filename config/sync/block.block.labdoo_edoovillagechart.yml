@@ -1,0 +1,25 @@
+uuid: 3927dd41-8eb3-469b-a8e5-16312f583356
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_edoovillage
+    - system
+  theme:
+    - labdoo
+id: labdoo_edoovillagechart
+theme: labdoo
+region: content
+weight: -18
+provider: null
+plugin: edoovillage_chart_block_block
+settings:
+  id: edoovillage_chart_block_block
+  label: 'EdooVillage chart'
+  label_display: '0'
+  provider: labdoo_edoovillage
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/content/edoovillages-dashboard*'

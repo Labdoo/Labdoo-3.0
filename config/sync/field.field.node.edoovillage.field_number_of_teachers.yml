@@ -1,0 +1,23 @@
+uuid: c5648b70-c4f3-4197-9446-a6a2153f4f45
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_number_of_teachers
+    - node.type.edoovillage
+id: node.edoovillage.field_number_of_teachers
+field_name: field_number_of_teachers
+entity_type: node
+bundle: edoovillage
+label: 'Number of teachers'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

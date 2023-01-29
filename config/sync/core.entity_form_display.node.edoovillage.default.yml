@@ -1,0 +1,410 @@
+uuid: 9fef682b-5fcc-4cfa-85d7-869476e50a6a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.edoovillage.field_additional_files
+    - field.field.node.edoovillage.field_additional_info_language
+    - field.field.node.edoovillage.field_country
+    - field.field.node.edoovillage.field_doojects_additional_notes
+    - field.field.node.edoovillage.field_dootronics_delivered
+    - field.field.node.edoovillage.field_dootronics_in_transit
+    - field.field.node.edoovillage.field_dootronics_remaining
+    - field.field.node.edoovillage.field_edoo_additional_editors
+    - field.field.node.edoovillage.field_edoo_additional_followers
+    - field.field.node.edoovillage.field_edoo_additional_notif_em
+    - field.field.node.edoovillage.field_edoovillage_photo_album
+    - field.field.node.edoovillage.field_hub
+    - field.field.node.edoovillage.field_internet_additional_notes
+    - field.field.node.edoovillage.field_internet_connection_type
+    - field.field.node.edoovillage.field_local_language_s_
+    - field.field.node.edoovillage.field_location
+    - field.field.node.edoovillage.field_number_of_laptops_needed
+    - field.field.node.edoovillage.field_number_of_students
+    - field.field.node.edoovillage.field_number_of_teachers
+    - field.field.node.edoovillage.field_on_site_point_of_contact
+    - field.field.node.edoovillage.field_project_application
+    - field.field.node.edoovillage.field_project_description
+    - field.field.node.edoovillage.field_project_manager_s_
+    - field.field.node.edoovillage.field_semaphore
+    - field.field.node.edoovillage.field_socket_type
+    - field.field.node.edoovillage.field_socket_voltage
+    - field.field.node.edoovillage.field_status
+    - field.field.node.edoovillage.field_thank_you_note
+    - node.type.edoovillage
+  module:
+    - address
+    - field_group
+    - file
+    - geofield_map
+    - path
+third_party_settings:
+  field_group:
+    group_project_information:
+      children:
+        - title
+        - field_project_description
+        - field_number_of_students
+        - field_number_of_teachers
+        - field_number_of_laptops_needed
+        - field_doojects_additional_notes
+        - field_hub
+        - field_on_site_point_of_contact
+        - field_project_application
+        - field_status
+        - field_semaphore
+        - field_project_manager_s_
+      label: 'Project information'
+      region: content
+      parent_name: group_edoovillage
+      weight: 1
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        formatter: open
+        description: ''
+        required_fields: true
+    group_geographic_information:
+      children:
+        - field_local_language_s_
+        - field_additional_info_language
+        - field_location
+        - field_country
+      label: 'Geographic information'
+      region: content
+      parent_name: group_edoovillage
+      weight: 2
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        formatter: closed
+        description: ''
+        required_fields: true
+        open: false
+        weight: 0
+    group_technical_information:
+      children:
+        - field_socket_voltage
+        - field_socket_type
+        - field_internet_connection_type
+        - field_internet_additional_notes
+      label: 'Technical information'
+      region: content
+      parent_name: group_edoovillage
+      weight: 3
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        formatter: closed
+        description: ''
+        required_fields: true
+        open: false
+        weight: 0
+    group_additional_information:
+      children:
+        - field_additional_files
+        - field_thank_you_note
+        - field_edoo_additional_notif_em
+        - field_edoovillage_photo_album
+        - field_edoo_additional_editors
+        - field_edoo_additional_followers
+      label: 'Additional information'
+      region: content
+      parent_name: group_edoovillage
+      weight: 4
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        formatter: closed
+        description: ''
+        required_fields: true
+        open: false
+        weight: 0
+    group_edoovillage:
+      children:
+        - group_project_information
+        - group_geographic_information
+        - group_technical_information
+        - group_additional_information
+      label: EdooVillage
+      region: content
+      parent_name: ''
+      weight: 0
+      format_type: tabs
+      format_settings:
+        classes: ''
+        show_empty_fields: true
+        id: ''
+        direction: horizontal
+        width_breakpoint: 640
+id: node.edoovillage.default
+targetEntityType: node
+bundle: edoovillage
+mode: default
+content:
+  field_additional_files:
+    type: file_generic
+    weight: 2
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  field_additional_info_language:
+    type: string_textarea
+    weight: 18
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_country:
+    type: address_country_default
+    weight: 21
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_doojects_additional_notes:
+    type: string_textarea
+    weight: 6
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_edoo_additional_editors:
+    type: entity_reference_autocomplete
+    weight: 7
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_edoo_additional_followers:
+    type: entity_reference_autocomplete
+    weight: 8
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_edoo_additional_notif_em:
+    type: email_default
+    weight: 4
+    region: content
+    settings:
+      placeholder: ''
+      size: 60
+    third_party_settings: {  }
+  field_edoovillage_photo_album:
+    type: entity_reference_autocomplete
+    weight: 6
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_hub:
+    type: entity_reference_autocomplete
+    weight: 8
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_internet_additional_notes:
+    type: string_textarea
+    weight: 11
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_internet_connection_type:
+    type: options_buttons
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_local_language_s_:
+    type: string_textfield
+    weight: 17
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_location:
+    type: geofield_map
+    weight: 20
+    region: content
+    settings:
+      html5_geolocation: false
+      default_value:
+        lat: 0.0
+        lon: 0.0
+      map_library: leaflet
+      map_google_api_key: ''
+      map_google_places:
+        places_control: false
+        places_additional_options: ''
+      map_dimensions:
+        width: 100%
+        height: 450px
+      map_type_google: roadmap
+      map_type_leaflet: OpenStreetMap_Mapnik
+      map_type_selector: true
+      zoom_level: 5
+      zoom:
+        start: 6
+        focus: 12
+        min: 0
+        max: 22
+      click_to_find_marker: false
+      click_to_place_marker: false
+      click_to_remove_marker: false
+      hide_geocode_address: false
+      hide_coordinates: false
+      geoaddress_field:
+        field: '0'
+        hidden: false
+        disabled: true
+      map_geocoder:
+        control: 0
+        settings:
+          providers: {  }
+          min_terms: 4
+          delay: 800
+          options: ''
+    third_party_settings: {  }
+  field_number_of_laptops_needed:
+    type: number
+    weight: 5
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_number_of_students:
+    type: number
+    weight: 3
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_number_of_teachers:
+    type: number
+    weight: 4
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_on_site_point_of_contact:
+    type: string_textarea
+    weight: 10
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_project_application:
+    type: file_generic
+    weight: 11
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  field_project_description:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_project_manager_s_:
+    type: entity_reference_autocomplete
+    weight: 26
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_semaphore:
+    type: options_select
+    weight: 13
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_socket_type:
+    type: options_buttons
+    weight: 8
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_socket_voltage:
+    type: options_select
+    weight: 7
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_status:
+    type: options_select
+    weight: 12
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_thank_you_note:
+    type: string_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  langcode:
+    type: language_select
+    weight: 1
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_dootronics_delivered: true
+  field_dootronics_in_transit: true
+  field_dootronics_remaining: true
+  promote: true
+  status: true
+  sticky: true
+  uid: true

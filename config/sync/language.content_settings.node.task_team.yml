@@ -1,0 +1,18 @@
+uuid: d5d851ef-f212-4d4b-a234-f4045b4a0487
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.task_team
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: node.task_team
+target_entity_type_id: node
+target_bundle: task_team
+default_langcode: site_default
+language_alterable: false

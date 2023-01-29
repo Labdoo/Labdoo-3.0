@@ -1,0 +1,25 @@
+uuid: 3adbdf96-2960-4d53-a642-62d6a4a7855d
+langcode: en
+status: true
+dependencies:
+  module:
+    - facets_block
+  theme:
+    - labdoo
+id: labdoo_facetsblock
+theme: labdoo
+region: sidebar
+weight: -20
+provider: null
+plugin: facets_block
+settings:
+  id: facets_block
+  label: 'Facets Block'
+  label_display: visible
+  provider: facets_block
+  show_title: true
+  exclude_empty_facets: true
+  hide_empty_block: true
+  facets_to_include: {  }
+  add_js_classes: true
+visibility: {  }

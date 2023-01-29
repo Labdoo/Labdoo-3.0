@@ -1,0 +1,10 @@
+status: 1
+pattern: '[node:nid]'
+escape: false
+preserve_titles: true
+save: false
+chunk: 50
+dependencies:
+  config:
+    - node.type.dootronic
+new_content_behavior: 1

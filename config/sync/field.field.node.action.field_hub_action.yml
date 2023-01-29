@@ -1,0 +1,29 @@
+uuid: 11378621-2607-480f-814d-2e2d8bd5510d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hub_action
+    - node.type.action
+    - node.type.hub
+id: node.action.field_hub_action
+field_name: field_hub_action
+entity_type: node
+bundle: action
+label: Hub
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      hub: hub
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

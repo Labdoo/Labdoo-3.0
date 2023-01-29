@@ -1,0 +1,24 @@
+uuid: 40fb749d-fabe-4447-b0b0-2eead7e2bff3
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.edoovillage
+    - node.type.hub
+    - node.type.labdoo_story
+  module:
+    - eu_cookie_compliance
+    - node
+id: hub_manager
+label: 'Hub Manager'
+weight: 8
+is_admin: null
+permissions:
+  - 'create edoovillage content'
+  - 'create hub content'
+  - 'create labdoo_story content'
+  - 'delete own edoovillage content'
+  - 'display eu cookie compliance popup'
+  - 'edit own edoovillage content'
+  - 'edit own hub content'
+  - 'edit own labdoo_story content'

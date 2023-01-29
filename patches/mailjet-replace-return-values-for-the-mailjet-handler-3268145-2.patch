@@ -1,0 +1,151 @@
+diff --git a/src/MailjetHandler.php b/src/MailjetHandler.php
+index 77defa3..73b8cec 100644
+--- a/src/MailjetHandler.php
++++ b/src/MailjetHandler.php
+@@ -56,8 +56,8 @@ public function getMailjetDefaultList(): ?array {
+   /**
+    * {@inheritdoc}
+    *
+-   * @return array|false|null
+-   *   Return array with result or false.
++   * @return array|null
++   *   Return array with result or null.
+    */
+   public function getMailjetContactLists($limit = 0): ?array {
+     $filters = [
+@@ -70,7 +70,7 @@ public function getMailjetContactLists($limit = 0): ?array {
+       return $response->getData();
+     }
+ 
+-    return FALSE;
++    return NULL;
+   }
+ 
+   /**
+@@ -108,12 +108,12 @@ public function getMailjetContactProperties(int $limit = 0): ?array {
+   /**
+    * {@inheritdoc}
+    *
+-   * @return array|false|null
+-   *   Return array with result or false.
++   * @return array|null
++   *   Return array with result or null.
+    */
+   public function createMailjetContactList($listName): ?array {
+     if (empty($listName)) {
+-      return FALSE;
++      return NULL;
+     }
+ 
+     $body = [
+@@ -125,14 +125,14 @@ public function createMailjetContactList($listName): ?array {
+       return $response->getData();
+     }
+ 
+-    return FALSE;
++    return NULL;
+   }
+ 
+   /**
+    * Get contact properties.
+    *
+-   * @return array|false|null
+-   *   Return array with response or false.
++   * @return array|null
++   *   Return array with response or null.
+    */
+   public function getContactProperties(): ?array {
+     $filters = [
+@@ -145,18 +145,18 @@ public function getContactProperties(): ?array {
+       return $response->getData();
+     }
+ 
+-    return FALSE;
++    return NULL;
+   }
+ 
+   /**
+    * {@inheritdoc}
+    *
+-   * @return array|false|null
+-   *   Return array with result or false.
++   * @return array|null
++   *   Return array with result or null.
+    */
+   public function createMailjetContactProperty($name, $type = "str"): ?array {
+     if (empty($name)) {
+-      return FALSE;
++      return NULL;
+     }
+ 
+     // Name: the name of the custom data field.
+@@ -174,18 +174,18 @@ public function createMailjetContactProperty($name, $type = "str"): ?array {
+       return $response->getData();
+     }
+ 
+-    return FALSE;
++    return NULL;
+   }
+ 
+   /**
+    * {@inheritdoc}
+    *
+-   * @return array|false|null
+-   *   Return array with result or false.
++   * @return array|null
++   *   Return array with result or null.
+    */
+   public function updateMailjetContactProperty($id, $name, $type = "str"): ?array {
+     if (empty($name)) {
+-      return FALSE;
++      return NULL;
+     }
+ 
+     // Name: the name of the custom data field.
+@@ -204,7 +204,7 @@ public function updateMailjetContactProperty($id, $name, $type = "str"): ?array
+       return $response->getData();
+     }
+ 
+-    return FALSE;
++    return NULL;
+   }
+ 
+   /**
+@@ -228,8 +228,8 @@ public function syncMailjetContacts(int $contactListId, array $contacts, string
+   /**
+    * {@inheritdoc}
+    *
+-   * @return array|false|null
+-   *   Return array with result or false.
++   * @return array|null
++   *   Return array with result or null.
+    */
+   public function syncMailjetContact($contactListId, array $contact, $action = 'addforce'): ?array {
+     $body = [
+@@ -248,14 +248,14 @@ public function syncMailjetContact($contactListId, array $contact, $action = 'ad
+       return $response->getData();
+     }
+ 
+-    return FALSE;
++    return NULL;
+   }
+ 
+   /**
+    * {@inheritdoc}
+    *
+-   * @return array|false|null
+-   *   Return array with result or false.
++   * @return array|null
++   *   Return array with result or null.
+    */
+   public function createApiToken(array $params): ?array {
+     $response = $this->mailjetClient->post(Resources::$Apitoken, ['body' => $params]);
+@@ -263,7 +263,7 @@ public function createApiToken(array $params): ?array {
+       return $response->getData();
+     }
+ 
+-    return FALSE;
++    return NULL;
+   }
+ 
+ }

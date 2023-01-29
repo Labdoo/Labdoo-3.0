@@ -1,0 +1,94 @@
+display:
+  default:
+    display_title: 'Per defecte'
+    display_options:
+      title: Multimèdia
+      fields:
+        media_bulk_form:
+          action_title: Acció
+      pager:
+        options:
+          tags:
+            next: ››
+            previous: ‹‹
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      exposed_form:
+        options:
+          reset_button_label: Reinicialitza
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      sorts:
+        created:
+          expose:
+            label: 'Els més nous primer'
+      filters:
+        status:
+          group_info:
+            label: Publicat
+            group_items:
+              1:
+                title: Publicat
+              2:
+                title: 'Sense publicar'
+        name:
+          expose:
+            label: Nom
+        langcode:
+          expose:
+            label: Llengua
+  page:
+    display_title: Pàgina
+    display_options:
+      fields:
+        media_bulk_form:
+          action_title: Acció
+        name:
+          separator: ', '
+        edit_media:
+          text: Edita
+        delete_media:
+          text: Suprimeix
+  widget:
+    display_title: Giny
+    display_options:
+      arguments:
+        bundle:
+          exception:
+            title: Tot
+      filters:
+        name:
+          expose:
+            label: Nom
+      header:
+        display_link_grid:
+          label: Graella
+        display_link_table:
+          label: Taula
+  widget_table:
+    display_options:
+      fields:
+        thumbnail__target_id:
+          label: Miniatura
+        name:
+          label: Nom
+        uid:
+          label: Autor
+        changed:
+          label: Actualitzat
+      arguments:
+        bundle:
+          exception:
+            title: Tot
+      filters:
+        name:
+          expose:
+            label: Nom
+      header:
+        display_link_grid:
+          label: Graella
+        display_link_table:
+          label: Taula

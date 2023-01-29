@@ -1,0 +1,19 @@
+uuid: ba878f16-287a-4816-a121-932bbbf03e23
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootrip_notes
+    - node.type.dootrip
+id: node.dootrip.field_dootrip_notes
+field_name: field_dootrip_notes
+entity_type: node
+bundle: dootrip
+label: Notes
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

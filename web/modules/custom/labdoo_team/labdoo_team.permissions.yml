@@ -1,0 +1,9 @@
+join team:
+  title: 'Join a team'
+  description: 'Allow users joining a team.'
+  restrict access: TRUE
+
+leave team:
+  title: 'Leave a team'
+  description: 'Allow users leaving a team.'
+  restrict access: TRUE

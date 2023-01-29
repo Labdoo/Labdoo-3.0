@@ -1,0 +1,6 @@
+title: Kontakt
+settings:
+  confirmation_message: 'Wiadomość została wysłana.'
+handlers:
+  email_notification:
+    label: 'Powiadomienia e-mail'

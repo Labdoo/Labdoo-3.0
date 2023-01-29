@@ -1,0 +1,26 @@
+diff --git a/src/FieldDiffBuilderInterface.php b/src/FieldDiffBuilderInterface.php
+index 9d03563..6842e5f 100644
+--- a/src/FieldDiffBuilderInterface.php
++++ b/src/FieldDiffBuilderInterface.php
+@@ -40,7 +40,7 @@ interface FieldDiffBuilderInterface extends PluginFormInterface, ConfigurableInt
+    *   means that a field is either empty or no properties need to be compared
+    *   for that field.
+    */
+-  public function build(FieldItemListInterface $field_items): mixed;
++  public function build(FieldItemListInterface $field_items);
+ 
+   /**
+    * Returns if the plugin can be used for the provided field.
+diff --git a/src/Plugin/diff/Field/CoreFieldBuilder.php b/src/Plugin/diff/Field/CoreFieldBuilder.php
+index 46f0b0c..e2f5873 100644
+--- a/src/Plugin/diff/Field/CoreFieldBuilder.php
++++ b/src/Plugin/diff/Field/CoreFieldBuilder.php
+@@ -57,7 +57,7 @@ class CoreFieldBuilder extends FieldDiffBuilderBase {
+   /**
+    * {@inheritdoc}
+    */
+-  public function build(FieldItemListInterface $field_items): array {
++  public function build(FieldItemListInterface $field_items) {
+     $result = [];
+ 
+     // Every item from $field_items is of type FieldItemInterface.

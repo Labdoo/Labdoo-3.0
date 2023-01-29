@@ -1,0 +1,11 @@
+label: 'Տաքսոնոմիա տերմին'
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+  page_1:
+    display_title: Էջ

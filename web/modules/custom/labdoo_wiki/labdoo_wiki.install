@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Updates the 'revision_uid' field in the 'mini_wiki_page_revision' table.
+ */
+function labdoo_wiki_update_8001() {
+  \Drupal::database()
+    ->query("UPDATE {mini_wiki_page_revision} r
+    INNER JOIN {mini_wiki_page_field_data} d ON r.id = d.id
+    SET r.revision_uid = d.uid
+    WHERE r.revision_uid IS NULL");
+}

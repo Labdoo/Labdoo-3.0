@@ -1,0 +1,28 @@
+uuid: bb4ed178-98ba-4ad5-bbb5-3b8c998bdced
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.dootronics_dashboard
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_exposedformdootronics_dashboardpage_1
+theme: labdoo
+region: sidebar
+weight: -18
+provider: null
+plugin: 'views_exposed_filter_block:dootronics_dashboard-page_1'
+settings:
+  id: 'views_exposed_filter_block:dootronics_dashboard-page_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /content/dootronics-dashboard

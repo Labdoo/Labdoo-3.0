@@ -1,0 +1,7 @@
+github_issues.configuration:
+  path: '/admin/config/github-issues'
+  defaults:
+    _form: '\Drupal\github_issues\Form\SettingsForm'
+    _title: 'GitHub issues configuration'
+  requirements:
+    _permission: 'administer site configuration'

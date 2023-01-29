@@ -1,0 +1,18 @@
+uuid: 3341e676-61f8-4862-a6d0-ecb9fbb2e3e6
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.team
+id: node.team.created
+field_name: created
+entity_type: node
+bundle: team
+label: 'Authored on'
+description: 'The date and time that the content was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

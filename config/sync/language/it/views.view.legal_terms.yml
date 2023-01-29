@@ -1,0 +1,42 @@
+display:
+  default:
+    display_title: Principale
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Applica
+          reset_button_label: Ripristina
+          exposed_sorts_label: 'Ordina per'
+          sort_asc_label: Asc
+          sort_desc_label: Disc
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'Voci per pagina'
+            items_per_page_options_all_label: '- Tutto -'
+            offset_label: Scostamento
+          tags:
+            previous: '‹ Precedente'
+            next: 'Seguente ›'
+            first: '« Prima'
+            last: 'Ultima »'
+      fields:
+        version:
+          label: Versione
+        language:
+          label: Lingua
+        revision:
+          label: Revisione
+        conditions:
+          label: 'Termini e condizioni'
+        extras:
+          label: 'Caselle di selezione aggiuntive'
+        changes:
+          label: Modifiche
+        date:
+          label: 'Data di inserimento'
+  page_1:
+    display_title: Pagina
+    display_options:
+      tab_options:
+        description: Legal

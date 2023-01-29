@@ -1,0 +1,12 @@
+<p>[ACTIVITY_BODY]</p>
+
+<p>---</p>
+
+<p>This [ACTIVITY_TYPE] was submitted by [USERNAME].<br>
+Please do not reply directly to this message using email.<br>
+You can see the full [ACTIVITY_TYPE] by going to the following link: [ACTIVITY_URL]<br>
+On conversations, you can also reply to this message by going to the above link.</p>
+
+<p>#To unsubscribe from this feed and/or manage your teams subscriptions go to [TEAMS_MGM_URL]</p>
+
+<img src="https://platform.labdoo.org/profiles/labdoo/files/pictures/footer-acts.png" width="800"/>

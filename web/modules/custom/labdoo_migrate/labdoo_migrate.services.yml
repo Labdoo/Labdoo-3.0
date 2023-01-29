@@ -1,0 +1,81 @@
+services:
+  labdoo_migrate.migrate_helper:
+    class: Drupal\labdoo_migrate\MigrateHelper
+    arguments: ['@config.factory']
+  labdoo_migrate.config.configuration_manager:
+    class: Drupal\labdoo_migrate\Services\Config\ConfigurationManager
+    arguments: ['@module_handler']
+  labdoo_migrate.database.external_connection_manager:
+    class: Drupal\labdoo_migrate\Services\Database\ExternalConnectionManager
+  labdoo_migrate.media.file_manager:
+    class: Drupal\labdoo_migrate\Services\Media\FileManager
+    arguments: ['@file_system', '@file.repository', '@labdoo_migrate.config.configuration_manager', '@logger.factory', '@current_user', '@entity_type.manager']
+  labdoo_migrate.media.media_manager:
+    class: Drupal\labdoo_migrate\Services\Media\MediaManager
+    arguments: ['@entity_type.manager', '@labdoo_migrate.media.file_manager']
+  labdoo_migrate.destination_content.repository.node:
+    class: Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepository
+    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.destination_content.translation_repository']
+  labdoo_migrate.destination_content.repository.user:
+    class: Drupal\labdoo_migrate\Services\DestinationContent\UserDestinationRepository
+    arguments: ['@entity_type.manager', '@logger.factory']
+  labdoo_migrate.destination_content.translation_repository:
+    class: Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepository
+    arguments: ['@entity.repository', '@logger.factory', '@labdoo_migrate.config.configuration_manager']
+  labdoo_migrate.source_content.repository.node:
+    class: Drupal\labdoo_migrate\Services\SourceContent\SourceRepository
+    arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.source_content.translation_repository', '@labdoo_migrate.dynamic_content.paragraph_repository']
+  labdoo_migrate.source_content.repository.user:
+    class: Drupal\labdoo_migrate\Services\SourceContent\UserSourceRepository
+    arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.dynamic_content.paragraph_repository']
+  labdoo_migrate.dynamic_content.paragraph_repository:
+    class: Drupal\labdoo_migrate\Services\DynamicContent\DynamicParagraphRepository
+    arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.media.file_manager']
+  labdoo_migrate.source_content.translation_repository:
+    class: Drupal\labdoo_migrate\Services\SourceContent\TranslationRepository
+    arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.config.configuration_manager']
+  labdoo_migrate.mapper.fields_mapper:
+    class: Drupal\labdoo_migrate\Services\Mapper\FieldsMapper
+    arguments: ['@logger.factory', '@labdoo_migrate.config.configuration_manager']
+  labdoo_migrate.special_field_types.file:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeFile
+    arguments: ['@labdoo_migrate.media.file_manager', '@labdoo_migrate.media.media_manager']
+  labdoo_migrate.special_field_types.managed_file:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeManagedFile
+    arguments: ['@labdoo_migrate.media.file_manager']
+  labdoo_migrate.special_field_types.media:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeMedia
+    arguments: ['@entity_type.manager']
+  labdoo_migrate.special_field_types.taxonomy:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeTaxonomy
+    arguments: ['@entity_type.manager', '@labdoo_migrate.destination_content.translation_repository']
+  labdoo_migrate.special_field_types.paragraph:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeParagraph
+    arguments: ['@entity_type.manager']
+  labdoo_migrate.special_field_types.formatted_text:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeFormattedText
+  labdoo_migrate.special_field_types.formatted_text_with_replacement:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeFormattedTextWithReplacement
+  labdoo_migrate.special_field_types.role:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeRole
+  labdoo_migrate.special_field_types.image:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeImage
+    arguments: ['@labdoo_migrate.media.file_manager', '@labdoo_migrate.media.media_manager']
+  labdoo_migrate.special_field_types.link:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeLink
+    arguments: ['@labdoo_migrate.database.external_connection_manager']
+  labdoo_migrate.special_field_types.plain_link:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypePlainLink
+    arguments: ['@labdoo_migrate.database.external_connection_manager']
+  labdoo_migrate.special_field_types.dynamic_paragraph:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeDynamicParagraph
+    arguments: ['@entity_type.manager', '@labdoo_migrate.config.configuration_manager']
+  labdoo_migrate.special_field_types.date:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeDate
+  labdoo_migrate.special_field_types.metatags:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeMetatags
+  labdoo_migrate.special_field_types.geolocation:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeGeolocation
+    arguments: ['@geofield.wkt_generator']
+  labdoo_migrate.special_field_types.watt_hours:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeWattHours

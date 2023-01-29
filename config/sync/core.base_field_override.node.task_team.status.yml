@@ -1,0 +1,22 @@
+uuid: c108aac7-568c-4c9a-a41d-5f929c8cbfa3
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.task_team
+id: node.task_team.status
+field_name: status
+entity_type: node
+bundle: task_team
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

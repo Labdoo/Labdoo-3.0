@@ -1,0 +1,20 @@
+uuid: 02ab9afd-c423-43f0-94b8-c2ee58284f57
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+  theme:
+    - labdoo
+id: labdoo_wikitree
+theme: labdoo
+region: sidebar
+weight: -6
+provider: null
+plugin: mini_wiki_navigation_block
+settings:
+  id: mini_wiki_navigation_block
+  label: 'Wiki tree'
+  label_display: visible
+  provider: mini_wiki
+visibility: {  }

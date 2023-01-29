@@ -1,0 +1,58 @@
+label: Accions
+display:
+  default:
+    display_title: 'Per defecte'
+    display_options:
+      title: Accions
+      fields:
+        body:
+          label: Acció
+        field_address_locality:
+          label: Ciutat
+        field_address_country_code:
+          label: País
+        created:
+          label: "Data de l'acció"
+      pager:
+        options:
+          tags:
+            first: '« Primer'
+            last: 'Últim »'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      exposed_form:
+        options:
+          submit_button: Aplica
+          reset_button_label: Restablir
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Ascensor
+          sort_desc_label: Desc.
+      filters:
+        field_action_type_value:
+          expose:
+            label: 'Accions relacionades amb'
+        field_address_country_code:
+          expose:
+            label: País
+        field_address_locality:
+          expose:
+            label: Ciutat
+  block_1:
+    display_title: 'Minimissions actuals'
+    display_options:
+      title: 'Minimissions actuals'
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+  page_1:
+    display_title: Pàgina
+    display_options:
+      menu:
+        title: 'Accions globals'
+  rest_export_1:
+    display_title: 'Exportació REST'

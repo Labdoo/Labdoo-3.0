@@ -1,0 +1,23 @@
+uuid: 17a51917-0258-4d90-b1e8-ac154adda3dc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_number_of_laptops_needed
+    - node.type.edoovillage
+id: node.edoovillage.field_number_of_laptops_needed
+field_name: field_number_of_laptops_needed
+entity_type: node
+bundle: edoovillage
+label: 'Number of dootronics needed'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

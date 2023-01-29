@@ -1,0 +1,21 @@
+uuid: 2f57ee0f-33d1-4bfe-8580-b5f8d7581c2c
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_send_to_all_hub_managers
+    - node.type.team_post
+id: node.team_post.field_send_to_all_hub_managers
+field_name: field_send_to_all_hub_managers
+entity_type: node
+bundle: team_post
+label: 'Send to all hub managers'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: Activado
+  off_label: Desactivado
+field_type: boolean

@@ -1,0 +1,111 @@
+uuid: fd5958c9-aafc-4316-a09e-b1c631015857
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.basic_html
+    - filter.format.markdown
+    - filter.format.webform_default
+    - node.type.book
+    - node.type.dootrip
+    - node.type.dootronic
+    - node.type.edoovillage
+    - node.type.hub
+    - node.type.task_team
+    - node.type.team_post
+    - search_api_autocomplete.search.search_content
+    - search_api_autocomplete.search.search_results
+  module:
+    - book
+    - comment
+    - contact
+    - eu_cookie_compliance
+    - field_permissions
+    - file
+    - filter
+    - google_analytics
+    - labdoo_dootronics
+    - labdoo_team
+    - legal
+    - media
+    - mini_wiki
+    - node
+    - search_api_autocomplete
+    - shortcut
+    - system
+    - toolbar
+_core:
+  default_config_hash: cFrlqjtkTfvY3RGccjJkPf1SGIfJ942IrxTLWAO4mgA
+id: authenticated
+label: 'Usuario autenticado'
+weight: 1
+is_admin: false
+permissions:
+  - 'access comments'
+  - 'access content'
+  - 'access printer-friendly version'
+  - 'access shortcuts'
+  - 'access site-wide contact form'
+  - 'access toolbar'
+  - 'access user contact forms'
+  - 'access user profiles'
+  - 'add content to books'
+  - 'cancel account'
+  - 'create book content'
+  - 'create dootrip content'
+  - 'create dootronic content'
+  - 'create field_about_me'
+  - 'create field_hub_manager_notifications'
+  - 'create field_notification_area'
+  - 'create field_skills'
+  - 'create field_team'
+  - 'create field_team_members'
+  - 'create new books'
+  - 'create task_team content'
+  - 'create team_post content'
+  - 'create user_picture'
+  - 'delete own book content'
+  - 'delete own dootrip content'
+  - 'delete own dootronic content'
+  - 'delete own files'
+  - 'display eu cookie compliance popup'
+  - 'edit own book content'
+  - 'edit own comments'
+  - 'edit own dootrip content'
+  - 'edit own dootronic content'
+  - 'edit own field_about_me'
+  - 'edit own field_hub_manager_notifications'
+  - 'edit own field_notification_area'
+  - 'edit own field_skills'
+  - 'edit own field_team'
+  - 'edit own field_team_members'
+  - 'edit own team_post content'
+  - 'edit own user_picture'
+  - 'follow dootronic'
+  - 'join team'
+  - 'leave team'
+  - 'opt-in or out of google analytics tracking'
+  - 'pick me up dootronic'
+  - 'post comments'
+  - 'print dootronic tags'
+  - 'skip comment approval'
+  - 'use search_api_autocomplete for search_content'
+  - 'use search_api_autocomplete for search_results'
+  - 'use text format basic_html'
+  - 'use text format markdown'
+  - 'use text format webform_default'
+  - 'view Terms and Conditions'
+  - 'view dootronic revisions'
+  - 'view edoovillage revisions'
+  - 'view field_about_me'
+  - 'view field_skills'
+  - 'view hub revisions'
+  - 'view media'
+  - 'view mini_wiki_page'
+  - 'view mini_wiki_page revision'
+  - 'view own field_about_me'
+  - 'view own field_hub_manager_notifications'
+  - 'view own field_notification_area'
+  - 'view own field_skills'
+  - 'view own user_picture'
+  - 'view user_picture'

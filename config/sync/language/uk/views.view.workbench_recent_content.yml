@@ -1,0 +1,85 @@
+display:
+  default:
+    display_title: Головне
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Застосувати
+          reset_button_label: Скинути
+          exposed_sorts_label: 'Впорядкувати за'
+          sort_asc_label: Зрост
+          sort_desc_label: Спад
+      pager:
+        options:
+          tags:
+            previous: '‹ Попередня'
+            next: 'Наступна ›'
+            first: '« Перша'
+            last: 'Остання »'
+          expose:
+            items_per_page_label: 'Елементів на сторінку'
+            items_per_page_options_all_label: '- Усе -'
+            offset_label: Зміщення
+      fields:
+        title:
+          label: Заголовок
+          separator: ', '
+        type:
+          label: Тип
+          separator: ', '
+        status:
+          label: Опубліковано
+          separator: ', '
+        name:
+          label: Автор
+          separator: ', '
+        changed:
+          label: 'Востаннє оновлено'
+          separator: ', '
+        edit_node:
+          label: Дії
+          text: редагувати
+      filters:
+        title:
+          expose:
+            label: Заголовок
+        type:
+          expose:
+            label: Тип
+        status:
+          expose:
+            label: Опубліковано
+      use_more_text: 'показати усі'
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Перша'
+            last: 'Остання »'
+          expose:
+            items_per_page_label: 'Елементів на сторінку'
+            items_per_page_options_all_label: '- Усе -'
+            offset_label: Зміщення
+      filters:
+        status:
+          expose:
+            label: Опубліковано
+      fields:
+        title:
+          label: Заголовок
+          separator: ', '
+        type:
+          label: Тип
+          separator: ', '
+        name:
+          label: Автор
+          separator: ', '
+        changed:
+          label: 'Востаннє оновлено'
+          separator: ', '
+        edit_node:
+          label: Дії
+          text: редагувати

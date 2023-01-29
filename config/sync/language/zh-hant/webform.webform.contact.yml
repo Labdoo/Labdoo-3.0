@@ -1,0 +1,6 @@
+title: 聯絡
+settings:
+  confirmation_message: 已送出您的訊息。
+handlers:
+  email_notification:
+    label: 電子郵件通知

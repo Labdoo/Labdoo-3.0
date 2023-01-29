@@ -1,0 +1,21 @@
+uuid: a0100097-b6de-424b-bf88-afd3f912cbbf
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_locations
+    - node.type.hub
+  module:
+    - geofield
+id: node.hub.field_locations
+field_name: field_locations
+entity_type: node
+bundle: hub
+label: Location
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: geofield

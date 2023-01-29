@@ -1,0 +1,41 @@
+diff --git a/modules/views/src/Plugin/views/cache/CachePluginBase.php b/modules/views/src/Plugin/views/cache/CachePluginBase.php
+index 6cd39aa1a3..2864e26945 100644
+--- a/modules/views/src/Plugin/views/cache/CachePluginBase.php
++++ b/modules/views/src/Plugin/views/cache/CachePluginBase.php
+@@ -317,7 +317,9 @@ abstract class CachePluginBase extends PluginBase {
+ 
+     if (!empty($row->_relationship_entities)) {
+       foreach ($row->_relationship_entities as $entity) {
+-        $tags = Cache::mergeTags($tags, $entity->getCacheTags());
++        if ($entity !== NULL) {
++          $tags = Cache::mergeTags($tags, $entity->getCacheTags());
++        }
+       }
+     }
+ 
+diff --git a/modules/views/src/Plugin/views/query/Sql.php b/modules/views/src/Plugin/views/query/Sql.php
+index af57e33ec4..7e472960dd 100644
+--- a/modules/views/src/Plugin/views/query/Sql.php
++++ b/modules/views/src/Plugin/views/query/Sql.php
+@@ -1695,7 +1695,9 @@ class Sql extends QueryPluginBase {
+     // Add cache tags for each row, if there is an entity associated with it.
+     if (!$this->hasAggregate) {
+       foreach ($this->getAllEntities() as $entity) {
+-        $tags = Cache::mergeTags($entity->getCacheTags(), $tags);
++        if (!$entity === NULL) {
++          $tags = Cache::mergeTags($entity->getCacheTags(), $tags);
++        }
+       }
+     }
+ 
+@@ -1708,7 +1710,9 @@ class Sql extends QueryPluginBase {
+   public function getCacheMaxAge() {
+     $max_age = parent::getCacheMaxAge();
+     foreach ($this->getAllEntities() as $entity) {
+-      $max_age = Cache::mergeMaxAges($max_age, $entity->getCacheMaxAge());
++      if (!$entity === NULL) {
++        $max_age = Cache::mergeMaxAges($max_age, $entity->getCacheMaxAge());
++      }
+     }
+ 
+     return $max_age;

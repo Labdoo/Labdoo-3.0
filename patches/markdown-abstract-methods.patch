@@ -1,0 +1,34 @@
+diff --git a/src/BcSupport/SubformState.php b/src/BcSupport/SubformState.php
+index db8fd3a..9036dc9 100644
+--- a/src/BcSupport/SubformState.php
++++ b/src/BcSupport/SubformState.php
+@@ -158,4 +158,12 @@ class SubformState extends FormStateDecoratorBase implements SubformStateInterfa
+     return $this;
+   }
+ 
++  public function setIgnoreDestination(bool $status = TRUE) {
++    // TODO: Implement setIgnoreDestination() method.
++  }
++
++  public function getIgnoreDestination(): bool {
++    // TODO: Implement getIgnoreDestination() method.
++  }
++
+ }
+diff --git a/src/Form/SubformState.php b/src/Form/SubformState.php
+index 9fc0777..c8b96ec 100644
+--- a/src/Form/SubformState.php
++++ b/src/Form/SubformState.php
+@@ -102,4 +102,12 @@ class SubformState extends CoreSubformState implements SubformStateInterface {
+     return $this->parentForm;
+   }
+ 
++  public function setIgnoreDestination(bool $status = TRUE) {
++    // TODO: Implement setIgnoreDestination() method.
++  }
++
++  public function getIgnoreDestination(): bool {
++    // TODO: Implement getIgnoreDestination() method.
++  }
++
+ }

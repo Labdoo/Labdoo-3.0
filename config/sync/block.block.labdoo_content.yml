@@ -1,0 +1,22 @@
+uuid: 3dfc9527-cebf-4157-8c80-9df14053c8a0
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - labdoo
+_core:
+  default_config_hash: hBHXB7hC05XU7pDYzETt-GUcpFlogK1gkjyAsg0Ym58
+id: labdoo_content
+theme: labdoo
+region: content
+weight: -8
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  label_display: '0'
+  provider: system
+visibility: {  }

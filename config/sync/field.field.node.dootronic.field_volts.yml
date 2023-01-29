@@ -1,0 +1,23 @@
+uuid: daecf044-7f5b-44a9-88c7-9a5e5cca9517
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_volts
+    - node.type.dootronic
+id: node.dootronic.field_volts
+field_name: field_volts
+entity_type: node
+bundle: dootronic
+label: Volts
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: V
+field_type: decimal

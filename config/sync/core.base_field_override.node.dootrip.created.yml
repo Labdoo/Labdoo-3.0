@@ -1,0 +1,18 @@
+uuid: 0c062ff5-d2ac-4dd4-b211-352003201237
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootrip
+id: node.dootrip.created
+field_name: created
+entity_type: node
+bundle: dootrip
+label: 'Authored on'
+description: 'The date and time that the content was created.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

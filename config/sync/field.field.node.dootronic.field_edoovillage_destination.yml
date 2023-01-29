@@ -1,0 +1,25 @@
+uuid: c44909c9-c500-4f3d-97f1-7d07888b4f60
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_edoovillage_destination
+    - node.type.dootronic
+id: node.dootronic.field_edoovillage_destination
+field_name: field_edoovillage_destination
+entity_type: node
+bundle: dootronic
+label: 'Edoovillage destination'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: edoovillage_inventory
+      display_name: entity_reference_1
+      arguments: {  }
+field_type: entity_reference

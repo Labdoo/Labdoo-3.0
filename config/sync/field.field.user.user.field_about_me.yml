@@ -1,0 +1,24 @@
+uuid: 6c79e34b-4a30-4768-baff-120deb8950e0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_about_me
+    - filter.format.basic_html
+  module:
+    - text
+    - user
+id: user.user.field_about_me
+field_name: field_about_me
+entity_type: user
+bundle: user
+label: 'About me'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - basic_html
+field_type: text_long

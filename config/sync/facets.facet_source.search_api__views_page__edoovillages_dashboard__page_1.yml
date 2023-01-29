@@ -1,0 +1,9 @@
+uuid: 8023e795-9114-4059-b6c9-b3702d4eda8b
+langcode: en
+status: true
+dependencies: {  }
+id: search_api__views_page__edoovillages_dashboard__page_1
+name: 'search_api:views_page__edoovillages_dashboard__page_1'
+filter_key: null
+url_processor: query_string
+breadcrumb: {  }

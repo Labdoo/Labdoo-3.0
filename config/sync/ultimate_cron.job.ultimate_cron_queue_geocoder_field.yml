@@ -1,0 +1,20 @@
+uuid: 80c7aa71-9a39-4f37-8f90-5e157d10c642
+langcode: en
+status: true
+dependencies:
+  module:
+    - geocoder_field
+title: 'Queue: Geocode entities'
+id: ultimate_cron_queue_geocoder_field
+weight: 10
+module: geocoder_field
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

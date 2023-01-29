@@ -1,0 +1,19 @@
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      fields:
+        title:
+          label: Վերնագիր
+        name:
+          label: Հեղինակ
+        changed:
+          label: 'Վերջին թարմացումը'
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+  attachment_1:
+    display_title: Կցորդ
+  page_1:
+    display_title: Էջ

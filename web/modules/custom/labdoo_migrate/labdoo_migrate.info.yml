@@ -1,0 +1,6 @@
+name: Labdoo Migrate
+description: Labdoo migration suite to import legacy Drupal 7 database.
+type: module
+core_version_requirement: ^8 || ^9 || ^10
+package: Labdoo
+dependencies: {}

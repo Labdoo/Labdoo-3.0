@@ -1,0 +1,21 @@
+uuid: 3b7960d2-bf1c-4150-9183-7a7074ce2887
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_semaphore
+    - node.type.edoovillage
+  module:
+    - options
+id: node.edoovillage.field_semaphore
+field_name: field_semaphore
+entity_type: node
+bundle: edoovillage
+label: Semaphore
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

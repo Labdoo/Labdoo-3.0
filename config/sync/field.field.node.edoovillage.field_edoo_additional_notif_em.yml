@@ -1,0 +1,19 @@
+uuid: 699690ca-d9c7-4cde-823a-5d0eb75fec36
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_edoo_additional_notif_em
+    - node.type.edoovillage
+id: node.edoovillage.field_edoo_additional_notif_em
+field_name: field_edoo_additional_notif_em
+entity_type: node
+bundle: edoovillage
+label: 'Additional notification emails'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

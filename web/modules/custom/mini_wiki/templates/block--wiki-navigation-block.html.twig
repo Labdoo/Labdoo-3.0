@@ -1,0 +1,22 @@
+<div class="mini-wiki-navigation block-actions-block-block">
+    <div class="views-exposed-form block-views">
+        <h3>{{ "Parent page"|t }}</h3>
+        <ul>
+            {% if parent_link is not empty %}
+                <li><a href="{{ parent_link.url }}">{{ parent_link.title }}</a></li>
+            {% else %}
+                <li><a href="/wiki">Wiki</a></li>
+            {% endif %}
+        </ul>
+        {% if children_links is not empty %}
+            <h3>{{ "Subpages"|t }}</h3>
+            <ul>
+                {% for child in children_links %}
+                    <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <div><a href="{{ path('entity.mini_wiki_page.add_form', {'parent': entity_id}) }}" class="button">Add
+                subpage</a></div>
+    </div>
+</div>

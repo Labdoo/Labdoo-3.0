@@ -1,0 +1,16 @@
+label: Նորեկներ
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      title: Նորեկներ
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+  block_1:
+    display_title: Նորեկներ
+    display_options:
+      display_description: 'Նորեկ օգտատերերի ցուցակ'
+      block_description: Նորեկներ
+      block_category: Օգտագործող

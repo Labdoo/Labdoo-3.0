@@ -1,0 +1,20 @@
+uuid: 47b97c39-900c-4cbc-9983-8454a4a76077
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - user
+id: node.field_project_manager_s_
+field_name: field_project_manager_s_
+entity_type: node
+type: entity_reference
+settings:
+  target_type: user
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

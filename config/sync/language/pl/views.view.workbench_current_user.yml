@@ -1,0 +1,21 @@
+display:
+  default:
+    display_title: Główny
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Zastosuj
+          reset_button_label: Resetuj
+          exposed_sorts_label: 'Sortuj po'
+          sort_asc_label: Rosnąco
+          sort_desc_label: Malejąco
+      fields:
+        uid:
+          separator: ', '
+        name:
+          separator: ', '
+        edit_user:
+          text: 'Edytuj mój profil'
+        access:
+          label: 'Ostatnia wizyta'
+          separator: ', '

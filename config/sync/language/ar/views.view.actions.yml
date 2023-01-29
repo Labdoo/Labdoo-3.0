@@ -1,0 +1,65 @@
+label: الإجراءات
+display:
+  default:
+    display_title: تقصير
+    display_options:
+      title: الإجراءات
+      fields:
+        body:
+          label: فعل
+          separator: '، '
+        field_address_locality:
+          label: مدينة
+        field_address_country_code:
+          label: دولة
+        created:
+          label: 'تاريخ الإجراء'
+          separator: '، '
+      pager:
+        options:
+          tags:
+            first: '" أولاً'
+            last: 'آخر "'
+          expose:
+            items_per_page_label: 'العناصر لكل صفحة'
+            items_per_page_options_all_label: '- الجميع -'
+            offset_label: الإزاحة
+      exposed_form:
+        options:
+          submit_button: يتقدم
+          reset_button_label: 'إعادة ضبط'
+          exposed_sorts_label: 'فرز حسب'
+          sort_asc_label: تصاعدي
+          sort_desc_label: الوصف
+      filters:
+        field_action_type_value:
+          expose:
+            label: 'الإجراءات المتعلقة بـ'
+        field_address_country_code:
+          expose:
+            label: دولة
+        field_address_locality:
+          expose:
+            label: مدينة
+  block_1:
+    display_title: 'المهام الصغيرة الحالية'
+    display_options:
+      title: 'المهام الصغيرة الحالية'
+      fields:
+        created:
+          separator: '، '
+        body:
+          separator: '، '
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'العناصر لكل صفحة'
+            items_per_page_options_all_label: '- الجميع -'
+            offset_label: الإزاحة
+  page_1:
+    display_title: صفحة
+    display_options:
+      menu:
+        title: 'الإجراءات العالمية'
+  rest_export_1:
+    display_title: 'تصدير REST'

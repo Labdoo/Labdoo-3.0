@@ -1,0 +1,75 @@
+display:
+  default:
+    display_title: Hoofd
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Toepassen
+          reset_button_label: Herstellen
+          exposed_sorts_label: 'Sorteren op'
+          sort_asc_label: Oplopend
+          sort_desc_label: Aflopend
+      pager:
+        options:
+          tags:
+            previous: '‹ Vorige'
+            next: 'Volgende ›'
+            first: '« Eerste'
+            last: 'Laatste »'
+          expose:
+            items_per_page_label: 'Items per pagina'
+            items_per_page_options_all_label: '- Alle -'
+            offset_label: Startpunt
+      fields:
+        nid:
+          separator: ', '
+        title:
+          label: Titel
+          separator: ', '
+        type:
+          label: Type
+          separator: ', '
+        status:
+          label: Gepubliceerd
+          separator: ', '
+        changed:
+          label: 'Laatst bijgewerkt'
+          separator: ', '
+        uid:
+          label: Auteur
+          separator: ', '
+        revision_uid:
+          label: 'Revisie door'
+          separator: ', '
+      filters:
+        title:
+          expose:
+            label: Titel
+        type:
+          expose:
+            label: Type
+        status:
+          expose:
+            label: Gepubliceerd
+      title: 'Mijn bewerkingen'
+      empty:
+        area:
+          content: 'U heeft geen inhoud aangemaakt of bewerkt.'
+      arguments:
+        uid_revision:
+          exception:
+            title: Alle
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Eerste'
+            last: 'Laatste »'
+          expose:
+            items_per_page_label: 'Items per pagina'
+            items_per_page_options_all_label: '- Alle -'
+            offset_label: Startpunt
+      use_more_text: 'alles weergeven'

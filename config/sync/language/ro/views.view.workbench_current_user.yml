@@ -1,0 +1,19 @@
+display:
+  default:
+    display_title: Expert
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Aplică
+          reset_button_label: Resetează
+          exposed_sorts_label: 'Sortare după'
+          sort_asc_label: Ascendent
+          sort_desc_label: Descendent
+      fields:
+        uid:
+          separator: ', '
+        name:
+          separator: ', '
+        access:
+          label: 'Ultima vizită'
+          separator: ', '

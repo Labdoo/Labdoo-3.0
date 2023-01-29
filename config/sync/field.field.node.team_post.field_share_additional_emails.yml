@@ -1,0 +1,19 @@
+uuid: 15f3668f-8978-40e6-87a6-b341ed9ddc35
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_share_additional_emails
+    - node.type.team_post
+id: node.team_post.field_share_additional_emails
+field_name: field_share_additional_emails
+entity_type: node
+bundle: team_post
+label: 'Share with additional email addresses'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

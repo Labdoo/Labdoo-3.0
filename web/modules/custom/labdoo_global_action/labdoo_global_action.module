@@ -1,0 +1,61 @@
+<?php declare(strict_types = 1);
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_entity_insert().
+ */
+function labdoo_global_action_entity_insert(EntityInterface $entity) {
+  __labdoo_global_action_create_global_action($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function labdoo_global_action_entity_update(EntityInterface $entity) {
+  __labdoo_global_action_create_global_action($entity);
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function labdoo_global_action_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
+  if ($view->id() == 'actions' && $view->current_display == 'page_1') {
+    $mine = \Drupal::request()->query->get('mine');
+    if (!empty($mine) && (int) $mine === 1) {
+      $query->addWhere('AND', 'node_field_data.uid', \Drupal::currentUser()->id(), '=');
+    }
+  }
+}
+
+/**
+ * Creates the global action.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ *
+ * @return void
+ */
+function __labdoo_global_action_create_global_action(EntityInterface $entity): void {
+  if (
+    $entity->bundle() !== 'dootronic'
+    && $entity->bundle() !== 'edoovillage'
+    && $entity->bundle() !== 'hub'
+    && $entity->bundle() !== 'dootrip'
+  ) {
+    return;
+  }
+
+  /** @var \Drupal\labdoo_global_action\Service\Repository\GlobalActionRepository $globalActionRepository */
+  $globalActionRepository = \Drupal::service('labdoo_common.repository.global_action');
+  $globalActionRepository->createGlobalAction($entity);
+}

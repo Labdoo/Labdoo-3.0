@@ -1,0 +1,37 @@
+<div id="block-hub-chart" class="block block-hub-chart-block-block">
+    <div class="view view-watchdog">
+        <div class="view-content">
+            {% set title = '' %}
+
+            {% set series = {
+                'needed' : {
+                    'title' : 'Needed',
+                    'data' : [needed],
+                    'color': '#a5682a'
+                },
+                'delivered' : {
+                    'title' : 'Delivered',
+                    'data' : [delivered],
+                    'color' : '#dc3d1f'
+                },
+                'in_transit' : {
+                    'title' : 'In transit',
+                    'data' : [in_transit],
+                    'color' : '#49971c'
+                },
+                'remaining' : {
+                    'title' : 'Remaining',
+                    'data' : [remaining],
+                    'color' : '#115e7a'
+                },
+            } %}
+
+            {% set xaxis = {
+                'title' : 'Dootronics',
+                'labels' : ['Dootronics by current status']
+            } %}
+
+            {{ chart('hubs_chart', 'column', title, series, xaxis, [], []) }}
+        </div>
+    </div>
+</div>

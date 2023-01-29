@@ -1,0 +1,51 @@
+{#
+/**
+ * @file
+ * Template for the user roles page.
+ *
+ * Available variables:
+ * - current_roles: Array of roles the user currently has, with 'name' and 'description'.
+ * - available_roles: Array of roles the user doesn't have, with 'name' and 'description'.
+ */
+#}
+
+<div class="user-my-roles">
+  <strong>{{ 'My current roles'|t }}</strong>
+  <hr>
+  <table>
+    <tbody>
+      {% for role in current_roles %}
+        <tr>
+          <td style="width:275px;">
+            {{ role.name }}
+          </td>
+          <td>
+            {{ role.description }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <hr>
+  <br>
+  <strong>{{ 'Available extra roles*'|t }}</strong>
+  <hr>
+  <table>
+    <tbody>
+      {% for role in available_roles %}
+        <tr>
+          <td style="width:275px;">
+            {{ role.name }}
+          </td>
+          <td>
+            {{ role.description }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <hr>
+  {{ '(*) If you want to assign extra roles to your user account, please email contact@labdoo.org.'|t }}
+  <br>
+  {{ 'Read more about '|t }}<a href="../../../content/labdoo-user-accounts">{{ 'user roles from this wiki page.'|t }}</a>
+</div>

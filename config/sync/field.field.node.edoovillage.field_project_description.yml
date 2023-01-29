@@ -1,0 +1,19 @@
+uuid: 83d5db3f-bf46-4431-baa0-0a199c697369
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_project_description
+    - node.type.edoovillage
+id: node.edoovillage.field_project_description
+field_name: field_project_description
+entity_type: node
+bundle: edoovillage
+label: 'Project description'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

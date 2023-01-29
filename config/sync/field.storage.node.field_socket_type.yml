@@ -1,0 +1,60 @@
+uuid: f7863642-c27e-4fec-8180-33634a831749
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_socket_type
+field_name: field_socket_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: a
+      label: A
+    -
+      value: b
+      label: B
+    -
+      value: c
+      label: C
+    -
+      value: d
+      label: D
+    -
+      value: e
+      label: E
+    -
+      value: f
+      label: F
+    -
+      value: g
+      label: G
+    -
+      value: h
+      label: H
+    -
+      value: i
+      label: I
+    -
+      value: j
+      label: J
+    -
+      value: k
+      label: K
+    -
+      value: l
+      label: L
+    -
+      value: m
+      label: M
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

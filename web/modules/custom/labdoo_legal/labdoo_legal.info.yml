@@ -1,0 +1,7 @@
+name: Labdoo Legal
+type: module
+description: 'Provides functionality for managing Terms and Conditions across multiple languages.'
+core_version_requirement: ^8 || ^9 || ^10
+package: Labdoo
+dependencies:
+  - legal:legal

@@ -1,0 +1,19 @@
+<div id="block-dootrip-actions" class="block block-actions-block-block">
+    <div class="views-exposed-form block-views">
+        <div class="block-title-wrapper"><span class="block-title">{{ "Actions available for this dootrip:"|t }}</span></div>
+        <div class="actions">
+            {% if edit_link is not empty %}
+            <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/dootrip.png">{{ "Edit this dootrip"|t }}</a></div>
+            {% endif %}
+            {% if revisions_link is not empty %}
+            <div class="action"><a href="{{ revisions_link }}"><img class="icon" src="/themes/custom/labdoo/img/revisions-icon.png">{{ "Review changes"|t }}</a></div>
+            {% endif %}
+            {% if clone_link is not empty %}
+            <div class="action">{% if clone_link is not empty %}<a href="{{ clone_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/clone-icon.png">{{ "Clone this dootrip"|t }}{% if clone_link is not empty %}</a>{% endif %}</div>
+            {% endif %}
+            <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png">{{ "Next dootrip"|t }}</a></div>
+            <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous dootrip"|t }}</a></div>
+        </div>
+        <div class="block-title-wrapper"><span class="block-title">{{ "Dootrip status:"|t }}</span> <span class="dootrip-status-{{ status }}">{{ status|t }}</span></div>
+    </div>
+</div>

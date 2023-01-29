@@ -1,0 +1,18 @@
+uuid: 14456e56-6d7d-4e32-91c6-07cdf1e1d515
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootronic
+id: node.dootronic.title
+field_name: title
+entity_type: node
+bundle: dootronic
+label: Title
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

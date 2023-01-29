@@ -1,0 +1,16 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a notification email.
+ *
+ * Available variables:
+ * - subject: The email subject.
+ * - body: The email body.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="notification-email">
+  <h2 class="notification-email__subject">{{ subject }}</h2>
+  <div class="notification-email__body">{{ body|raw }}</div>
+</div>

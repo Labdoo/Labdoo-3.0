@@ -1,0 +1,281 @@
+{
+  "source_type": "user",
+  "destination_types": [
+    "user"
+  ],
+  "entity_type": "user",
+  "fields_mapping": [
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "users",
+            "key": "uid",
+            "field": "uid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "uid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "users",
+            "key": "uid",
+            "field": "name"
+          }
+        ]
+      },
+      "destination": {
+        "field": "name"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "users",
+            "key": "uid",
+            "field": "pass"
+          }
+        ]
+      },
+      "destination": {
+        "field": "pass"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "users",
+            "key": "uid",
+            "field": "mail"
+          }
+        ]
+      },
+      "destination": {
+        "field": "mail"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "users",
+            "key": "uid",
+            "field": "status"
+          }
+        ]
+      },
+      "destination": {
+        "field": "status"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "created"
+          }
+        ]
+      },
+      "destination": {
+        "field": "created"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "changed"
+          }
+        ]
+      },
+      "destination": {
+        "field": "changed"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "users",
+            "key": "uid",
+            "field": "language"
+          }
+        ]
+      },
+      "destination": {
+        "field": "preferred_langcode"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "users",
+            "key": "uid",
+            "field": "timezone"
+          }
+        ]
+      },
+      "destination": {
+        "field": "timezone"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "users_roles",
+            "key": "uid",
+            "field": "rid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "roles",
+        "special_type": {
+          "type": "role"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_about_me",
+            "key": "entity_id",
+            "field": "field_about_me_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_about_me",
+        "special_type": {
+          "type": "formatted_text",
+          "metadata": {
+            "format": "basic_html"
+          }
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_user_name",
+            "key": "entity_id",
+            "field": "field_user_name_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_user_name"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_notification_area",
+            "key": "entity_id",
+            "field": "field_notification_area_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_notification_area"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_skills",
+            "key": "entity_id",
+            "field": "field_skills_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_skills"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hub_manager_notifications",
+            "key": "entity_id",
+            "field": "field_hub_manager_notifications_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hub_manager_notifications"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_picture",
+            "key": "entity_id",
+            "field": "field_picture_fid",
+            "join": {
+              "table": "file_managed",
+              "key_field": "fid",
+              "value_field": "uri"
+            }
+          }
+        ]
+      },
+      "destination": {
+        "field": "user_picture",
+        "special_type": {
+          "type": "managed_file"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "users.uid",
+            "field": "coords",
+            "expression": "CONCAT(location.latitude, ',', location.longitude)",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "users",
+                "condition": "users.uid = location_instance.uid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_locations",
+        "special_type": {
+          "type": "geolocation"
+        }
+      }
+    }
+  ]
+}

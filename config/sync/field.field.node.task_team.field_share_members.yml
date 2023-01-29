@@ -1,0 +1,23 @@
+uuid: 5a29e99f-27e6-47fa-8796-85e2e712ab84
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_share_members
+    - node.type.task_team
+id: node.task_team.field_share_members
+field_name: field_share_members
+entity_type: node
+bundle: task_team
+label: 'Share with members of this team'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

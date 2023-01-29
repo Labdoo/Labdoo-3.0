@@ -1,0 +1,20 @@
+uuid: cc20c0af-8b31-4798-b927-4fbdcadc480b
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_dootronics_delivered
+field_name: field_dootronics_delivered
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

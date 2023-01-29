@@ -1,0 +1,23 @@
+uuid: 527938dd-6b1a-419d-8f29-b6ac8c7b2dee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hard_drive
+    - node.type.dootronic
+id: node.dootronic.field_hard_drive
+field_name: field_hard_drive
+entity_type: node
+bundle: dootronic
+label: 'Hard drive'
+description: 'Please introduce the value expressed in gigabytes (GB).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: GB
+field_type: integer

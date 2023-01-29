@@ -1,0 +1,6 @@
+name: 'Labdoo Privileges'
+type: module
+description: 'Allow delegating privileges to users defined in certain fields.'
+core_version_requirement: ^10
+package: Custom
+dependencies: {}

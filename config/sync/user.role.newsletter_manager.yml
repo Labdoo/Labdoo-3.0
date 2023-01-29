@@ -1,0 +1,12 @@
+uuid: 55f50a87-0921-46c3-a029-90bdd460380a
+langcode: en
+status: true
+dependencies:
+  module:
+    - eu_cookie_compliance
+id: newsletter_manager
+label: 'Newsletter Manager'
+weight: 4
+is_admin: null
+permissions:
+  - 'display eu cookie compliance popup'

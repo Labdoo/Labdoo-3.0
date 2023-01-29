@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+id: mini_wiki_page_save_action
+label: 'Save wiki pages'
+type: mini_wiki_page
+plugin: entity:save_action:mini_wiki_page
+configuration: {  }

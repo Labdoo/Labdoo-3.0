@@ -1,0 +1,19 @@
+uuid: 4f676f50-3aff-4bff-bb33-930642c028b7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_co2_savings_dootrip
+    - node.type.dootrip
+id: node.dootrip.field_co2_savings_dootrip
+field_name: field_co2_savings_dootrip
+entity_type: node
+bundle: dootrip
+label: 'CO2 emissions savings'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

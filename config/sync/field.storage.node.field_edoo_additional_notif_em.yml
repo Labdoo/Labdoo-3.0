@@ -1,0 +1,18 @@
+uuid: d2324dfa-51c8-46f3-9740-87442a866cd0
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_edoo_additional_notif_em
+field_name: field_edoo_additional_notif_em
+entity_type: node
+type: email
+settings: {  }
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

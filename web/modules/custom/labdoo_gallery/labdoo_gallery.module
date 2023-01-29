@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Creates or updates a gallery entity.
+ *
+ * This function is a hook that allows altering the metadata
+ * before submitting GitHub issues.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity to attach the gallery to.
+ */
+function labdoo_gallery_create_or_update(EntityInterface $entity): void {
+  /** @var \Drupal\labdoo_gallery\Services\LabdooGalleryRepositoryInterface $galleryRepository
+   */
+  $galleryRepository = \Drupal::service('labdoo_gallery.repository');
+  $gallery = $galleryRepository->loadByParentId((int) $entity->id());
+  $data = [
+    'title' => $entity->label() . ' - Photo Album',
+  ];
+  if (empty($gallery)) {
+    $galleryRepository->create($data);
+  }
+  else {
+    $galleryRepository->update($gallery->id(), $data);
+  }
+}

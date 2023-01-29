@@ -1,0 +1,60 @@
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      title: Մեդիա
+      fields:
+        media_bulk_form:
+          action_title: Գործողություն
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      filters:
+        status:
+          group_info:
+            label: Հրապարակված
+            group_items:
+              1:
+                title: Հրապարակված
+        name:
+          expose:
+            label: Անուն
+        langcode:
+          expose:
+            label: Լեզու
+  page:
+    display_title: Էջ
+    display_options:
+      fields:
+        media_bulk_form:
+          action_title: Գործողություն
+        edit_media:
+          text: Խմբագրել
+        delete_media:
+          text: Ջնջել
+  widget:
+    display_options:
+      filters:
+        name:
+          expose:
+            label: Անուն
+      header:
+        display_link_table:
+          label: Աղյուսակ
+  widget_table:
+    display_options:
+      fields:
+        name:
+          label: Անուն
+        uid:
+          label: Հեղինակ
+        changed:
+          label: 'Թարմացվել է'
+      filters:
+        name:
+          expose:
+            label: Անուն
+      header:
+        display_link_table:
+          label: Աղյուսակ

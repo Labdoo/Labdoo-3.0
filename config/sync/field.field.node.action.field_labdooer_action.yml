@@ -1,0 +1,29 @@
+uuid: 17bde5a9-4677-425c-a6d4-aa9b2c46243b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_labdooer_action
+    - node.type.action
+id: node.action.field_labdooer_action
+field_name: field_labdooer_action
+entity_type: node
+bundle: action
+label: Labdooer
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    filter:
+      type: _none
+    include_anonymous: false
+field_type: entity_reference

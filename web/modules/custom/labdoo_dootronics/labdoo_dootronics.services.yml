@@ -1,0 +1,16 @@
+services:
+  labdoo_dootronics.export.csv:
+    class: Drupal\labdoo_dootronics\Service\Export\CsvExport
+    arguments: ['@labdoo_common.repository.view']
+  labdoo_dootronics.sequence_manager:
+    class: Drupal\labdoo_dootronics\Service\SequenceManager
+    arguments: ['@lock.persistent', '@database']
+  labdoo_dootronics.repository:
+    class: Drupal\labdoo_dootronics\Service\Repository\DootronicRepository
+    arguments: ['@labdoo_dootronics.sequence_manager', '@entity_type.manager', '@logger.factory', '@current_user', '@event_dispatcher', '@database', '@entity_field.manager']
+  labdoo_dootronics.renderer.label:
+    class: Drupal\labdoo_dootronics\Service\Renderer\LabelRenderer
+    arguments: ['@labdoo_dootronics.repository']
+  labdoo_dootronics.compute:
+    class: Drupal\labdoo_dootronics\Service\Compute\DootronicCompute
+    arguments: ['@labdoo_common.repository.common', '@labdoo_dootronics.repository', '@logger.factory']

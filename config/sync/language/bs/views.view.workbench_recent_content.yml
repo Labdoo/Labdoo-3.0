@@ -1,0 +1,55 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Primjeni
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sortiraj prema'
+      fields:
+        title:
+          label: Naslov
+        type:
+          label: Tip
+        status:
+          label: Objavljeno
+        name:
+          label: Autor
+        changed:
+          label: 'Zadnji put osvježeno'
+        edit_node:
+          label: Akcije
+          text: izmijeni
+      filters:
+        title:
+          expose:
+            label: Naslov
+        type:
+          expose:
+            label: Tip
+        status:
+          expose:
+            label: Objavljeno
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+      filters:
+        status:
+          expose:
+            label: Objavljeno
+      fields:
+        title:
+          label: Naslov
+        type:
+          label: Tip
+        name:
+          label: Autor
+        changed:
+          label: 'Zadnji put osvježeno'
+        edit_node:
+          label: Akcije
+          text: izmijeni

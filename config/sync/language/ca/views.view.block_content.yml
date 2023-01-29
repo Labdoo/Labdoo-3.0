@@ -1,0 +1,43 @@
+display:
+  default:
+    display_title: 'Per defecte'
+    display_options:
+      fields:
+        info:
+          label: 'Descripció del bloc'
+          separator: ', '
+        type:
+          label: 'Tipus de bloc'
+          separator: ', '
+        changed:
+          label: Actualitzat
+        operations:
+          label: Operacions
+      pager:
+        options:
+          tags:
+            next: 'Següent ›'
+            previous: '‹ Anterior'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      exposed_form:
+        options:
+          submit_button: Aplica
+          reset_button_label: Reinicialitza
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      filters:
+        info:
+          expose:
+            label: 'Descripció del bloc'
+        type:
+          expose:
+            label: 'Tipus de bloc'
+  page_1:
+    display_title: Pàgina
+    display_options:
+      menu:
+        title: Blocs

@@ -1,0 +1,20 @@
+uuid: e37fab95-eff4-4767-a5be-18e8cdc6e00f
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.team_post
+  module:
+    - path
+id: node.team_post.path
+field_name: path
+entity_type: node
+bundle: team_post
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

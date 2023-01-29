@@ -1,0 +1,28 @@
+uuid: 42771446-9329-4e0c-ac09-d165d576dd75
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.wiki
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_exposedformwikipage_2
+theme: labdoo
+region: sidebar
+weight: -8
+provider: null
+plugin: 'views_exposed_filter_block:wiki-page_2'
+settings:
+  id: 'views_exposed_filter_block:wiki-page_2'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: "/wiki\r\n/wiki/search"

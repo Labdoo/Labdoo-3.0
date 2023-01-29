@@ -1,0 +1,85 @@
+display:
+  default:
+    display_title: Mestre
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Aplica
+          reset_button_label: Reinicialitza
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      pager:
+        options:
+          tags:
+            previous: '‹ Anterior'
+            next: 'Següent ›'
+            first: '« Primer'
+            last: 'Últim »'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      fields:
+        title:
+          label: Títol
+          separator: ', '
+        type:
+          label: Tipus
+          separator: ', '
+        status:
+          label: Publicat
+          separator: ', '
+        name:
+          label: Autor
+          separator: ', '
+        changed:
+          label: 'Última actualització'
+          separator: ', '
+        edit_node:
+          label: Accions
+          text: edita
+      filters:
+        title:
+          expose:
+            label: Títol
+        type:
+          expose:
+            label: Tipus
+        status:
+          expose:
+            label: Publicat
+      use_more_text: 'veure tots'
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Primer'
+            last: 'Últim »'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      filters:
+        status:
+          expose:
+            label: Publicat
+      fields:
+        title:
+          label: Títol
+          separator: ', '
+        type:
+          label: Tipus
+          separator: ', '
+        name:
+          label: Autor
+          separator: ', '
+        changed:
+          label: 'Última actualització'
+          separator: ', '
+        edit_node:
+          label: Accions
+          text: edita

@@ -1,0 +1,54 @@
+{{ 'Print and attach these three labels to: (1) the device, (2) the power adaptor and (3) inside the battery compartment of the device. You can omit the third tag if the device has no battery compartment. Check this <a href="/themes/custom/labdoo/img/tagging-flow.png" class="colorbox-load">drawing</a> if in doubt.'|t }}
+<br>
+<br>
+<table class="dootronic-print-labels" border="0" cellpadding="1" cellspacing="1" style="width: 780px;">
+    <tbody>
+    {% for dootronic in dootronics_collection %}
+    <tr>
+        <td style="width:110px;">
+            <img src="/themes/custom/labdoo/img/labdoo-site-logo.png" width="70">
+            <p>
+                <strong style="color: rgb(0, 0, 0); font-family: monospace; line-height: 2px; font-size: 11px;">
+                    {{ 'Device tag'|t }} {{ 'ID'|t }}: {{ dootronic.getDootronicId }}
+                </strong>
+            </p>
+        </td>
+        <td style="width: 100px;">
+            <img src="{{ dootronic.getQrCode }}">
+        </td>
+        <td style="width:110px;">
+            <img src="/themes/custom/labdoo/img/labdoo-site-logo.png" width="70">
+            <p>
+                <strong style="color: rgb(0, 0, 0); font-family: monospace; line-height: 2px; font-size: 11px;">
+                    {{ 'Power adap. tag'|t }} {{ 'ID'|t }}: {{ dootronic.getDootronicId }}
+                </strong>
+            </p>
+        </td>
+        <td style="width: 100px;">
+            <img src="{{ dootronic.getQrCode }}">
+        </td>
+        <td style="width:110px;">
+            <img src="/themes/custom/labdoo/img/labdoo-site-logo.png" width="70">
+            <p>
+                <strong style="color: rgb(0, 0, 0); font-family: monospace; line-height: 2px; font-size: 11px;">
+                {{ 'Batt. comp. tag'|t }} {{ 'ID'|t }}: {{ dootronic.getDootronicId }}
+                </strong>
+            </p>
+        </td>
+        <td style="width: 100px;">
+            <img src="{{ dootronic.getQrCode }}">
+        </td>
+        <td style="width: 150px;">
+            <p><strong style="color: rgb(0, 0, 0); font-family: monospace; line-height: 2px; font-size: 11px;">{{ 'Battery'|t }}<br>{{ 'watt-hours'|t }}:<br>{{ dootronic.getWattageHour }}<br></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <strong style="color: red; font-family: monospace; line-height: 2px; font-size: 10px;">
+                {{ 'This device has to stay at your property or donations will stop.'|t }}
+            </strong>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>

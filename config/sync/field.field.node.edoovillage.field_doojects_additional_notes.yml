@@ -1,0 +1,19 @@
+uuid: 17500a88-77b6-4a1e-9d90-f7a11bb47a13
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_doojects_additional_notes
+    - node.type.edoovillage
+id: node.edoovillage.field_doojects_additional_notes
+field_name: field_doojects_additional_notes
+entity_type: node
+bundle: edoovillage
+label: 'Dootronics additional notes'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

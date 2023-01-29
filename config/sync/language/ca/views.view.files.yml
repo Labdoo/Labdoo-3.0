@@ -1,0 +1,91 @@
+label: Fitxers
+description: 'Localitza i gestiona arxius.'
+display:
+  default:
+    display_title: 'Per defecte'
+    display_options:
+      title: Fitxers
+      fields:
+        filename:
+          label: Nom
+          separator: ', '
+        filemime:
+          label: 'Tipus MIME'
+        filesize:
+          label: Mida
+        status:
+          label: Estat
+          settings:
+            format_custom_false: Temporal
+            format_custom_true: Permanent
+        created:
+          label: 'Data de càrrega'
+        changed:
+          label: 'Data de modificació'
+        count:
+          label: 'Usat a'
+          format_plural_string: !!binary MSBwbGFjZQNAY291bnQgcGxhY2Vz
+        operations:
+          label: Operacions
+      pager:
+        options:
+          tags:
+            next: 'Següent ›'
+            previous: '‹ Anterior'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      exposed_form:
+        options:
+          submit_button: Filtra
+          reset_button_label: Reinicialitza
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      empty:
+        area_text_custom:
+          content: 'No hi ha fitxers disponibles.'
+      filters:
+        filename:
+          expose:
+            label: 'Nom de fitxer'
+        filemime:
+          expose:
+            label: 'Tipus MIME'
+        status:
+          expose:
+            label: Estat
+  page_1:
+    display_title: 'Visió generalt dels fitxers'
+    display_options:
+      menu:
+        title: Fitxers
+  page_2:
+    display_title: 'Utilització de fitxer'
+    display_options:
+      title: 'Utilització de fitxer'
+      fields:
+        entity_label:
+          label: Entitat
+        type:
+          label: "Tipus d'entitat"
+        module:
+          label: 'Mòdul de registre'
+        count:
+          label: "Comptador d'ús"
+          format_plural_string: !!binary MQNAY291bnQ=
+      pager:
+        options:
+          tags:
+            next: 'Següent ›'
+            previous: '‹ Anterior'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      arguments:
+        fid:
+          exception:
+            title: Tot
+          title: "Informació d'ús del fitxer per {{ arguments.fid }}"

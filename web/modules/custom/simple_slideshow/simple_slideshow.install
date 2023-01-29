@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+/**
+ * Implements hook_install().
+ */
+function simple_slideshow_install() {
+  \Drupal::messenger()->addStatus(t('Simple Slideshow module has been installed. You can now use the Simple Slideshow formatter for media fields.'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function simple_slideshow_uninstall() {
+  \Drupal::messenger()->addStatus(t('Simple Slideshow module has been uninstalled.'));
+}

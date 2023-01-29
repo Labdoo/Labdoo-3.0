@@ -1,0 +1,6 @@
+name: Queue Manager
+type: module
+description: Generic module to manage Drupal queues
+package: Custom
+core: 8.x
+core_version_requirement: ^8 || ^9 || ^10

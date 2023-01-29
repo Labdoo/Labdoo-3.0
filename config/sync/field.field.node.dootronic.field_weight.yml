@@ -1,0 +1,23 @@
+uuid: 25e710b7-ed2d-42be-a774-f66f3fc10fcc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_weight
+    - node.type.dootronic
+id: node.dootronic.field_weight
+field_name: field_weight
+entity_type: node
+bundle: dootronic
+label: Weight
+description: 'Please introduce the value expressed in kilograms (Kg).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: Kg
+field_type: decimal

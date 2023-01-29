@@ -1,0 +1,10 @@
+labdoo_dootronics.clone_dootronics:
+  title: 'Clone a dootronic'
+  route_name: labdoo_dootronics.clone_dootronics
+  menu_name: main
+  weight: 0
+labdoo_dootronics.update_dootronics:
+  title: 'Update dootronics'
+  route_name: labdoo_dootronics.update_dootronics
+  menu_name: main
+  weight: 1

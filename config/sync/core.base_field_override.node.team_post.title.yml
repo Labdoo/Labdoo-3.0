@@ -1,0 +1,18 @@
+uuid: 42878c65-43f8-48fd-8292-b16688354886
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.team_post
+id: node.team_post.title
+field_name: title
+entity_type: node
+bundle: team_post
+label: Title
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,18 @@
+uuid: 70838bf8-5074-4b25-813c-6871a7ef83db
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootrip
+id: node.dootrip.title
+field_name: title
+entity_type: node
+bundle: dootrip
+label: Title
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

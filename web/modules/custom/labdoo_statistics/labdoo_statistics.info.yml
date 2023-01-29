@@ -1,0 +1,7 @@
+name: 'Labdoo Dootronics'
+type: module
+description: 'A Dootronics is a container to register a laptop.'
+package: 'Labdoo'
+core_version_requirement: ^10
+dependencies:
+  - drupal:labdoo_common

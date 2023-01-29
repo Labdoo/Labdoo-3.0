@@ -1,0 +1,21 @@
+uuid: 33c033f7-8151-4b27-9498-beb3832274a4
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_location
+    - node.type.edoovillage
+  module:
+    - geofield
+id: node.edoovillage.field_location
+field_name: field_location
+entity_type: node
+bundle: edoovillage
+label: Location
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: geofield

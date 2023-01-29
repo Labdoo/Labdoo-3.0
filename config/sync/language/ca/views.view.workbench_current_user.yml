@@ -1,0 +1,21 @@
+display:
+  default:
+    display_title: Mestre
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Aplica
+          reset_button_label: Reinicialitza
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      fields:
+        uid:
+          separator: ', '
+        name:
+          separator: ', '
+        edit_user:
+          text: 'Edita el meu perfil'
+        access:
+          label: 'Darrera visita'
+          separator: ', '

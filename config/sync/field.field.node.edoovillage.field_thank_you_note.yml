@@ -1,0 +1,19 @@
+uuid: 71c3a02a-28b0-47ed-818f-33f0d986f961
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_thank_you_note
+    - node.type.edoovillage
+id: node.edoovillage.field_thank_you_note
+field_name: field_thank_you_note
+entity_type: node
+bundle: edoovillage
+label: 'Thank you note'
+description: 'If you receive a thank you note from the teachers or students of this edoovillage, please copy and paste it here so others can see it too. Otherwise, leave this field blank.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

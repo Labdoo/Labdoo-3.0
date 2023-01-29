@@ -1,0 +1,9 @@
+uuid: ef70f244-131f-4a03-af0a-141127ad4e78
+langcode: es
+status: true
+dependencies: {  }
+id: bs
+label: Bosnian
+direction: ltr
+weight: 17
+locked: false

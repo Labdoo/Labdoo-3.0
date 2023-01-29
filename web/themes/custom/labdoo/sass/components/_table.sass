@@ -1,0 +1,76 @@
+.views-form
+  min-width: auto
+  max-width: 100%
+
+table
+  &.tablesorter
+    thead
+      th
+        background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==)
+        background-repeat: no-repeat
+        background-position: center right
+        padding: 4px 18px 4px 4px
+        white-space: normal
+        cursor: pointer
+        &.tablesorter-headerDesc
+          background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7)
+        &.tablesorter-headerAsc
+          background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7)
+
+.row-total
+  font-weight: bold
+
+.row-align-right
+  text-align: right
+
+.accomplished, .not-accomplished
+  display: flex
+  align-items: center
+  justify-content: flex-end
+  &:before
+    content: ""
+    width: 12px
+    height: 12px
+    display: block
+    margin-right: 5px
+    background-repeat: no-repeat
+    background-size: 12px
+
+tr.summary
+  background-color: $summary-row
+.gin--dark-mode
+  tr.summary
+    background-color: $summary-row-dark
+
+.accomplished
+  color: $green
+  &:before
+    background-image: url(../img/arrow-up.png)
+
+.not-accomplished
+  color: $not-accomplished
+  &:before
+    background-image: url(../img/arrow-down.png)
+
+.info-tooltip
+  &:after
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDBweCIgaGVpZ2h0PSIxMDBweCIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgo8cGF0aCBkPSJNNTAuNDMzLDAuODkyYy0yNy4xMTksMC00OS4xMDIsMjEuOTgzLTQ5LjEwMiw0OS4xMDJzMjEuOTgzLDQ5LjEwMyw0OS4xMDIsNDkuMTAzczQ5LjEwMS0yMS45ODQsNDkuMTAxLTQ5LjEwM1M3Ny41NTIsMC44OTIsNTAuNDMzLDAuODkyeiBNNTksNzkuMDMxQzU5LDgzLjQzMyw1NS4xOTQsODcsNTAuNSw4N1M0Miw4My40MzMsNDIsNzkuMDMxVjQyLjQ2OWMwLTQuNDAxLDMuODA2LTcuOTY5LDguNS03Ljk2OXM4LjUsMy41NjgsOC41LDcuOTY5Vjc5LjAzMXogTTUwLjQzMywzMS4yMTRjLTUuMDQ4LDAtOS4xNDEtNC4wOTItOS4xNDEtOS4xNDJjMC01LjA0OSw0LjA5Mi05LjE0MSw5LjE0MS05LjE0MWM1LjA1LDAsOS4xNDIsNC4wOTIsOS4xNDIsOS4xNDFDNTkuNTc0LDI3LjEyMiw1NS40ODIsMzEuMjE0LDUwLjQzMywzMS4yMTR6Ii8+Cjwvc3ZnPg==")
+    content: ""
+    width: 12px
+    height: 12px
+    display: block
+    margin-left: 5px
+    background-repeat: no-repeat
+    background-size: 12px
+
+.dootronic-print-labels
+  tr
+    border: none
+  td
+    padding: 0
+    p
+      margin: 0
+
+@media only screen and (max-width: 1024px)
+  .view-content
+    overflow-x: auto

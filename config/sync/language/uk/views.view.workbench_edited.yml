@@ -1,0 +1,71 @@
+display:
+  default:
+    display_title: Головне
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Застосувати
+          reset_button_label: Скинути
+          exposed_sorts_label: 'Впорядкувати за'
+          sort_asc_label: Зрост
+          sort_desc_label: Спад
+      pager:
+        options:
+          tags:
+            previous: '‹ Попередня'
+            next: 'Наступна ›'
+            first: '« Перша'
+            last: 'Остання »'
+          expose:
+            items_per_page_label: 'Елементів на сторінку'
+            items_per_page_options_all_label: '- Усе -'
+            offset_label: Зміщення
+      fields:
+        nid:
+          separator: ', '
+        title:
+          label: Заголовок
+          separator: ', '
+        type:
+          label: Тип
+          separator: ', '
+        status:
+          label: Опубліковано
+          separator: ', '
+        changed:
+          label: 'Востаннє оновлено'
+          separator: ', '
+        uid:
+          label: Автор
+          separator: ', '
+        revision_uid:
+          separator: ', '
+      filters:
+        title:
+          expose:
+            label: Заголовок
+        type:
+          expose:
+            label: Тип
+        status:
+          expose:
+            label: Опубліковано
+      title: 'Мої правки'
+      arguments:
+        uid_revision:
+          exception:
+            title: Все
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Перша'
+            last: 'Остання »'
+          expose:
+            items_per_page_label: 'Елементів на сторінку'
+            items_per_page_options_all_label: '- Усе -'
+            offset_label: Зміщення
+      use_more_text: 'показати усі'

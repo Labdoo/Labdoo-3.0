@@ -1,0 +1,492 @@
+{
+  "source_type": "edoovillage",
+  "destination_types": [
+    "edoovillage"
+  ],
+  "entity_type": "node",
+  "fields_mapping": [
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "nid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "nid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "uid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "uid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_project_summary",
+            "key": "entity_id",
+            "field": "field_project_summary_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "title"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_project_description",
+            "key": "entity_id",
+            "field": "field_project_description_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_project_description"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_number_of_students",
+            "key": "entity_id",
+            "field": "field_number_of_students_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_number_of_students"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_number_of_teachers",
+            "key": "entity_id",
+            "field": "field_number_of_teachers_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_number_of_teachers"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_number_of_laptops_needed",
+            "key": "entity_id",
+            "field": "field_number_of_laptops_needed_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_number_of_laptops_needed"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_doojects_additional_notes",
+            "key": "entity_id",
+            "field": "field_doojects_additional_notes_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_doojects_additional_notes"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hub",
+            "key": "entity_id",
+            "field": "field_hub_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hub"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_project_manager_s_",
+            "key": "entity_id",
+            "field": "field_project_manager_s__target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_project_manager_s_"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_on_site_point_of_contact",
+            "key": "entity_id",
+            "field": "field_on_site_point_of_contact_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_on_site_point_of_contact"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_project_application",
+            "key": "entity_id",
+            "field": "field_project_application_fid",
+            "join": {
+              "table": "file_managed",
+              "key_field": "fid",
+              "value_field": "uri"
+            }
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_project_application",
+        "special_type": {
+          "type": "managed_file"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_edoovillage_status",
+            "key": "entity_id",
+            "field": "field_edoovillage_status_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_status"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_semaphore",
+            "key": "entity_id",
+            "field": "field_semaphore_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_semaphore"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_local_language_s_",
+            "key": "entity_id",
+            "field": "field_local_language_s__value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_local_language_s_"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_additional_info_language",
+            "key": "entity_id",
+            "field": "field_additional_info_language_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_additional_info_language"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_socket_voltage",
+            "key": "entity_id",
+            "field": "field_socket_voltage_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_socket_voltage"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_socket_type",
+            "key": "entity_id",
+            "field": "field_socket_type_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_socket_type"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_internet_connection_type",
+            "key": "entity_id",
+            "field": "field_internet_connection_type_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_internet_connection_type"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_internet_additional_notes",
+            "key": "entity_id",
+            "field": "field_internet_additional_notes_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_internet_additional_notes"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_additional_files",
+            "key": "entity_id",
+            "field": "field_additional_files_fid",
+            "join": {
+              "table": "file_managed",
+              "key_field": "fid",
+              "value_field": "uri"
+            }
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_additional_files",
+        "special_type": {
+          "type": "managed_file"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_thank_you_note",
+            "key": "entity_id",
+            "field": "field_thank_you_note_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_thank_you_note"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_edoo_additional_followers",
+            "key": "entity_id",
+            "field": "field_edoo_additional_followers_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoo_additional_followers"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_edoo_additional_notif_em",
+            "key": "entity_id",
+            "field": "field_edoo_additional_notif_em_email"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoo_additional_notif_em"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_edoovillage_photo_album",
+            "key": "entity_id",
+            "field": "field_edoovillage_photo_album_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoovillage_photo_album"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_edoo_additional_editors",
+            "key": "entity_id",
+            "field": "field_edoo_additional_editors_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_edoo_additional_editors"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_project_application",
+            "key": "entity_id",
+            "field": "field_project_application_fid",
+            "join": {
+              "table": "file_managed",
+              "key_field": "fid",
+              "value_field": "uri"
+            }
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_project_application",
+        "special_type": {
+          "type": "managed_file"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_additional_files",
+            "key": "entity_id",
+            "field": "field_additional_files_fid",
+            "join": {
+              "table": "file_managed",
+              "key_field": "fid",
+              "value_field": "uri"
+            }
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_additional_files",
+        "special_type": {
+          "type": "managed_file"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "node.nid",
+            "field": "coords",
+            "expression": "CONCAT(location.latitude, ',', location.longitude)",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "node",
+                "condition": "node.nid = location_instance.nid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_location",
+        "special_type": {
+          "type": "geolocation"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "created"
+          }
+        ]
+      },
+      "destination": {
+        "field": "created"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "changed"
+          }
+        ]
+      },
+      "destination": {
+        "field": "changed"
+      }
+    }
+  ]
+}

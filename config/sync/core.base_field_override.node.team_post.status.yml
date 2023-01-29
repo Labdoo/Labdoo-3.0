@@ -1,0 +1,22 @@
+uuid: ac64e973-ff78-4fa2-a19e-cc194973071b
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.team_post
+id: node.team_post.status
+field_name: status
+entity_type: node
+bundle: team_post
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

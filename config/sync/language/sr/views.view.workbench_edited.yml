@@ -1,0 +1,26 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          exposed_sorts_label: 'Сортирај по'
+      fields:
+        title:
+          label: Наслов
+        type:
+          label: Tип
+        uid:
+          label: Аутор
+      filters:
+        title:
+          expose:
+            label: Наслов
+        type:
+          expose:
+            label: Tип
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹

@@ -1,0 +1,24 @@
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      fields:
+        info:
+          label: 'Բլոկի նկարագրություն'
+        changed:
+          label: 'Թարմացվել է'
+        operations:
+          label: Գործողություններ
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      filters:
+        info:
+          expose:
+            label: 'Բլոկի նկարագրություն'
+  page_1:
+    display_title: Էջ
+    display_options:
+      menu:
+        title: Բլոկներ

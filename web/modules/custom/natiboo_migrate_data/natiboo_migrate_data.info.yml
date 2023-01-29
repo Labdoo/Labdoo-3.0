@@ -1,0 +1,8 @@
+name: 'Natiboo Migrate Data'
+type: module
+description: 'Export and import Drupal menus as JSON.'
+core_version_requirement: ^9 || ^10 || ^11
+package: Custom
+dependencies:
+  - drupal:menu_ui
+  - drupal:node

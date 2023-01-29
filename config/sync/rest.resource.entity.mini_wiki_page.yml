@@ -1,0 +1,17 @@
+uuid: 121b281c-bef1-4d58-99f3-61707c1c3194
+langcode: en
+status: false
+dependencies:
+  module:
+    - mini_wiki
+    - serialization
+    - user
+id: entity.mini_wiki_page
+plugin_id: 'entity:mini_wiki_page'
+granularity: method
+configuration:
+  GET:
+    supported_formats:
+      - json
+    supported_auth:
+      - cookie

@@ -1,0 +1,20 @@
+uuid: f7bad37d-7e21-4de9-aaf3-cf983fd4b8d8
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootrip
+  module:
+    - path
+id: node.dootrip.path
+field_name: path
+entity_type: node
+bundle: dootrip
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

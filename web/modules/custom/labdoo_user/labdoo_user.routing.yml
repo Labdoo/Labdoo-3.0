@@ -1,0 +1,47 @@
+labdoo_user.dashboard_redirect:
+  path: '/user/dashboard'
+  defaults:
+    _controller: '\Drupal\labdoo_user\Controller\UserController::dashboardRedirect'
+    _title: 'Getting started'
+  requirements:
+    _permission: 'access content'
+
+labdoo_user.metrics_redirect:
+  path: '/user/metrics'
+  defaults:
+    _controller: '\Drupal\labdoo_user\Controller\UserController::metricsRedirect'
+    _title: 'Global contributions'
+  requirements:
+    _permission: 'access content'
+
+labdoo_user.dashboard:
+  path: '/user/{user}/dashboard'
+  defaults:
+    _controller: '\Drupal\labdoo_user\Controller\UserController::dashboard'
+    _title: 'Getting started'
+  requirements:
+    _permission: 'access content'
+
+labdoo_user.metrics:
+  path: '/user/{user}/metrics'
+  defaults:
+    _controller: '\Drupal\labdoo_user\Controller\UserController::metrics'
+    _title: 'Global contributions'
+  requirements:
+    _permission: 'access content'
+
+labdoo_user.my_roles_redirect:
+  path: '/user/roles'
+  defaults:
+    _controller: '\Drupal\labdoo_user\Controller\UserController::myRolesRedirect'
+    _title: 'My roles'
+  requirements:
+    _permission: 'access content'
+
+labdoo_user.my_roles:
+  path: '/user/{user}/roles'
+  defaults:
+    _controller: '\Drupal\labdoo_user\Controller\UserController::myRoles'
+    _title: 'My roles'
+  requirements:
+    _permission: 'access content'

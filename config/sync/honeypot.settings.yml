@@ -1,0 +1,30 @@
+_core:
+  default_config_hash: 9bVDfWSa_In6VzTXmy04jJ_3ZQobihKjO9isuuUCPaw
+protect_all_forms: true
+unprotected_forms:
+  - user_login_form
+  - search_form
+  - search_block_form
+  - views_exposed_form
+  - honeypot_settings_form
+log: false
+element_name: url
+time_limit: 0
+expire: 300
+form_settings:
+  user_register_form: false
+  user_pass: false
+  contact_message_feedback_form: false
+  contact_message_personal_form: false
+  node_action_form: false
+  node_article_form: false
+  node_book_form: false
+  node_dootrip_form: false
+  node_dootronic_form: false
+  node_edoovillage_form: false
+  node_hub_form: false
+  node_page_form: false
+  node_task_team_form: false
+  node_team_form: false
+  node_team_post_form: false
+  comment_comment_form: false

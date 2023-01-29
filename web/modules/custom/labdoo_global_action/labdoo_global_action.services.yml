@@ -1,0 +1,26 @@
+services:
+  labdoo_common.repository.global_action:
+    class: Drupal\labdoo_global_action\Service\Repository\GlobalActionRepository
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.factory'
+  labdoo_global_action.action_generator.dootronic:
+    class: Drupal\labdoo_global_action\Service\ActionGenerator\DootronicActionGenerator
+    arguments:
+      - '@geocoder'
+      - '@labdoo_common.repository.common'
+  labdoo_global_action.action_generator.edoovillage:
+    class: Drupal\labdoo_global_action\Service\ActionGenerator\EdoovillageActionGenerator
+    arguments:
+      - '@geocoder'
+      - '@labdoo_common.repository.common'
+  labdoo_global_action.action_generator.hub:
+    class: Drupal\labdoo_global_action\Service\ActionGenerator\HubActionGenerator
+    arguments:
+      - '@geocoder'
+      - '@labdoo_common.repository.common'
+  labdoo_global_action.action_generator.dootrip:
+    class: Drupal\labdoo_global_action\Service\ActionGenerator\DootripActionGenerator
+    arguments:
+      - '@geocoder'
+      - '@labdoo_common.repository.common'

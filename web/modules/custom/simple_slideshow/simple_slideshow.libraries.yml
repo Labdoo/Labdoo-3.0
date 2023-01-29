@@ -1,0 +1,9 @@
+slideshow:
+  version: 1.x
+  css:
+    theme:
+      css/simple-slideshow.css: {}
+  js:
+    js/simple-slideshow.js: {}
+  dependencies:
+    - core/drupal

@@ -1,0 +1,42 @@
+uuid: 0da4d4c9-3b14-4e6c-aa1d-9748e07f4cca
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_country
+    - node.type.dootronic
+  module:
+    - address
+    - geocoder_field
+third_party_settings:
+  geocoder_field:
+    method: reverse_geocode
+    weight: 0
+    field: field_location
+    skip_not_empty_value: false
+    disabled: false
+    hidden: false
+    providers:
+      - googlemaps
+    dumper: geojson
+    delta_handling: default
+    failure:
+      handling: preserve
+      status_message: true
+      log: true
+    geocode:
+      field: field_battery_watt_hours
+      delta_handling: default
+id: node.dootronic.field_country
+field_name: field_country
+entity_type: node
+bundle: dootronic
+label: Country
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  available_countries: {  }
+field_type: address_country

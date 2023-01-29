@@ -1,0 +1,5 @@
+gmaps:
+  js:
+    js/gmaps.js: { minified: true }
+  dependencies:
+    - geofield_map/geofield_google_map

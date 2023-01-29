@@ -1,0 +1,25 @@
+uuid: ab04463a-df62-401f-a031-ebae9e760b5a
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_edoovillage
+    - system
+  theme:
+    - gin
+id: gin_edoovillagechart
+theme: gin
+region: content
+weight: -3
+provider: null
+plugin: edoovillage_chart_block_block
+settings:
+  id: edoovillage_chart_block_block
+  label: 'EdooVillage chart'
+  label_display: '0'
+  provider: labdoo_edoovillage
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/content/edoovillages-dashboard*'

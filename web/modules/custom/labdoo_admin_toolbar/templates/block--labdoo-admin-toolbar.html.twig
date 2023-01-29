@@ -1,0 +1,47 @@
+{#
+/**
+ * @file
+ * Template for the Labdoo Admin Toolbar Block.
+ *
+ * Available variables:
+ * - menu_items: An array of menu items.
+ *   Each menu item contains:
+ *   - title: The menu link title.
+ *   - url: The menu link url, instance of \Drupal\Core\Url.
+ *   - description: The menu link description.
+ *   - children: An array of child menu items.
+ */
+#}
+<nav class="labdoo-admin-toolbar" role="navigation" aria-label="{{ 'Admin Toolbar'|t }}">
+  <ul class="labdoo-admin-menu">
+    {% for item in menu_items %}
+      <li class="labdoo-admin-menu-item{% if item.children %} has-children{% endif %}">
+        <a href="{{ item.url.toString() }}" class="labdoo-admin-menu-link" title="{{ item.description }}">
+          {{ item.title }}
+        </a>
+        {% if item.children %}
+          <ul class="labdoo-admin-submenu">
+            {% for child in item.children %}
+              <li class="labdoo-admin-submenu-item{% if child.children %} has-children{% endif %}">
+                <a href="{{ child.url.toString() }}" class="labdoo-admin-submenu-link" title="{{ child.description }}">
+                  {{ child.title }}
+                </a>
+                {% if child.children %}
+                  <ul class="labdoo-admin-submenu-level2">
+                    {% for subchild in child.children %}
+                      <li class="labdoo-admin-submenu-item-level2">
+                        <a href="{{ subchild.url.toString() }}" class="labdoo-admin-submenu-link-level2" title="{{ subchild.description }}">
+                          {{ subchild.title }}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</nav>

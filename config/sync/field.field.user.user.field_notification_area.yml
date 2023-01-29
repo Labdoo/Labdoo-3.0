@@ -1,0 +1,24 @@
+uuid: 13557ca4-41c5-41cf-b4ed-eaac9622341f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_notification_area
+  module:
+    - user
+id: user.user.field_notification_area
+field_name: field_notification_area
+entity_type: user
+bundle: user
+label: 'Notification area'
+description: 'Specify the region you would like to receive notifications from. For instance, if you set this value to 50 km, you will receive notifications from activity happening within 50 kms of your home location.  [<a href="../../content/managing-your-hub-notification-triggers" target="_blank">Help</a>]'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: Km(s)
+field_type: integer

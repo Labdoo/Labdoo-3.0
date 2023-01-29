@@ -1,0 +1,18 @@
+uuid: 65be5593-c900-4bea-889f-ef01f2e62a7a
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+id: mini_wiki_page.mini_wiki_page.changed
+field_name: changed
+entity_type: mini_wiki_page
+bundle: mini_wiki_page
+label: Changed
+description: 'The time that the wiki page was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

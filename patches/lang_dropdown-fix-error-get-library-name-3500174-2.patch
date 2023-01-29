@@ -1,0 +1,146 @@
+diff --git a/src/Plugin/Block/LanguageDropdownBlock.php b/src/Plugin/Block/LanguageDropdownBlock.php
+index 46adbde..1d304d6 100644
+--- a/src/Plugin/Block/LanguageDropdownBlock.php
++++ b/src/Plugin/Block/LanguageDropdownBlock.php
+@@ -4,7 +4,7 @@ namespace Drupal\lang_dropdown\Plugin\Block;
+ 
+ use Drupal\Component\Render\FormattableMarkup;
+ use Drupal\Core\Access\AccessResult;
+-use Drupal\Core\Asset\LibraryDiscoveryCollector;
++use Drupal\Core\Asset\LibraryDiscovery;
+ use Drupal\Core\Block\BlockBase;
+ use Drupal\Core\Extension\ModuleHandlerInterface;
+ use Drupal\Core\Form\FormStateInterface;
+@@ -58,9 +58,9 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+   /**
+    * The library discovery service.
+    *
+-   * @var \Drupal\Core\Asset\LibraryDiscoveryCollector
++   * @var \Drupal\Core\Asset\LibraryDiscovery
+    */
+-  protected $libraryDiscoveryCollector;
++  protected $libraryDiscovery;
+ 
+   /**
+    * The current user account.
+@@ -91,19 +91,19 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+    *   The path matcher.
+    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+    *   The module handler.
+-   * @param \Drupal\Core\Asset\LibraryDiscoveryCollector $library_discovery_collector
++   * @param \Drupal\Core\Asset\LibraryDiscovery $library_discovery
+    *   The library discovery service.
+    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+    *   The current user account.
+    * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
+    *   The form builder service.
+    */
+-  public function __construct(array $configuration, $plugin_id, $plugin_definition, LanguageManagerInterface $language_manager, PathMatcherInterface $path_matcher, ModuleHandlerInterface $module_handler, LibraryDiscoveryCollector $library_discovery_collector, AccountProxyInterface $current_user, FormBuilderInterface $form_builder) {
++  public function __construct(array $configuration, $plugin_id, $plugin_definition, LanguageManagerInterface $language_manager, PathMatcherInterface $path_matcher, ModuleHandlerInterface $module_handler, LibraryDiscovery $library_discovery, AccountProxyInterface $current_user, FormBuilderInterface $form_builder) {
+     parent::__construct($configuration, $plugin_id, $plugin_definition);
+     $this->languageManager = $language_manager;
+     $this->pathMatcher = $path_matcher;
+     $this->moduleHandler = $module_handler;
+-    $this->libraryDiscoveryCollector = $library_discovery_collector;
++    $this->libraryDiscovery = $library_discovery;
+     $this->currentUser = $current_user;
+     $this->formBuilder = $form_builder;
+   }
+@@ -119,7 +119,7 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+       $container->get('language_manager'),
+       $container->get('path.matcher'),
+       $container->get('module_handler'),
+-      $container->get('library.discovery.collector'),
++      $container->get('library.discovery'),
+       $container->get('current_user'),
+       $container->get('form_builder')
+     );
+@@ -254,7 +254,7 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+       $form['lang_dropdown']['msdropdown']['#description'] = $this->t('This looks better with <a href=":link">language icons</a> module.', [':link' => LanguageDropdownConstants::LANGDROPDOWN_LANGUAGEICONS_MOD_URL]);
+     }
+ 
+-    $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'ms-dropdown');
++    $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'ms-dropdown');
+     if (!empty($library)) {
+       $num_rows = [
+         2,
+@@ -403,7 +403,7 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+       ],
+     ];
+ 
+-    $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'chosen');
++    $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'chosen');
+     if (!empty($library) && !$this->moduleHandler->moduleExists('chosen')) {
+       $form['lang_dropdown']['chosen']['disable_search'] = [
+         '#type' => 'checkbox',
+@@ -452,7 +452,7 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+       ],
+     ];
+ 
+-    $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'ddslick');
++    $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'ddslick');
+     if (!empty($library)) {
+       $form['lang_dropdown']['ddslick']['ddslick_height'] = [
+         '#type' => 'number',
+@@ -617,21 +617,21 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+     $widget = $form_state->getValue('lang_dropdown')['widget'];
+     switch ($widget) {
+       case LanguageDropdownConstants::LANGDROPDOWN_MSDROPDOWN:
+-        $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'ms-dropdown');
++        $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'ms-dropdown');
+         if (empty($library) || (isset($library['js']) && !file_exists($library['js'][0]['data']))) {
+           $form_state->setErrorByName('settings', $this->t('You can\'t use <a href=":link">Marghoob Suleman Dropdown</a> output. You don\'t have the library installed.', [':link' => LanguageDropdownConstants::LANGDROPDOWN_MSDROPDOWN_URL]));
+         }
+         break;
+ 
+       case LanguageDropdownConstants::LANGDROPDOWN_CHOSEN:
+-        $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'chosen');
++        $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'chosen');
+         if (empty($library) || (isset($library['js']) && !file_exists($library['js'][0]['data']))) {
+           $form_state->setErrorByName('settings', $this->t('You can\'t use <a href=":link">Chosen</a> output. You don\'t have the library installed.', [':link' => LanguageDropdownConstants::LANGDROPDOWN_CHOSEN_MOD_URL]));
+         }
+         break;
+ 
+       case LanguageDropdownConstants::LANGDROPDOWN_DDSLICK:
+-        $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'ddslick');
++        $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'ddslick');
+         if (empty($library) || (isset($library['js']) && !file_exists($library['js'][0]['data']))) {
+           $form_state->setErrorByName('settings', $this->t('You can\'t use <a href=":link">ddSlick</a> output. You don\'t have the library installed.', [':link' => LanguageDropdownConstants::LANGDROPDOWN_DDSLICK_WEB_URL]));
+         }
+@@ -701,15 +701,15 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+     $library = [];
+     switch ($this->configuration['widget']) {
+       case LanguageDropdownConstants::LANGDROPDOWN_MSDROPDOWN:
+-        $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'ms-dropdown');
++        $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'ms-dropdown');
+         break;
+ 
+       case LanguageDropdownConstants::LANGDROPDOWN_CHOSEN:
+-        $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'chosen');
++        $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'chosen');
+         break;
+ 
+       case LanguageDropdownConstants::LANGDROPDOWN_DDSLICK:
+-        $library = $this->libraryDiscoveryCollector->getLibraryByName('lang_dropdown', 'ddslick');
++        $library = $this->libraryDiscovery->getLibraryByName('lang_dropdown', 'ddslick');
+         break;
+     }
+ 
+@@ -723,7 +723,7 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+     if (isset($languages) && isset($languages->links) && is_array($languages->links)) {
+       $roles = $this->currentUser->getRoles();
+ 
+-      list($entities, $accessible_translations) = $this->getEntitiesAndTranslations();
++      [$entities, $accessible_translations] = $this->getEntitiesAndTranslations();
+       foreach (array_keys($languages->links) as $langcode) {
+         $hide_language = TRUE;
+ 
+@@ -781,7 +781,7 @@ class LanguageDropdownBlock extends BlockBase implements ContainerFactoryPluginI
+    */
+   public function getCacheTags() {
+     if (!$this->configuration['showall'] || $this->configuration['hide_only_one']) {
+-      list($entities,) = $this->getEntitiesAndTranslations();
++      [$entities,] = $this->getEntitiesAndTranslations();
+       if (!empty($entities)) {
+         $tags = parent::getCacheTags();
+         foreach ($entities as $entity) {

@@ -1,0 +1,18 @@
+uuid: ddc7d2f6-78ed-4f69-91d0-2bd2ddef6ea6
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+    - serialization
+    - user
+id: mini_wiki_page_resource
+plugin_id: mini_wiki_page_resource
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - cookie

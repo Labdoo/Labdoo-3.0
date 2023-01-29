@@ -1,0 +1,110 @@
+<?php declare(strict_types = 1);
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\user\UserInterface;
+use Drupal\block\BlockInterface;
+use Drupal\Core\Block\BlockPluginInterface;
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function labdoo_common_views_data_alter(array &$data) {
+  foreach (Drupal::entityTypeManager()->getDefinitions() as $entityType => $entityInfo) {
+    $baseTable = $entityInfo->getBaseTable();
+
+    if (!isset($data[$baseTable]['labdoo_common_entity_selector'])) {
+      $data[$baseTable]['labdoo_common_entity_selector'] = [
+        'title' => t('Entity selector'),
+        'filter' => [
+          'title' => t('Entity selector'),
+          'help' => t('Entity selector'),
+          'field' => 'id',
+          'id' => 'labdoo_common_entity_selector',
+        ],
+      ];
+    }
+  }
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function labdoo_common_token_info() {
+  $info = [];
+
+  $info['tokens']['custom']['get_parameters'] = [
+    'name' => t('GET parameters'),
+    'description' => t('Renders the GET parameters in the URL.'),
+  ];
+
+  return $info;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function labdoo_common_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = [];
+
+  if (($type === 'custom') && isset($tokens['get_parameters'])) {
+    $request = \Drupal::requestStack()->getCurrentRequest();
+    if ($request) {
+      $queryParams = $request->query->all();
+      $replacements[$tokens['get_parameters']] = http_build_query($queryParams);
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Implements hook_user_presave().
+ */
+function labdoo_common_user_presave(UserInterface $account) {
+  $account->set('field_username', $account->get('name')->value);
+}
+
+/**
+ * Sets the active countries for the given form based on the provided context.
+ *
+ * Updates the country field options in the form with a filtered list of countries.
+ *
+ * @param array $form
+ *   The form array where the active countries will be set.
+ * @param string $context
+ *   The context used to filter and retrieve the active countries.
+ *
+ * @return void
+ */
+function labdoo_common_set_active_countries(array &$form, string $context): void {
+  /** @var \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository */
+  $commonRepository = \Drupal::service('labdoo_common.repository.common');
+  $activeCountries = $commonRepository->getActiveCountries($context);
+  $allCountries = $form['field_country_value']['#options'];
+  $selectedCountries = array_intersect_key(
+    $allCountries,
+    array_flip($activeCountries)
+  );
+  $selectedCountries = array_merge(
+    ['All' => t('- Any -')],
+    $selectedCountries
+  );
+  $form['field_country_value']['#options'] = $selectedCountries;
+}
+
+/**
+ * Implements hook_block_view_alter().
+ */
+function labdoo_common_block_view_alter(array &$build, BlockPluginInterface $block) {
+  // Check if this is the "Current mini-missions" block.
+  if ($block->getPluginId() == 'views_block:actions-block_1') {
+    // Attach our auto-rotation library.
+    $build['#attached']['library'][] = 'labdoo_common/auto_rotate_mini_missions';
+  }
+}

@@ -1,0 +1,22 @@
+uuid: 852bec0c-27af-445e-8453-2049b42f1cbd
+langcode: en
+status: true
+dependencies:
+  module:
+    - help
+  theme:
+    - labdoo
+_core:
+  default_config_hash: 8nOAry2oKqJOr0zbrlJ3sZHDFJLIO6j-0vT0K_TYca4
+id: labdoo_help
+theme: labdoo
+region: help
+weight: -4
+provider: null
+plugin: help_block
+settings:
+  id: help_block
+  label: Help
+  label_display: '0'
+  provider: help
+visibility: {  }

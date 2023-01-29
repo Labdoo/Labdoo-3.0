@@ -1,0 +1,25 @@
+uuid: 3b615aa4-b533-464a-98e3-690a8e52c95d
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_your_groups
+    - node.type.team_post
+id: node.team_post.field_your_groups
+field_name: field_your_groups
+entity_type: node
+bundle: team_post
+label: 'Your teams'
+description: 'Associate this content with teams you belong to.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: views
+  handler_settings:
+    view:
+      view_name: my_teams
+      display_name: entity_reference_1
+      arguments: {  }
+field_type: entity_reference

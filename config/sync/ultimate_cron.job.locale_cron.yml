@@ -1,0 +1,17 @@
+uuid: 2b6a5380-7eff-4710-aeb9-7bfb32287cf2
+langcode: en
+status: true
+dependencies:
+  module:
+    - locale
+title: 'Default cron handler'
+id: locale_cron
+weight: 0
+module: locale
+callback: 'locale#cron'
+scheduler:
+  id: simple
+launcher:
+  id: serial
+logger:
+  id: database

@@ -1,0 +1,19 @@
+uuid: 8b55240f-d02f-4975-902a-d4ccbcd1bb3c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_edoo_additional_notif_em
+    - node.type.dootrip
+id: node.dootrip.field_edoo_additional_notif_em
+field_name: field_edoo_additional_notif_em
+entity_type: node
+bundle: dootrip
+label: 'Additional notification emails'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

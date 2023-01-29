@@ -1,0 +1,7 @@
+uuid: adeb64e9-c712-4cea-b1e5-8d62899b1070
+langcode: en
+status: true
+dependencies: {  }
+name: full_width
+label: 'Full width'
+effects: {  }

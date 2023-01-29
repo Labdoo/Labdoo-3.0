@@ -1,0 +1,18 @@
+uuid: 686cfa73-cabc-45ff-a2a1-d0988248ec92
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.team
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: node.team
+target_entity_type_id: node
+target_bundle: team
+default_langcode: site_default
+language_alterable: false

@@ -1,0 +1,71 @@
+label: Multimèdia
+display:
+  default:
+    display_title: 'Per defecte'
+    display_options:
+      title: Multimèdia
+      fields:
+        media_bulk_form:
+          action_title: Acció
+        thumbnail__target_id:
+          label: Miniatura
+          separator: ', '
+        name:
+          separator: ', '
+        bundle:
+          label: Tipus
+          separator: ', '
+        uid:
+          label: Autor
+          separator: ', '
+        status:
+          label: Estat
+          settings:
+            format_custom_false: 'Sense publicar'
+            format_custom_true: Publicat
+          separator: ', '
+        changed:
+          label: Actualitzat
+          separator: ', '
+        operations:
+          label: Operacions
+      pager:
+        options:
+          tags:
+            next: 'Següent ›'
+            previous: '‹ Anterior'
+            first: '« Primer'
+            last: 'Últim »'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      exposed_form:
+        options:
+          submit_button: Filtra
+          reset_button_label: Reinicialitza
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      filters:
+        bundle:
+          expose:
+            label: Tipus
+        status:
+          expose:
+            label: Cert
+          group_info:
+            label: 'Estat de publicació'
+            group_items:
+              1:
+                title: Publicat
+              2:
+                title: 'Sense publicar'
+        langcode:
+          expose:
+            label: Llengua
+  media_page_list:
+    display_title: Multimèdia
+    display_options:
+      menu:
+        title: Multimèdia

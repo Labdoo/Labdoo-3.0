@@ -1,0 +1,13 @@
+diff --git a/src/Access/MailjetConfigurationAccessCheck.php b/src/Access/MailjetConfigurationAccessCheck.php
+index 3fc825a27d..955c838ce0 100644
+--- a/src/Access/MailjetConfigurationAccessCheck.php
++++ b/src/Access/MailjetConfigurationAccessCheck.php
+@@ -53,7 +53,7 @@ public function access(AccountInterface $account) {
+    *
+    */
+   public function applies(Route $route) {
+-    return TRUE;
++    return $route->hasRequirement('_mailjet_access_check');
+   }
+ 
+ } 

@@ -1,0 +1,48 @@
+uuid: 72040a02-05bc-4b21-9f53-3807810eb231
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.hub.field_branches_information
+    - field.field.node.hub.field_country
+    - field.field.node.hub.field_dootronics_completed
+    - field.field.node.hub.field_dootronics_delivered
+    - field.field.node.hub.field_dootronics_in_transit
+    - field.field.node.hub.field_dootronics_needed
+    - field.field.node.hub.field_dootronics_remaining
+    - field.field.node.hub.field_hub_additional_editors
+    - field.field.node.hub.field_hub_manager_s_
+    - field.field.node.hub.field_hub_status
+    - field.field.node.hub.field_locations
+    - field.field.node.hub.field_parent_hub
+    - field.field.node.hub.field_types_of_mini_missions
+    - node.type.hub
+  module:
+    - user
+id: node.hub.teaser
+targetEntityType: node
+bundle: hub
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_branches_information: true
+  field_country: true
+  field_dootronics_completed: true
+  field_dootronics_delivered: true
+  field_dootronics_in_transit: true
+  field_dootronics_needed: true
+  field_dootronics_remaining: true
+  field_hub_additional_editors: true
+  field_hub_manager_s_: true
+  field_hub_status: true
+  field_locations: true
+  field_parent_hub: true
+  field_types_of_mini_missions: true
+  langcode: true
+  search_api_excerpt: true

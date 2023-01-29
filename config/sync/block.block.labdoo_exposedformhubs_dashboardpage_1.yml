@@ -1,0 +1,28 @@
+uuid: 3b16dd32-ea23-4fea-b6c2-c52a32fb14fd
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.hubs_dashboard
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_exposedformhubs_dashboardpage_1
+theme: labdoo
+region: sidebar
+weight: -17
+provider: null
+plugin: 'views_exposed_filter_block:hubs_dashboard-page_1'
+settings:
+  id: 'views_exposed_filter_block:hubs_dashboard-page_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /content/hubs-dashboard

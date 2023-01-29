@@ -1,0 +1,20 @@
+uuid: ea97011d-0f05-4358-b884-1f7fba66c398
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootronic
+  module:
+    - path
+id: node.dootronic.path
+field_name: path
+entity_type: node
+bundle: dootronic
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

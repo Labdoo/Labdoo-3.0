@@ -1,0 +1,94 @@
+display:
+  default:
+    display_title: Standaard
+    display_options:
+      title: Media
+      fields:
+        media_bulk_form:
+          action_title: Actie
+      pager:
+        options:
+          tags:
+            next: ››
+            previous: ‹‹
+          expose:
+            items_per_page_label: 'Items per pagina'
+            items_per_page_options_all_label: '- Alle -'
+            offset_label: Startpunt
+      exposed_form:
+        options:
+          reset_button_label: Herstellen
+          exposed_sorts_label: 'Sorteren op'
+          sort_asc_label: Oplopend
+          sort_desc_label: Aflopend
+      sorts:
+        created:
+          expose:
+            label: 'Nieuwste eerst'
+      filters:
+        status:
+          group_info:
+            label: Gepubliceerd
+            group_items:
+              1:
+                title: Gepubliceerd
+              2:
+                title: 'Niet gepubliceerd'
+        name:
+          expose:
+            label: Naam
+        langcode:
+          expose:
+            label: Taal
+  page:
+    display_title: Pagina
+    display_options:
+      fields:
+        media_bulk_form:
+          action_title: Actie
+        name:
+          separator: ', '
+        edit_media:
+          text: Bewerken
+        delete_media:
+          text: Verwijderen
+  widget:
+    display_title: Widget
+    display_options:
+      arguments:
+        bundle:
+          exception:
+            title: Alle
+      filters:
+        name:
+          expose:
+            label: Naam
+      header:
+        display_link_grid:
+          label: Raster
+        display_link_table:
+          label: Tabel
+  widget_table:
+    display_options:
+      fields:
+        thumbnail__target_id:
+          label: Miniatuur
+        name:
+          label: Naam
+        uid:
+          label: Auteur
+        changed:
+          label: Bijgewerkt
+      arguments:
+        bundle:
+          exception:
+            title: Alle
+      filters:
+        name:
+          expose:
+            label: Naam
+      header:
+        display_link_grid:
+          label: Raster
+        display_link_table:
+          label: Tabel

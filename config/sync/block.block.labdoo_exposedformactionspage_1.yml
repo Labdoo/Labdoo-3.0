@@ -1,0 +1,28 @@
+uuid: 19e462ae-d163-4311-ab31-5a1b5b9e0a9d
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.actions
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_exposedformactionspage_1
+theme: labdoo
+region: sidebar
+weight: -4
+provider: null
+plugin: 'views_exposed_filter_block:actions-page_1'
+settings:
+  id: 'views_exposed_filter_block:actions-page_1'
+  label: ''
+  label_display: visible
+  provider: views
+  views_label: ''
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /actions

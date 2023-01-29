@@ -1,0 +1,38 @@
+services:
+  natiboo_migrate_data.import_helper:
+    class: Drupal\natiboo_migrate_data\Service\ImportHelper
+    arguments:
+      - '@request_stack'
+
+  natiboo_migrate_data.menu.export:
+    class: Drupal\natiboo_migrate_data\Service\MenuExport
+    arguments:
+      - '@entity_type.manager'
+
+  natiboo_migrate_data.menu.import:
+    class: Drupal\natiboo_migrate_data\Service\MenuImport
+    arguments:
+      - '@entity_type.manager'
+      - '@natiboo_migrate_data.import_helper'
+
+  natiboo_migrate_data.entity.export:
+    class: Drupal\natiboo_migrate_data\Service\EntityExport
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.factory'
+
+  natiboo_migrate_data.entity.import:
+    class: Drupal\natiboo_migrate_data\Service\EntityImport
+    arguments:
+      - '@entity_type.manager'
+      - '@file_system'
+      - '@file.repository'
+      - '@natiboo_migrate_data.import_helper'
+      - '@logger.factory'
+
+  natiboo_migrate_data.paragraph.delete:
+    class: Drupal\natiboo_migrate_data\Service\ParagraphDelete
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.factory'
+      - '@messenger'

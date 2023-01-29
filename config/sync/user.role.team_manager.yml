@@ -1,0 +1,23 @@
+uuid: b1f6a326-4836-4d5d-9524-9daa8f8eff48
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.team
+    - node.type.team_post
+  module:
+    - eu_cookie_compliance
+    - node
+id: team_manager
+label: 'Team Manager'
+weight: 6
+is_admin: null
+permissions:
+  - 'create team content'
+  - 'delete any team content'
+  - 'delete any team_post content'
+  - 'delete own team content'
+  - 'display eu cookie compliance popup'
+  - 'edit any team content'
+  - 'edit any team_post content'
+  - 'edit own team content'

@@ -1,0 +1,14 @@
+uuid: f112bf28-ba84-49aa-bfec-147f52568200
+langcode: en
+status: true
+dependencies: {  }
+id: freegeoip
+label: FreeGeoIp
+plugin: freegeoip
+configuration:
+  throttle:
+    period: null
+    limit: null
+  geocoder:
+    locale: ''
+  baseUrl: 'https://freegeoip.net/json/%s'

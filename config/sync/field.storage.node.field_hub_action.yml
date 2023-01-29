@@ -1,0 +1,19 @@
+uuid: 5749c0b9-b0cf-4cb3-b492-19203f9f900d
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_hub_action
+field_name: field_hub_action
+entity_type: node
+type: entity_reference
+settings:
+  target_type: node
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

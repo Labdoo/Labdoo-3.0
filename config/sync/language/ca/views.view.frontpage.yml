@@ -1,0 +1,33 @@
+label: Portada
+description: 'Tot el contingut promocionat a la portada.'
+display:
+  default:
+    display_title: 'Per defecte'
+    display_options:
+      pager:
+        options:
+          tags:
+            next: 'Següent ›'
+            previous: '‹ Anterior'
+            first: '« Primer'
+            last: 'Últim »'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      exposed_form:
+        options:
+          submit_button: Aplica
+          reset_button_label: Reinicialitza
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      empty:
+        area_text_custom:
+          content: 'No s''ha creat encara cap contingut per a la portada.<br />Seguiu la <a target="_blank" href="https://www.drupal.org/ca/docs/user_guide/ca/index.html">Guia d''Usuari</a> per a començar a construir el vostre lloc.'
+        title:
+          title: Benvingut/da!
+  feed_1:
+    display_title: Canal
+  page_1:
+    display_title: Pàgina

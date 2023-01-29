@@ -1,0 +1,11 @@
+entity.mini_wiki_page.settings:
+  title: 'Wiki Page'
+  description: 'Configure a Wiki Page entity type.'
+  route_name:  entity.mini_wiki_page.settings
+  parent: system.admin_structure
+
+entity.mini_wiki_page.collection:
+  title: 'Wiki Pages'
+  description: 'List of wiki pages.'
+  route_name: entity.mini_wiki_page.collection
+  parent: system.admin_content

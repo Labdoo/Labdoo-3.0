@@ -1,0 +1,27 @@
+uuid: 00a0e31d-eead-457a-bac2-89216c4c9129
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_additional_files
+    - node.type.edoovillage
+  module:
+    - file
+id: node.edoovillage.field_additional_files
+field_name: field_additional_files
+entity_type: node
+bundle: edoovillage
+label: 'Additional files'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'project_additional_files/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'txt pdf'
+  max_filesize: '4 MB'
+  description_field: true
+field_type: file

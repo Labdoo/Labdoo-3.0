@@ -1,0 +1,9 @@
+name: 'Labdoo Hub'
+type: module
+description: 'Labdoo hubs are locations where laptops can be dropped and where Labdoo volunteers typically perform multiple Labdoo tasks.'
+package: 'Labdoo'
+core_version_requirement: ^10
+dependencies:
+  - drupal:geolocation
+  - drupal:labdoo_common
+  - drupal:labdoo_gallery

@@ -1,0 +1,36 @@
+<div id="block-hub-actions" class="block block-actions-block-block">
+    <div class="views-exposed-form block-views">
+        <div class="block-title-wrapper"><span class="block-title">{{ "Actions available for this hub:"|t }}</span></div>
+        <div class="actions">
+            {% if edit_link is not empty %}
+                <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/hub.png">{{ "Edit this hub"|t }}</a></div>
+            {% endif %}
+            {% if photo_album_link is not empty %}
+            <div class="action"><a href="{{ photo_album_link }}"><img class="icon" src="/themes/custom/labdoo/img/photo-album-icon.png">{{ "Go to photo album"|t }}</a></div>
+            {% endif %}
+            {% if write_story_link is not empty %}
+                <div class="action"><a href="{{ write_story_link }}"><img class="icon" src="/themes/custom/labdoo/img/pencil-icon.png">{{ "Write a story about this edoovillage"|t }}</a></div>
+            {% endif %}
+            {% if story_link is not empty %}
+                <div class="action"><a href="{{ story_link }}"><img class="icon" src="/themes/custom/labdoo/img/pencil-icon.png">{{ "Read the story about this edoovillage"|t }}</a></div>
+            {% endif %}
+            {% if revisions_link is not empty %}
+            <div class="action"><a href="{{ revisions_link }}"><img class="icon" src="/themes/custom/labdoo/img/revisions-icon.png">{{ "Review changes"|t }}</a></div>
+            {% endif %}
+            {% if clone_link is not empty %}
+            <div class="action">{% if clone_link is not empty %}<a href="{{ clone_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/clone-icon.png">{{ "Clone this hub"|t }}{% if clone_link is not empty %}</a>{% endif %}</div>
+            {% endif %}
+            <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png">{{ "Next hub"|t }}</a></div>
+            <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous hub"|t }}</a></div>
+        </div>
+        <div class="block-title-wrapper"><span class="block-title">{{ "This hub's semaphore:"|t }}</span> <a href="/content/managing-your-hub-semaphore">{{ "Help"|t }}</a></div>
+        <img class="semaphore" src='/themes/custom/labdoo/img/semaphore-hub-{{ semaphore }}-en.png'>
+        <div class="block-title-wrapper"><span class="block-title">{{ "Hub capabilities:"|t }}</span> <a href="/content/types-hubs">{{ "Help"|t }}</a></div>
+        {% if dropping is not empty %}
+            <div class="dropping-point"><img src='/themes/custom/labdoo/img/labdoo-marker-orange.png'> {{ 'Dropping point'|t }}</div>
+        {% endif %}
+        {% if sanitation is not empty %}
+        <div class="sanitation-point"><img src='/themes/custom/labdoo/img/labdoo-marker-blue.png'> {{ 'Sanitation point'|t }}</div>
+        {% endif %}
+    </div>
+</div>

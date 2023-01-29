@@ -1,0 +1,94 @@
+display:
+  default:
+    display_title: 'Por defecto'
+    display_options:
+      title: Multimedia
+      fields:
+        media_bulk_form:
+          action_title: Acción
+      pager:
+        options:
+          tags:
+            next: ››
+            previous: ‹‹
+          expose:
+            items_per_page_label: 'Elementos por página'
+            items_per_page_options_all_label: '- Todo -'
+            offset_label: Desplazamiento
+      exposed_form:
+        options:
+          reset_button_label: Restablecer
+          exposed_sorts_label: 'Ordenar por'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      sorts:
+        created:
+          expose:
+            label: 'El más reciente primero'
+      filters:
+        status:
+          group_info:
+            label: Publicado
+            group_items:
+              1:
+                title: Publicado
+              2:
+                title: 'Sin publicar'
+        name:
+          expose:
+            label: Nombre
+        langcode:
+          expose:
+            label: Idioma
+  page:
+    display_title: Página
+    display_options:
+      fields:
+        media_bulk_form:
+          action_title: Acción
+        name:
+          separator: ', '
+        edit_media:
+          text: Editar
+        delete_media:
+          text: Eliminar
+  widget:
+    display_title: Control
+    display_options:
+      arguments:
+        bundle:
+          exception:
+            title: Todo(s)
+      filters:
+        name:
+          expose:
+            label: Nombre
+      header:
+        display_link_grid:
+          label: Cuadrícula
+        display_link_table:
+          label: Tabla
+  widget_table:
+    display_options:
+      fields:
+        thumbnail__target_id:
+          label: Miniatura
+        name:
+          label: Nombre
+        uid:
+          label: Autor
+        changed:
+          label: Actualizado
+      arguments:
+        bundle:
+          exception:
+            title: Todo(s)
+      filters:
+        name:
+          expose:
+            label: Nombre
+      header:
+        display_link_grid:
+          label: Cuadrícula
+        display_link_table:
+          label: Tabla

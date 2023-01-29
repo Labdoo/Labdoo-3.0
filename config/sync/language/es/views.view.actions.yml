@@ -1,0 +1,57 @@
+label: Comportamiento
+display:
+  default:
+    display_title: 'Por defecto'
+    display_options:
+      title: Comportamiento
+      fields:
+        body:
+          label: Acción
+        field_address_locality:
+          label: Ciudad
+        field_address_country_code:
+          label: País
+        created:
+          label: 'Fecha de la acción'
+      pager:
+        options:
+          tags:
+            first: '" Primero'
+            last: 'Último "'
+          expose:
+            items_per_page_label: 'Artículos por página'
+            items_per_page_options_all_label: '- Todo -'
+            offset_label: Compensar
+      exposed_form:
+        options:
+          submit_button: Aplicar
+          reset_button_label: Reiniciar
+          exposed_sorts_label: 'Ordenar por'
+          sort_desc_label: Descripción
+      filters:
+        field_action_type_value:
+          expose:
+            label: 'Acciones relacionadas con'
+        field_address_country_code:
+          expose:
+            label: País
+        field_address_locality:
+          expose:
+            label: Ciudad
+  block_1:
+    display_title: 'Happening right now...'
+    display_options:
+      title: 'Happening right now...'
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'Artículos por página'
+            items_per_page_options_all_label: '- Todo -'
+            offset_label: Compensar
+  page_1:
+    display_title: Página
+    display_options:
+      menu:
+        title: 'Acciones globales'
+  rest_export_1:
+    display_title: 'Exportación REST'

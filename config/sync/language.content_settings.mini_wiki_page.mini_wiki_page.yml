@@ -1,0 +1,17 @@
+uuid: 05c0e96f-1c29-4bd1-8d1d-3ccc9362d3af
+langcode: en
+status: true
+dependencies:
+  module:
+    - content_translation
+    - mini_wiki
+third_party_settings:
+  content_translation:
+    enabled: true
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: mini_wiki_page.mini_wiki_page
+target_entity_type_id: mini_wiki_page
+target_bundle: mini_wiki_page
+default_langcode: site_default
+language_alterable: true

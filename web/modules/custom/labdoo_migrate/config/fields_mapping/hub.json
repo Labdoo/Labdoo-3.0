@@ -1,0 +1,194 @@
+{
+  "source_type": "hub",
+  "destination_types": [
+    "hub"
+  ],
+  "entity_type": "node",
+  "fields_mapping": [
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "nid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "nid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "uid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "uid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "title"
+          }
+        ]
+      },
+      "destination": {
+        "field": "title"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_branches_information",
+            "key": "entity_id",
+            "field": "field_branches_information_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_branches_information"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hub_manager_s_",
+            "key": "entity_id",
+            "field": "field_hub_manager_s__target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hub_manager_s_"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_types_of_mini_missions",
+            "key": "entity_id",
+            "field": "field_types_of_mini_missions_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_types_of_mini_missions"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_parent_hub",
+            "key": "entity_id",
+            "field": "field_parent_hub_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_parent_hub"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hub_status",
+            "key": "entity_id",
+            "field": "field_hub_status_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hub_status"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_hub_additional_editors",
+            "key": "entity_id",
+            "field": "field_hub_additional_editors_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_hub_additional_editors"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "node.nid",
+            "field": "coords",
+            "expression": "CONCAT(location.latitude, ',', location.longitude)",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "node",
+                "condition": "node.nid = location_instance.nid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_locations",
+        "special_type": {
+          "type": "geolocation"
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "created"
+          }
+        ]
+      },
+      "destination": {
+        "field": "created"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "node",
+            "key": "nid",
+            "field": "changed"
+          }
+        ]
+      },
+      "destination": {
+        "field": "changed"
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+uuid: de5b27ed-a6ec-47b3-a34a-b9d739c527a6
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.task_team
+  module:
+    - path
+id: node.task_team.path
+field_name: path
+entity_type: node
+bundle: task_team
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

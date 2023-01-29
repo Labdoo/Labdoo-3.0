@@ -1,0 +1,18 @@
+uuid: 514d3d3b-6580-4888-8fde-8ab9c0125724
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.edoovillage
+id: node.edoovillage.title
+field_name: title
+entity_type: node
+bundle: edoovillage
+label: 'Project title'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

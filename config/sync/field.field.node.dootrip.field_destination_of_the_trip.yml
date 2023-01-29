@@ -1,0 +1,21 @@
+uuid: 5c4d863f-fe25-472f-9409-f4f2ea43c524
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_destination_of_the_trip
+    - node.type.dootrip
+  module:
+    - geofield
+id: node.dootrip.field_destination_of_the_trip
+field_name: field_destination_of_the_trip
+entity_type: node
+bundle: dootrip
+label: 'Destination of the trip'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: geofield

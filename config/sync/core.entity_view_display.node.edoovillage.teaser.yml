@@ -1,0 +1,78 @@
+uuid: 74c52eda-9ab9-420a-99d0-b0ed343653db
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.edoovillage.field_additional_files
+    - field.field.node.edoovillage.field_additional_info_language
+    - field.field.node.edoovillage.field_country
+    - field.field.node.edoovillage.field_doojects_additional_notes
+    - field.field.node.edoovillage.field_dootronics_delivered
+    - field.field.node.edoovillage.field_dootronics_in_transit
+    - field.field.node.edoovillage.field_dootronics_remaining
+    - field.field.node.edoovillage.field_edoo_additional_editors
+    - field.field.node.edoovillage.field_edoo_additional_followers
+    - field.field.node.edoovillage.field_edoo_additional_notif_em
+    - field.field.node.edoovillage.field_edoovillage_photo_album
+    - field.field.node.edoovillage.field_hub
+    - field.field.node.edoovillage.field_internet_additional_notes
+    - field.field.node.edoovillage.field_internet_connection_type
+    - field.field.node.edoovillage.field_local_language_s_
+    - field.field.node.edoovillage.field_location
+    - field.field.node.edoovillage.field_number_of_laptops_needed
+    - field.field.node.edoovillage.field_number_of_students
+    - field.field.node.edoovillage.field_number_of_teachers
+    - field.field.node.edoovillage.field_on_site_point_of_contact
+    - field.field.node.edoovillage.field_project_application
+    - field.field.node.edoovillage.field_project_description
+    - field.field.node.edoovillage.field_project_manager_s_
+    - field.field.node.edoovillage.field_semaphore
+    - field.field.node.edoovillage.field_socket_type
+    - field.field.node.edoovillage.field_socket_voltage
+    - field.field.node.edoovillage.field_status
+    - field.field.node.edoovillage.field_thank_you_note
+    - node.type.edoovillage
+  module:
+    - user
+id: node.edoovillage.teaser
+targetEntityType: node
+bundle: edoovillage
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_additional_files: true
+  field_additional_info_language: true
+  field_country: true
+  field_doojects_additional_notes: true
+  field_dootronics_delivered: true
+  field_dootronics_in_transit: true
+  field_dootronics_remaining: true
+  field_edoo_additional_editors: true
+  field_edoo_additional_followers: true
+  field_edoo_additional_notif_em: true
+  field_edoovillage_photo_album: true
+  field_hub: true
+  field_internet_additional_notes: true
+  field_internet_connection_type: true
+  field_local_language_s_: true
+  field_location: true
+  field_number_of_laptops_needed: true
+  field_number_of_students: true
+  field_number_of_teachers: true
+  field_on_site_point_of_contact: true
+  field_project_application: true
+  field_project_description: true
+  field_project_manager_s_: true
+  field_semaphore: true
+  field_socket_type: true
+  field_socket_voltage: true
+  field_status: true
+  field_thank_you_note: true
+  langcode: true
+  search_api_excerpt: true

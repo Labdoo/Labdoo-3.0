@@ -1,0 +1,149 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function labdoo_team_theme() {
+  return [
+    'team_actions_block_block' => [
+      'variables' => [
+        'team_name' => '',
+        'wall_link' => '',
+        'edit_link' => '',
+        'membership_link' => '',
+        'membership_label' => '',
+        'post_link' => '',
+        'members_link' => '',
+        'tasks_link' => '',
+      ],
+      'template' => 'block--team-actions-block',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function labdoo_team_views_data_alter(array &$data) {
+  foreach (Drupal::entityTypeManager()->getDefinitions() as $entityType => $entityInfo) {
+    $baseTable = $entityInfo->getBaseTable();
+
+    if (!isset($data[$baseTable]['team_membership_field'])) {
+      $data[$baseTable]['team_membership_field'] = [
+        'title' => t('Team membership'),
+        'field' => [
+          'id' => 'team_membership_field',
+          'title' => t('Team membership'),
+          'field' => '',
+        ],
+      ];
+    }
+
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function labdoo_team_node_view(
+  array &$build,
+  EntityInterface $node,
+  EntityViewDisplayInterface $display,
+  $view_mode
+) {
+  if ($node->getType() === 'team' && $view_mode === 'full') {
+    $teamId = $node->id();
+
+    /** @var \Drupal\labdoo_team\Service\MembershipManager $teamMembershipManager */
+    $teamMembershipManager = Drupal::service('labdoo_team.membership.manager');
+    if (!$teamMembershipManager->checkUserMembership($teamId)) {
+      $link = $teamMembershipManager->buildJoinLink(
+        $teamId,
+        ['class' => 'button']
+      );
+    }
+    else {
+      $link = $teamMembershipManager->buildLeaveLink(
+        $teamId,
+        ['class' => 'button']
+      );
+    }
+
+    $build['membership_button'] = [
+      '#type' => 'markup',
+      '#markup' => $link->toString(),
+      '#weight' => 100,
+    ];
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function labdoo_team_node_presave(NodeInterface $node) {
+  if (
+    $node->getType() === 'team_post'
+    || $node->getType() === 'task_team'
+  ) {
+    $teamId = Drupal::request()->query->get('team_id');
+    if (empty($teamId)) {
+      return;
+    }
+
+    $team = Node::load($teamId);
+    if (empty($team) || $team->bundle() !== 'team') {
+      return;
+    }
+
+    $node->set('field_team', $teamId);
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id === 'node_team_post_form') {
+    $current_user = \Drupal::currentUser();
+    if (!$current_user->hasRole('team_manager')) {
+      if (isset($form['field_other_groups'])) {
+        $form['field_other_groups']['#access'] = FALSE;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_user_insert().
+ */
+function labdoo_team_user_insert(UserInterface $account) {
+  try {
+    // Load the Global team (nid 24)
+    $team = \Drupal::entityTypeManager()->getStorage('node')->load(24);
+    if ($team) {
+      // Add the user to the team members
+      $team->get('field_team_members')->appendItem($account->id());
+      $team->save();
+    }
+  }
+  catch (\Exception $e) {
+    \Drupal::logger('labdoo_team')->error('Failed to add user @user to the Global team: @error', [
+      '@user' => $account->getAccountName(),
+      '@error' => $e->getMessage(),
+    ]);
+  }
+}

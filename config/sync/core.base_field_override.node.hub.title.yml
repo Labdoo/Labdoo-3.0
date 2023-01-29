@@ -1,0 +1,18 @@
+uuid: c4788845-335b-408a-b160-504d5e36e494
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.hub
+id: node.hub.title
+field_name: title
+entity_type: node
+bundle: hub
+label: Title
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

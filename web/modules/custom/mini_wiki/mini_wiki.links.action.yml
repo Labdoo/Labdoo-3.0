@@ -1,0 +1,5 @@
+mini_wiki_page.add_form:
+  title: 'Add wiki page'
+  route_name: entity.mini_wiki_page.add_form
+  appears_on:
+    - entity.mini_wiki_page.collection

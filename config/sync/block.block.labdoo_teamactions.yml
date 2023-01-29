@@ -1,0 +1,25 @@
+uuid: db5a7117-d204-4a6b-bc10-1923d0bae673
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_team
+    - system
+  theme:
+    - labdoo
+id: labdoo_teamactions
+theme: labdoo
+region: sidebar
+weight: -10
+provider: null
+plugin: team_actions_block_block
+settings:
+  id: team_actions_block_block
+  label: 'Team actions'
+  label_display: '0'
+  provider: labdoo_team
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: "/team-wall/*\r\n/node/*\r\n/team/task/*/list\r\n/team/task/*/create\r\n/team-tasks/*\r\n/team-members/*"

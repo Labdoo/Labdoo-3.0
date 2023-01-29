@@ -1,0 +1,21 @@
+uuid: cab47c36-a5ba-4059-b061-c949ffe9857f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_socket_type
+    - node.type.edoovillage
+  module:
+    - options
+id: node.edoovillage.field_socket_type
+field_name: field_socket_type
+entity_type: node
+bundle: edoovillage
+label: 'Socket type'
+description: 'See <a target=''_blank'' href="../../../content/list-countries-voltages-and-power-plugs">this page for a list of socket types</a>.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

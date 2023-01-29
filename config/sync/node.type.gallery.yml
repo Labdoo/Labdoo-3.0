@@ -1,0 +1,17 @@
+uuid: 4cc76e68-cffd-4e43-a8cd-b615f03f2426
+langcode: es
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Gallery
+type: gallery
+description: 'A gallery of nodes.'
+help: null
+new_revision: false
+preview_mode: 1
+display_submitted: false

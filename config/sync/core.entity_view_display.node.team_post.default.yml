@@ -1,0 +1,68 @@
+uuid: dd9587c2-0476-4a8a-b253-1a0f068c8bd1
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_display.comment.comment.default
+    - field.field.node.team_post.body
+    - field.field.node.team_post.field_attachment
+    - field.field.node.team_post.field_other_groups
+    - field.field.node.team_post.field_send_edoovillage_managers
+    - field.field.node.team_post.field_send_to_all_hub_managers
+    - field.field.node.team_post.field_share_additional_emails
+    - field.field.node.team_post.field_share_additional_users
+    - field.field.node.team_post.field_share_all_members_team
+    - field.field.node.team_post.field_team
+    - field.field.node.team_post.field_team_comments
+    - field.field.node.team_post.field_your_groups
+    - node.type.team_post
+  module:
+    - comment
+    - text
+    - user
+id: node.team_post.default
+targetEntityType: node
+bundle: team_post
+mode: default
+content:
+  body:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_attachment:
+    type: entity_reference_entity_view
+    label: hidden
+    settings:
+      view_mode: default
+      link: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_team_comments:
+    type: comment_default
+    label: above
+    settings:
+      view_mode: default
+      pager_id: 0
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  field_other_groups: true
+  field_send_edoovillage_managers: true
+  field_send_to_all_hub_managers: true
+  field_share_additional_emails: true
+  field_share_additional_users: true
+  field_share_all_members_team: true
+  field_team: true
+  field_your_groups: true
+  langcode: true
+  search_api_excerpt: true

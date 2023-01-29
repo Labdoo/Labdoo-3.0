@@ -1,0 +1,18 @@
+uuid: e70c4a0d-f307-4630-8945-df6130374fbb
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootronic
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: false
+    bundle_settings:
+      untranslatable_fields_hide: '0'
+id: node.dootronic
+target_entity_type_id: node
+target_bundle: dootronic
+default_langcode: site_default
+language_alterable: false

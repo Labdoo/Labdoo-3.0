@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+/**
+ * Uninstalls the entity.
+ */
+function mini_wiki_uninstall() {
+  $entity_type_id = 'mini_wiki_page';
+  $entity_type = \Drupal::entityTypeManager()->getDefinition($entity_type_id);
+  \Drupal::entityDefinitionUpdateManager()->uninstallEntityType($entity_type);
+}
+
+/**
+ * Updates the entity storage.
+ */
+function mini_wiki_update_8001() {
+  $entity_type_id = 'mini_wiki_page';
+  $field_id = 'path';
+
+  $fields = \Drupal::service('entity_field.manager')
+    ->getFieldStorageDefinitions($entity_type_id);
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition(
+      $field_id,
+      $entity_type_id,
+      'mini_wiki',
+      $fields[$field_id]
+    );
+}

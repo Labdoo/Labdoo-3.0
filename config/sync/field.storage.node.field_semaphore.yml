@@ -1,0 +1,30 @@
+uuid: cf3a94e5-bf22-4245-bef0-a80c141e3867
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_semaphore
+field_name: field_semaphore
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: red
+      label: 'Red: pictures about the project have not been uploaded yet'
+    -
+      value: yellow
+      label: 'Yellow: first dootronics can be sent'
+    -
+      value: green
+      label: 'Green: the rest of the dootronics can be sent'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

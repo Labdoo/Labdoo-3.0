@@ -1,0 +1,73 @@
+label: Մեկնաբանություններ
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      title: Մեկնաբանություններ
+      fields:
+        comment_bulk_form:
+          action_title: Գործողություն
+        subject:
+          label: Թեմա
+        name:
+          label: Հեղինակ
+        changed:
+          label: 'Թարմացվել է'
+        operations:
+          label: Գործողություններ
+      pager:
+        options:
+          tags:
+            next: 'հաջորդը ›'
+            previous: '‹ նախորդը'
+            first: '« առաջինը'
+      exposed_form:
+        options:
+          submit_button: Ֆիլտր
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      empty:
+        area_text_custom:
+          content: 'Մեկնաբանություններ չկան:'
+      filters:
+        subject:
+          expose:
+            label: Թեմա
+        combine:
+          expose:
+            label: 'Հեղինակի անունը'
+        langcode:
+          expose:
+            label: Լեզու
+      use_more_text: ավելի
+  page_published:
+    display_title: 'Հրապարակված մեկաբանություններ'
+    display_options:
+      menu:
+        title: Մեկնաբանություններ
+  page_unapproved:
+    display_title: 'Չհաստատված  մեկնաբանություններ'
+    display_options:
+      fields:
+        comment_bulk_form:
+          action_title: Գործողություն
+        subject:
+          label: Թեմա
+        name:
+          label: Հեղինակ
+        changed:
+          label: 'Թարմացվել է'
+        operations:
+          label: Գործողություններ
+      filters:
+        subject:
+          expose:
+            label: Թեմա
+        combine:
+          expose:
+            label: 'Հեղինակի անուն'
+        langcode:
+          expose:
+            label: Լեզու
+      menu:
+        title: 'Չհաստատված  մեկնաբանություններ'

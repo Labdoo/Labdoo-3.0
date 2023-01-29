@@ -1,0 +1,26 @@
+services:
+  labdoo_common.repository.common:
+    class: Drupal\labdoo_common\Service\Repository\CommonRepository
+    arguments: ['@database', '@entity_type.manager', '@cache.default', '@logger.factory']
+  labdoo_common.repository.view:
+    class: Drupal\labdoo_common\Service\Repository\ViewRepository
+    arguments: ['@request_stack']
+  labdoo_common.cache_manager:
+    class: Drupal\labdoo_common\Service\Cache\CacheManager
+    arguments: ['@cache.default', '@cache_tags.invalidator']
+  labdoo_common.helper.link:
+    class: Drupal\labdoo_common\Service\Helper\LinkHelper
+    arguments:
+      - '@entity_type.manager'
+      - '@current_route_match'
+      - '@current_user'
+      - '@request_stack'
+      - '@logger.factory'
+  labdoo_common.event_subscriber.cache_event:
+    class: Drupal\labdoo_common\EventSubscriber\CacheEventSubscriber
+    arguments: ['@labdoo_common.cache_manager']
+    tags:
+      - { name: 'event_subscriber' }
+  labdoo_common.repository.user:
+    class: Drupal\labdoo_common\Service\Repository\UserRepository
+    arguments: ['@entity_type.manager', '@current_user']

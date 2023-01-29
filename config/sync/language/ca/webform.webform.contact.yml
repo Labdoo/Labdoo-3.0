@@ -1,0 +1,15 @@
+title: Contacte
+settings:
+  confirmation_message: "El vostre missatge s'ha enviat."
+handlers:
+  email_confirmation:
+    label: 'Confirmació per correu electrònic'
+    settings:
+      subject: '[webform_submission:values:subject:raw]'
+      body: '[webform_submission:values:message:value]'
+  email_notification:
+    label: 'Notificació per correu electrònic'
+    settings:
+      from_name: '[webform_submission:values:name:raw]'
+      subject: '[webform_submission:values:subject:raw]'
+      body: '[webform_submission:values:message:value]'

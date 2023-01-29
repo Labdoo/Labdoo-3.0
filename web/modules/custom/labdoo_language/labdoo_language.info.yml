@@ -1,0 +1,6 @@
+name: 'Labdoo Language'
+type: module
+description: 'Language functionality.'
+core_version_requirement: ^10
+package: Custom
+dependencies: {}

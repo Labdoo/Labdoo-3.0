@@ -1,0 +1,168 @@
+<?php declare(strict_types = 1);
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_theme().
+ */
+function labdoo_dootrip_theme() {
+
+  return [
+    'dootrip_chart_block_block' => [
+      'variables' => [
+        'capacity' => NULL,
+        'in_transit' => NULL,
+        'transported' => NULL,
+        'total' => NULL,
+      ],
+      'template' => 'block--dootrip-chart-block',
+    ],
+    'dootrip_actions_block_block' => [
+      'variables' => [
+        'edit_link' => '',
+        'revisions_link' => '',
+        'clone_link' => '',
+        'next_link' => '',
+        'previous_link' => '',
+        'status' => '',
+      ],
+      'template' => 'block--dootrip-actions-block',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function labdoo_dootrip_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (
+    $form_id === 'views_exposed_form' &&
+    isset($form['#id'])
+    && $form['#id'] === 'views-exposed-form-dootrips-block-1'
+  ) {
+    labdoo_common_set_active_countries($form, 'dootrip');
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function labdoo_dootrip_entity_insert(EntityInterface $entity) {
+  __labdoo_dootrip_clear_cachetag($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function labdoo_dootrip_entity_update(EntityInterface $entity) {
+  __labdoo_dootrip_clear_cachetag($entity);
+
+  if ($entity->bundle() === 'dootrip') {
+    /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
+    $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
+    $dootripCompute->computeDootronicsAssigned($entity);
+    $dootripCompute->computeRelatedDootronics($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function labdoo_dootrip_entity_delete(EntityInterface $entity) {
+  __labdoo_dootrip_clear_cachetag($entity);
+}
+
+/**
+ * Invalidate the node type cache tag.
+ *
+ * @return void
+ */
+function __labdoo_dootrip_clear_cachetag(EntityInterface $entity) {
+  $dootronicTag = sprintf(
+    'dootrip:%d:%d',
+    $entity->id(),
+    \Drupal::currentUser()->id()
+  );
+  $tags = [
+    'dootrip_chart',
+    $dootronicTag,
+  ];
+  $event = new InvalidateCacheTagsEvent();
+  $event->setCacheTags($tags);
+
+  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
+  $eventDispatcher = \Drupal::service('event_dispatcher');
+  $eventDispatcher->dispatch($event, InvalidateCacheTagsEvent::EVENT_NAME);
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function labdoo_dootrip_entity_presave(EntityInterface $entity) {
+  if ($entity->bundle() !== 'dootrip') {
+    return;
+  }
+
+  /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
+  $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
+  $dootripCompute->computeWeight($entity);
+  $dootripCompute->computeCo2Savings($entity);
+  $dootripCompute->computeDistance($entity);
+  $dootripCompute->computeDootripLocations($entity);
+}
+
+function labdoo_dootrip_cron() {
+  /** @var \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface $dootripRepository */
+  $dootripRepository = \Drupal::service('labdoo_dootrip.repository');
+  /** @var \Drupal\labdoo_dootrip\Service\Queue\Feeder\QueueFeederInterface $queueFeeder */
+  $queueFeeder = \Drupal::service('labdoo_dootrip.queue.feeder.dootrip_capacity');
+
+  try {
+    $dootripRepository->disableEntityStorageCache();
+  } catch (\Exception $e) {
+    return;
+  }
+
+  // Retrieves all the dootrips.
+  $dootripNids = $dootripRepository->getAllNids();
+
+  foreach ($dootripNids as $dootripNid) {
+    $dootrip = $dootripRepository->load((int) $dootripNid);
+    if ($dootrip->get('field_full')->value !== 1) {
+      $queueFeeder->feedQueue($dootrip);
+    }
+  }
+
+  try {
+    $dootripRepository->enableEntityStorageCache();
+  } catch (\Exception $e) {
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function labdoo_dootrip_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
+  if ($view->id() == 'dootrips_dashboard' && $view->current_display == 'page_1') {
+    $user_id = \Drupal::request()->query->get('u');
+    $mine = \Drupal::request()->query->get('mine');
+
+    if (!empty($user_id) && is_numeric($user_id)) {
+      $query->addWhere('AND', 'node_field_data.uid', $user_id, '=');
+    }
+    elseif (!empty($mine) && (int) $mine === 1) {
+      $query->addWhere('AND', 'node_field_data.uid', \Drupal::currentUser()->id(), '=');
+    }
+  }
+}

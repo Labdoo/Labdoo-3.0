@@ -1,0 +1,24 @@
+uuid: f5f8451d-9faf-4e30-82c4-f9ad221e9ea9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.team_post
+  module:
+    - text
+id: node.team_post.body
+field_name: body
+entity_type: node
+bundle: team_post
+label: Body
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+  required_summary: false
+  allowed_formats: {  }
+field_type: text_with_summary

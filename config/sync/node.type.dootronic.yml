@@ -1,0 +1,17 @@
+uuid: c694e851-2678-4f3a-86e2-0680126bb650
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Dootronic
+type: dootronic
+description: 'Use this content type to tag and register a laptop.'
+help: '<p align=''right''><a href="../../content/about-dootronics" target="_blank" align="right">Help about dootronics</a>&nbsp;&nbsp;&nbsp;</p>'
+new_revision: true
+preview_mode: 0
+display_submitted: false

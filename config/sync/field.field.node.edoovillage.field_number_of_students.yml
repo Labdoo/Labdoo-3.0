@@ -1,0 +1,23 @@
+uuid: 56465752-e882-45cd-955e-145d94db0c95
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_number_of_students
+    - node.type.edoovillage
+id: node.edoovillage.field_number_of_students
+field_name: field_number_of_students
+entity_type: node
+bundle: edoovillage
+label: 'Number of students'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

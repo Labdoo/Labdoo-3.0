@@ -1,0 +1,10 @@
+entity.mini_wiki_page.edit_form:
+  route_name: entity.mini_wiki_page.edit_form
+  group: mini_wiki_page
+  title: 'Edit'
+
+entity.mini_wiki_page.delete_form:
+  route_name: entity.mini_wiki_page.delete_form
+  group: mini_wiki_page
+  title: 'Delete'
+  weight: 10

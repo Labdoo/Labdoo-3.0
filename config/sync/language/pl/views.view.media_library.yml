@@ -1,0 +1,94 @@
+display:
+  default:
+    display_title: Domyślny
+    display_options:
+      title: Media
+      fields:
+        media_bulk_form:
+          action_title: Akcja
+      pager:
+        options:
+          tags:
+            next: ››
+            previous: ‹‹
+          expose:
+            items_per_page_label: 'Elementów na stronę'
+            items_per_page_options_all_label: '- Wszystko -'
+            offset_label: Przesunięcie
+      exposed_form:
+        options:
+          reset_button_label: Resetuj
+          exposed_sorts_label: 'Sortuj po'
+          sort_asc_label: Rosnąco
+          sort_desc_label: Malejąco
+      sorts:
+        created:
+          expose:
+            label: 'Najnowsze pierwsze'
+      filters:
+        status:
+          group_info:
+            label: Opublikowane
+            group_items:
+              1:
+                title: Opublikowane
+              2:
+                title: Nieopublikowany
+        name:
+          expose:
+            label: Nazwa
+        langcode:
+          expose:
+            label: Język
+  page:
+    display_title: Strona
+    display_options:
+      fields:
+        media_bulk_form:
+          action_title: Akcja
+        name:
+          separator: ', '
+        edit_media:
+          text: Edytuj
+        delete_media:
+          text: Usuń
+  widget:
+    display_title: Kontrolka
+    display_options:
+      arguments:
+        bundle:
+          exception:
+            title: Wszystko
+      filters:
+        name:
+          expose:
+            label: Nazwa
+      header:
+        display_link_grid:
+          label: Siatka
+        display_link_table:
+          label: Tabela
+  widget_table:
+    display_options:
+      fields:
+        thumbnail__target_id:
+          label: Miniaturka
+        name:
+          label: Nazwa
+        uid:
+          label: Autor
+        changed:
+          label: Uaktualniono
+      arguments:
+        bundle:
+          exception:
+            title: Wszystko
+      filters:
+        name:
+          expose:
+            label: Nazwa
+      header:
+        display_link_grid:
+          label: Siatka
+        display_link_table:
+          label: Tabela

@@ -1,0 +1,11 @@
+403:
+  title: 'Access denied'
+  body: 'You do not have permission to view this page. Please contact the site administrator if you believe this is an error.'
+  theme: ''
+  enable_login: 0
+404:
+  title: 'Page not found'
+  body: 'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.'
+  theme: ''
+  enable_login: 1
+redirect: ''

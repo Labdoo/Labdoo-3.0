@@ -1,0 +1,29 @@
+uuid: b14008fa-2b00-4aba-8546-9bdd1f8c087f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_laptops
+    - node.type.dootrip
+    - node.type.dootronic
+id: node.dootrip.field_laptops
+field_name: field_laptops
+entity_type: node
+bundle: dootrip
+label: 'Dootronic identifiers'
+description: 'Once you know the dootronic(s) that you will be carrying with this dootrip, enter their Labdoo identifier here.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      dootronic: dootronic
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

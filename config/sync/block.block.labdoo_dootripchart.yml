@@ -1,0 +1,25 @@
+uuid: 6a7b5014-4457-44e2-8f44-459858a42831
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_dootrip
+    - system
+  theme:
+    - labdoo
+id: labdoo_dootripchart
+theme: labdoo
+region: content
+weight: -15
+provider: null
+plugin: dootrip_chart_block_block
+settings:
+  id: dootrip_chart_block_block
+  label: 'Dootrip chart'
+  label_display: '0'
+  provider: labdoo_dootrip
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/content/dootrips-dashboard*'

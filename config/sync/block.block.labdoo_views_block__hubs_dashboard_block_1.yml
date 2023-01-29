@@ -1,0 +1,29 @@
+uuid: 17ab1a98-fe3d-4316-bb47-8c223f8923a1
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.hubs_dashboard
+  module:
+    - system
+    - views
+  theme:
+    - labdoo
+id: labdoo_views_block__hubs_dashboard_block_1
+theme: labdoo
+region: content
+weight: -11
+provider: null
+plugin: 'views_block:hubs_dashboard-block_1'
+settings:
+  id: 'views_block:hubs_dashboard-block_1'
+  label: ''
+  label_display: '0'
+  provider: views
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/content/hubs-dashboard*'

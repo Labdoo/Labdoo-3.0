@@ -1,0 +1,20 @@
+uuid: 8dda1e4c-a30f-4ff0-8b2e-cb7b4e1ec703
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_dootrip_capacity
+field_name: field_dootrip_capacity
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

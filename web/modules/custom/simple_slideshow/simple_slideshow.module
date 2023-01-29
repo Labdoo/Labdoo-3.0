@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function simple_slideshow_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.simple_slideshow':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Simple Slideshow module provides a field formatter that displays media entities as a simple slideshow.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function simple_slideshow_theme() {
+  return [
+    'simple_slideshow' => [
+      'variables' => [
+        'items' => [],
+        'settings' => [],
+      ],
+      'template' => 'simple-slideshow',
+    ],
+  ];
+}

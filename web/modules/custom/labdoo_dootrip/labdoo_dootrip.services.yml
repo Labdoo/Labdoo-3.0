@@ -1,0 +1,16 @@
+services:
+  labdoo_dootrip.export.csv:
+    class: Drupal\labdoo_dootrip\Service\Export\CsvExport
+    arguments: ['@labdoo_common.repository.view']
+  labdoo_dootrip.repository:
+    class: Drupal\labdoo_dootrip\Service\Repository\DootripRepository
+    arguments: ['@entity_type.manager', '@logger.factory', '@database']
+  labdoo_dootrip.compute:
+    class: Drupal\labdoo_dootrip\Service\Compute\DootripCompute
+    arguments: ['@labdoo_dootrip.repository', '@cache.default', '@labdoo_dootrip.queue.feeder.total_co2_savings']
+  labdoo_dootrip.queue.feeder.total_co2_savings:
+    class: Drupal\labdoo_dootrip\Service\Queue\Feeder\TotalCo2SavingsQueueFeeder
+    arguments: ['@queue_manager.helper']
+  labdoo_dootrip.queue.feeder.dootrip_capacity:
+    class: Drupal\labdoo_dootrip\Service\Queue\Feeder\DootripCapacityQueueFeeder
+    arguments: ['@queue_manager.helper']

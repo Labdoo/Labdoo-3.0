@@ -1,0 +1,29 @@
+uuid: 2a3887d9-ad64-4453-b964-631ed7c773dd
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_admin_toolbar
+    - user
+  theme:
+    - gin
+id: gin_labdooadmintoolbar
+theme: gin
+region: header
+weight: 0
+provider: null
+plugin: labdoo_admin_toolbar_block
+settings:
+  id: labdoo_admin_toolbar_block
+  label: 'Labdoo Admin Toolbar'
+  label_display: '0'
+  provider: labdoo_admin_toolbar
+visibility:
+  user_role:
+    id: user_role
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'
+    roles:
+      administrator: administrator
+      superhub_manager: superhub_manager

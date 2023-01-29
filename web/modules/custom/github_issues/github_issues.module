@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function github_issues_theme($existing, $type, $theme, $path): array {
+  return [
+    'github_issues_list' => [
+      'variables' => ['issues' => NULL],
+    ],
+  ];
+}
+
+/**
+ * This function is a hook that allows altering the metadata
+ * before submitting GitHub issues.
+ *
+ * @param array $metadata
+ *   The GitHub metadata.
+ *   Valid keys: source, author, team.
+ */
+function hook_github_issues_set_metadata(array &$metadata): void {
+}

@@ -1,0 +1,13 @@
+uuid: 5abfc7b7-d590-4fee-a98e-8a4320b2093f
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+_core:
+  default_config_hash: _7U6O5isThg-GfCZZVdYVOUOcx5R2DkJmTS9FPODdO4
+id: mini_wiki_page_save_action
+label: 'Save wiki pages'
+type: mini_wiki_page
+plugin: 'entity:save_action:mini_wiki_page'
+configuration: {  }

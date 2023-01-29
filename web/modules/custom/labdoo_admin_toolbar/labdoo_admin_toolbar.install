@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * Developed by Natiboo <info@natiboo.es>
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
+ * @link http://natiboo.es
+ */
+
+use Drupal\block\Entity\Block;
+
+/**
+ * Implements hook_install().
+ */
+function labdoo_admin_toolbar_install() {
+  // Check if the block already exists.
+  $block_id = 'labdoo_admin_toolbar';
+  $existing_block = Block::load($block_id);
+  
+  if (!$existing_block) {
+    // Create a new block.
+    $block = Block::create([
+      'id' => $block_id,
+      'theme' => 'labdoo',
+      'region' => 'header',
+      'weight' => -100,
+      'plugin' => 'labdoo_admin_toolbar_block',
+      'settings' => [
+        'id' => 'labdoo_admin_toolbar_block',
+        'label' => 'Labdoo Admin Toolbar',
+        'provider' => 'labdoo_admin_toolbar',
+        'label_display' => '0',
+      ],
+      'visibility' => [
+        'user_role' => [
+          'id' => 'user_role',
+          'roles' => [
+            'administrator' => 'administrator',
+          ],
+          'negate' => FALSE,
+          'context_mapping' => [
+            'user' => '@user.current_user_context:current_user',
+          ],
+        ],
+      ],
+    ]);
+    
+    $block->save();
+    
+    \Drupal::messenger()->addStatus(t('Labdoo Admin Toolbar block has been placed in the header region.'));
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function labdoo_admin_toolbar_uninstall() {
+  // Remove the block when the module is uninstalled.
+  $block_id = 'labdoo_admin_toolbar';
+  $block = Block::load($block_id);
+  
+  if ($block) {
+    $block->delete();
+    \Drupal::messenger()->addStatus(t('Labdoo Admin Toolbar block has been removed.'));
+  }
+}

@@ -1,0 +1,27 @@
+uuid: e7187680-444e-4d14-b7f7-54a30ca76415
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_socket_voltage
+field_name: field_socket_voltage
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: '220'
+      label: '220-240 Volts'
+    -
+      value: '120'
+      label: '100-127 Volts'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

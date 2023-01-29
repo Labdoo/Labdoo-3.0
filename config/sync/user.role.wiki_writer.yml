@@ -1,0 +1,52 @@
+uuid: 10f46cd1-0025-44bd-b367-b3e7b655a3a2
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.book
+    - node.type.labdoo_story
+  module:
+    - book
+    - content_translation
+    - eu_cookie_compliance
+    - mini_wiki
+    - node
+    - path
+    - quick_node_clone
+id: wiki_writer
+label: 'Wiki Writer'
+weight: 9
+is_admin: null
+permissions:
+  - 'add content to books'
+  - 'administer book outlines'
+  - 'administer mini_wiki_page'
+  - 'clone labdoo_story content'
+  - 'create book content'
+  - 'create content translations'
+  - 'create labdoo_story content'
+  - 'create mini_wiki_page'
+  - 'create new books'
+  - 'create url aliases'
+  - 'delete any labdoo_story content'
+  - 'delete content translations'
+  - 'delete labdoo_story revisions'
+  - 'delete mini_wiki_page'
+  - 'delete mini_wiki_page revision'
+  - 'delete own book content'
+  - 'delete own labdoo_story content'
+  - 'display eu cookie compliance popup'
+  - 'edit any book content'
+  - 'edit any labdoo_story content'
+  - 'edit mini_wiki_page'
+  - 'edit own book content'
+  - 'edit own labdoo_story content'
+  - 'revert labdoo_story revisions'
+  - 'revert mini_wiki_page revision'
+  - 'translate any entity'
+  - 'translate editable entities'
+  - 'translate mini_wiki_page'
+  - 'update content translations'
+  - 'view labdoo_story revisions'
+  - 'view mini_wiki_page'
+  - 'view mini_wiki_page revision'

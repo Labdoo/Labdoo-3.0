@@ -1,0 +1,41 @@
+natiboo_migrate_data.admin:
+  title: 'Natiboo Migration'
+  description: 'Manage Natiboo migration and export options.'
+  route_name: natiboo_migrate_data.entities_list
+  parent: system.admin_config
+  weight: 0
+
+natiboo_migrate_data.export_entities:
+  title: 'Export entities'
+  description: 'View and export entities.'
+  parent: natiboo_migrate_data.admin
+  route_name: natiboo_migrate_data.entities_list
+  weight: 0
+
+natiboo_migrate_data.export_menus:
+  title: 'Export menus'
+  description: 'View and export menus.'
+  parent: natiboo_migrate_data.admin
+  route_name: natiboo_migrate_data.menus_list
+  weight: 1
+
+natiboo_migrate_data.import_menu_form:
+  title: 'Import menu'
+  description: 'Import a menu.'
+  parent: natiboo_migrate_data.admin
+  route_name: natiboo_migrate_data.import_menu_form
+  weight: 2
+
+natiboo_migrate_data.import_entity_form:
+  title: 'Import entity'
+  description: 'Import an entity.'
+  parent: natiboo_migrate_data.admin
+  route_name: natiboo_migrate_data.import_entity_form
+  weight: 2
+
+natiboo_migrate_data.delete_paragraphs_form:
+  title: 'Delete all paragraphs'
+  description: 'Delete all paragraphs from the database.'
+  parent: natiboo_migrate_data.admin
+  route_name: natiboo_migrate_data.delete_paragraphs_form
+  weight: 3

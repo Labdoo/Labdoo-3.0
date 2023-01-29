@@ -1,0 +1,20 @@
+uuid: e9b1ed48-8816-48c8-8998-7a788a5dee3f
+langcode: en
+status: true
+dependencies:
+  module:
+    - geofield
+    - node
+id: node.field_destination_of_the_trip
+field_name: field_destination_of_the_trip
+entity_type: node
+type: geofield
+settings:
+  backend: geofield_backend_default
+module: geofield
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

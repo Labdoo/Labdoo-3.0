@@ -1,0 +1,22 @@
+uuid: 945b8c57-5eb6-4be0-b95a-e1f8fcef189c
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.dootronic
+id: node.dootronic.sticky
+field_name: sticky
+entity_type: node
+bundle: dootronic
+label: 'Sticky at top of lists'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

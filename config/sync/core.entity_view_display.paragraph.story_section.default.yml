@@ -1,0 +1,46 @@
+uuid: c873caeb-dce7-4a43-b560-b8793847d202
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.story_section.field_story_heading
+    - field.field.paragraph.story_section.field_story_picture
+    - field.field.paragraph.story_section.field_story_text
+    - image.style.full_width
+    - paragraphs.paragraphs_type.story_section
+  module:
+    - image
+    - text
+id: paragraph.story_section.default
+targetEntityType: paragraph
+bundle: story_section
+mode: default
+content:
+  field_story_heading:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_story_picture:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: full_width
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_story_text:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+hidden:
+  search_api_excerpt: true

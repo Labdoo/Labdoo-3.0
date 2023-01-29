@@ -1,0 +1,8 @@
+auto_rotate_mini_missions:
+  version: 1.x
+  js:
+    js/auto-rotate-mini-missions.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once

@@ -1,0 +1,25 @@
+uuid: 18720714-d0b6-4c39-9939-8a33df0a7fba
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_dootronics
+    - system
+  theme:
+    - labdoo
+id: labdoo_dootronicchart
+theme: labdoo
+region: content
+weight: -17
+provider: null
+plugin: dootronics_chart_block_block
+settings:
+  id: dootronics_chart_block_block
+  label: 'Dootronic chart'
+  label_display: '0'
+  provider: labdoo_dootronics
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: /content/dootronics-dashboard

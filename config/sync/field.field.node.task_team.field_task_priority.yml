@@ -1,0 +1,23 @@
+uuid: 0150d22c-4a05-4100-ab72-0268a42c0fa0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_task_priority
+    - node.type.task_team
+  module:
+    - options
+id: node.task_team.field_task_priority
+field_name: field_task_priority
+entity_type: node
+bundle: task_team
+label: 'Task priority'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: normal
+default_value_callback: ''
+settings: {  }
+field_type: list_string

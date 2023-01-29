@@ -1,0 +1,23 @@
+uuid: cdeb09d4-2a7a-4ba4-aaf7-dfeab982f4a7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootronics_in_transit
+    - node.type.hub
+id: node.hub.field_dootronics_in_transit
+field_name: field_dootronics_in_transit
+entity_type: node
+bundle: hub
+label: 'Number of dootronics in transit'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

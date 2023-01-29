@@ -1,0 +1,29 @@
+uuid: 3eb4765e-9f70-4991-9832-0e9c4ed406c7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_team_members
+    - node.type.team
+id: node.team.field_team_members
+field_name: field_team_members
+entity_type: node
+bundle: team
+label: 'Team members'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    filter:
+      type: _none
+    include_anonymous: false
+field_type: entity_reference

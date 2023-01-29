@@ -1,0 +1,29 @@
+uuid: 0e35a7b2-a060-4cdf-b640-465faaf95659
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hub
+    - node.type.edoovillage
+    - node.type.hub
+id: node.edoovillage.field_hub
+field_name: field_hub
+entity_type: node
+bundle: edoovillage
+label: 'Coordinating hub(s)'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      hub: hub
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

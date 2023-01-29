@@ -1,0 +1,29 @@
+uuid: a9672275-43b9-4163-b724-58741fed11d4
+langcode: en
+status: false
+dependencies:
+  config:
+    - system.menu.footer
+  module:
+    - system
+  theme:
+    - labdoo
+id: labdoo_footer
+theme: labdoo
+region: footer
+weight: -15
+provider: null
+plugin: 'system_menu_block:footer'
+settings:
+  id: 'system_menu_block:footer'
+  label: Footer
+  label_display: '0'
+  provider: system
+  level: 1
+  depth: 0
+  expand_all_items: false
+visibility:
+  request_path:
+    id: request_path
+    negate: true
+    pages: '/dootronics/print-labels/*'

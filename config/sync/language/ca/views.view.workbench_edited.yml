@@ -1,0 +1,70 @@
+display:
+  default:
+    display_title: Mestre
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Aplica
+          reset_button_label: Reinicialitza
+          exposed_sorts_label: 'Ordena per'
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      pager:
+        options:
+          tags:
+            previous: '‹ Anterior'
+            next: 'Següent ›'
+            first: '« Primer'
+            last: 'Últim »'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      fields:
+        nid:
+          separator: ', '
+        title:
+          label: Títol
+          separator: ', '
+        type:
+          label: Tipus
+          separator: ', '
+        status:
+          label: Publicat
+          separator: ', '
+        changed:
+          label: 'Última actualització'
+          separator: ', '
+        uid:
+          label: Autor
+          separator: ', '
+        revision_uid:
+          separator: ', '
+      filters:
+        title:
+          expose:
+            label: Títol
+        type:
+          expose:
+            label: Tipus
+        status:
+          expose:
+            label: Publicat
+      arguments:
+        uid_revision:
+          exception:
+            title: Tot
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Primer'
+            last: 'Últim »'
+          expose:
+            items_per_page_label: 'Elements per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Desplaçament
+      use_more_text: 'veure tots'

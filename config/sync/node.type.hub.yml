@@ -1,0 +1,17 @@
+uuid: b0a47be9-db8e-4746-b364-9c6b6bf471c1
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Hub
+type: hub
+description: 'Labdoo hubs are locations where laptops can be dropped and where Labdoo volunteers typically perform multiple Labdoo tasks.'
+help: '<p align=''right''><a href="../../content/about-hubs" target="_blank" align="right">Help about hubs</a>&nbsp;&nbsp;&nbsp;</p>'
+new_revision: true
+preview_mode: 0
+display_submitted: false

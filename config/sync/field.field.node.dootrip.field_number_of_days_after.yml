@@ -1,0 +1,23 @@
+uuid: 3bbedbbd-d035-4aae-ab6e-63e079cc01c0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_number_of_days_after
+    - node.type.dootrip
+id: node.dootrip.field_number_of_days_after
+field_name: field_number_of_days_after
+entity_type: node
+bundle: dootrip
+label: 'Number of days you can store the dootronic(s) after the arrival date'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

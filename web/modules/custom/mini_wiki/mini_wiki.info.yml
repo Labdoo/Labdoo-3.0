@@ -1,0 +1,7 @@
+name: 'Mini Wiki'
+type: module
+description: 'Provides really simple wiki functionality.'
+core_version_requirement: ^10
+configure: mini_wiki.settings_form
+package: Custom
+dependencies: {}

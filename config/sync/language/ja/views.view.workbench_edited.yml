@@ -1,0 +1,73 @@
+display:
+  default:
+    display_title: マスター
+    display_options:
+      exposed_form:
+        options:
+          submit_button: 適用
+          reset_button_label: リセット
+          exposed_sorts_label: 並び替え基準
+          sort_asc_label: 昇順
+          sort_desc_label: 降順
+      pager:
+        options:
+          tags:
+            previous: '‹ 前'
+            next: '次 ›'
+            first: '« 最初'
+            last: '最後 »'
+          expose:
+            items_per_page_label: ページ毎の件数
+            items_per_page_options_all_label: '- 全て -'
+            offset_label: オフセット
+      fields:
+        nid:
+          separator: ', '
+        title:
+          label: タイトル
+          separator: ', '
+        type:
+          label: タイプ
+          separator: ', '
+        status:
+          label: 掲載
+          separator: ', '
+        changed:
+          label: 最終更新
+          separator: ', '
+        uid:
+          label: 投稿者
+          separator: ', '
+        revision_uid:
+          separator: ', '
+      filters:
+        title:
+          expose:
+            label: タイトル
+        type:
+          expose:
+            label: タイプ
+        status:
+          expose:
+            label: 掲載
+      title: 自分の記事
+      arguments:
+        uid_revision:
+          exception:
+            title: すべて
+  block_1:
+    display_options:
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« 最初'
+            last: '最後 »'
+          expose:
+            items_per_page_label: ページ毎の件数
+            items_per_page_options_all_label: '- 全て -'
+            offset_label: オフセット
+      header:
+        area:
+          content: '<h3>あなたの最近の編集</h3>'

@@ -1,0 +1,14 @@
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      fields:
+        changed:
+          settings:
+            future_format: '@interval անց'
+            past_format: '@interval առաջ'
+      empty:
+        area_text_custom:
+          content: 'Մեկնաբանություններ չկան:'
+  block_1:
+    display_title: Բլոկ

@@ -1,0 +1,34 @@
+uuid: 553ad434-63ac-48e8-879d-675355f381d4
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - options
+    - user
+third_party_settings:
+  field_permissions:
+    permission_type: custom
+id: user.field_hub_manager_notifications
+field_name: field_hub_manager_notifications
+entity_type: user
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: HUB_PICKME
+      label: "Upon a dootronic being marked with the 'pick me up' flag"
+    -
+      value: HUB_TAGGED
+      label: 'Uppon tagging a dootronic'
+    -
+      value: USER_NEW
+      label: 'Upon a new user joining Project Labdoo'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

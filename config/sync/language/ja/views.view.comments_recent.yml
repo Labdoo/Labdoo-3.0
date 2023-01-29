@@ -1,0 +1,15 @@
+label: 最近のコメント
+description: 最近のコメント。
+display:
+  default:
+    display_title: デフォルト
+    display_options:
+      title: 最近のコメント
+      empty:
+        area_text_custom:
+          content: コメントはありません。
+  block_1:
+    display_title: ブロック
+    display_options:
+      block_description: 最近のコメント
+      block_category: 'リスト (Views)'

@@ -1,0 +1,50 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a simple slideshow.
+ *
+ * Available variables:
+ * - items: An array of slideshow items, each containing:
+ *   - url: The URL of the image.
+ *   - alt: The alt text for the image.
+ *   - title: The title text for the image.
+ *   - attributes: HTML attributes for the image.
+ * - settings: An array of slideshow settings:
+ *   - autoplay: Whether to autoplay the slideshow.
+ *   - autoplay_speed: The speed of the autoplay in milliseconds.
+ *   - dots: Whether to show navigation dots.
+ *   - arrows: Whether to show navigation arrows.
+ *
+ * @see template_preprocess_simple_slideshow()
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="simple-slideshow-wrapper">
+  <div class="simple-slideshow" 
+       data-autoplay="{{ settings.autoplay ? 'true' : 'false' }}"
+       data-autoplay-speed="{{ settings.autoplay_speed }}"
+       data-dots="{{ settings.dots ? 'true' : 'false' }}"
+       data-arrows="{{ settings.arrows ? 'true' : 'false' }}">
+    {% for item in items %}
+      <div class="simple-slideshow-slide">
+        <img src="{{ item.url }}" alt="{{ item.alt }}" title="{{ item.title }}" {{ item.attributes }} />
+      </div>
+    {% endfor %}
+  </div>
+  
+  {% if settings.arrows %}
+    <div class="simple-slideshow-nav">
+      <button class="simple-slideshow-prev" aria-label="{{ 'Previous slide'|t }}">&#10094;</button>
+      <button class="simple-slideshow-next" aria-label="{{ 'Next slide'|t }}">&#10095;</button>
+    </div>
+  {% endif %}
+  
+  {% if settings.dots %}
+    <div class="simple-slideshow-dots">
+      {% for item in items %}
+        <button class="simple-slideshow-dot" data-slide="{{ loop.index0 }}" aria-label="{{ 'Go to slide @slide'|t({'@slide': loop.index}) }}"></button>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

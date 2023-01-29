@@ -1,0 +1,21 @@
+uuid: f86a6d57-4778-49e8-a687-a9e9618af586
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_co2_savings_dootrip
+field_name: field_co2_savings_dootrip
+entity_type: node
+type: string
+settings:
+  max_length: 100
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

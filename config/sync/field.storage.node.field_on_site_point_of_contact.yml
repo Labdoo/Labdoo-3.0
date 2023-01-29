@@ -1,0 +1,19 @@
+uuid: 1ec7eb60-2b68-4428-a8ee-443e25eaf6ab
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_on_site_point_of_contact
+field_name: field_on_site_point_of_contact
+entity_type: node
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

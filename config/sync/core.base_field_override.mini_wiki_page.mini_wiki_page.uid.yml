@@ -1,0 +1,20 @@
+uuid: 7163e28b-eeb9-403f-87bd-309dd0f41127
+langcode: en
+status: true
+dependencies:
+  module:
+    - mini_wiki
+id: mini_wiki_page.mini_wiki_page.uid
+field_name: uid
+entity_type: mini_wiki_page
+bundle: mini_wiki_page
+label: Author
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: 'Drupal\mini_wiki\Entity\MiniWikiPage::getDefaultEntityOwner'
+settings:
+  handler: default
+  handler_settings: {  }
+field_type: entity_reference

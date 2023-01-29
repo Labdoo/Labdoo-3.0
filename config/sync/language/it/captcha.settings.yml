@@ -1,0 +1,3 @@
+description: 'Questa domanda è un test per verificare che tu sia un visitatore umano e per impedire inserimenti  di spam automatici.'
+title: CAPTCHA
+wrong_captcha_response_message: 'La risposta inserita per il  CAPTCHA non era corretta.'

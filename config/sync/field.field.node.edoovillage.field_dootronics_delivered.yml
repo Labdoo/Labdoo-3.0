@@ -1,0 +1,23 @@
+uuid: 919f6a0d-82dd-4dea-9873-0c5092ebbccb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dootronics_delivered
+    - node.type.edoovillage
+id: node.edoovillage.field_dootronics_delivered
+field_name: field_dootronics_delivered
+entity_type: node
+bundle: edoovillage
+label: 'Number of dootronics delivered'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

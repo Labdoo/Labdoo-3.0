@@ -1,0 +1,17 @@
+labdoo_team.join:
+  path: '/team/join/{teamId}'
+  defaults:
+    _controller: '\Drupal\labdoo_team\Controller\MembershipController::join'
+    _title: 'Join the team'
+  requirements:
+    _permission: 'join team'
+    teamId: \d+
+
+labdoo_team.leave:
+  path: '/team/leave/{teamId}'
+  defaults:
+    _controller: '\Drupal\labdoo_team\Controller\MembershipController::leave'
+    _title: 'Leave the team'
+  requirements:
+    _permission: 'leave team'
+    teamId: \d+

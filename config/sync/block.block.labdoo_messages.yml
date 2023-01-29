@@ -1,0 +1,22 @@
+uuid: 9c0eade6-63f9-49d8-9452-f2ebfc7503e6
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - labdoo
+_core:
+  default_config_hash: WvPhI8OwllG0gE69-F8qL3ai3nd5SbYD6JpmEuZcyok
+id: labdoo_messages
+theme: labdoo
+region: highlighted
+weight: -17
+provider: null
+plugin: system_messages_block
+settings:
+  id: system_messages_block
+  label: 'Status messages'
+  label_display: '0'
+  provider: system
+visibility: {  }

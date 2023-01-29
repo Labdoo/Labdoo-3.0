@@ -1,0 +1,50 @@
+label: Պարունակություն
+display:
+  default:
+    display_title: Լռելյայն
+    display_options:
+      title: Պարունակություն
+      fields:
+        title:
+          label: Վերնագիր
+        type:
+          label: 'Բովանդակության տեսակ'
+        name:
+          label: Հեղինակ
+        status:
+          label: Կարգավիճակ
+          settings:
+            format_custom_true: Հրապարակված
+        changed:
+          label: 'Թարմացվել է'
+        operations:
+          label: Գործողություններ
+      exposed_form:
+        options:
+          submit_button: Ֆիլտր
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      filters:
+        title:
+          expose:
+            label: Վերնագիր
+        type:
+          expose:
+            label: 'Բովանդակության տեսակ'
+        status:
+          expose:
+            label: Կարգավիճակ
+          group_info:
+            group_items:
+              1:
+                title: Հրապարակված
+        langcode:
+          expose:
+            label: Լեզու
+  page_1:
+    display_title: Էջ
+    display_options:
+      menu:
+        title: Պարունակություն
+      tab_options:
+        title: Պարունակություն
