@@ -1,0 +1,7 @@
+name: Labdoo Blocks
+description: 'This module implements the Labdoo blocks.'
+type: module
+package: Labdoo
+core_version_requirement: ^9
+dependencies:
+  - drupal:block

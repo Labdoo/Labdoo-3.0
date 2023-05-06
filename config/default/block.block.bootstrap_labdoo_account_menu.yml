@@ -1,0 +1,27 @@
+uuid: e082632e-2f93-4911-9a6d-51d2dddd561a
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.account
+  module:
+    - system
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: a0JKPb_cd4tpAS0jk9yQD5VX00JpD6wjYhJVzPnN5SM
+id: bootstrap_labdoo_account_menu
+theme: bootstrap_labdoo
+region: secondary_menu
+weight: -7
+provider: null
+plugin: 'system_menu_block:account'
+settings:
+  id: 'system_menu_block:account'
+  label: 'User account menu'
+  label_display: '0'
+  provider: system
+  level: 1
+  depth: 1
+  expand_all_items: false
+visibility: {  }

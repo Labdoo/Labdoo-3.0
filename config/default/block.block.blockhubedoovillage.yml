@@ -1,0 +1,21 @@
+uuid: 0ea43a1a-96de-4d2f-a434-46bb1f35230a
+langcode: en
+status: true
+dependencies:
+  module:
+    - lbd_blocks
+  theme:
+    - gin
+id: blockhubedoovillage
+theme: gin
+region: pre_content
+weight: 0
+provider: null
+plugin: lbd_block_hub_edoovillage
+settings:
+  id: lbd_block_hub_edoovillage
+  label: 'Block: Hub & Edoovillage'
+  label_display: visible
+  provider: lbd_blocks
+  my_block_settings: null
+visibility: {  }

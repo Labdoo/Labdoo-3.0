@@ -1,0 +1,20 @@
+uuid: 829c3957-ec95-488b-80f7-7dbdf28d1e9f
+langcode: en
+status: true
+dependencies:
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: hQUo6YZzFuvSde0RkX7cAhUP20t3fIYRdj-5YbhmowE
+id: bootstrap_labdoo_primary_admin_actions
+theme: bootstrap_labdoo
+region: content
+weight: -6
+provider: null
+plugin: local_actions_block
+settings:
+  id: local_actions_block
+  label: 'Primary admin actions'
+  label_display: '0'
+  provider: core
+visibility: {  }

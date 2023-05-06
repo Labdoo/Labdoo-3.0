@@ -1,0 +1,24 @@
+uuid: 5efe9de1-ae90-4e9f-b936-6bba3afe348c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_departure_date
+    - node.type.dootrip
+  module:
+    - datetime
+id: node.dootrip.field_departure_date
+field_name: field_departure_date
+entity_type: node
+bundle: dootrip
+label: 'Departure date'
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    default_date_type: now
+    default_date: now
+default_value_callback: ''
+settings: {  }
+field_type: datetime

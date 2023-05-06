@@ -1,0 +1,47 @@
+uuid: ef5fe42d-53fe-49a7-9a51-5bfac91da3b2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_origin_of_the_trip
+    - node.type.dootrip
+  module:
+    - address
+id: node.dootrip.field_origin_of_the_trip
+field_name: field_origin_of_the_trip
+entity_type: node
+bundle: dootrip
+label: 'Origin of the trip'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  available_countries: {  }
+  langcode_override: ''
+  field_overrides:
+    givenName:
+      override: hidden
+    additionalName:
+      override: hidden
+    familyName:
+      override: hidden
+    organization:
+      override: hidden
+    addressLine1:
+      override: hidden
+    addressLine2:
+      override: hidden
+    postalCode:
+      override: optional
+    sortingCode:
+      override: hidden
+    dependentLocality:
+      override: hidden
+    locality:
+      override: required
+    administrativeArea:
+      override: optional
+  fields: {  }
+field_type: address

@@ -1,0 +1,22 @@
+uuid: a096c396-13e4-4db1-8d82-8b37098a32f4
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: W_CW7jbRwZyYJLZnlXyjj-smPvFzPdESvNmSLRLZRXI
+id: bootstrap_labdoo_content
+theme: bootstrap_labdoo
+region: content
+weight: -3
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  label_display: '0'
+  provider: system
+visibility: {  }

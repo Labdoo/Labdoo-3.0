@@ -1,0 +1,22 @@
+uuid: ffc6a446-5a7b-4e1c-bfbf-cdcc0adefa37
+langcode: en
+status: true
+dependencies:
+  module:
+    - help
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: 6ShrQbPZxi60ugCRLjaE9-e-USAx_lh5oAX57rfZTHc
+id: bootstrap_labdoo_help
+theme: bootstrap_labdoo
+region: highlighted
+weight: -2
+provider: null
+plugin: help_block
+settings:
+  id: help_block
+  label: Help
+  label_display: '0'
+  provider: help
+visibility: {  }

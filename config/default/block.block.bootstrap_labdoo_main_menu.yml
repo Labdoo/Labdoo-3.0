@@ -1,0 +1,27 @@
+uuid: 3ef49343-7867-4ab8-afa7-d7e539f30473
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.main
+  module:
+    - system
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: mU5gq8m9nH70WUkbNE9yhLcFM62dwRfxbuFgF1N_oaM
+id: bootstrap_labdoo_main_menu
+theme: bootstrap_labdoo
+region: primary_menu
+weight: -6
+provider: null
+plugin: 'system_menu_block:main'
+settings:
+  id: 'system_menu_block:main'
+  label: 'Main navigation'
+  label_display: '0'
+  provider: system
+  level: 1
+  depth: 2
+  expand_all_items: true
+visibility: {  }

@@ -1,0 +1,25 @@
+uuid: dd54bc3b-8a9f-46b9-a060-8d5daec6505c
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: ZIXQdrNZw-wtYXT94Qv6aHmpLHNxEM4iBHZ74vbqfig
+id: bootstrap_labdoo_site_branding
+theme: bootstrap_labdoo
+region: header
+weight: -7
+provider: null
+plugin: system_branding_block
+settings:
+  id: system_branding_block
+  label: 'Site branding'
+  label_display: '0'
+  provider: system
+  use_site_logo: true
+  use_site_name: true
+  use_site_slogan: false
+visibility: {  }

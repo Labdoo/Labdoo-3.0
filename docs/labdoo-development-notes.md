@@ -85,7 +85,7 @@ $entity_type_name is the name of the entity you are exporting (e.g., 'node')
 and $node_id is the ID that you want it to have upon building a new site.
 The content will be created at module initialization time.
 
-*** Building from a branch
+### Building from a branch
 
 To build Labdoo from a given branch, do as follows:
 
@@ -94,6 +94,15 @@ git checkout <branch>
 ddev composer install
 ddev drush updb
 ddev drush cim
-ddev drush cim
 ddev drush cr
+ddev drush cim
 ```
+
+### Printing a message to the logger / watchdog
+
+```
+\Drupal::logger('labdoo_lib')->notice("Hey");
+```
+
+
+

@@ -11,7 +11,6 @@ module:
   block_content: 0
   breakpoint: 0
   ckeditor: 0
-  color: 0
   computed_field: 0
   conditional_fields: 0
   config: 0
@@ -38,6 +37,7 @@ module:
   help: 0
   image: 0
   inline_form_errors: 0
+  lbd_blocks: 0
   lbd_default_content: 0
   lbd_lib: 0
   link: 0
@@ -67,4 +67,6 @@ theme:
   claro: 0
   gin: 0
   olivero: 0
+  bootstrap_barrio: 0
+  bootstrap_labdoo: 0
 profile: minimal

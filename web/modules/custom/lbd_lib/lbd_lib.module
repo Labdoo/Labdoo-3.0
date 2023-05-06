@@ -8,12 +8,16 @@
 use Drupal\node\NodeInterface;
 use Drupal\user\Entity\User;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Locale\CountryManager;
 
 /**
  * Implements hook_ENTITY_TYPE_presave().
  */
 function lbd_lib_node_presave(NodeInterface $entity) {
 
+  /*
+   * Node is a dootronic
+   */
   if (($entity->bundle() == 'dootronic') && $entity->isNew()) {
     // Assign its title to be equal to the next available ID
     // without letting the user set it. (See also lbd_lib_form_node_form_alter
@@ -22,10 +26,117 @@ function lbd_lib_node_presave(NodeInterface $entity) {
     $entity->set('title', sprintf("%09d", $did));
   }
 
+  /*
+   * Node is a dootrip
+   */
+  if ($entity->bundle() == 'dootrip') {
+    if ($entity->isNew()) {
+      // @todo Implement locks, also for dootronic objects and others if deemed necessary
+      $dootrip_id = lbd_allocate_dootrip_id();
+    }
+    else {
+      $current_title = $entity->getTitle();
+      $dootrip_id = lbd_extract_dootrip_id($current_title);
+    }
+    $dootrip_title = _generate_dootrip_title($entity, $dootrip_id);
+    $entity->set('title', $dootrip_title);
+  }
 }
 
 /**
- * Allocate a new dootronic ID.
+ * Generates the title of a dootrip.
+ *
+ * @param object $node
+ *   The node of the dootrip.
+ * @param string $dootrip_id
+ *   The numeric identifier of the dootrip.
+ *
+ * @return string
+ *   A string containing the new title.
+ */
+function _generate_dootrip_title($node, $dootrip_id) {
+  $code2countries = CountryManager::getStandardList();
+
+  // Get the origin address.
+  $address = $node->get('field_origin_of_the_trip')->getValue();
+  // Get the city of origin.
+  $src_city = $address[0]['locality'];
+  // Get the country of origin.
+  $country_code = $address[0]['country_code'];
+  $src_country = $code2countries[$country_code]->__toString();
+
+  // Get the destination address.
+  $address = $node->get('field_destination_of_the_trip')->getValue();
+  // Get the city of destination.
+  $dst_city = $address[0]['locality'];
+  // Get the country of origin.
+  $country_code = $address[0]['country_code'];
+  $dst_country = $code2countries[$country_code]->__toString();
+
+  // Generate the dootrip title.
+  if ($src_city) {
+    $src_location = $src_city . " (" . $src_country . ")";
+  }
+  else {
+    $src_location = $src_country;
+  }
+  if ($dst_city) {
+    $dst_location = $dst_city . " (" . $dst_country . ")";
+  }
+  else {
+    $dst_location = $dst_country;
+  }
+  $dootrip_id_str = sprintf("%09d", $dootrip_id);
+  $new_title = "Dootrip #" . $dootrip_id_str . " - from " . $src_location . " to " . $dst_location;
+
+  return $new_title;
+}
+
+/**
+ * Allocates a new dootrip ID.
+ *
+ * @return int
+ *   The new ID
+ */
+function lbd_allocate_dootrip_id() {
+  $database = \Drupal::database();
+  // @todo Optimize this query
+  $query = $database->query("SELECT title FROM node_field_data WHERE type='dootrip' ORDER BY title ASC");
+  $result = $query->fetchAll();
+
+  // The following algorithm searches for any possible
+  // holes in the Labdoo ID space and if none, allocates the next
+  // smallest ID.
+  $potential_id = 1;
+  foreach ($result as $item) {
+    $dootrip_words = explode(' ', $item->title);
+    $dootrip_number = explode('#', $dootrip_words[1]);
+    $this_id = intval($dootrip_number[1]);
+    if ($potential_id < $this_id) {
+      break;
+    }
+    $potential_id++;
+  }
+  return($potential_id);
+}
+
+/**
+ * Extracts the dootrip ID from a dootrip title.
+ *
+ * @param string $dootrip_title
+ *   The title of the dootrip.
+ *
+ * @return string
+ *   The dootrip ID.
+ */
+function lbd_extract_dootrip_id($dootrip_title) {
+  $dootrip_words = explode(' ', trim($dootrip_title));
+  $dootrip_number = explode('#', $dootrip_words[1]);
+  return $dootrip_number[1];
+}
+
+/**
+ * Allocates a new dootronic ID.
  *
  * @return string
  *   The new ID
@@ -59,7 +170,6 @@ function lbd_lib_form_node_form_alter(&$form, &$form_state, $form_id) {
    * Node is a dootronic
    */
   if ($form_id == 'node_dootronic_form' || $form_id == 'node_dootronic_edit_form') {
-
     /*
      * Hide the title from the form
      * so that users can't write to it.

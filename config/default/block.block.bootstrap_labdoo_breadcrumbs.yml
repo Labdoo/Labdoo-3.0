@@ -1,0 +1,22 @@
+uuid: 0aee755a-ec2b-49c8-b916-0b8a8cf349ef
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: Uc_5WVpF57RyImHZfMzd-KtcO_CmpJQjXMVlw5KKBKs
+id: bootstrap_labdoo_breadcrumbs
+theme: bootstrap_labdoo
+region: breadcrumb
+weight: 0
+provider: null
+plugin: system_breadcrumb_block
+settings:
+  id: system_breadcrumb_block
+  label: Breadcrumbs
+  label_display: '0'
+  provider: system
+visibility: {  }

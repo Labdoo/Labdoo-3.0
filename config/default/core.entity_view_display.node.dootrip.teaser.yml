@@ -4,7 +4,11 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.dootrip.field_arrival_date
+    - field.field.node.dootrip.field_departure_date
+    - field.field.node.dootrip.field_destination_of_the_trip
     - field.field.node.dootrip.field_dootrip_capacity
+    - field.field.node.dootrip.field_origin_of_the_trip
     - node.type.dootrip
   module:
     - user
@@ -19,4 +23,8 @@ content:
     weight: 100
     region: content
 hidden:
+  field_arrival_date: true
+  field_departure_date: true
+  field_destination_of_the_trip: true
   field_dootrip_capacity: true
+  field_origin_of_the_trip: true

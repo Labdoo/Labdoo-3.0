@@ -1,0 +1,22 @@
+uuid: 32835fc6-cde3-4f25-b207-038c623f7476
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: RuBrVDncnOTpy_vA6SSXA_0FrwhBbAm1Vx3dEXjEPVU
+id: bootstrap_labdoo_messages
+theme: bootstrap_labdoo
+region: highlighted
+weight: -6
+provider: null
+plugin: system_messages_block
+settings:
+  id: system_messages_block
+  label: 'Status messages'
+  label_display: '0'
+  provider: system
+visibility: {  }

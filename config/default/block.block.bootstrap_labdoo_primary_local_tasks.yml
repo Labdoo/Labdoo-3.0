@@ -1,0 +1,22 @@
+uuid: e0b85a01-63e6-4767-b4fc-2db14a8548fb
+langcode: en
+status: true
+dependencies:
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: bDXPIvDTITgpM1_qLswZj-ltN30Opq81P_dkyVjqrNQ
+id: bootstrap_labdoo_primary_local_tasks
+theme: bootstrap_labdoo
+region: content
+weight: -5
+provider: null
+plugin: local_tasks_block
+settings:
+  id: local_tasks_block
+  label: 'Primary tabs'
+  label_display: '0'
+  provider: core
+  primary: true
+  secondary: false
+visibility: {  }

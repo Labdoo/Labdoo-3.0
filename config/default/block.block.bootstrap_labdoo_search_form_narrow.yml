@@ -1,0 +1,23 @@
+uuid: 53e1ea3a-b642-4580-b5e8-e45420aae755
+langcode: en
+status: true
+dependencies:
+  module:
+    - search
+  theme:
+    - bootstrap_labdoo
+_core:
+  default_config_hash: P7F9TJ96R7YeHwJjwH5FhAa6BdTXIM_3Ih0xghOEffk
+id: bootstrap_labdoo_search_form_narrow
+theme: bootstrap_labdoo
+region: sidebar_first
+weight: -7
+provider: null
+plugin: search_form_block
+settings:
+  id: search_form_block
+  label: 'Search form (narrow)'
+  label_display: '0'
+  provider: search
+  page_id: ''
+visibility: {  }
