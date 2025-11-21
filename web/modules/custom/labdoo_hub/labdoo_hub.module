@@ -169,7 +169,7 @@ function __labdoo_hub_clear_cachetag(EntityInterface $entity): void {
 /**
  * Retrieves the branches list of a given hub.
  *
- * @param int $hubId
+ * @param mixed $hubId
  *   The hub ID.
  *
  * @param $levelsLeft
@@ -179,8 +179,13 @@ function __labdoo_hub_clear_cachetag(EntityInterface $entity): void {
  * @return array
  *   The branches list.
  */
-function _labdoo_hub_get_branches_list(int $hubId, int $levelsLeft = 3): array {
-  $levelsLeft = $levelsLeft - 1;
+function _labdoo_hub_get_branches_list($hubId, int $levelsLeft = 3): array {
+  if (!is_numeric($hubId)) {
+    return [];
+  }
+
+  $hubId = (int) $hubId;
+  --$levelsLeft;
 
   try {
     $result = \Drupal::entityTypeManager()
