@@ -12,7 +12,6 @@ negotiation:
     enabled:
       language-url: -19
       language-user: -18
-      language-browser: -17
       language-selected: -16
     method_weights:
       language-content-entity: -20
@@ -30,7 +29,6 @@ negotiation:
     enabled:
       language-user-admin: -20
       language-url: -18
-      language-browser: -17
       language-selected: -16
     method_weights:
       language-user-admin: -20
