@@ -8,29 +8,7 @@
  */
 
 use Drupal\user\UserInterface;
-use Drupal\block\BlockInterface;
 use Drupal\Core\Block\BlockPluginInterface;
-
-/**
- * Implements hook_views_data_alter().
- */
-function labdoo_common_views_data_alter(array &$data) {
-  foreach (Drupal::entityTypeManager()->getDefinitions() as $entityType => $entityInfo) {
-    $baseTable = $entityInfo->getBaseTable();
-
-    if (!isset($data[$baseTable]['labdoo_common_entity_selector'])) {
-      $data[$baseTable]['labdoo_common_entity_selector'] = [
-        'title' => t('Entity selector'),
-        'filter' => [
-          'title' => t('Entity selector'),
-          'help' => t('Entity selector'),
-          'field' => 'id',
-          'id' => 'labdoo_common_entity_selector',
-        ],
-      ];
-    }
-  }
-}
 
 /**
  * Implements hook_token_info().

@@ -19,7 +19,7 @@ dependencies:
     - geofield
     - geolocation
     - geolocation_leaflet
-    - labdoo_common
+    - labdoo_filters
     - node
     - options
     - user
@@ -829,28 +829,28 @@ display:
             default_group_multiple: {  }
             group_items: {  }
           reduce_duplicates: false
-        labdoo_common_entity_selector:
-          id: labdoo_common_entity_selector
+        related_entity_autocomplete:
+          id: related_entity_autocomplete
           table: node
-          field: labdoo_common_entity_selector
+          field: related_entity_autocomplete
           relationship: none
           group_type: group
-          admin_label: ''
+          admin_label: Hub
           entity_type: node
-          plugin_id: labdoo_common_entity_selector
-          operator: '='
-          value: ''
+          plugin_id: related_entity_autocomplete
+          operator: in
+          value: null
           group: 1
           exposed: true
           expose:
-            operator_id: ''
+            operator_id: related_entity_autocomplete_op
             label: Hub
             description: ''
             use_operator: false
-            operator: labdoo_common_entity_selector_op
+            operator: related_entity_autocomplete_op
             operator_limit_selection: false
             operator_list: {  }
-            identifier: labdoo_common_entity_selector_hub
+            identifier: related_entity_autocomplete
             required: false
             remember: false
             multiple: false
@@ -878,11 +878,13 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
-          bundle: edoovillage
-          main_table: node__field_hub
-          field_target: field_hub_target_id
-          entity_id: hub2
-          entity_label: Hub
+          target_entity_type: node
+          target_bundles: hub
+          source_entity_type: node
+          source_bundle: dootronic
+          source_reference_field: field_field_hub
+          reference_table: node__field_hub
+          reference_target_column: field_hub_target_id
         field_country_value:
           id: field_country_value
           table: node__field_country

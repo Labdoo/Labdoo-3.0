@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function labdoo_filters_views_data_alter(array &$data) {
+  $entity_type_manager = \Drupal::entityTypeManager();
+
+  /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
+  foreach ($entity_type_manager->getDefinitions() as $entity_type_id => $entity_type) {
+    $base_table = $entity_type->getBaseTable();
+    if (!$base_table || !isset($data[$base_table])) {
+      continue;
+    }
+
+    // Generic virtual field for related entities autocomplete.
+    if (!isset($data[$base_table]['related_entity_autocomplete'])) {
+      $data[$base_table]['related_entity_autocomplete'] = [
+        'title' => t('Related entity autocomplete'),
+        'help' => t('Filter by a related entity using an autocomplete limited to actually referenced entities.'),
+        'filter' => [
+          'title' => t('Related entity autocomplete'),
+          'help'  => t('Filter by a related entity using an autocomplete limited to actually referenced entities.'),
+          'id'    => 'related_entity_autocomplete',
+          // "field" can be the primary key, just to keep Views happy.
+          'field' => $entity_type->getKey('id'),
+        ],
+      ];
+    }
+  }
+}

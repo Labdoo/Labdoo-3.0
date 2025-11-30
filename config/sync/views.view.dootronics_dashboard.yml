@@ -17,7 +17,7 @@ dependencies:
     - geofield
     - geolocation
     - geolocation_leaflet
-    - labdoo_common
+    - labdoo_filters
     - node
     - options
     - user
@@ -727,6 +727,33 @@ display:
                   collapsible: false
                   collapsible_disable_automatic_open: false
                   is_secondary: false
+              labdoo_common_entity_selector:
+                plugin_id: default
+                advanced:
+                  rewrite:
+                    filter_rewrite_values: ''
+                    filter_rewrite_values_key: false
+                  collapsible: false
+                  collapsible_disable_automatic_open: false
+                  is_secondary: false
+              labdoo_common_entity_selector_1:
+                plugin_id: default
+                advanced:
+                  rewrite:
+                    filter_rewrite_values: ''
+                    filter_rewrite_values_key: false
+                  collapsible: false
+                  collapsible_disable_automatic_open: false
+                  is_secondary: false
+              labdoo_common_entity_selector_2:
+                plugin_id: default
+                advanced:
+                  rewrite:
+                    filter_rewrite_values: ''
+                    filter_rewrite_values_key: false
+                  collapsible: false
+                  collapsible_disable_automatic_open: false
+                  is_secondary: false
               field_country_value:
                 plugin_id: default
                 advanced:
@@ -737,7 +764,7 @@ display:
                   collapsible: false
                   collapsible_disable_automatic_open: false
                   is_secondary: false
-              labdoo_common_entity_selector:
+              labdoo_common_entity_autocomplete_published:
                 plugin_id: default
                 advanced:
                   rewrite:
@@ -896,82 +923,28 @@ display:
             default_group_multiple: {  }
             group_items: {  }
           reduce_duplicates: false
-        labdoo_common_entity_selector:
-          id: labdoo_common_entity_selector
+        related_entity_autocomplete:
+          id: related_entity_autocomplete
           table: node
-          field: labdoo_common_entity_selector
-          relationship: none
-          group_type: group
-          admin_label: Hub
-          entity_type: node
-          plugin_id: labdoo_common_entity_selector
-          operator: '='
-          value: ''
-          group: 1
-          exposed: true
-          expose:
-            operator_id: ''
-            label: Hub
-            description: ''
-            use_operator: false
-            operator: labdoo_common_entity_selector_op
-            operator_limit_selection: false
-            operator_list: {  }
-            identifier: labdoo_common_entity_selector_hub
-            required: false
-            remember: false
-            multiple: false
-            remember_roles:
-              authenticated: authenticated
-              anonymous: '0'
-              content_editor: '0'
-              administrator: '0'
-              newsletter_manager: '0'
-              superhub_manager: '0'
-              team_manager: '0'
-              edoovillage_manager: '0'
-              hub_manager: '0'
-              wiki_writer: '0'
-              laptop_manager: '0'
-          is_grouped: false
-          group_info:
-            label: ''
-            description: ''
-            identifier: ''
-            optional: true
-            widget: select
-            multiple: false
-            remember: false
-            default_group: All
-            default_group_multiple: {  }
-            group_items: {  }
-          bundle: dootronic
-          main_table: node__field_hub
-          field_target: field_hub_target_id
-          entity_id: hub
-          entity_label: Hub
-        labdoo_common_entity_selector_1:
-          id: labdoo_common_entity_selector_1
-          table: node
-          field: labdoo_common_entity_selector
+          field: related_entity_autocomplete
           relationship: none
           group_type: group
           admin_label: Edoovillage
           entity_type: node
-          plugin_id: labdoo_common_entity_selector
-          operator: '='
-          value: ''
+          plugin_id: related_entity_autocomplete
+          operator: in
+          value: null
           group: 1
           exposed: true
           expose:
-            operator_id: ''
+            operator_id: related_entity_autocomplete_op
             label: Edoovillage
             description: ''
             use_operator: false
-            operator: labdoo_common_entity_selector_1_op
+            operator: related_entity_autocomplete_op
             operator_limit_selection: false
             operator_list: {  }
-            identifier: labdoo_common_entity_selector_edoovillage
+            identifier: related_entity_autocomplete
             required: false
             remember: false
             multiple: false
@@ -999,33 +972,91 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
-          bundle: dootronic
-          main_table: node__field_edoovillage_destination
-          field_target: field_edoovillage_destination_target_id
-          entity_id: edoovillage
-          entity_label: Edoovillage
-        labdoo_common_entity_selector_2:
-          id: labdoo_common_entity_selector_2
+          target_entity_type: node
+          target_bundles: edoovillage
+          source_entity_type: node
+          source_bundle: dootronic
+          source_reference_field: field_edoovillage_destination
+          reference_table: node__field_edoovillage_destination
+          reference_target_column: field_edoovillage_destination_target_id
+        related_entity_autocomplete_1:
+          id: related_entity_autocomplete_1
           table: node
-          field: labdoo_common_entity_selector
+          field: related_entity_autocomplete
+          relationship: none
+          group_type: group
+          admin_label: Hub
+          entity_type: node
+          plugin_id: related_entity_autocomplete
+          operator: in
+          value: null
+          group: 1
+          exposed: true
+          expose:
+            operator_id: related_entity_autocomplete_1_op
+            label: Hub
+            description: ''
+            use_operator: false
+            operator: related_entity_autocomplete_1_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: related_entity_autocomplete_1
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              administrator: '0'
+              newsletter_manager: '0'
+              superhub_manager: '0'
+              team_manager: '0'
+              edoovillage_manager: '0'
+              hub_manager: '0'
+              wiki_writer: '0'
+              laptop_manager: '0'
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          target_entity_type: node
+          target_bundles: hub
+          source_entity_type: node
+          source_bundle: dootronic
+          source_reference_field: field_hub
+          reference_table: node__field_hub
+          reference_target_column: field_hub_target_id
+        related_entity_autocomplete_2:
+          id: related_entity_autocomplete_2
+          table: node
+          field: related_entity_autocomplete
           relationship: none
           group_type: group
           admin_label: Dootrip
           entity_type: node
-          plugin_id: labdoo_common_entity_selector
-          operator: '='
-          value: ''
+          plugin_id: related_entity_autocomplete
+          operator: in
+          value: null
           group: 1
           exposed: true
           expose:
-            operator_id: ''
+            operator_id: related_entity_autocomplete_2_op
             label: Dootrip
             description: ''
             use_operator: false
-            operator: labdoo_common_entity_selector_2_op
+            operator: related_entity_autocomplete_2_op
             operator_limit_selection: false
             operator_list: {  }
-            identifier: labdoo_common_entity_selector_2
+            identifier: related_entity_autocomplete_2
             required: false
             remember: false
             multiple: false
@@ -1053,11 +1084,13 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
-          bundle: dootronic
-          main_table: node__field_dootrips
-          field_target: field_dootrips_target_id
-          entity_id: dootrip
-          entity_label: Dootrip
+          target_entity_type: node
+          target_bundles: dootrip
+          source_entity_type: node
+          source_bundle: dootronic
+          source_reference_field: field_field_dootrips
+          reference_table: node__field_dootrips
+          reference_target_column: field_dootrips_target_id
         field_country_value:
           id: field_country_value
           table: node__field_country
@@ -3143,7 +3176,7 @@ display:
         parent: ''
         context: '0'
     cache_metadata:
-      max-age: -1
+      max-age: 0
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
