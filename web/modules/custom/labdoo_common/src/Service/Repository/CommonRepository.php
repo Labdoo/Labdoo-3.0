@@ -214,7 +214,18 @@ class CommonRepository {
     $query->addExpression('SUM(field_number_of_students_value)');
     $query->condition('s.bundle', 'edoovillage');
 
-    return $query->countQuery()->execute()->fetchField();
+    try {
+      return $query->execute()->fetchField();
+    }
+    catch (\Exception $e) {
+      $errorMessage = sprintf(
+        'Error retrieving the students count: %s',
+        $e->getMessage()
+      );
+      $this->logger->error($errorMessage);
+
+      return 0;
+    }
   }
 
   /**
