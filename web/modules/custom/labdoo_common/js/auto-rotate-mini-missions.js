@@ -20,31 +20,30 @@
           if ($block.length) {
             let rotationTimer;
             let currentPage = 1;
-            const MAX_PAGES = 10;
 
             // Function to click the "next" pager link.
             const rotateToNext = function() {
-              // Check if we're at the last page
-              if (currentPage >= MAX_PAGES) {
+              const $nextLink = $block.find('.pager__item--next a');
+              
+              if ($nextLink.length) {
+                // Continue to next page
+                $nextLink[0].click();
+                currentPage++;
+              } else {
+                // No "next" link, so we are likely at the last page.
                 // Go back to the first page
                 const $firstLink = $block.find('.pager__item--first a');
                 if ($firstLink.length) {
                   $firstLink[0].click();
                   currentPage = 1;
                 } else {
-                  // If there's no "first" link, try page 1 directly
-                  const $pageOneLink = $block.find('.pager__item a[href*="page=0"]').first();
+                  // If there's no "first" link (maybe only 1-2 pages), 
+                  // try to find the link to page 1 directly (often the first numbered pager item)
+                  const $pageOneLink = $block.find('.pager__item a').first();
                   if ($pageOneLink.length) {
                     $pageOneLink[0].click();
                     currentPage = 1;
                   }
-                }
-              } else {
-                // Continue to next page
-                const $nextLink = $block.find('.pager__item--next a');
-                if ($nextLink.length) {
-                  $nextLink[0].click();
-                  currentPage++;
                 }
               }
 
