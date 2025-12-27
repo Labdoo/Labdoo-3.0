@@ -16,8 +16,6 @@
 /web/private/examples
 
 # Ignore transpiled js
-/web/modules/custom/**/js/*.js
-/web/modules/custom/**/js/**/*.js
 /web/modules/custom/**/vue_templates/*.js
 !/web/modules/custom/**/vue_templates/*.es6.js
 /web/modules/custom/**/vue_templates/**/*.js
@@ -27,7 +25,6 @@
 /web/themes/custom/tableau_www/js/**/*.js
 !/web/themes/custom/tableau_www/js/**/*.es6.js
 !/web/themes/custom/tableau_www/js/**/*.legacy.js
-/web/themes/custom/**/js/**/*.js
 !/web/themes/custom/**/js/**/*.es6.js
 !/web/themes/custom/**/js/**/*.legacy.js
 *.js.map
