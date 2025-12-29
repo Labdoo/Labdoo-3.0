@@ -44,7 +44,7 @@ elements: |-
         '#title': 'The reason you are contacting Labdoo.org'
         '#options':
           1: 'I want to contribute a device (laptop, tablet, mobile phone, etc.)'
-          2: 'want to contribute a trip (dootrip)'
+          2: 'I want to contribute a trip (dootrip)'
           3: 'I want to become a Labdoo volunteer (labdooer)'
           4: 'I want to solicit laptops or tablets for my educational project (edoovillage)'
           5: 'I just want to send a message to Labdoo.org'
