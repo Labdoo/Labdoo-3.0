@@ -40,7 +40,6 @@ elements: |-
         '#state_province__access': false
         '#postal_code__access': false
         '#country__required': true
-        '#select2': true
       the_reason_you_are_contacting_labdoo_org:
         '#type': select
         '#title': 'The reason you are contacting Labdoo.org'

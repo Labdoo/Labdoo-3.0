@@ -7,64 +7,65 @@
  * @link http://natiboo.es
  */
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\UserInterface;
 use Drupal\Core\Block\BlockPluginInterface;
-use Drupal\webform\WebformInterface;
-use Drupal\webform\Entity\WebformSubmission;
 
 /**
  * Implements hook_webform_element_alter().
  */
-function labdoo_common_webform_element_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
-  /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
-  $webform_submission = $context['webform_submission'];
-  
-  // Safety check for webform_submission.
-  if (!$webform_submission) {
+function labdoo_common_webform_element_alter(array &$element, FormStateInterface $form_state, array $context) {
+  $build_info = $form_state->getBuildInfo();
+  if (($build_info['form_id'] ?? '') !== 'webform_submission_contact_labdoo_add_form') {
     return;
   }
-  
-  $webform = $webform_submission->getWebform();
 
-  if ($webform && $webform->id() === 'contact_labdoo') {
-    $request = \Drupal::requestStack()->getCurrentRequest();
-    
-    // Handle Reason (re) mapping.
-    if ($context['export_key'] === 'the_reason_you_are_contacting_labdoo_org') {
-      $reason = $request->query->get('re');
-      if ($reason !== null) {
-        // Map legacy/string reasons to numeric keys if necessary.
-        // Based on the YAML options:
-        // 1: I want to contribute a device...
-        // 2: I want to contribute a trip (dootrip)
-        // 3: I want to become a Labdoo volunteer (labdooer)
-        // 4: I want to solicit laptops... (edoovillage)
-        // 5: I just want to send a message...
-        
-        // Example mapping based on issue description hints:
-        // re=0 might mean "contact labdoo" -> 5? 
-        // Or if it's already numeric, it might just work via token.
-        // But let's be safe and handle common strings or specific numeric legacy IDs.
-        $mapping = [
-          '0' => '5', // contact labdoo
-          '1' => '1', // donate laptop
-          '2' => '2', // dootrip
-          '3' => '3', // volunteer
-          '4' => '4', // edoovillage
-        ];
-        if (isset($mapping[$reason])) {
-          $element['#default_value'] = $mapping[$reason];
-        }
+  $request = \Drupal::requestStack()->getCurrentRequest();
+  $key = $element['#webform_key'] ?? '';
+
+  // Handle Reason (re) mapping.
+  if ($key === 'the_reason_you_are_contacting_labdoo_org') {
+    $reason = $request->query->get('re');
+    if ($reason !== null) {
+      $mapping = [
+        '0' => '5', // contact labdoo
+        '1' => '1', // donate laptop
+        '2' => '2', // dootrip
+        '3' => '3', // volunteer
+        '4' => '4', // edoovillage
+      ];
+      if (isset($mapping[$reason])) {
+        $element['#default_value'] = $mapping[$reason];
       }
     }
+    return;
+  }
 
-    // Handle Country (co) normalization.
-    if ($context['export_key'] === 'country') {
-      $country = $request->query->get('co');
-      if ($country) {
-        // Country codes in webform_address (ISO2) are usually uppercase.
-        $element['#default_value']['country'] = strtoupper($country);
-      }
+  // Handle Country (co) normalization.
+  if ($key === 'country') {
+    $co = $request->query->get('co'); // "es"
+    if (!$co) {
+      return;
+    }
+
+    $iso2 = strtoupper((string) $co); // "ES"
+
+    // ISO2 -> Country name (ES => Spain).
+    $countries = \Drupal::service('country_manager')->getList();
+    if (empty($countries[$iso2])) {
+      return;
+    }
+
+    $country_value = (string) $countries[$iso2];
+    if (!isset($element['#default_value']) || !is_array($element['#default_value'])) {
+      $element['#default_value'] = [];
+    }
+
+    $element['#default_value']['country'] = $country_value;
+
+    if (isset($element['country']) && is_array($element['country'])) {
+      $element['country']['#default_value'] = $country_value;
+      $element['country']['#value'] = $country_value;
     }
   }
 }
