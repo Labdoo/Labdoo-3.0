@@ -33,6 +33,8 @@ elements: |-
         '#type': webform_address
         '#title': Country
         '#required': true
+        '#default_value':
+          country: '[current-page:query:co]'
         '#address__access': false
         '#address_2__access': false
         '#state_province__access': false
@@ -51,10 +53,14 @@ elements: |-
         '#empty_option': Select
         '#select2': true
         '#required': true
+        '#default_value': '[current-page:query:re]'
       message:
         '#type': textarea
         '#title': Message
         '#required': true
+      campaign:
+        '#type': hidden
+        '#default_value': '[current-page:query:campaign]'
     description:
       '#type': container
       about:
@@ -85,7 +91,7 @@ settings:
   form_confidential_message: ''
   form_disable_remote_addr: false
   form_convert_anonymous: false
-  form_prepopulate: false
+  form_prepopulate: true
   form_prepopulate_source_entity: false
   form_prepopulate_source_entity_required: false
   form_prepopulate_source_entity_type: ''
