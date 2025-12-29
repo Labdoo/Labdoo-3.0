@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - node.type.edoovillage
+    - node.type.gallery
     - node.type.labdoo_story
   module:
     - eu_cookie_compliance
@@ -14,7 +15,9 @@ weight: 7
 is_admin: null
 permissions:
   - 'create edoovillage content'
+  - 'create gallery content'
   - 'create labdoo_story content'
   - 'display eu cookie compliance popup'
+  - 'edit any gallery content'
   - 'edit own edoovillage content'
   - 'edit own labdoo_story content'
