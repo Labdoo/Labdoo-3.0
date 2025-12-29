@@ -28,11 +28,11 @@ function labdoo_common_webform_element_alter(array &$element, FormStateInterface
     $reason = $request->query->get('re');
     if ($reason !== null) {
       $mapping = [
-        '0' => '5', // contact labdoo
-        '1' => '1', // donate laptop
-        '2' => '2', // dootrip
-        '3' => '3', // volunteer
-        '4' => '4', // edoovillage
+        '0' => '1', // donate laptop
+        '1' => '2', // dootrip
+        '2' => '3', // volunteer
+        '3' => '4', // edoovillage
+        '4' => '5', // contact labdoo
       ];
       if (isset($mapping[$reason])) {
         $element['#default_value'] = $mapping[$reason];
