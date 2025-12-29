@@ -32,13 +32,32 @@ function labdoo_story_theme() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_BASE_FORM_ID_alter().
  */
-function labdoo_story_form_node_labdoo_story_form_alter(
-  &$form,
-  FormStateInterface $form_state,
-  $form_id
-) {
+function labdoo_story_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (!in_array($form_id, ['node_labdoo_story_form', 'node_labdoo_story_edit_form'])) {
+    return;
+  }
+
+  $form['labdoo_story_help_text'] = [
+    '#type' => 'markup',
+    '#markup' => t('
+      <div class="content">
+        <p><img src="/themes/custom/labdoo/img/equation-2-alpha-small.png" width="60">
+      Here is a quick explanation of how to create your own story. For a more detailed description on how Labdoo Stories work, please refer to <a target="_blank" href="/content/labdoo-stories">this page</a>.
+        </p>
+        <ul>
+          <li>Under the field \'Title\', type the title of your story.</li>
+          <li>Stories are written by creating \'Story sections\'. Each story section has three items: the heading of the section, the actual story text, and a picture. This allows you to build your own stories by combining multiple sections, each one with their own heading, text and picture. If you don\'t want to have multiple headings for your story, you can optionally omit typing a heading in one or more sections.</li>
+          <li>Add more sections to your story by clicking on the button "Add another item" below the last section.</li>
+          <li>When you are done, click on "Save".</li>
+        </ul>
+        For an example of Labdoo Story, you can <a href="/content/drops-goodwill" target="_blank">take a look at this page</a>.<p></p>
+      </div>'
+    ),
+    '#weight' => -100,
+  ];
+
   /** @var \Drupal\labdoo_story\Service\ParentEntityManager $parentEntityManager */
   $parentEntityManager = \Drupal::service('labdoo_story.parent_entity_manager');
   try {
@@ -47,8 +66,11 @@ function labdoo_story_form_node_labdoo_story_form_alter(
     $form['field_parent']['widget'][0]['target_id']['#attributes']['readonly'] = 'readonly';
   }
   catch (Exception $e) {
-    $response = new RedirectResponse('/');
-    $response->send();
-    exit;
+    // We only redirect if we are in the creation form and parent is missing.
+    if ($form_id === 'node_labdoo_story_form') {
+      $response = new RedirectResponse('/');
+      $response->send();
+      exit;
+    }
   }
 }
