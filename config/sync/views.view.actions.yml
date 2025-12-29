@@ -738,7 +738,7 @@ display:
           offset: 0
           pagination_heading_level: h4
           items_per_page: 1
-          total_pages: null
+          total_pages: 10
           id: 0
           tags:
             next: ››
