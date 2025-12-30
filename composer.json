@@ -15,6 +15,7 @@
         }
     ],
     "require": {
+        "ext-pdo": "*",
         "composer/installers": "^2.0",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^2.0",
@@ -38,7 +39,7 @@
         "drupal/csv_serialization": "^4.0",
         "drupal/customerror": "^1.0@beta",
         "drupal/devel": "^5.1",
-        "drupal/diff": "^2.0@beta",
+        "drupal/diff": "^1.9",
         "drupal/dropdown_language": "^4.0",
         "drupal/email_registration": "^2.0@RC",
         "drupal/entity": "^1.4",
@@ -91,8 +92,7 @@
         "geocoder-php/free-geoip-provider": "^4.5",
         "geocoder-php/google-maps-provider": "^4.7",
         "league/commonmark": "^2.5",
-        "predis/predis": "^2.2",
-        "ext-pdo": "*"
+        "predis/predis": "^2.2"
     },
     "conflict": {
         "drupal/drupal": "*"

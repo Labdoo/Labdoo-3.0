@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46789e63f2f41fb1aecc3757f3f6d71e",
+    "content-hash": "d9debad3b23bb0f00a2a01dfe875ade1",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3539,20 +3539,20 @@
         },
         {
             "name": "drupal/diff",
-            "version": "2.0.0-beta4",
+            "version": "1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/diff.git",
-                "reference": "2.0.0-beta4"
+                "reference": "8.x-1.9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/diff-2.0.0-beta4.zip",
-                "reference": "2.0.0-beta4",
-                "shasum": "31084265e0c597a1076636000e2f8eb90463da5e"
+                "url": "https://ftp.drupal.org/files/projects/diff-8.x-1.9.zip",
+                "reference": "8.x-1.9",
+                "shasum": "4ef0126e983e4935a41ad8131faa00a2e28bcec0"
             },
             "require": {
-                "drupal/core": "^10.2 || ^11",
+                "drupal/core": "^10 || ^11",
                 "mkalkbrenner/php-htmldiff-advanced": "~0.0.8",
                 "php": "^8.1"
             },
@@ -3562,18 +3562,18 @@
                 "phpstan/extension-installer": "^1.2",
                 "phpstan/phpstan": "^1.11",
                 "phpstan/phpstan-deprecation-rules": "*",
-                "phpstan/phpstan-phpunit": "1.4",
-                "phpstan/phpstan-strict-rules": "^1.0",
-                "previousnext/coding-standard": "1.1.0"
+                "phpstan/phpstan-phpunit": "1.4.x-dev",
+                "phpstan/phpstan-strict-rules": "^1@stable",
+                "previousnext/coding-standard": "1.0.1"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.0.0-beta4",
-                    "datestamp": "1748842102",
+                    "version": "8.x-1.9",
+                    "datestamp": "1748990194",
                     "security-coverage": {
-                        "status": "not-covered",
-                        "message": "Beta releases are not covered by Drupal security advisories."
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
                     }
                 }
             },
@@ -13257,7 +13257,6 @@
         "drupal/computed_field": 15,
         "drupal/conditional_fields": 15,
         "drupal/customerror": 10,
-        "drupal/diff": 10,
         "drupal/email_registration": 5,
         "drupal/geolocation": 10,
         "drupal/gin": 5,
@@ -13268,7 +13267,9 @@
     },
     "prefer-stable": true,
     "prefer-lowest": false,
-    "platform": {},
+    "platform": {
+        "ext-pdo": "*"
+    },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

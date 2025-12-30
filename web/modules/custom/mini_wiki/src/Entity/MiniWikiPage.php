@@ -40,6 +40,7 @@ use Drupal\user\EntityOwnerTrait;
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *       "revision" = \Drupal\Core\Entity\Routing\RevisionHtmlRouteProvider::class,
+ *       "diff" = "Drupal\diff\Routing\DiffRouteProvider",
  *     },
  *   },
  *   base_table = "mini_wiki_page",
@@ -74,6 +75,7 @@ use Drupal\user\EntityOwnerTrait;
  *     "revision-delete-form" = "/wiki-page/{mini_wiki_page}/revision/{mini_wiki_page_revision}/delete",
  *     "revision-revert-form" = "/wiki-page/{mini_wiki_page}/revision/{mini_wiki_page_revision}/revert",
  *     "version-history" = "/wiki-page/{mini_wiki_page}/revisions",
+ *     "revisions-diff" = "/wiki-page/{mini_wiki_page}/revisions/view/{left_revision}/{right_revision}/{filter}",
  *   },
  *   field_ui_base_route = "entity.mini_wiki_page.settings",
  * )
@@ -93,6 +95,8 @@ final class MiniWikiPage extends RevisionableContentEntityBase implements MiniWi
    */
   public function preSave(EntityStorageInterface $storage): void {
     parent::preSave($storage);
+
+    $this->setNewRevision(TRUE);
 
     if (!$this->getOwnerId()) {
       // If no owner has been set explicitly, make the anonymous user the owner.
@@ -275,6 +279,19 @@ final class MiniWikiPage extends RevisionableContentEntityBase implements MiniWi
       ->setDisplayOptions('form', [
         'type' => 'pathauto',
         'weight' => 10,
+      ])
+      ->setDisplayConfigurable('form', TRUE);
+
+    $fields['revision_log'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Revision log message'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue('')
+      ->setDisplayOptions('form', [
+        'type' => 'string_textarea',
+        'weight' => 25,
+        'settings' => [
+          'rows' => 4,
+        ],
       ])
       ->setDisplayConfigurable('form', TRUE);
 

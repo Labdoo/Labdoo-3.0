@@ -9,3 +9,8 @@ services:
     class: Drupal\mini_wiki\Service\MiniWikiRepository
     arguments:
       - '@entity_type.manager'
+
+  mini_wiki.route_subscriber:
+    class: Drupal\mini_wiki\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
