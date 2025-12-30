@@ -18,3 +18,11 @@ entity.mini_wiki_page.add_form:
     parameters:
       parent:
         type: entity:mini_wiki_page
+
+mini_wiki.root_redirect:
+  path: '/wiki/index'
+  defaults:
+    _controller: '\Drupal\mini_wiki\Controller\MiniWikiController::redirectToRoot'
+    _title: 'Wiki'
+  requirements:
+    _permission: 'view mini_wiki_page'

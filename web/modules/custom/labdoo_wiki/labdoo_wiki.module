@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
 
@@ -38,6 +39,30 @@ function labdoo_wiki_views_query_alter(ViewExecutable $view, QueryPluginBase $qu
     }
     elseif (!empty($mine) && (int) $mine === 1) {
       $query->addWhere('AND', 'mini_wiki_page_field_data.uid', \Drupal::currentUser()->id(), '=');
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_menu().
+ */
+function labdoo_wiki_preprocess_menu(&$variables): void {
+  if (!\Drupal::currentUser()->isAnonymous()) {
+    return;
+  }
+
+  foreach ($variables['items'] as $key => $item) {
+    foreach ($item['below'] as $subkey => $subitem) {
+      if (!isset($subitem['url']) || !$subitem['url'] instanceof Url) {
+        continue;
+      }
+
+      if (
+        $subitem['title'] === 'My wiki articles'
+        && $subitem['url']->getRouteName() === 'view.wiki.page_1'
+      ) {
+        unset($variables['items'][$key]['below'][$subkey]);
+      }
     }
   }
 }
