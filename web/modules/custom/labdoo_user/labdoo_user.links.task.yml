@@ -15,3 +15,9 @@ labdoo_user.my_roles:
   route_name: labdoo_user.my_roles
   base_route: entity.user.canonical
   weight: 30
+
+labdoo_user.edit_roles:
+  title: 'Edit roles'
+  route_name: labdoo_user.edit_roles
+  base_route: entity.user.canonical
+  weight: 40

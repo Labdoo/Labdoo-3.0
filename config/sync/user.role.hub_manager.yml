@@ -8,12 +8,16 @@ dependencies:
     - node.type.labdoo_story
   module:
     - eu_cookie_compliance
+    - labdoo_user
     - node
 id: hub_manager
 label: 'Hub Manager'
 weight: 8
 is_admin: null
 permissions:
+  - 'administer user roles'
+  - 'assign edoovillage_manager role'
+  - 'assign hub_manager role'
   - 'create edoovillage content'
   - 'create hub content'
   - 'create labdoo_story content'

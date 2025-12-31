@@ -45,3 +45,12 @@ labdoo_user.my_roles:
     _title: 'My roles'
   requirements:
     _permission: 'access content'
+
+labdoo_user.edit_roles:
+  path: '/user/{user}/edit-roles'
+  defaults:
+    _form: '\Drupal\labdoo_user\Form\UserRolesForm'
+    _title: 'Edit roles'
+  requirements:
+    _permission: 'administer user roles'
+    user: \d+

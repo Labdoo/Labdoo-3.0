@@ -12,9 +12,9 @@ dependencies:
   module:
     - eu_cookie_compliance
     - file
+    - labdoo_user
     - node
     - quick_node_clone
-    - role_delegation
     - system
     - workbench
 id: superhub_manager
@@ -25,8 +25,12 @@ permissions:
   - 'access administration pages'
   - 'access files overview'
   - 'access workbench'
+  - 'administer user roles'
   - 'administer users'
+  - 'assign edoovillage_manager role'
   - 'assign hub_manager role'
+  - 'assign laptop_manager role'
+  - 'assign team_manager role'
   - 'assign wiki_writer role'
   - 'clone dootrip content'
   - 'clone dootronic content'

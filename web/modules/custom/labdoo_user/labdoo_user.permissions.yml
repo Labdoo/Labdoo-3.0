@@ -1,0 +1,20 @@
+administer user roles:
+  title: 'Administer user roles'
+  description: 'Permission to access the user roles edition tab.'
+  restrict access: true
+assign newsletter_manager role:
+  title: 'Assign newsletter manager role'
+assign superhub_manager role:
+  title: 'Assign superhub manager role'
+assign team_manager role:
+  title: 'Assign team manager role'
+assign edoovillage_manager role:
+  title: 'Assign edoovillage manager role'
+assign hub_manager role:
+  title: 'Assign hub manager role'
+assign wiki_writer role:
+  title: 'Assign wiki writer role'
+assign laptop_manager role:
+  title: 'Assign laptop manager role'
+assign content_editor role:
+  title: 'Assign content editor role'
