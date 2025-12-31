@@ -1,0 +1,21 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          exposed_sorts_label: 'Сортирај по'
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+      fields:
+        url:
+          label: URL
+        error:
+          label: Грешка
+        operations:
+          label: Операције
+      filters:
+        url:
+          expose:
+            label: URL

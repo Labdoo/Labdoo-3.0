@@ -1,0 +1,67 @@
+display:
+  default:
+    display_title: 主
+    display_options:
+      exposed_form:
+        options:
+          submit_button: 应用
+          reset_button_label: 重置
+          exposed_sorts_label: 排序依据
+          sort_asc_label: 升序
+          sort_desc_label: 降序
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« 首页'
+            last: '末页 »'
+          expose:
+            items_per_page_label: 每页条目数
+            items_per_page_options_all_label: '- 全部 -'
+            offset_label: 偏移量
+      fields:
+        entity_field:
+          label: 实体字段
+          separator: ', '
+        entity_langcode:
+          label: 实体的语言
+          separator: ', '
+        url:
+          label: 网址
+          separator: ', '
+        last_check:
+          label: 最后检查
+          separator: ', '
+        method:
+          label: 方式
+          separator: ', '
+        code:
+          separator: ', '
+        error:
+          label: 错误
+          separator: ', '
+        fail_count:
+          separator: ', '
+        status:
+          separator: ', '
+        operations:
+          label: 操作
+      filters:
+        url:
+          expose:
+            label: 网址
+        code_1:
+          group_info:
+            label: 结果
+            group_items:
+              1:
+                title: 失败
+        entity_langcode:
+          expose:
+            label: 实体的语言
+      footer:
+        result:
+          content: '正在显示第 @start - @end 项（共 @total 项）'
+  page_1:
+    display_title: 页面

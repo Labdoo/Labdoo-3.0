@@ -27,6 +27,8 @@ display:
           tags:
             next: 'التالي ›'
             previous: '‹ السابق'
+            first: '« الأولى'
+            last: 'الأخيرة »'
       exposed_form:
         options:
           submit_button: انتقاء

@@ -95,6 +95,7 @@ module:
   language: 0
   legal: 0
   link: 0
+  linkchecker: 0
   locale: 0
   mailjet: 0
   mailsystem: 0

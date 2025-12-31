@@ -36,6 +36,9 @@ display:
         view_webform_submission:
           label: 操作
           text: 查看
+      header:
+        result:
+          content: '正在显示第 @start - @end 项（共 @total 项）'
       arguments:
         in_draft:
           exception:

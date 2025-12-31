@@ -66,3 +66,35 @@ function labdoo_wiki_preprocess_menu(&$variables): void {
     }
   }
 }
+
+/**
+ * Implements hook_link_checker_supported_entity_types().
+ */
+function labdoo_wiki_link_checker_supported_entity_types() {
+  return [
+    'wiki_page' => [
+      'enabled' => TRUE,
+    ],
+  ];
+}
+
+/**
+ * Implements hook_link_checker_scan_entity_fields().
+ */
+function labdoo_wiki_link_checker_scan_entity_fields($entity_type_id) {
+  if ($entity_type_id === 'wiki_page') {
+    return [
+      'body',
+      'parent',
+    ];
+  }
+}
+
+/**
+ * Implements hook_link_checker_entity_access().
+ */
+function labdoo_wiki_link_checker_entity_access($entity) {
+  if ($entity->getEntityTypeId() === 'wiki_page') {
+    return $entity->access('update');
+  }
+}

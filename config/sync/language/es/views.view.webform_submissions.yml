@@ -37,6 +37,9 @@ display:
         view_webform_submission:
           label: Operaciones
           text: vista
+      header:
+        result:
+          content: 'Mostrando @start - @end de @total'
       arguments:
         in_draft:
           exception:

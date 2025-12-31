@@ -37,6 +37,9 @@ display:
         view_webform_submission:
           label: Operacions
           text: mostra
+      header:
+        result:
+          content: 'Es mostren @start - @end de @total'
       arguments:
         in_draft:
           exception:

@@ -1,0 +1,88 @@
+display:
+  default:
+    display_title: Hoofd
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Toepassen
+          reset_button_label: Herstellen
+          exposed_sorts_label: 'Sorteren op'
+          sort_asc_label: Oplopend
+          sort_desc_label: Aflopend
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Eerste'
+            last: 'Laatste »'
+          expose:
+            items_per_page_label: 'Items per pagina'
+            items_per_page_options_all_label: '- Alle -'
+            offset_label: Startpunt
+      fields:
+        entity_field:
+          separator: ', '
+        entity_langcode:
+          label: 'Taal van entiteit'
+          separator: ', '
+        url:
+          label: URL
+          separator: ', '
+        last_check:
+          label: 'Laatst gecontroleerd'
+          separator: ', '
+        method:
+          label: Methode
+          separator: ', '
+        code:
+          label: Statuscode
+          separator: ', '
+        error:
+          label: Fout
+          separator: ', '
+        fail_count:
+          label: 'Aantal mislukte pogingen'
+          separator: ', '
+        nothing:
+          label: 'Hier gevonden'
+          alter:
+            text: "<b>Entiteit:</b> {{ linkcheckerlink_page_entity_label }}<br />\r\n<b>Veld:</b> {{ entity_field }}<br />\r\n<b>Taal:</b> {{ entity_langcode }}"
+        status:
+          separator: ', '
+        operations:
+          label: Bewerkingen
+      filters:
+        url:
+          expose:
+            label: URL
+        code_1:
+          expose:
+            label: Statuscode
+          group_info:
+            label: Resultaat
+            group_items:
+              1:
+                title: Mislukt
+              2:
+                title: 'Geslaagd (2xx)'
+              3:
+                title: 'Omleiding (3xx)'
+              4:
+                title: 'Clientfout (4xx)'
+              5:
+                title: 'Serverfout (5xx)'
+        code:
+          expose:
+            label: Statuscode
+        entity_langcode:
+          expose:
+            label: 'Taal van entiteit'
+      footer:
+        result:
+          content: '@start - @end van @total'
+  page_1:
+    display_title: Pagina
+    display_options:
+      menu:
+        title: 'Dode koppelingen'

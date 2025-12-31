@@ -1,0 +1,20 @@
+uuid: eee4fe2b-27fa-41de-b726-fc2aae172c13
+langcode: en
+status: true
+dependencies:
+  module:
+    - linkchecker
+title: 'Queue: LinkChecker status handle'
+id: ultimate_cron_queue_linkchecker_status_handle
+weight: 10
+module: linkchecker
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

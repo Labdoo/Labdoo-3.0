@@ -38,6 +38,9 @@ display:
         view_webform_submission:
           label: Операції
           text: переглянути
+      header:
+        result:
+          content: 'Показ @start - @end з @total'
       empty:
         area_text_custom:
           content: 'Немає доступних надсилань.'

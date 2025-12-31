@@ -1,0 +1,73 @@
+display:
+  default:
+    display_title: Головне
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Застосувати
+          reset_button_label: Скинути
+          exposed_sorts_label: 'Впорядкувати за'
+          sort_asc_label: Зрост
+          sort_desc_label: Спад
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+            first: '« Перша'
+            last: 'Остання »'
+          expose:
+            items_per_page_label: 'Елементів на сторінку'
+            items_per_page_options_all_label: '- Усе -'
+            offset_label: Зміщення
+      fields:
+        entity_field:
+          label: 'Поле сутності'
+          separator: ', '
+        entity_langcode:
+          label: 'Мова сутності'
+          separator: ', '
+        url:
+          label: URL-адреса
+          separator: ', '
+        last_check:
+          label: 'Востаннє перевірено'
+          separator: ', '
+        method:
+          label: Спосіб
+          separator: ', '
+        code:
+          label: 'Код стану'
+          separator: ', '
+        error:
+          label: Помилка
+          separator: ', '
+        fail_count:
+          separator: ', '
+        status:
+          separator: ', '
+        operations:
+          label: Операції
+      filters:
+        url:
+          expose:
+            label: URL-адреса
+        code_1:
+          expose:
+            label: 'Код стану'
+          group_info:
+            label: Результат
+            group_items:
+              1:
+                title: Невдало
+        code:
+          expose:
+            label: 'Код стану'
+        entity_langcode:
+          expose:
+            label: 'Мова сутності'
+      footer:
+        result:
+          content: 'Показ @start - @end з @total'
+  page_1:
+    display_title: Сторінка

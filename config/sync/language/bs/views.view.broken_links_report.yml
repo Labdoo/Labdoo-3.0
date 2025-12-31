@@ -1,0 +1,28 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Primjeni
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sortiraj prema'
+      pager:
+        options:
+          tags:
+            previous: ‹‹
+            next: ››
+      fields:
+        url:
+          label: URL
+        last_check:
+          label: 'Zadnji put provjereno'
+        error:
+          label: Greška
+        operations:
+          label: Operacije
+      filters:
+        url:
+          expose:
+            label: URL
+  page_1:
+    display_title: Strana

@@ -1,0 +1,22 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      fields:
+        url:
+          label: URL
+        last_check:
+          label: 'Ստուգվել է'
+        error:
+          label: Սխալ
+        operations:
+          label: Գործողություններ
+      filters:
+        url:
+          expose:
+            label: URL
+  page_1:
+    display_title: Էջ

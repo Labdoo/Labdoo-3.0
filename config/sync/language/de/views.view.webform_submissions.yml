@@ -38,6 +38,9 @@ display:
         view_webform_submission:
           label: Aktionen
           text: Ansicht
+      header:
+        result:
+          content: '@start - @end von @total wird angezeigt'
       empty:
         area_text_custom:
           content: 'Keine Eingaben verfügbar.'

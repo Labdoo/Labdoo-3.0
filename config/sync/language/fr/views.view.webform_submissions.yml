@@ -38,6 +38,9 @@ display:
         view_webform_submission:
           label: Actions
           text: voir
+      header:
+        result:
+          content: 'Affichage de @start à @end sur @total'
       empty:
         area_text_custom:
           content: "Aucune soumission n'est disponible."

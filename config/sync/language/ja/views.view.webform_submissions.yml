@@ -37,6 +37,9 @@ display:
         view_webform_submission:
           label: 操作
           text: ビュー
+      header:
+        result:
+          content: '@total 件中の @start 件目～ @end 件目を表示'
       arguments:
         in_draft:
           exception:

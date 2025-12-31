@@ -62,6 +62,7 @@
         "drupal/key": "^1.19",
         "drupal/lang_dropdown": "^2.1",
         "drupal/legal": "^3.0",
+        "drupal/linkchecker": "^2.1",
         "drupal/mailjet": "^4.0",
         "drupal/mailsystem": "^4.5",
         "drupal/markdown_easy": "^2.0",
