@@ -1,0 +1,6 @@
+services:
+  labdoo_user.path_processor:
+    class: Drupal\labdoo_user\PathProcessor\UserPathProcessor
+    tags:
+      - { name: path_processor_inbound, priority: 200 }
+      - { name: path_processor_outbound, priority: 300 }
