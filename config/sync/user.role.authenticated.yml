@@ -30,6 +30,7 @@ dependencies:
     - media
     - mini_wiki
     - node
+    - quick_node_clone
     - search_api_autocomplete
     - shortcut
     - system
@@ -51,6 +52,7 @@ permissions:
   - 'access user profiles'
   - 'add content to books'
   - 'cancel account'
+  - 'clone dootronic content'
   - 'create book content'
   - 'create dootrip content'
   - 'create dootronic content'
