@@ -24,3 +24,8 @@ services:
   labdoo_common.repository.user:
     class: Drupal\labdoo_common\Service\Repository\UserRepository
     arguments: ['@entity_type.manager', '@current_user']
+  labdoo_common.breadcrumb_builder:
+    class: Drupal\labdoo_common\Breadcrumb\LabdooBreadcrumbBuilder
+    arguments: ['@language_manager', '@current_route_match']
+    tags:
+      - { name: breadcrumb_builder, priority: 1100 }
