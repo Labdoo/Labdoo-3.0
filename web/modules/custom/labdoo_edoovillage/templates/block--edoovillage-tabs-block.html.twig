@@ -2,10 +2,8 @@
     <div>
         <div class="tabs">
             {% if data_link is not empty %}
-                {% if active_tab == 'data' %}
-                    <div class="tab active"><img class="icon" src="/themes/custom/labdoo/img/dashboard-tabs-data-en.png" alt="Data"></div>
-                {% else %}
-                    <div class="tab"><a href="{{ data_link }}"><img class="icon" src="/themes/custom/labdoo/img/dashboard-tabs-data-en.png" alt="Data"></a></div>
+                {% if active_tab != 'data' %}
+                    <div class="tab"><a href="{{ data_link }}"><img class="icon" src="/themes/custom/labdoo/img/back-to-edoovillage.png" alt="Data"></a></div>
                 {% endif %}
             {% endif %}
             {% if dootronics_link is not empty %}
