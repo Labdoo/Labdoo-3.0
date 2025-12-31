@@ -126,8 +126,15 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
     else {
       $membershipLink = $this->teamMembershipManager->buildLeaveLink($team->id());
       $postLink = $this->linkHelper->generateTeamPostLink($team);
-      $membersLink = $this->linkHelper->generateTeamMembersLink($team);
       $tasksLink = $this->linkHelper->generateTasksByTeamLink($team);
+      if (
+        (int) $team->id() === TEAM_GLOBAL
+        && !$this->currentUser->hasRole('superhub_manager')
+      ) {
+        $postLink = '';
+        $tasksLink = '';
+      }
+      $membersLink = $this->linkHelper->generateTeamMembersLink($team);
     }
 
     $cacheTags = [

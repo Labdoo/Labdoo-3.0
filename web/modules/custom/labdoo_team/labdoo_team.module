@@ -7,12 +7,16 @@
  * @link http://natiboo.es
  */
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
+
+const TEAM_GLOBAL = 24;
 
 /**
  * Implements hook_theme().
@@ -117,14 +121,47 @@ function labdoo_team_node_presave(NodeInterface $node) {
  * Implements hook_form_alter().
  */
 function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  if ($form_id === 'node_team_post_form') {
+  if ($form_id === 'node_team_post_form' || $form_id === 'node_task_team_form') {
     $current_user = \Drupal::currentUser();
-    if (!$current_user->hasRole('team_manager')) {
+    if ($form_id === 'node_team_post_form' && !$current_user->hasRole('team_manager')) {
       if (isset($form['field_other_groups'])) {
         $form['field_other_groups']['#access'] = FALSE;
       }
     }
+
+    $teamId = Drupal::request()->query->get('team_id');
+    if ($teamId == TEAM_GLOBAL && !$current_user->hasRole('superhub_manager')) {
+      $form['#access'] = FALSE;
+      \Drupal::messenger()->addError(t('Only superhub managers can post in the Global Team.'));
+    }
   }
+}
+
+/**
+ * Implements hook_node_access().
+ */
+function labdoo_team_node_access(NodeInterface $node, $op, AccountInterface $account) {
+  $restricted_types = ['team_post', 'task_team'];
+  if ($op === 'create' && in_array($node->bundle(), $restricted_types)) {
+    $teamId = Drupal::request()->query->get('team_id');
+    if ($teamId == TEAM_GLOBAL && !$account->hasRole('superhub_manager')) {
+      return AccessResult::forbidden();
+    }
+  }
+
+  if (
+    ($op === 'update' || $op === 'delete')
+    && in_array($node->bundle(), $restricted_types)
+  ) {
+    if ($node->hasField('field_team') && !$node->get('field_team')->isEmpty()) {
+      $teamId = $node->get('field_team')->target_id;
+      if ($teamId == TEAM_GLOBAL && !$account->hasRole('superhub_manager')) {
+        return AccessResult::forbidden();
+      }
+    }
+  }
+
+  return AccessResult::neutral();
 }
 
 /**
@@ -133,7 +170,9 @@ function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id
 function labdoo_team_user_insert(UserInterface $account) {
   try {
     // Load the Global team (nid 24)
-    $team = \Drupal::entityTypeManager()->getStorage('node')->load(24);
+    $team = \Drupal::entityTypeManager()
+      ->getStorage('node')
+      ->load(TEAM_GLOBAL);
     if ($team) {
       // Add the user to the team members
       $team->get('field_team_members')->appendItem($account->id());
