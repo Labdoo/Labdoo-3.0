@@ -50,8 +50,8 @@ class UserBrokenLinksController extends ControllerBase {
   /**
    * Custom access check.
    */
-  public function access(AccountInterface $account, UserInterface $user = NULL) {
-    if ($user) {
+  public function access(AccountInterface $account, $user = NULL) {
+    if ($user instanceof UserInterface) {
       return AccessResult::allowedIf(
         $account->id() == $user->id() ||
         $account->hasPermission('administer linkchecker')
