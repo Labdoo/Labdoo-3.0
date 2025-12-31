@@ -173,9 +173,6 @@
             "drupal/core": {
                 "Call to a member function getCacheTags() on null": "patches/core-getCacheTags-on-null.patch"
             },
-            "drupal/diff": {
-                "Fixes a bug with CoreFieldBuilder::build() signature": "patches/diff-build-method-signature.patch"
-            },
             "drupal/markdown": {
                 "Fixes a bug with CoreSubformState undeclared abstract methods": "patches/markdown-abstract-methods.patch"
             },
@@ -183,14 +180,13 @@
                 "Issue #3500174": "patches/lang_dropdown-fix-error-get-library-name-3500174-2.patch"
             },
             "drupal/mailjet": {
-              "Disable the users synchronization": "patches/mailjet-disable-user-sync.patch"
+              "Disable the users synchronization": "patches/mailjet-disable-user-sync.patch",
+              "Issue #3539776": "patches/0001-fix-mailjetconfigurationaccesscheck-blocking-access.patch",
+              "Missing credentials": "patches/mailjet_missing_credentials_fix.patch"
             },
             "drupal/quick_node_clone": {
               "Fixes a bug when cloning user-reference fields": "patches/quick_node_clone-handle-user-reference.patch"
-            },
-            "drupal/mailjet": {
-	      "Issue #3539776": "patches/0001-fix-mailjetconfigurationaccesscheck-blocking-access.patch"
-	    }
+            }
         }
     }
 }
