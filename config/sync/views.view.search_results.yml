@@ -384,7 +384,7 @@ display:
           plugin_id: text
           empty: true
           content:
-            value: 'No results found. Try with another search criteria.'
+            value: 'There are no results to show. Try with another search criteria.'
             format: basic_html
           tokenize: false
       sorts: {  }

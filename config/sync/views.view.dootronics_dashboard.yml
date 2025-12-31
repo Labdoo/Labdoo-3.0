@@ -791,7 +791,7 @@ display:
           plugin_id: text
           empty: true
           content:
-            value: 'No results found.'
+            value: 'There are no results to show.'
             format: basic_html
           tokenize: false
       sorts:
