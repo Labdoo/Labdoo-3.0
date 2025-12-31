@@ -113,16 +113,6 @@ content:
     settings:
       display_label: true
     third_party_settings: {  }
-  field_team:
-    type: entity_reference_autocomplete
-    weight: 4
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
   field_your_groups:
     type: entity_reference_autocomplete
     weight: 8
@@ -143,6 +133,7 @@ content:
     third_party_settings: {  }
 hidden:
   created: true
+  field_team: true
   field_team_comments: true
   langcode: true
   path: true
