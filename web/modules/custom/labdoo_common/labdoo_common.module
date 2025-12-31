@@ -152,6 +152,7 @@ function labdoo_common_field_locations_after_build(array $element, FormStateInte
   if (isset($element['value']['map']['geocode'])) {
     $element['value']['map']['geocode']['#title'] = t('Enter your City/town/village');
     $element['value']['map']['geocode']['#description'] = t('Use this to geocode your search location. This will help other users to find your items.');
+    $element['value']['map']['geocode']['#required'] = TRUE;
   }
   return $element;
 }
@@ -161,6 +162,43 @@ function labdoo_common_field_locations_after_build(array $element, FormStateInte
  */
 function labdoo_common_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   labdoo_common_form_user_form_alter($form, $form_state, $form_id);
+
+  $required_fields = [
+    'field_username',
+    'field_user_name',
+    'field_about_me',
+    'field_skills',
+    'field_locations',
+    'timezone',
+    'user_picture',
+    'field_hub_manager_notifications',
+  ];
+
+  foreach ($required_fields as $field_name) {
+    if (isset($form[$field_name])) {
+      if (isset($form[$field_name]['widget'])) {
+        $form[$field_name]['widget']['#required'] = TRUE;
+
+        // For string fields and similar, we often need to set #required on the value element.
+        if (isset($form[$field_name]['widget'][0]['value'])) {
+          $form[$field_name]['widget'][0]['value']['#required'] = TRUE;
+        }
+        // For text_textarea (like field_about_me).
+        elseif (isset($form[$field_name]['widget'][0]['#type']) && $form[$field_name]['widget'][0]['#type'] === 'text_textarea') {
+          $form[$field_name]['widget'][0]['#required'] = TRUE;
+        }
+      }
+      else {
+        $form[$field_name]['#required'] = TRUE;
+      }
+    }
+  }
+
+  // Account fields like name and mail are usually required by default,
+  // but if timezone is inside account:
+  if (isset($form['account']['timezone'])) {
+    $form['account']['timezone']['#required'] = TRUE;
+  }
 }
 
 /**
