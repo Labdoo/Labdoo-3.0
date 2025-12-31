@@ -137,6 +137,33 @@ function labdoo_common_set_active_countries(array &$form, string $context): void
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter() for user_form.
+ */
+function labdoo_common_form_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (isset($form['field_locations'])) {
+    $form['field_locations']['widget'][0]['#after_build'][] = 'labdoo_common_field_locations_after_build';
+  }
+}
+
+/**
+ * After build callback for field_locations.
+ */
+function labdoo_common_field_locations_after_build(array $element, FormStateInterface $form_state) {
+  if (isset($element['value']['map']['geocode'])) {
+    $element['value']['map']['geocode']['#title'] = t('Enter your City/town/village');
+    $element['value']['map']['geocode']['#description'] = t('Use this to geocode your search location. This will help other users to find your items.');
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for user_register_form.
+ */
+function labdoo_common_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  labdoo_common_form_user_form_alter($form, $form_state, $form_id);
+}
+
+/**
  * Implements hook_block_view_alter().
  */
 function labdoo_common_block_view_alter(array &$build, BlockPluginInterface $block) {
