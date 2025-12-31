@@ -1,0 +1,6 @@
+labdoo_wiki.all_broken_links:
+  title: 'Wiki Pages - All Broken Links'
+  description: 'View broken links in all wiki pages.'
+  route_name: labdoo_wiki.all_broken_links
+  parent: system.admin_reports
+  weight: 10

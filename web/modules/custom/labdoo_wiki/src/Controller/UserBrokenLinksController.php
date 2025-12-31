@@ -50,44 +50,57 @@ class UserBrokenLinksController extends ControllerBase {
   /**
    * Custom access check.
    */
-  public function access(UserInterface $user, AccountInterface $account) {
-    // Permitir si es el propio usuario o tiene permisos de administración
-    return AccessResult::allowedIf(
-      $account->id() == $user->id() ||
-      $account->hasPermission('administer linkchecker')
-    );
+  public function access(AccountInterface $account, UserInterface $user = NULL) {
+    if ($user) {
+      return AccessResult::allowedIf(
+        $account->id() == $user->id() ||
+        $account->hasPermission('administer linkchecker')
+      );
+    }
+
+    return AccessResult::allowedIfHasPermission($account, 'administer linkchecker');
   }
 
   /**
    * Displays broken links for user's wiki pages.
    */
-  public function brokenLinks(UserInterface $user): array {
-    $wiki_pages = $this->entityTypeManager
-      ->getStorage('mini_wiki_page')
-      ->loadByProperties(['uid' => $user->id()]);
+  public function brokenLinks(UserInterface $user = NULL): array {
+    $properties = ['parent_entity_type_id' => 'mini_wiki_page'];
 
-    if (empty($wiki_pages)) {
-      return [
-        '#markup' => $this->t('You have not created any wiki pages yet.'),
-      ];
+    if ($user) {
+      $wiki_pages = $this->entityTypeManager
+        ->getStorage('mini_wiki_page')
+        ->loadByProperties(['uid' => $user->id()]);
+
+      if (empty($wiki_pages)) {
+        return [
+          '#markup' => $this->t('You have not created any wiki pages yet.'),
+        ];
+      }
+      $entity_ids = array_keys($wiki_pages);
     }
-
-    $entity_ids = array_keys($wiki_pages);
+    else {
+      $entity_ids = NULL;
+    }
 
     $query = $this->entityTypeManager
       ->getStorage('linkcheckerlink')
       ->getQuery()
       ->accessCheck(FALSE)
       ->condition('parent_entity_type_id', 'mini_wiki_page')
-      ->condition('parent_entity_id', $entity_ids, 'IN')
       ->condition('status', 0) // 0 = broken, 1 = ok
       ->sort('last_check', 'DESC');
+
+    if ($entity_ids !== NULL) {
+      $query->condition('parent_entity_id', $entity_ids, 'IN');
+    }
 
     $link_ids = $query->execute();
 
     if (empty($link_ids)) {
+      $message = $user ? $this->t('Great! You have no broken links in your wiki pages.') : $this->t('Great! There are no broken links in any wiki pages.');
       return [
-        '#markup' => $this->t('Great! You have no broken links in your wiki pages.'),
+        '#markup' => $message,
         '#prefix' => '<div class="messages messages--status">',
         '#suffix' => '</div>',
       ];
@@ -96,6 +109,16 @@ class UserBrokenLinksController extends ControllerBase {
     $links = $this->entityTypeManager
       ->getStorage('linkcheckerlink')
       ->loadMultiple($link_ids);
+
+    if (!$user) {
+      $parent_ids = [];
+      foreach ($links as $link) {
+        $parent_ids[] = $link->get('parent_entity_id')->value;
+      }
+      $wiki_pages = $this->entityTypeManager
+        ->getStorage('mini_wiki_page')
+        ->loadMultiple(array_unique($parent_ids));
+    }
 
     $rows = [];
     foreach ($links as $link) {
