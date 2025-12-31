@@ -30,7 +30,7 @@ function labdoo_wiki_form_alter(&$form, FormStateInterface $form_state, $form_id
  * Implements hook_views_query_alter().
  */
 function labdoo_wiki_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
-  if ($view->id() == 'wiki' && $view->current_display == 'page_1') {
+  if ($view->id() == 'wiki') {
     $user_id = \Drupal::request()->query->get('u');
     $mine = \Drupal::request()->query->get('mine');
 

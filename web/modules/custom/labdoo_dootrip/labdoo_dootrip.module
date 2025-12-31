@@ -154,7 +154,7 @@ function labdoo_dootrip_cron() {
  * Implements hook_views_query_alter().
  */
 function labdoo_dootrip_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
-  if ($view->id() == 'dootrips_dashboard' && $view->current_display == 'page_1') {
+  if ($view->id() == 'dootrips_dashboard') {
     $user_id = \Drupal::request()->query->get('u');
     $mine = \Drupal::request()->query->get('mine');
 
