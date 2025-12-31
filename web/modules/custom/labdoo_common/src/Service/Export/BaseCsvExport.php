@@ -31,6 +31,39 @@ abstract class BaseCsvExport {
   }
 
   /**
+   * Exports view data into CSV using streaming.
+   *
+   * @param string $viewId
+   *   The view ID.
+   * @param string $displayId
+   *   The display ID.
+   */
+  public function streamExport(string $viewId, string $displayId): void {
+    $handle = fopen('php://output', 'w');
+    if ($handle === FALSE) {
+      return;
+    }
+
+    fputcsv($handle, $this->getHeader());
+
+    $page = 0;
+    $itemsPerPage = 500;
+    do {
+      $results = $this->viewRepository->getResults($viewId, $displayId, $itemsPerPage, $page);
+      foreach ($results as $row) {
+        $entity = $row->_entity;
+        fputcsv($handle, $this->getRowData($entity));
+      }
+      $count = count($results);
+      $page++;
+      // Free up memory.
+      unset($results);
+    } while ($count === $itemsPerPage);
+
+    fclose($handle);
+  }
+
+  /**
    * Exports view data into CSV.
    *
    * @param string $viewId
@@ -42,22 +75,9 @@ abstract class BaseCsvExport {
    *   The CSV content.
    */
   public function export(string $viewId, string $displayId): string {
-    $results = $this->viewRepository->getResults($viewId, $displayId);
-
-    $csvData = [];
-    $csvData[] = $this->getHeader(); // Encabezado definido en subclase.
-
-    foreach ($results as $row) {
-      $entity = $row->_entity;
-      $csvData[] = $this->getRowData($entity); // Datos de fila definidos en subclase.
-    }
-
-    $csvContent = '';
-    foreach ($csvData as $csv_row) {
-      $csvContent .= implode(',', $csv_row) . "\n";
-    }
-
-    return $csvContent;
+    ob_start();
+    $this->streamExport($viewId, $displayId);
+    return ob_get_clean();
   }
 
   /**

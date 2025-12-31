@@ -42,6 +42,8 @@ class ViewRepository {
    *   The display ID.
    * @param int|null $itemsPerPage
    *   If set, defines the items per page.
+   * @param int $page
+   *   The page number.
    *
    * @return \Drupal\views\ResultRow[]
    *   The view results.
@@ -49,7 +51,8 @@ class ViewRepository {
   public function getResults(
     string $viewId,
     string $displayId,
-    ?int $itemsPerPage = NULL
+    ?int $itemsPerPage = NULL,
+    int $page = 0
   ): array {
     $view = Views::getView($viewId);
     if (!$view) {
@@ -68,6 +71,7 @@ class ViewRepository {
 
     if ($itemsPerPage !== NULL) {
       $view->setItemsPerPage($itemsPerPage);
+      $view->setCurrentPage($page);
     }
 
     $view->execute();

@@ -5,7 +5,7 @@ namespace Drupal\labdoo_hub\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\labdoo_hub\Service\Export\CsvExport;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Exports the content of a view in CSV format.
@@ -48,11 +48,13 @@ class ExportController extends ControllerBase {
    * @param string $displayId
    *   The diplay ID.
    *
-   * @return \Symfony\Component\HttpFoundation\Response
+   * @return \Symfony\Component\HttpFoundation\StreamedResponse
    *   The HTTP response with the CSV content.
    */
-  public function exportCSV(string $viewId, string $displayId = 'default'): Response {
-    $response = new Response($this->csvExport->export($viewId, $displayId));
+  public function exportCSV(string $viewId, string $displayId = 'default'): StreamedResponse {
+    $response = new StreamedResponse(function () use ($viewId, $displayId) {
+      $this->csvExport->streamExport($viewId, $displayId);
+    });
     $response->headers->set('Content-Type', 'text/csv');
     $response->headers->set('Content-Disposition', 'attachment; filename="hubs.csv"');
 
