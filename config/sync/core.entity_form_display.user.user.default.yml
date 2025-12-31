@@ -15,7 +15,6 @@ dependencies:
   module:
     - geofield_map
     - image
-    - path
     - text
     - user
 _core:
@@ -45,13 +44,13 @@ content:
     third_party_settings: {  }
   field_hub_manager_notifications:
     type: options_buttons
-    weight: 6
+    weight: 7
     region: content
     settings: {  }
     third_party_settings: {  }
   field_locations:
     type: geofield_map
-    weight: 7
+    weight: 6
     region: content
     settings:
       html5_geolocation: false
@@ -123,24 +122,13 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  google_analytics:
-    weight: 11
-    region: content
-    settings: {  }
-    third_party_settings: {  }
   language:
     weight: 9
     region: content
     settings: {  }
     third_party_settings: {  }
-  path:
-    type: path
-    weight: 13
-    region: content
-    settings: {  }
-    third_party_settings: {  }
   timezone:
-    weight: 12
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -153,4 +141,6 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
 hidden:
+  google_analytics: true
   langcode: true
+  path: true

@@ -67,3 +67,12 @@ function labdoo_user_theme() {
     ],
   ];
 }
+
+/**
+ * Implements hook_user_cancel_methods_alter().
+ */
+function labdoo_user_user_cancel_methods_alter(&$methods) {
+  unset($methods['user_cancel_block_unpublish']);
+  unset($methods['user_cancel_reassign']);
+  unset($methods['user_cancel_delete']);
+}
