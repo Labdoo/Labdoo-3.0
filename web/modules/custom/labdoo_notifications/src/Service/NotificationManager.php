@@ -402,14 +402,10 @@ class NotificationManager {
   /**
    * Sends a user creation notification.
    *
-   * @param array $edit
-   *   The array of form values submitted by the user.
    * @param \Drupal\user\UserInterface $account
    *   The user account.
-   * @param string $category
-   *   The category of user creation.
    */
-  public function sendUserCreatedEmail(array $edit, UserInterface $account, string $category): void {
+  public function sendUserCreatedEmail(UserInterface $account): void {
     $langCode = $this->getUserPreferredLanguage();
     $emailParams = ['type' => 'USER_CREATED'];
 

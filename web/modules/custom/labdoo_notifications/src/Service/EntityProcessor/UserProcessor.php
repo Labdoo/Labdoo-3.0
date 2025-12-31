@@ -45,7 +45,7 @@ class UserProcessor implements EntityProcessorInterface {
     // Since these are not available in this context, we'll just pass empty values.
     // The actual implementation will be in the hook_user_insert() function.
     if ($operation === 'insert' && $entity instanceof UserInterface) {
-      $this->notificationManager->sendUserCreatedEmail([], $entity, 'insert');
+      $this->notificationManager->sendUserCreatedEmail($entity);
     }
   }
 

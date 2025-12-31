@@ -108,13 +108,9 @@ function labdoo_notifications_comment_insert(CommentInterface $comment) {
 /**
  * Implements hook_user_insert().
  */
-function labdoo_notifications_user_insert(&$edit, $account, $category) {
+function labdoo_notifications_user_insert(EntityInterface $account) {
   $processor = \Drupal::service('labdoo_notifications.entity_processor.user');
   $processor->process($account, 'insert', NULL);
-
-  // The processor doesn't have access to $edit and $category, so we'll call the notification manager directly.
-  $notificationManager = \Drupal::service('labdoo_notifications.notification_manager');
-  $notificationManager->sendUserCreatedEmail($edit, $account, $category);
 }
 
 /**
