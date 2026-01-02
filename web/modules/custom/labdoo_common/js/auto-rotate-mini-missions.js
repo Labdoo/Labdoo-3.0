@@ -15,57 +15,68 @@
       const blockSelector = '.block-views-blockactions-block-1';
       const $block = $(once('auto-rotate-mini-missions', blockSelector, context));
       // Time in milliseconds between rotations
-      const ROTATION_INTERVAL = 5000;
+      const ROTATION_INTERVAL = 4000;
+      // Maximum number of pages to rotate (1-indexed, página 10)
+      const MAX_PAGE = 10;
 
           if ($block.length) {
             let rotationTimer;
-            let currentPage = 1;
+
+            // Function to get the current page number from the pager
+            const getCurrentPage = function() {
+              // Try to find the active/current page in the pager
+              const $currentItem = $block.find('.pager__item.is-active');
+              if ($currentItem.length) {
+                const pageText = $currentItem.text().trim();
+                const pageNum = parseInt(pageText);
+                if (!isNaN(pageNum)) {
+                  return pageNum;
+                }
+              }
+              
+              // If no active item, check the URL of next link to deduce current page
+              const $nextLink = $block.find('.pager__item--next a');
+              if ($nextLink.length) {
+                const href = $nextLink.attr('href');
+                const pageMatch = href.match(/page=(\d+)/);
+                if (pageMatch) {
+                  // The next link points to page N, so we're on page N-1
+                  // But remember page parameter is 0-indexed, so page=5 is actually page 6
+                  return parseInt(pageMatch[1]);
+                }
+              }
+              
+              // Default to page 1 if we can't determine
+              return 1;
+            };
 
             // Function to click the "next" pager link.
             const rotateToNext = function() {
+              const currentPage = getCurrentPage();
               const $nextLink = $block.find('.pager__item--next a');
-              
-              if ($nextLink.length) {
+          
+              if ($nextLink.length && currentPage < MAX_PAGE) {
                 // Continue to next page
                 $nextLink[0].click();
-                currentPage++;
+                // Set timer for next rotation.
+                rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
               } else {
-                // No "next" link, so we are likely at the last page.
-                // Go back to the first page
-                const $firstLink = $block.find('.pager__item--first a');
-                if ($firstLink.length) {
-                  $firstLink[0].click();
-                  currentPage = 1;
-                } else {
-                  // If there's no "first" link (maybe only 1-2 pages), 
-                  // try to find the link to page 1 directly (often the first numbered pager item)
-                  const $pageOneLink = $block.find('.pager__item a').first();
-                  if ($pageOneLink.length) {
-                    $pageOneLink[0].click();
-                    currentPage = 1;
-                  }
-                }
+                // We've reached the last page (page 10), stop rotation
+                clearTimeout(rotationTimer);
               }
-
-              // Set timer for next rotation.
-              rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
             };
 
             // Start the rotation.
             rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
 
             // Reset the timer when the user manually clicks a pager link.
-            $block.find('.pager__item a').on('click', function() {
+            $block.on('click', '.pager__item a', function() {
               clearTimeout(rotationTimer);
-              // Try to detect current page from the clicked link
-              const href = $(this).attr('href');
-              if (href) {
-                const pageMatch = href.match(/page=(\d+)/);
-                if (pageMatch) {
-                  currentPage = parseInt(pageMatch[1]) + 1; // page parameter is 0-indexed
-                }
+              const currentPage = getCurrentPage();
+              // Only restart rotation if we're not at the max page
+              if (currentPage < MAX_PAGE) {
+                rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
               }
-              rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
             });
 
             // Stop rotation when the user hovers over the block.
@@ -74,7 +85,11 @@
                 clearTimeout(rotationTimer);
               },
               function() {
-                rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
+                const currentPage = getCurrentPage();
+                // Only restart rotation if we're not at the max page
+                if (currentPage < MAX_PAGE) {
+                  rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
+                }
               }
             );
           }
