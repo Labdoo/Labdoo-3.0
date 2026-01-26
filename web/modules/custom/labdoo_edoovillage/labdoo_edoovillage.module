@@ -125,7 +125,7 @@ function labdoo_edoovillage_preprocess_page_title(&$variables) {
 
     // Set the title in the format: "Edoovillage #{{nid}} - {{country}}: {{title}}"
     $title = sprintf('Edoovillage #%d - %s: %s', $nid, $country, $nodeTitle);
-    $variables['page_title'] = $title;
+    $variables['title'] = $title;
   }
 }
 
