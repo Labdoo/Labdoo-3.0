@@ -121,7 +121,12 @@ function labdoo_team_node_presave(NodeInterface $node) {
  * Implements hook_form_alter().
  */
 function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  if ($form_id === 'node_team_post_form' || $form_id === 'node_task_team_form') {
+  if (
+    $form_id === 'node_team_post_form'
+    || $form_id === 'node_task_team_form'
+  ) {
+    /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
+    $membershipManager = \Drupal::service('labdoo_team.membership.manager');
     $current_user = \Drupal::currentUser();
     if ($form_id === 'node_team_post_form' && !$current_user->hasRole('team_manager')) {
       if (isset($form['field_other_groups'])) {
@@ -130,9 +135,24 @@ function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id
     }
 
     $teamId = Drupal::request()->query->get('team_id');
-    if ($teamId == TEAM_GLOBAL && !$current_user->hasRole('superhub_manager')) {
+    if ($membershipManager->isGlobalTeamRestricted($teamId)) {
       $form['#access'] = FALSE;
       \Drupal::messenger()->addError(t('Only superhub managers can post in the Global Team.'));
+    }
+  }
+
+  if ($form_id === 'comment_comment_form') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    if ($node instanceof NodeInterface && $node->getType() === 'team_post') {
+      if ($node->hasField('field_team') && !$node->get('field_team')->isEmpty()) {
+        $teamId = $node->get('field_team')->target_id;
+        /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
+        $membershipManager = \Drupal::service('labdoo_team.membership.manager');
+        if ($membershipManager->isGlobalTeamRestricted($teamId)) {
+          $form['#access'] = FALSE;
+          \Drupal::messenger()->addError(t('Only superhub managers can post in the Global Team.'));
+        }
+      }
     }
   }
 }
@@ -141,10 +161,12 @@ function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id
  * Implements hook_node_access().
  */
 function labdoo_team_node_access(NodeInterface $node, $op, AccountInterface $account) {
+  /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
+  $membershipManager = \Drupal::service('labdoo_team.membership.manager');
   $restricted_types = ['team_post', 'task_team'];
   if ($op === 'create' && in_array($node->bundle(), $restricted_types)) {
     $teamId = Drupal::request()->query->get('team_id');
-    if ($teamId == TEAM_GLOBAL && !$account->hasRole('superhub_manager')) {
+    if ($membershipManager->isGlobalTeamRestricted($teamId)) {
       return AccessResult::forbidden();
     }
   }
@@ -155,7 +177,7 @@ function labdoo_team_node_access(NodeInterface $node, $op, AccountInterface $acc
   ) {
     if ($node->hasField('field_team') && !$node->get('field_team')->isEmpty()) {
       $teamId = $node->get('field_team')->target_id;
-      if ($teamId == TEAM_GLOBAL && !$account->hasRole('superhub_manager')) {
+      if ($membershipManager->isGlobalTeamRestricted($teamId)) {
         return AccessResult::forbidden();
       }
     }

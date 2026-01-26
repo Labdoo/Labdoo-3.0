@@ -10,6 +10,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @link http://natiboo.es
  */
 class MembershipManager {
+  use StringTranslationTrait;
 
   /**
    * The logger service.
@@ -268,6 +270,26 @@ class MembershipManager {
     }
 
     return Link::fromTextAndUrl($label, $url);
+  }
+
+  /**
+   * Check if the global team is restricted for the current user.
+   *
+   * @param int|string|null $teamId
+   *   The team ID to check.
+   *
+   * @return bool
+   *   TRUE if it is the global team and the user is not a superhub manager.
+   */
+  public function isGlobalTeamRestricted($teamId): bool {
+    if (defined('TEAM_GLOBAL')) {
+      $globalTeamId = TEAM_GLOBAL;
+    }
+    else {
+      $globalTeamId = 24;
+    }
+
+    return $teamId == $globalTeamId && !$this->currentUser->hasRole('superhub_manager');
   }
 
 }
