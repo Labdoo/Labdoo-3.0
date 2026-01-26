@@ -51,8 +51,10 @@ abstract class BaseCsvExport {
     do {
       $results = $this->viewRepository->getResults($viewId, $displayId, $itemsPerPage, $page);
       foreach ($results as $row) {
-        $entity = $row->_entity;
-        fputcsv($handle, $this->getRowData($entity));
+        $entity = $row->_entity ?? NULL;
+        if ($entity) {
+          fputcsv($handle, $this->getRowData($entity));
+        }
       }
       $count = count($results);
       $page++;

@@ -39,12 +39,12 @@ class CsvExport extends BaseCsvExport {
     return [
       $entity->label(),
       $created->format('Y-m-d'),
-      $entity->get('field_country')->value,
-      $entity->get('field_hub_status')->value,
-      $entity->get('field_dootronics_needed')->value,
-      $entity->get('field_dootronics_delivered')->value,
-      $entity->get('field_dootronics_in_transit')->value,
-      $entity->get('field_dootronics_remaining')->value,
+      $entity->hasField('field_country') ? $entity->get('field_country')->value : '',
+      $entity->hasField('field_hub_status') ? $entity->get('field_hub_status')->value : '',
+      $entity->hasField('field_dootronics_needed') ? $entity->get('field_dootronics_needed')->value : '',
+      $entity->hasField('field_dootronics_delivered') ? $entity->get('field_dootronics_delivered')->value : '',
+      $entity->hasField('field_dootronics_in_transit') ? $entity->get('field_dootronics_in_transit')->value : '',
+      $entity->hasField('field_dootronics_remaining') ? $entity->get('field_dootronics_remaining')->value : '',
     ];
   }
 

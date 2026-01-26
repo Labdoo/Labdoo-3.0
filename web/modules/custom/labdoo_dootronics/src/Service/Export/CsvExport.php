@@ -35,12 +35,12 @@ class CsvExport extends BaseCsvExport {
   protected function getRowData(object $entity): array {
     return [
       $entity->id(),
-      $entity->get('field_dootronic_status')->value,
-      $entity->get('field_hub')->entity ? $entity->get('field_hub')->entity->label() : '',
-      $entity->get('field_edoovillage_destination')->entity ? $entity->get('field_edoovillage_destination')->entity->label() : '',
-      $entity->get('field_country')->value,
-      $entity->get('field_serial_number')->value,
-      $entity->get('field_pick_me_up')->value ? 'yes' : 'no',
+      $entity->hasField('field_dootronic_status') ? $entity->get('field_dootronic_status')->value : '',
+      $entity->hasField('field_hub') && $entity->get('field_hub')->entity ? $entity->get('field_hub')->entity->label() : '',
+      $entity->hasField('field_edoovillage_destination') && $entity->get('field_edoovillage_destination')->entity ? $entity->get('field_edoovillage_destination')->entity->label() : '',
+      $entity->hasField('field_country') ? $entity->get('field_country')->value : '',
+      $entity->hasField('field_serial_number') ? $entity->get('field_serial_number')->value : '',
+      $entity->hasField('field_pick_me_up') ? ($entity->get('field_pick_me_up')->value ? 'yes' : 'no') : 'no',
     ];
   }
 
