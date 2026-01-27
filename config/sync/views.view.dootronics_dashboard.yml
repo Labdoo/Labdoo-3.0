@@ -1774,8 +1774,8 @@ display:
               enable: true
               weight: 0
               settings:
-                reset_zoom: false
-                min_zoom: 10
+                reset_zoom: true
+                min_zoom: 4
               map_center_id: fit_bounds
             fixed_boundaries:
               enable: false
@@ -2268,7 +2268,7 @@ display:
             height: 400px
             width: 100%
             minZoom: '0'
-            maxZoom: '0'
+            maxZoom: '18'
             maxBounds:
               north_east_bound:
                 lat: null
