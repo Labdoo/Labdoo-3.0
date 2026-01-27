@@ -1754,7 +1754,7 @@ display:
                           x: null
                           'y': null
                     leaflet_marker_popup:
-                      enabled: false
+                      enabled: true
                       weight: 0
                       settings:
                         info_auto_display: false
