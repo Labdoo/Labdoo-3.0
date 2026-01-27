@@ -861,8 +861,13 @@ display:
             remember_roles:
               authenticated: authenticated
               anonymous: '0'
-              content_editor: '0'
               administrator: '0'
+              superhub_manager: '0'
+              team_manager: '0'
+              edoovillage_manager: '0'
+              hub_manager: '0'
+              wiki_writer: '0'
+              laptop_manager: '0'
             placeholder: ''
           is_grouped: false
           group_info:
@@ -878,8 +883,6 @@ display:
             group_items: {  }
           fields:
             title: title
-            title_1: title_1
-            title_2: title_2
         field_dootronic_status_value:
           id: field_dootronic_status_value
           table: node__field_dootronic_status
@@ -1133,6 +1136,45 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
+        field_location_value:
+          id: field_location_value
+          table: node__field_location
+          field: field_location_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: string
+          operator: 'not empty'
+          value: ''
+          group: 1
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            placeholder: ''
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
       filter_groups:
         operator: AND
         groups:
@@ -1298,8 +1340,8 @@ display:
     display_options:
       title: 'Dootronics Dashboard Map'
       fields:
-        title_3:
-          id: title_3
+        title:
+          id: title
           table: node_field_data
           field: title
           relationship: none
@@ -1539,223 +1581,30 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-        title:
-          id: title
-          table: node_field_data
-          field: title
-          relationship: field_dootrips
-          group_type: group
-          admin_label: 'Dootrip title'
-          entity_type: node
-          entity_field: title
-          plugin_id: field
-          label: 'Dootrip title'
-          exclude: true
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: true
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: string
-          settings:
-            link_to_entity: false
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-        title_1:
-          id: title_1
-          table: node_field_data
-          field: title
-          relationship: field_edoovillage_destination
-          group_type: group
-          admin_label: 'EdooVillage title'
-          entity_type: node
-          entity_field: title
-          plugin_id: field
-          label: 'EdooVillage title'
-          exclude: true
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: true
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: string
-          settings:
-            link_to_entity: false
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
-        title_2:
-          id: title_2
-          table: node_field_data
-          field: title
-          relationship: field_hub
-          group_type: group
-          admin_label: 'Hub title'
-          entity_type: node
-          entity_field: title
-          plugin_id: field
-          label: 'Hub title'
-          exclude: true
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: true
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          click_sort_column: value
-          type: string
-          settings:
-            link_to_entity: false
-          group_column: value
-          group_columns: {  }
-          group_rows: true
-          delta_limit: 0
-          delta_offset: 0
-          delta_reversed: false
-          delta_first_last: false
-          multi_type: separator
-          separator: ', '
-          field_api_classes: false
       style:
         type: maps_common
         options:
           data_provider_id: geofield
           geolocation_field: field_location
-          title_field: none
+          title_field: title
           label_field: none
           marker_row_number: 0
           marker_icon_path: ''
           even_empty: 1
           centre:
-            client_location:
+            fit_shapes:
               enable: false
               weight: 0
-              map_center_id: client_location
+              settings:
+                min_zoom: null
+              map_center_id: fit_shapes
             fixed_value:
               enable: false
               weight: 0
               settings:
                 location_option_id: fixed_value
-                latitude: null
-                longitude: null
+                latitude: 0.0
+                longitude: 0.0
               map_center_id: location_plugins
             first_row:
               enable: false
@@ -1774,7 +1623,6 @@ display:
               enable: true
               weight: 0
               settings:
-                reset_zoom: true
                 min_zoom: 4
               map_center_id: fit_bounds
             fixed_boundaries:
@@ -1788,8 +1636,12 @@ display:
               map_center_id: fixed_boundaries
           map_provider_id: leaflet
           map_provider_settings:
+            conditional_initialization: 'no'
+            conditional_description: 'Clicking this button will embed a map.'
+            conditional_label: 'Show map'
+            conditional_viewport_threshold: 0.8
             map_features:
-              leaflet_client_location_indicator:
+              client_location_indicator:
                 enabled: false
                 weight: 0
               leaflet_disable_user_interaction:
@@ -1829,13 +1681,13 @@ display:
                 weight: 0
                 settings:
                   position: topright
-              leaflet_control_geocoder:
+              control_geocoder:
                 enabled: false
                 weight: 0
                 settings:
-                  position: topright
+                  position: topleft
                   geocoder: photon
-                  settings:
+                  geocoder_settings:
                     label: Address
                     description: 'Enter an address to be localized.'
                     autocomplete_min_length: 1
@@ -1843,16 +1695,22 @@ display:
                       lat: null
                       lng: null
                     remove_duplicates: false
-              leaflet_control_locate:
+              control_loading_indicator:
                 enabled: false
                 weight: 0
                 settings:
-                  position: topright
-              leaflet_control_recenter:
+                  position: topleft
+                  loading_label: Loading
+              control_locate:
                 enabled: false
                 weight: 0
                 settings:
-                  position: topright
+                  position: topleft
+              control_recenter:
+                enabled: false
+                weight: 0
+                settings:
+                  position: topleft
               leaflet_control_scale:
                 enabled: false
                 weight: 0
@@ -2157,65 +2015,21 @@ display:
                       app_code: ''
                     GeoportailFrance:
                       apikey: ''
+              control_tile_layers:
+                enabled: false
+                weight: 0
+                settings:
+                  position: topleft
+              control_view_fullscreen:
+                enabled: false
+                weight: 0
+                settings:
+                  position: topleft
               leaflet_control_zoom:
                 enabled: true
                 weight: 0
                 settings:
                   position: topright
-              leaflet_marker_clusterer:
-                enabled: false
-                weight: 0
-                settings:
-                  cluster_settings:
-                    show_coverage_on_hover: true
-                    zoom_to_bounds_on_click: true
-                  disable_clustering_at_zoom: 0
-                  custom_marker_settings: ''
-              leaflet_marker_icon:
-                enabled: true
-                weight: 0
-                settings:
-                  marker_shadow_path: ''
-                  marker_icon_path: /themes/custom/labdoo/img/red-dot.png
-                  icon_size:
-                    width: 16
-                    height: 16
-                  icon_anchor:
-                    x: null
-                    'y': null
-                  popup_anchor:
-                    x: 0
-                    'y': 0
-                  shadow_size:
-                    width: null
-                    height: null
-                  shadow_anchor:
-                    x: null
-                    'y': null
-              leaflet_marker_popup:
-                enabled: true
-                weight: 0
-                settings:
-                  info_auto_display: false
-                  max_width: 300
-                  min_width: 50
-                  max_height: 0
-                  auto_pan: true
-                  keep_in_view: false
-                  close_button: true
-                  auto_close: true
-                  close_on_escape_key: true
-                  class_name: ''
-              geolocation_marker_scroll_to_id:
-                enabled: false
-                weight: 0
-                settings:
-                  scroll_target_id: ''
-              leaflet_marker_zoom_and_animate:
-                enabled: false
-                weight: 0
-                settings:
-                  marker_zoom_anchor_id: ''
               leaflet_max_bounds:
                 enabled: false
                 weight: 0
@@ -2264,6 +2078,84 @@ display:
                   format: image/jpeg
                   transparent: false
                   identify: false
+            data_layers:
+              'geolocation_default_layer:default':
+                enabled: true
+                weight: -1
+                settings:
+                  features:
+                    leaflet_marker_clusterer:
+                      enabled: false
+                      weight: 0
+                      settings:
+                        cluster_settings:
+                          show_coverage_on_hover: true
+                          zoom_to_bounds_on_click: true
+                        disable_clustering_at_zoom: 0
+                        custom_marker_settings: ''
+                    leaflet_marker_icon:
+                      enabled: false
+                      weight: 0
+                      settings:
+                        marker_shadow_path: ''
+                        marker_icon_path: ''
+                        icon_size:
+                          width: null
+                          height: null
+                        icon_anchor:
+                          x: null
+                          'y': null
+                        popup_anchor:
+                          x: 0
+                          'y': 0
+                        shadow_size:
+                          width: null
+                          height: null
+                        shadow_anchor:
+                          x: null
+                          'y': null
+                    leaflet_marker_popup:
+                      enabled: true
+                      weight: 0
+                      settings:
+                        info_auto_display: false
+                        max_width: 300
+                        min_width: 50
+                        max_height: 0
+                        auto_pan: true
+                        keep_in_view: false
+                        close_button: true
+                        auto_close: true
+                        close_on_escape_key: true
+                        class_name: ''
+                    marker_zoom_by_anchor:
+                      enabled: false
+                      weight: 0
+                      settings:
+                        marker_zoom_anchor_id: ''
+            tile_layers:
+              geolocation_tile_thunderforest:
+                settings:
+                  apikey: ''
+                layers:
+                  'geolocation_tile_thunderforest:cycle':
+                    enabled: 0
+                  'geolocation_tile_thunderforest:transport':
+                    enabled: 0
+                  'geolocation_tile_thunderforest:transport-dark':
+                    enabled: 0
+                  'geolocation_tile_thunderforest:spinal-map':
+                    enabled: 0
+                  'geolocation_tile_thunderforest:landscape':
+                    enabled: 0
+                  'geolocation_tile_thunderforest:outdoors':
+                    enabled: 0
+                  'geolocation_tile_thunderforest:pioneer':
+                    enabled: 0
+                  'geolocation_tile_thunderforest:mobile-atlas':
+                    enabled: 0
+                  'geolocation_tile_thunderforest:neighbourhood':
+                    enabled: 0
             zoom: '10'
             height: 400px
             width: 100%
