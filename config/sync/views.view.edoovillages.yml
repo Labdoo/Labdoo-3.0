@@ -1401,7 +1401,7 @@ display:
         options:
           data_provider_id: geofield
           geolocation_field: field_location
-          title_field: none
+          title_field: title
           label_field: none
           marker_row_number: 0
           marker_icon_path: ''
@@ -1438,7 +1438,7 @@ display:
               enable: true
               weight: 0
               settings:
-                min_zoom: 10
+                min_zoom: 4
               map_center_id: fit_bounds
             fixed_boundaries:
               enable: false
@@ -1502,6 +1502,14 @@ display:
                 settings:
                   position: topleft
                   geocoder: photon
+                  geocoder_settings:
+                    label: Address
+                    description: 'Enter an address to be localized.'
+                    autocomplete_min_length: 1
+                    location_priority:
+                      lat: null
+                      lng: null
+                    remove_duplicates: false
               control_loading_indicator:
                 enabled: false
                 weight: 0
@@ -1967,7 +1975,7 @@ display:
             height: 400px
             width: 100%
             minZoom: '0'
-            maxZoom: '0'
+            maxZoom: '20'
             maxBounds:
               north_east_bound:
                 lat: null
