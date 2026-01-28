@@ -1,0 +1,6 @@
+from_address: noreply@labdoo.org
+from_name: Labdoo
+override_from: false
+throttle: true
+multiplier: 1
+queue: true

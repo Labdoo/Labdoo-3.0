@@ -2,6 +2,7 @@ _core:
   default_config_hash: IgOVnECx6lbVt6JVFnadoEEugneDf3UblPZnOzov43Q
 mode: simple
 ignored_config_entities:
+  - aws.profile.drupal_ses
   - geocoder.geocoder_provider.googlemaps
   - geofield_map.settings
   - github_issues.settings

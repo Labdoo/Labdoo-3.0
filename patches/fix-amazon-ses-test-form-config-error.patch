@@ -1,0 +1,14 @@
+--- a/src/Form/AmazonSesTestForm.php
++++ b/src/Form/AmazonSesTestForm.php
+@@ -80,8 +80,9 @@
+     $body = $this->t('This is a test of the Amazon SES module. The module has
+       been configured successfully!');
+ 
+-    $name = $this->config->get('from_name');
+-    $address = $this->config->get('from_address');
++    $config = $this->config('amazon_ses.settings');
++    $name = $config->get('from_name');
++    $address = $config->get('from_address');
+     $from = "$name <$address>";
+ 
+     $message = [

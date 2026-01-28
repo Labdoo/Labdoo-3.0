@@ -20,6 +20,7 @@
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^2.0",
         "drupal/admin_toolbar": "^3.4",
+        "drupal/amazon_ses": "^3.1",
         "drupal/auto_entitylabel": "^3.0",
         "drupal/better_exposed_filters": "^6.0",
         "drupal/blazy": "^3.0",
@@ -63,7 +64,6 @@
         "drupal/lang_dropdown": "^2.1",
         "drupal/legal": "^3.0",
         "drupal/linkchecker": "^2.1",
-        "drupal/mailjet": "^4.0",
         "drupal/mailsystem": "^4.5",
         "drupal/markdown_easy": "^2.0",
         "drupal/masquerade": "^2.0@RC",
@@ -170,6 +170,9 @@
         },
         "enable-patching": true,
         "patches": {
+            "drupal/amazon_ses": {
+                "Fix Call to a member function get() on null and Undefined property $config": "patches/fix-amazon-ses-test-form-config-error.patch"
+            },
             "drupal/core": {
                 "Call to a member function getCacheTags() on null": "patches/core-getCacheTags-on-null.patch"
             },
@@ -178,11 +181,6 @@
             },
             "drupal/lang_dropdown": {
                 "Issue #3500174": "patches/lang_dropdown-fix-error-get-library-name-3500174-2.patch"
-            },
-            "drupal/mailjet": {
-              "Disable the users synchronization": "patches/mailjet-disable-user-sync.patch",
-              "Issue #3539776": "patches/0001-fix-mailjetconfigurationaccesscheck-blocking-access.patch",
-              "Missing credentials": "patches/mailjet_missing_credentials_fix.patch"
             },
             "drupal/quick_node_clone": {
               "Fixes a bug when cloning user-reference fields": "patches/quick_node_clone-handle-user-reference.patch"

@@ -2,5 +2,5 @@ _core:
   default_config_hash: IhwTepsVwtbtbcT5GzQKhCXDCRvbk3MNkWqPiuiZ10s
 theme: current
 defaults:
-  sender: mailjet_mail
-  formatter: mailjet_mail
+  sender: amazon_ses_mail
+  formatter: amazon_ses_mail
