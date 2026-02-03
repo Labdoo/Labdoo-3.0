@@ -184,6 +184,9 @@
             },
             "drupal/quick_node_clone": {
               "Fixes a bug when cloning user-reference fields": "patches/quick_node_clone-handle-user-reference.patch"
+            },
+            "drupal/gin": {
+              "Fix chosen select height issue": "patches/gin-chosen-height-fix.patch"
             }
         }
     }
