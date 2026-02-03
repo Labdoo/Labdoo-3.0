@@ -21,7 +21,7 @@ content:
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 2
+    weight: 1
     region: content
   field_images:
     type: simple_slideshow
@@ -33,15 +33,7 @@ content:
       arrows: '1'
       autoplay: 0
     third_party_settings: {  }
-    weight: 3
-    region: content
-  field_parent:
-    type: entity_reference_label
-    label: hidden
-    settings:
-      link: true
-    third_party_settings: {  }
-    weight: 1
+    weight: 2
     region: content
   links:
     settings: {  }
@@ -49,5 +41,6 @@ content:
     weight: 0
     region: content
 hidden:
+  field_parent: true
   langcode: true
   search_api_excerpt: true

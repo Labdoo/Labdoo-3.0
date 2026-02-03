@@ -6,6 +6,7 @@ dependencies:
     - filter.format.basic_html
     - filter.format.markdown
     - filter.format.webform_default
+    - media.type.image
     - node.type.book
     - node.type.dootrip
     - node.type.dootronic
@@ -65,6 +66,7 @@ permissions:
   - 'create field_skills'
   - 'create field_team'
   - 'create field_team_members'
+  - 'create image media'
   - 'create new books'
   - 'create task_team content'
   - 'create team_post content'
@@ -73,6 +75,7 @@ permissions:
   - 'delete own dootrip content'
   - 'delete own dootronic content'
   - 'delete own files'
+  - 'delete own image media'
   - 'display eu cookie compliance popup'
   - 'edit own book content'
   - 'edit own comments'
@@ -94,6 +97,7 @@ permissions:
   - 'post comments'
   - 'print dootronic tags'
   - 'skip comment approval'
+  - 'update media'
   - 'use search_api_autocomplete for search_content'
   - 'use search_api_autocomplete for search_results'
   - 'use text format basic_html'
@@ -112,5 +116,6 @@ permissions:
   - 'view own field_hub_manager_notifications'
   - 'view own field_notification_area'
   - 'view own field_skills'
+  - 'view own unpublished media'
   - 'view own user_picture'
   - 'view user_picture'
