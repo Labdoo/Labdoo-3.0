@@ -1,0 +1,6 @@
+services:
+  labdoo_common.commands:
+    class: \Drupal\labdoo_common\Commands\GeocodeCommands
+    arguments: ['@entity_type.manager', '@entity_field.manager']
+    tags:
+      - { name: drush.command }
