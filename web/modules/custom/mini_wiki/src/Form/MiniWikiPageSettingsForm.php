@@ -35,6 +35,32 @@ final class MiniWikiPageSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
+    $config = $this->config('mini_wiki_page.settings');
+
+    // Get all wiki pages.
+    $storage = \Drupal::entityTypeManager()->getStorage('mini_wiki_page');
+    $query = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->sort('label', 'ASC');
+
+    $ids = $query->execute();
+
+    $options = ['' => $this->t('- None (auto-detect) -')];
+    if (!empty($ids)) {
+      $pages = $storage->loadMultiple($ids);
+      foreach ($pages as $page) {
+        $options[$page->id()] = $page->label();
+      }
+    }
+
+    $form['root_page'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Root page'),
+      '#description' => $this->t('Select the root page for the mini wiki. If not set, the first page without parent will be used.'),
+      '#options' => $options,
+      '#default_value' => $config->get('root_page') ?? '',
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -42,6 +68,10 @@ final class MiniWikiPageSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+    $this->config('mini_wiki_page.settings')
+      ->set('root_page', $form_state->getValue('root_page'))
+      ->save();
+
     parent::submitForm($form, $form_state);
   }
 
