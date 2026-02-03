@@ -1,4 +1,4 @@
-<?php
+d<?php
 
 /**
  * Developed by Natiboo <info@natiboo.es>
@@ -8,6 +8,8 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Url;
 
 /**
  * Creates or updates a gallery entity.
@@ -32,4 +34,79 @@ function labdoo_gallery_create_or_update(EntityInterface $entity): void {
   else {
     $galleryRepository->update($gallery->id(), $data);
   }
+}
+
+/**
+ * Implements hook_entity_form_display_alter().
+ */
+function labdoo_gallery_entity_form_display_alter(&$form_display, $context) {
+  // Only apply to gallery nodes.
+  if ($context['entity_type'] === 'node' && $context['bundle'] === 'gallery') {
+    $current_user = \Drupal::currentUser();
+
+    // If user is not administrator (uid 1), disable the title field.
+    if ($current_user->id() != 1) {
+      $component = $form_display->getComponent('title');
+      if ($component) {
+        $component['type'] = 'string_textfield';
+        $component['settings']['disabled'] = TRUE;
+        $form_display->setComponent('title', $component);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for node_form.
+ */
+function labdoo_gallery_form_node_form_alter(&$form, $form_state, $form_id) {
+  $node = $form_state->getFormObject()->getEntity();
+
+  // Only apply to gallery nodes.
+  if ($node->bundle() === 'gallery') {
+    $current_user = \Drupal::currentUser();
+
+    // If user is not administrator (uid 1), make title field disabled.
+    if ($current_user->id() != 1 && isset($form['title'])) {
+      $form['title']['#disabled'] = TRUE;
+      $form['title']['#description'] = t('Only administrators can edit the title of gallery nodes.');
+    }
+  }
+}
+
+/**
+ * Implements hook_node_view_alter().
+ */
+function labdoo_gallery_node_view_alter(array &$build, EntityInterface $node, EntityViewDisplayInterface $display) {
+  // Only apply to gallery nodes in full view mode.
+  if ($node->bundle() !== 'gallery' || $display->getMode() !== 'default') {
+    return;
+  }
+
+  $current_user = \Drupal::currentUser();
+
+  // Check if the user has permission to edit this node.
+  if (!$node->access('update', $current_user)) {
+    return;
+  }
+
+  // Check if field_images exists and is empty.
+  if (!$node->hasField('field_images') || !$node->get('field_images')->isEmpty()) {
+    return;
+  }
+
+  $edit_url = Url::fromRoute('entity.node.edit_form', [
+    'node' => $node->id(),
+  ]);
+
+  // Add a message with a link to edit the node.
+  $build['add_images_message'] = [
+    '#type' => 'markup',
+    '#markup' => '<div class="messages messages--warning">' .
+      t('<a href="@url">Add images now</a>.', [
+        '@url' => $edit_url->toString(),
+      ]) .
+      '</div>',
+    '#weight' => -100,
+  ];
 }
