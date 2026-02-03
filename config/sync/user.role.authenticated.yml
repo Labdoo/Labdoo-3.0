@@ -27,6 +27,7 @@ dependencies:
     - labdoo_dootronics
     - labdoo_team
     - legal
+    - linkchecker
     - media
     - mini_wiki
     - node
@@ -42,8 +43,10 @@ label: 'Usuario autenticado'
 weight: 1
 is_admin: false
 permissions:
+  - 'access broken links report'
   - 'access comments'
   - 'access content'
+  - 'access own broken links report'
   - 'access printer-friendly version'
   - 'access shortcuts'
   - 'access site-wide contact form'
