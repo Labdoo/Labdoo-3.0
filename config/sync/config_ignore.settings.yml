@@ -7,5 +7,4 @@ ignored_config_entities:
   - geofield_map.settings
   - github_issues.settings
   - key.key.github_issues_app_secret
-  - mailjet.settings
   - recaptcha_v3.settings
