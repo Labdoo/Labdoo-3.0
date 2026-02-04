@@ -55,6 +55,7 @@ permissions:
   - 'access user contact forms'
   - 'access user profiles'
   - 'add content to books'
+  - 'administer linkchecker'
   - 'cancel account'
   - 'clone dootronic content'
   - 'create book content'
