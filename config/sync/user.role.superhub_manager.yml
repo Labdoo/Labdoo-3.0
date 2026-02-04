@@ -13,6 +13,7 @@ dependencies:
     - eu_cookie_compliance
     - file
     - labdoo_user
+    - mini_wiki
     - node
     - quick_node_clone
     - system
@@ -25,6 +26,7 @@ permissions:
   - 'access administration pages'
   - 'access files overview'
   - 'access workbench'
+  - 'administer mini_wiki_page'
   - 'administer user roles'
   - 'administer users'
   - 'assign edoovillage_manager role'
