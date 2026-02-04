@@ -7,9 +7,12 @@
  * @link http://natiboo.es
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\UserInterface;
 use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\file\FileInterface;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements hook_webform_element_alter().
@@ -209,5 +212,19 @@ function labdoo_common_block_view_alter(array &$build, BlockPluginInterface $blo
   if ($block->getPluginId() == 'views_block:actions-block_1') {
     // Attach our auto-rotation library.
     $build['#attached']['library'][] = 'labdoo_common/auto_rotate_mini_missions';
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function labdoo_common_entity_insert(EntityInterface $entity) {
+  if ($entity instanceof FileInterface && str_starts_with($entity->getMimeType(), 'image/')) {
+    foreach (ImageStyle::loadMultiple() as $style) {
+      $style->createDerivative(
+        $entity->getFileUri(),
+        $style->buildUri($entity->getFileUri())
+      );
+    }
   }
 }
