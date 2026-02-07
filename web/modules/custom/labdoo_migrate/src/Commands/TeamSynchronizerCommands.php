@@ -527,6 +527,47 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->execute()
         ->fetchObject();
 
+      // Get comments
+      $comments = [];
+      try {
+        $commentsQuery = $this->externalConnectionManager
+          ->setConnection()
+          ->select('comment', 'c')
+          ->fields('c', ['cid', 'uid', 'subject', 'hostname', 'created', 'changed', 'status', 'thread', 'name', 'mail', 'homepage', 'language'])
+          ->condition('nid', $post->nid)
+          ->orderBy('cid', 'ASC');
+        $commentsData = $commentsQuery->execute()->fetchAll();
+
+        foreach ($commentsData as $comment) {
+          $commentBody = $this->externalConnectionManager
+            ->setConnection()
+            ->select('field_data_comment_body', 'fdcb')
+            ->fields('fdcb', ['comment_body_value', 'comment_body_format'])
+            ->condition('entity_id', $comment->cid)
+            ->condition('entity_type', 'comment')
+            ->execute()
+            ->fetchObject();
+
+          $comments[] = [
+            'cid' => $comment->cid,
+            'uid' => $comment->uid,
+            'subject' => $comment->subject,
+            'created' => $comment->created,
+            'changed' => $comment->changed,
+            'status' => $comment->status,
+            'name' => $comment->name,
+            'mail' => $comment->mail,
+            'body' => $commentBody ? [
+              'value' => $commentBody->comment_body_value,
+              'format' => $commentBody->comment_body_format,
+            ] : NULL,
+          ];
+        }
+      }
+      catch (\Exception $e) {
+        $this->logger->warning('Could not retrieve comments for post ' . $post->nid . ': ' . $e->getMessage());
+      }
+
       // Get the team reference from og_membership table
       $teamReference = NULL;
       try {
@@ -592,6 +633,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         ] : NULL,
         'team_reference' => $teamReference,
         'attachment' => $attachment,
+        'comments' => $comments,
       ];
     }
 
@@ -660,9 +702,48 @@ class TeamSynchronizerCommands extends DrushCommands {
       if (!empty($sourcePost['body'])) {
         $destinationEntity->set('body', [
           'value' => $sourcePost['body']['value'],
-          'summary' => $sourcePost['body']['summary'],
+          'summary' => $sourcePost['body']['summary'] ?? '',
           'format' => 'basic_html', // Map D7 format to D10 format
         ]);
+      }
+
+      // Set comments
+      if (!$this->dryRun && !empty($sourcePost['comments'])) {
+        foreach ($sourcePost['comments'] as $sourceComment) {
+          // Check if comment already exists by subject and created time for this node
+          $existingComments = $this->entityTypeManager
+            ->getStorage('comment')
+            ->loadByProperties([
+              'entity_id' => $destinationEntity->id(),
+              'entity_type' => 'node',
+              'field_name' => 'field_team_comments',
+              'subject' => $sourceComment['subject'],
+              'created' => $sourceComment['created'],
+            ]);
+
+          if (empty($existingComments)) {
+            $comment = $this->entityTypeManager
+              ->getStorage('comment')
+              ->create([
+                'comment_type' => 'comment',
+                'entity_id' => $destinationEntity->id(),
+                'entity_type' => 'node',
+                'field_name' => 'field_team_comments',
+                'uid' => $sourceComment['uid'],
+                'subject' => $sourceComment['subject'],
+                'comment_body' => [
+                  'value' => $sourceComment['body']['value'] ?? '',
+                  'format' => 'basic_html',
+                ],
+                'status' => $sourceComment['status'],
+                'created' => $sourceComment['created'],
+                'changed' => $sourceComment['changed'],
+                'name' => $sourceComment['name'],
+                'mail' => $sourceComment['mail'],
+              ]);
+            $comment->save();
+          }
+        }
       }
 
       // Set team reference
