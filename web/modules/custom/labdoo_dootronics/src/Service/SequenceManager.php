@@ -71,38 +71,49 @@ class SequenceManager implements SequenceManagerInterface {
   }
 
   /**
-   * Finds the first available node ID for dootronics.
+   * Finds the first available ID for dootronics based on the title field.
    *
-   * This method looks for gaps in the sequence of dootronic node IDs.
+   * This method looks for gaps in the sequence of dootronic titles.
+   * Titles are expected to be numeric strings (e.g., "000000001").
    * If a gap is found, it returns the first available ID in the gap.
    * If no gap is found, it returns the next sequential ID.
    *
    * @return int
-   *   The first available node ID.
+   *   The first available ID.
    */
   private function findFirstAvailableNodeId(): int {
-    // Query to get all dootronic node IDs in ascending order
+    // Query to get all dootronic titles that are numeric
     $query = $this->database->select('node_field_data', 'n')
-      ->fields('n', ['nid'])
+      ->fields('n', ['title'])
       ->condition('n.type', 'dootronic')
-      ->orderBy('n.nid', 'ASC');
+      ->orderBy('n.title', 'ASC');
 
     $result = $query->execute()->fetchCol();
 
-    if (empty($result)) {
-      // If no dootronics exist, start with 1
+    // Filter out non-numeric titles and convert to integers
+    $ids = [];
+    foreach ($result as $title) {
+      if (is_numeric($title)) {
+        $ids[] = (int) $title;
+      }
+    }
+    $ids = array_unique($ids);
+    sort($ids);
+
+    if (empty($ids)) {
+      // If no numeric dootronics exist, start with 1
       return $this->findFirstAvailableNodeIdInAllNodes(1);
     }
 
     // Find the first gap in the sequence
     $previousId = 0;
-    foreach ($result as $nid) {
-      if ($nid > $previousId + 1) {
-        // Found a gap, check if the ID is available in all nodes
+    foreach ($ids as $id) {
+      if ($id > $previousId + 1) {
+        // Found a gap, check if the ID is available in all nodes as nid
         $potentialId = $previousId + 1;
         return $this->findFirstAvailableNodeIdInAllNodes($potentialId);
       }
-      $previousId = $nid;
+      $previousId = $id;
     }
 
     // No gaps found, return the next sequential ID

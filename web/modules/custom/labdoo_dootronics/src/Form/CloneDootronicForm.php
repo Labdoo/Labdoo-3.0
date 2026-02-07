@@ -98,16 +98,14 @@ class CloneDootronicForm extends FormBase {
 
     for ($i = 0; $i < $form_state->getValue('dootronics_number'); ++$i) {
       $clonedDootronic = $this->dootronicRepository->clone($originalDootronic);
-      // We have to unset the tagged flag. Otherwise, the label is not updated.
-      $clonedDootronic->set('field_tagged', FALSE);
       if (!$this->dootronicRepository->saveEntity($clonedDootronic)) {
         $this->messenger()->addError($this->t('Unable to save dootronic.'));
       }
       else {
         $this->messenger()->addMessage(
           $this->t(
-            'Dootronic :did1 was correctly updated.',
-            [':did1' => $clonedDootronic->label()]
+            'Dootronic :did1 was correctly created.',
+            [':did1' => $clonedDootronic->toLink($clonedDootronic->label())->toString()]
           ),
           TRUE
         );

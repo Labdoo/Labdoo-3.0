@@ -88,6 +88,8 @@ function labdoo_dootronics_entity_presave(EntityInterface $entity) {
     $sequenceManager = \Drupal::service('labdoo_dootronics.sequence_manager');
     $nid = $sequenceManager->get();
     $entity->set('nid', $nid);
+    // Release the lock as soon as we've reserved the NID to avoid nested/acquire conflicts.
+    $sequenceManager->commit();
   }
 
   /** @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface $dootronicCompute */

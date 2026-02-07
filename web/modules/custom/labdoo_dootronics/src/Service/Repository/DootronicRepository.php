@@ -482,6 +482,9 @@ class DootronicRepository implements DootronicRepositoryInterface {
       $newDootronic->set($fieldName, $originalDootronic->get($fieldName)->getValue());
     }
 
+    $newDootronic->set('title', '');
+    $newDootronic->set('field_tagged', FALSE);
+
     return $newDootronic;
   }
 
