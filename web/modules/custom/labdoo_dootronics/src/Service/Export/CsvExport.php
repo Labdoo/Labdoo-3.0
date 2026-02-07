@@ -19,13 +19,13 @@ class CsvExport extends BaseCsvExport {
    */
   protected function getHeader(): array {
     return [
-      'id',
-      'status',
-      'hub',
-      'edoovillage',
-      'country',
-      'serial number',
-      'pick me up',
+      'Title',
+      'Status',
+      'Hub',
+      'Edoovillage',
+      'Country',
+      'Serial number',
+      'Pick me up',
     ];
   }
 
@@ -34,7 +34,7 @@ class CsvExport extends BaseCsvExport {
    */
   protected function getRowData(object $entity): array {
     return [
-      $entity->id(),
+      $entity->label(),
       $entity->hasField('field_dootronic_status') ? $entity->get('field_dootronic_status')->value : '',
       $entity->hasField('field_hub') && $entity->get('field_hub')->entity ? $entity->get('field_hub')->entity->label() : '',
       $entity->hasField('field_edoovillage_destination') && $entity->get('field_edoovillage_destination')->entity ? $entity->get('field_edoovillage_destination')->entity->label() : '',

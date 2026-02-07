@@ -19,14 +19,14 @@ class CsvExport extends BaseCsvExport {
    */
   protected function getHeader(): array {
     return [
-      'title',
-      'created',
-      'country',
-      'status',
-      'needed',
-      'delivered',
-      'in transit',
-      'remaining'
+      'Hub',
+      'Needed (N)',
+      'In transit (T)',
+      'Delivered (D)',
+      'Remaining (R = N-T-D)',
+      'Completed',
+      'Country',
+      'Semaphore',
     ];
   }
 
@@ -34,17 +34,15 @@ class CsvExport extends BaseCsvExport {
    * {@inheritdoc}
    */
   protected function getRowData(object $entity): array {
-    $created = new \DateTime();
-    $created->setTimestamp($entity->getCreatedTime());
     return [
       $entity->label(),
-      $created->format('Y-m-d'),
-      $entity->hasField('field_country') ? $entity->get('field_country')->value : '',
-      $entity->hasField('field_hub_status') ? $entity->get('field_hub_status')->value : '',
       $entity->hasField('field_dootronics_needed') ? $entity->get('field_dootronics_needed')->value : '',
-      $entity->hasField('field_dootronics_delivered') ? $entity->get('field_dootronics_delivered')->value : '',
       $entity->hasField('field_dootronics_in_transit') ? $entity->get('field_dootronics_in_transit')->value : '',
+      $entity->hasField('field_dootronics_delivered') ? $entity->get('field_dootronics_delivered')->value : '',
       $entity->hasField('field_dootronics_remaining') ? $entity->get('field_dootronics_remaining')->value : '',
+      $entity->hasField('field_dootronics_completed') ? $entity->get('field_dootronics_completed')->value : '',
+      $entity->hasField('field_country') ? $entity->get('field_country')->value : '',
+      '',
     ];
   }
 
