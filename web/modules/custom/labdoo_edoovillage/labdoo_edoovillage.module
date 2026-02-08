@@ -159,14 +159,9 @@ function labdoo_edoovillage_views_query_alter(ViewExecutable $view, QueryPluginB
  * @return void
  */
 function __labdoo_edoovillage_clear_cachetag(EntityInterface $entity): void {
-  $dootronicTag = sprintf(
-    'edoovillage:%d:%d',
-    $entity->id(),
-    \Drupal::currentUser()->id()
-  );
   $tags = [
     'edoovillages_chart',
-    $dootronicTag,
+    'edoovillage:' . $entity->id(),
   ];
   $event = new InvalidateCacheTagsEvent();
   $event->setCacheTags($tags);

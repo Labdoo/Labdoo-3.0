@@ -258,7 +258,7 @@ content:
           enable: true
           weight: -101
           settings:
-            min_zoom: 12
+            min_zoom: 16
           map_center_id: fit_bounds
         fit_shapes:
           enable: false
@@ -804,10 +804,10 @@ content:
                 enabled: 0
               'geolocation_tile_thunderforest:neighbourhood':
                 enabled: 0
-        zoom: '10'
+        zoom: '16'
         height: 400px
         width: 100%
-        minZoom: '0'
+        minZoom: '2'
         maxZoom: '20'
         maxBounds:
           north_east_bound:

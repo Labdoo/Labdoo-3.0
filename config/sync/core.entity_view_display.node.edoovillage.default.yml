@@ -280,9 +280,9 @@ content:
       centre:
         fit_bounds:
           enable: true
-          weight: -101
+          weight: 0
           settings:
-            min_zoom: 12
+            min_zoom: 16
           map_center_id: fit_bounds
         fit_shapes:
           enable: false
@@ -295,8 +295,14 @@ content:
           weight: 0
           settings:
             location_option_id: fixed_value
-            latitude: '0'
-            longitude: '0'
+            latitude: 0.0
+            longitude: 0.0
+          map_center_id: location_plugins
+        first_row:
+          enable: false
+          weight: 0
+          settings:
+            location_option_id: first_row
           map_center_id: location_plugins
         ipstack:
           enable: false
@@ -360,13 +366,21 @@ content:
             enabled: false
             weight: 0
             settings:
-              position: topleft
+              position: topright
           control_geocoder:
             enabled: false
             weight: 0
             settings:
               position: topleft
               geocoder: photon
+              geocoder_settings:
+                label: Address
+                description: 'Enter an address to be localized.'
+                autocomplete_min_length: 1
+                location_priority:
+                  lat: null
+                  lng: null
+                remove_duplicates: false
           control_loading_indicator:
             enabled: false
             weight: 0
@@ -387,14 +401,14 @@ content:
             enabled: false
             weight: 0
             settings:
-              position: topleft
+              position: topright
               metric: true
               imperial: true
           leaflet_control_layer:
             enabled: false
             weight: 0
             settings:
-              position: topleft
+              position: topright
               default_label: Default
               tile_layer_providers:
                 OpenStreetMap:
@@ -701,7 +715,7 @@ content:
             enabled: true
             weight: 0
             settings:
-              position: topleft
+              position: topright
           leaflet_max_bounds:
             enabled: false
             weight: 0
@@ -766,14 +780,14 @@ content:
                     disable_clustering_at_zoom: 0
                     custom_marker_settings: ''
                 leaflet_marker_icon:
-                  enabled: false
+                  enabled: true
                   weight: 0
                   settings:
                     marker_shadow_path: ''
-                    marker_icon_path: ''
+                    marker_icon_path: /themes/custom/labdoo/img/red-dot.png
                     icon_size:
-                      width: null
-                      height: null
+                      width: 16
+                      height: 16
                     icon_anchor:
                       x: null
                       'y': null
@@ -787,7 +801,7 @@ content:
                       x: null
                       'y': null
                 leaflet_marker_popup:
-                  enabled: false
+                  enabled: true
                   weight: 0
                   settings:
                     info_auto_display: false
@@ -828,10 +842,10 @@ content:
                 enabled: 0
               'geolocation_tile_thunderforest:neighbourhood':
                 enabled: 0
-        zoom: '10'
+        zoom: '16'
         height: 400px
         width: 100%
-        minZoom: '0'
+        minZoom: '2'
         maxZoom: '20'
         maxBounds:
           north_east_bound:

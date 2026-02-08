@@ -1367,10 +1367,10 @@ display:
                     enabled: 0
                   'geolocation_tile_thunderforest:neighbourhood':
                     enabled: 0
-            zoom: '10'
+            zoom: '13'
             height: 400px
             width: 100%
-            minZoom: '0'
+            minZoom: '2'
             maxZoom: '20'
             maxBounds:
               north_east_bound:

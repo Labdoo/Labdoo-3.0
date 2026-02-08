@@ -110,7 +110,7 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
         'max-age' => Cache::PERMANENT,
         'contexts' => [
           'url.path',
-          'session',
+          'user.permissions',
         ],
         'tags' => [
           'edoovillages_chart'

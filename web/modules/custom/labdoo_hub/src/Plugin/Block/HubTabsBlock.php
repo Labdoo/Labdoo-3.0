@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\labdoo_edoovillage\Plugin\Block;
+namespace Drupal\labdoo_hub\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
@@ -9,10 +9,11 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\labdoo_common\Service\Helper\LinkHelper;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
+use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides an 'EdooVillage tabs' block.
+ * Provides a 'Hub tabs' block.
  *
  * Developed by Natiboo <info@natiboo.es>
  *
@@ -20,15 +21,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @link http://natiboo.es
  *
  * @Block(
- *   id = "edoovillage_tabs_block_block",
- *   admin_label = @Translation("EdooVillage tabs"),
- *   category = @Translation("EdooVillage"),
+ *   id = "hub_tabs_block_block",
+ *   admin_label = @Translation("Hub tabs"),
+ *   category = @Translation("Hub"),
  * )
  */
-class EdooVillageTabsBlock extends BlockBase implements ContainerFactoryPluginInterface {
+class HubTabsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * EdooVillageTabsBlock constructor.
+   * HubTabsBlock constructor.
    *
    * @param array $configuration
    *   The configuration array.
@@ -93,14 +94,14 @@ class EdooVillageTabsBlock extends BlockBase implements ContainerFactoryPluginIn
     $entity = $this->routeMatch->getParameter('node');
 
     // Fallback for arg_0 (views).
-    if (!($entity instanceof \Drupal\node\NodeInterface) || $entity->bundle() !== 'edoovillage') {
+    if (!($entity instanceof NodeInterface) || $entity->bundle() !== 'hub') {
       $entityId = $this->routeMatch->getParameter('arg_0');
       if ($entityId) {
         $entity = $this->linkHelper->loadEntity($entityId);
       }
     }
 
-    if (!($entity instanceof \Drupal\node\NodeInterface) || $entity->bundle() !== 'edoovillage') {
+    if (!($entity instanceof NodeInterface) || $entity->bundle() !== 'hub') {
       return [];
     }
 
@@ -116,27 +117,27 @@ class EdooVillageTabsBlock extends BlockBase implements ContainerFactoryPluginIn
     }
 
     $dootronicsLink = $this->linkHelper->generateUrlFromRoute(
-      'view.dootronics_dashboard.page_2',
+      'view.dootronics_dashboard.page_3',
       ['arg_0' => $entity->id()],
     );
-    if ($currentRoute === 'view.dootronics_dashboard.page_2') {
+    if ($currentRoute === 'view.dootronics_dashboard.page_3') {
       $activeTab = 'dootronics';
     }
 
     $dootripsLink = $this->linkHelper->generateUrlFromRoute(
-      'view.dootrips_dashboard.page_2',
+      'view.dootrips_dashboard.page_3',
       ['arg_0' => $entity->id()],
     );
-    if ($currentRoute === 'view.dootrips_dashboard.page_2') {
+    if ($currentRoute === 'view.dootrips_dashboard.page_3') {
       $activeTab = 'dootrips';
     }
 
     $cacheTags = [
-      'edoovillage:' . $entity->id(),
+      'hub:' . $entity->id(),
     ];
 
     return [
-      '#theme' => 'edoovillage_tabs_block_block',
+      '#theme' => 'hub_tabs_block_block',
       '#data_link' => $dataLink,
       '#dootronics_link' => $dootronicsLink,
       '#dootrips_link' => $dootripsLink,

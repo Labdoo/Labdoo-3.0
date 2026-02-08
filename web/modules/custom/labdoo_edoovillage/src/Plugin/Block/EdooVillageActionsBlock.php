@@ -117,7 +117,16 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
    */
   public function build() {
     $edooVillage = $this->linkHelper->getActiveNode();
-    if (!$edooVillage) {
+
+    // Fallback for arg_0 (views).
+    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
+      $entityId = $this->linkHelper->getActiveNode('arg_0');
+      if ($entityId) {
+        $edooVillage = $this->linkHelper->loadEntity($entityId);
+      }
+    }
+
+    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
       return [
         '#markup' => '',
       ];
@@ -178,11 +187,7 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
     }
 
     $cacheTags = [
-      sprintf(
-        'edoovillage:%d:%d',
-        $edooVillage->id(),
-        $this->currentUser->id()
-      ),
+      'edoovillage:' . $edooVillage->id(),
     ];
 
     return [
@@ -201,7 +206,7 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
         'max-age' => Cache::PERMANENT,
         'contexts' => [
           'url.path',
-          'session',
+          'user.permissions',
         ],
         'tags' => $cacheTags,
       ],

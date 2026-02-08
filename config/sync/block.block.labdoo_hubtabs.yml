@@ -1,4 +1,4 @@
-uuid: ce5ffa6b-422c-4580-96be-d100a5abd3de
+uuid: cf2f43dc-c078-4a2d-96e8-c17e424b394f
 langcode: en
 status: true
 dependencies:
@@ -7,19 +7,22 @@ dependencies:
     - system
   theme:
     - labdoo
-id: labdoo_hubchart
+id: labdoo_hubtabs
 theme: labdoo
 region: content
-weight: -17
+weight: -14
 provider: null
-plugin: hub_chart_block_block
+plugin: hub_tabs_block_block
 settings:
-  id: hub_chart_block_block
-  label: 'Hub chart'
+  id: hub_tabs_block_block
+  label: 'Hub tabs'
   label_display: '0'
   provider: labdoo_hub
 visibility:
   request_path:
     id: request_path
     negate: false
-    pages: /content/hubs-dashboard
+    pages: |-
+      /content/*
+      /related-dootronics-hub/*
+      /related-dootrips-hub/*

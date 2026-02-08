@@ -10,7 +10,7 @@ dependencies:
 id: labdoo_edoovillagetabs
 theme: labdoo
 region: content
-weight: -14
+weight: -15
 provider: null
 plugin: edoovillage_tabs_block_block
 settings:
@@ -22,4 +22,4 @@ visibility:
   request_path:
     id: request_path
     negate: false
-    pages: "/content/*\r\n/related-dootronics/*\r\n/related-dootrips/*\r\n"
+    pages: "/content/*\r\n/related-dootronics/*\r\n/related-dootrips/*\r\n/en/content/*\r\n/en/related-dootronics/*\r\n/en/related-dootrips/*\r\n/es/content/*\r\n/es/related-dootronics/*\r\n/es/related-dootrips/*"
