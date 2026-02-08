@@ -41,7 +41,7 @@ class CsvExport extends BaseCsvExport {
       $entity->hasField('field_dootronics_delivered') ? $entity->get('field_dootronics_delivered')->value : '',
       $entity->hasField('field_dootronics_remaining') ? $entity->get('field_dootronics_remaining')->value : '',
       $entity->hasField('field_dootronics_completed') ? $entity->get('field_dootronics_completed')->value : '',
-      $entity->hasField('field_country') ? $entity->get('field_country')->value : '',
+      $entity->hasField('field_country') ? $entity->get('field_country')->view(['label' => 'hidden'])[0]['#plain_text'] : '',
       '',
     ];
   }
