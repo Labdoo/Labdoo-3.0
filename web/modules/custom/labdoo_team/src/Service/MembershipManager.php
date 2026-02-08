@@ -12,6 +12,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -282,6 +283,10 @@ class MembershipManager {
    *   TRUE if it is the global team and the user is not a superhub manager.
    */
   public function isGlobalTeamRestricted($teamId): bool {
+    if (empty($teamId)) {
+      return FALSE;
+    }
+
     if (defined('TEAM_GLOBAL')) {
       $globalTeamId = TEAM_GLOBAL;
     }
@@ -289,7 +294,24 @@ class MembershipManager {
       $globalTeamId = 24;
     }
 
-    return $teamId == $globalTeamId && !$this->currentUser->hasRole('superhub_manager');
+    return (int) $teamId === (int) $globalTeamId && !$this->currentUser->hasRole('superhub_manager');
+  }
+
+  /**
+   * Get the team ID from a node if it is a team post or task.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node entity.
+   *
+   * @return int|null
+   *   The team ID or NULL if not found.
+   */
+  public function getTeamIdFromNode(NodeInterface $node): ?int {
+    $types = ['team_post', 'task_team'];
+    if (in_array($node->getType(), $types) && $node->hasField('field_team') && !$node->get('field_team')->isEmpty()) {
+      return (int) $node->get('field_team')->target_id;
+    }
+    return NULL;
   }
 
 }
