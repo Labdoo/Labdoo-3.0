@@ -91,3 +91,13 @@
 @media only screen and (max-width: 1024px)
   .region-sticky
     top: 0
+
+.path-wiki-page
+  .field--name-field-tags
+    .field__items
+      .field__item
+        display: inline
+        &:not(:last-child)::after
+          content: " ·"
+          margin-left: 2px
+          margin-right: 4px
