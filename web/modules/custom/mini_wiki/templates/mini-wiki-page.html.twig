@@ -19,6 +19,15 @@
     <h1>{{ content.label }}</h1>
   {% endif %}
   {{ title_suffix }}
+  <div class="alert alert-success">
+    <a class="close" data-dismiss="alert" href="#">×</a>
+    <h4 class="element-invisible">Status message</h4>
+    <img src="/themes/custom/labdoo/img/equation-2-alpha-small.png" width="60"> If you have any questions about this page or if you find any errors,
+    please write a message to the
+    <a href="../content/labdoo-global-support-lgs/activities">support wall</a>
+    and a Labdoo volunteer will help resolve it.
+    Thank you for helping to improve our wiki pages.
+  </div>
   {% if content %}
     {{- content -}}
   {% endif %}
