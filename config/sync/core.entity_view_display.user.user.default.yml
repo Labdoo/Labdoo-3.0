@@ -13,9 +13,10 @@ dependencies:
     - field.field.user.user.user_picture
     - image.style.thumbnail
   module:
-    - geofield
+    - geocoder_geofield
     - image
     - options
+    - text
     - user
 _core:
   default_config_hash: mZLyuWM9CQx2ZJVqFGSbzgFnHzudVbHBYmdU256A5Wk
@@ -24,21 +25,34 @@ targetEntityType: user
 bundle: user
 mode: default
 content:
+  field_about_me:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
   field_hub_manager_notifications:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 3
+    weight: 4
     region: content
   field_locations:
-    type: geofield_default
+    type: geocoder_geofield_reverse_geocode
     label: above
     settings:
-      output_format: wkt
-      output_escape: true
+      providers:
+        freegeoip:
+          weight: '0'
+          checked: 0
+        googlemaps:
+          checked: '1'
+          weight: '0'
+      dumper: addresstext
     third_party_settings: {  }
-    weight: 5
+    weight: 6
     region: content
   field_skills:
     type: string
@@ -46,7 +60,15 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 2
+    weight: 3
+    region: content
+  field_user_name:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
     region: content
   field_username:
     type: string
@@ -54,12 +76,12 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 4
+    weight: 5
     region: content
   masquerade:
     settings: {  }
     third_party_settings: {  }
-    weight: 1
+    weight: 7
     region: content
   user_picture:
     type: image
@@ -73,9 +95,7 @@ content:
     weight: 0
     region: content
 hidden:
-  field_about_me: true
   field_notification_area: true
-  field_user_name: true
   langcode: true
   member_for: true
   search_api_excerpt: true
