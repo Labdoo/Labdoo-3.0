@@ -4,3 +4,13 @@
 .node__content
   .field
     margin-bottom: 16px
+
+.path-wiki-page
+  .field--name-field-tags
+    .field__items
+      .field__item
+        display: inline
+        &:not(:last-child)::after
+          content: " ·"
+          margin-left: 2px
+          margin-right: 4px
