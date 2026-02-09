@@ -10,6 +10,15 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
+ * Implements hook_toolbar_alter().
+ */
+function labdoo_admin_toolbar_toolbar_alter(&$items) {
+  if (isset($items['gin_secondary_toolbar'])) {
+    unset($items['gin_secondary_toolbar']);
+  }
+}
+
+/**
  * Implements hook_help().
  */
 function labdoo_admin_toolbar_help($route_name, RouteMatchInterface $route_match) {
