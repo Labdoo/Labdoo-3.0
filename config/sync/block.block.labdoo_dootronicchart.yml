@@ -10,7 +10,7 @@ dependencies:
 id: labdoo_dootronicchart
 theme: labdoo
 region: content
-weight: -18
+weight: -19
 provider: null
 plugin: dootronics_chart_block_block
 settings:

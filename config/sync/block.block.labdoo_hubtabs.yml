@@ -10,7 +10,7 @@ dependencies:
 id: labdoo_hubtabs
 theme: labdoo
 region: content
-weight: -14
+weight: -15
 provider: null
 plugin: hub_tabs_block_block
 settings:

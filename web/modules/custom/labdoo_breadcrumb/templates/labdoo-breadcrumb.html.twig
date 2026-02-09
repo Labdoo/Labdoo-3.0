@@ -1,0 +1,25 @@
+{#
+/**
+ * @file
+ * Theme implementation for Labdoo breadcrumb.
+ *
+ * Available variables:
+ * - items: A list of breadcrumb items with text and url keys.
+ */
+#}
+{% if items %}
+  <nav class="breadcrumb" role="navigation" aria-labelledby="system-breadcrumb">
+    <h2 id="system-breadcrumb" class="visually-hidden">{{ 'You are here'|t }}</h2>
+    <ol class="breadcrumb__list">
+      {% for item in items %}
+        <li class="breadcrumb__item">
+          {% if item.url %}
+            <a href="{{ item.url }}" class="breadcrumb__link">{{ item.text }}</a>
+          {% else %}
+            <span class="breadcrumb__text">{{ item.text }}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  </nav>
+{% endif %}

@@ -12,7 +12,7 @@ dependencies:
 id: labdoo_views_block__labdoers_block_1
 theme: labdoo
 region: content
-weight: -9
+weight: -10
 provider: null
 plugin: 'views_block:labdoers-block_1'
 settings:

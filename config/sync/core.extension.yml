@@ -75,6 +75,7 @@ module:
   jquery_ui_touch_punch: 0
   key: 0
   labdoo_admin_toolbar: 0
+  labdoo_breadcrumb: 0
   labdoo_common: 0
   labdoo_dootrip: 0
   labdoo_dootronics: 0

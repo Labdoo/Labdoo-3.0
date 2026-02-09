@@ -10,7 +10,7 @@ dependencies:
 id: labdoo_edoovillagetabs
 theme: labdoo
 region: content
-weight: -15
+weight: -16
 provider: null
 plugin: edoovillage_tabs_block_block
 settings:

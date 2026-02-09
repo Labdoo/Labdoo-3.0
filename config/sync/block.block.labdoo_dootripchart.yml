@@ -10,7 +10,7 @@ dependencies:
 id: labdoo_dootripchart
 theme: labdoo
 region: content
-weight: -16
+weight: -17
 provider: null
 plugin: dootrip_chart_block_block
 settings:

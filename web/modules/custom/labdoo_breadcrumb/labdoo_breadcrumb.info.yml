@@ -1,0 +1,6 @@
+name: 'Labdoo Breadcrumb'
+type: module
+description: 'Custom breadcrumb block for Labdoo'
+package: labdoo
+core_version_requirement: ^8 || ^9 || ^10 || ^11
+dependencies: {}
