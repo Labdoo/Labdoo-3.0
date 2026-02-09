@@ -192,13 +192,20 @@ class CommonRepository {
   /**
    * Retrieves the total edoovillages.
    *
+   * @param int|null $userId
+   *   The user ID.
+   *
    * @return int
    *   The total edoovillages.
    */
-  public function getEdoovillagesCount(): int {
+  public function getEdoovillagesCount(?int $userId = NULL): int {
     $query = $this->database->select('node_field_data', 'n');
     $query->addExpression('COUNT(*)');
     $query->condition('n.type', 'edoovillage');
+
+    if ($userId !== NULL) {
+      $query->condition('n.uid', $userId);
+    }
 
     return $query->countQuery()->execute()->fetchField();
   }
@@ -231,13 +238,20 @@ class CommonRepository {
   /**
    * Retrieves the total hubs.
    *
+   * @param int|null $userId
+   *   The user ID.
+   *
    * @return int
    *   The total hubs.
    */
-  public function getHubsCount(): int {
+  public function getHubsCount(?int $userId = NULL): int {
     $query = $this->database->select('node_field_data', 'n');
     $query->addExpression('COUNT(*)');
     $query->condition('n.type', 'hub');
+
+    if ($userId !== NULL) {
+      $query->condition('n.uid', $userId);
+    }
 
     return $query->countQuery()->execute()->fetchField();
   }
@@ -245,13 +259,20 @@ class CommonRepository {
   /**
    * Retrieves the total dootrips.
    *
+   * @param int|null $userId
+   *   The user ID.
+   *
    * @return int
-   *   The total hubs.
+   *   The total dootrips.
    */
-  public function getDootripsCount(): int {
+  public function getDootripsCount(?int $userId = NULL): int {
     $query = $this->database->select('node_field_data', 'n');
     $query->addExpression('COUNT(*)');
     $query->condition('n.type', 'dootrip');
+
+    if ($userId !== NULL) {
+      $query->condition('n.uid', $userId);
+    }
 
     return $query->countQuery()->execute()->fetchField();
   }

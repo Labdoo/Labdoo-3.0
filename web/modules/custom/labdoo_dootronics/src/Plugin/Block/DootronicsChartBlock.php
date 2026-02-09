@@ -122,6 +122,17 @@ class DootronicsChartBlock extends BlockBase implements ContainerFactoryPluginIn
       ],
     ];
 
+    $userId = \Drupal::request()->query->get('u');
+    $mine = \Drupal::request()->query->get('mine');
+    $filterUserId = NULL;
+
+    if (!empty($userId) && is_numeric($userId)) {
+      $filterUserId = (int) $userId;
+    }
+    elseif (!empty($mine) && (int) $mine === 1) {
+      $filterUserId = (int) \Drupal::currentUser()->id();
+    }
+
     $results = $this->viewRepository->getResults(
       'dootronics_dashboard',
       'page_1'
@@ -146,6 +157,8 @@ class DootronicsChartBlock extends BlockBase implements ContainerFactoryPluginIn
         'max-age' => Cache::PERMANENT,
         'contexts' => [
           'url.path',
+          'url.query_args:u',
+          'url.query_args:mine',
           'session',
         ],
         'tags' => [

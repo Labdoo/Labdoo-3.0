@@ -95,6 +95,18 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
     $capacity = 0;
     $inTransit = 0;
     $transported = 0;
+
+    $userId = \Drupal::request()->query->get('u');
+    $mine = \Drupal::request()->query->get('mine');
+    $filterUserId = NULL;
+
+    if (!empty($userId) && is_numeric($userId)) {
+      $filterUserId = (int) $userId;
+    }
+    elseif (!empty($mine) && (int) $mine === 1) {
+      $filterUserId = (int) \Drupal::currentUser()->id();
+    }
+
     $results = $this->viewRepository->getResults(
       'dootrips_dashboard',
       'page_1'
@@ -111,7 +123,7 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
       $transported += $dootrip->get('field_dootronics_delivered')->value;
     }
 
-    $total = $this->commonRepository->getDootripsCount();
+    $total = $this->commonRepository->getDootripsCount($filterUserId);
 
     return [
       '#theme' => 'dootrip_chart_block_block',
@@ -123,6 +135,8 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
         'max-age' => Cache::PERMANENT,
         'contexts' => [
           'url.path',
+          'url.query_args:u',
+          'url.query_args:mine',
           'session',
         ],
         'tags' => [

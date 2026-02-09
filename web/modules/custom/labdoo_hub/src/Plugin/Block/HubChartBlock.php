@@ -83,6 +83,17 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
     $delivered = 0;
     $inTransit = 0;
     $remaining = 0;
+    $userId = \Drupal::request()->query->get('u');
+    $mine = \Drupal::request()->query->get('mine');
+    $filterUserId = NULL;
+
+    if (!empty($userId) && is_numeric($userId)) {
+      $filterUserId = (int) $userId;
+    }
+    elseif (!empty($mine) && (int) $mine === 1) {
+      $filterUserId = (int) \Drupal::currentUser()->id();
+    }
+
     $results = $this->viewRepository->getResults(
       'hubs_dashboard',
       'page_1'
@@ -110,6 +121,8 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
         'max-age' => Cache::PERMANENT,
         'contexts' => [
           'url.path',
+          'url.query_args:u',
+          'url.query_args:mine',
           'session',
         ],
         'tags' => [
