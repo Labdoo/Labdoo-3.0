@@ -1,0 +1,45 @@
+.pager
+  margin: 30px 0
+  display: flex
+  justify-content: center
+
+  .pager__items
+    display: flex
+    list-style: none
+    padding: 0
+    margin: 0
+    gap: 8px
+
+  .pager__item
+    margin: 0
+
+    &.is-active
+      .pager__link
+        background-color: $blue
+        color: $white !important
+        border-color: $blue
+
+  .pager__link
+    display: flex
+    align-items: center
+    justify-content: center
+    min-width: 40px
+    height: 40px
+    padding: 0 12px
+    border: 1px solid $border-color
+    border-radius: 8px
+    color: $dark-grey !important
+    font-weight: 500
+    transition: all 0.2s ease
+    text-decoration: none !important
+
+    &:hover
+      border-color: $blue
+      color: $blue !important
+      background-color: $lighter-blue
+      border-bottom: 1px solid $blue !important
+
+    &.is-active
+      background-color: $blue
+      color: $white !important
+      border-color: $blue

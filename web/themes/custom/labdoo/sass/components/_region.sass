@@ -32,9 +32,13 @@
 
 .region-header
   display: flex
-  justify-content: space-between
+  justify-content: flex-start
   @media only screen and (max-width: 1024px)
     display: block
+
+  .search-overlay-block
+    margin-left: 0
+    order: 1
 
 .page-wrapper
   padding-top: 45px

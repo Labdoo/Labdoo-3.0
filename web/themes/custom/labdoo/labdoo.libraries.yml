@@ -5,4 +5,8 @@ custom-styling:
 
 labdoo_ui:
   js:
-    js/labdoo-ui.js: { minified: true }
+    js/labdoo-ui.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once

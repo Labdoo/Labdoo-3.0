@@ -5,3 +5,64 @@
     width: 100%
     input
       width: 100%
+
+.search-overlay-block
+  position: static
+  display: inline-block
+  vertical-align: middle
+
+  .search-icon-wrapper
+    display: flex
+    align-items: center
+    margin-right: 10px
+
+    .search-icon-trigger
+      color: #333
+      display: flex
+      align-items: center
+      padding: 5px
+      transition: color 0.3s ease
+
+      &:hover
+        color: #007bff
+
+  .search-overlay
+    display: none
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background: rgba(0, 0, 0, 0.8)
+    z-index: 9999
+    justify-content: center
+    align-items: center
+
+    &.active
+      display: flex
+
+    .search-overlay-content
+      background: white
+      padding: 40px
+      border-radius: 8px
+      width: 90%
+      max-width: 600px
+      position: relative
+
+      .search-overlay-close
+        position: absolute
+        top: 10px
+        right: 20px
+        font-size: 30px
+        text-decoration: none
+        color: #333
+        line-height: 1
+
+        &:hover
+          color: #ff0000
+
+  // Position the icon next to language switcher
+  // We target the parent region to use flexbox
+
+// Target the header region items to align search and language
+// These rules moved to _region.sass to keep it cleaner

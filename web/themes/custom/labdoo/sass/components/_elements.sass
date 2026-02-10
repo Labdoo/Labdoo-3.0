@@ -1,13 +1,20 @@
+body
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif
+  color: $black
+  line-height: 1.6
+  background-color: #fcfcfc
+
 body, header
   background-color: $white !important
 
 a
-  color: $blue !important
+  color: $blue
   text-decoration: none
+  transition: color 0.3s ease, border-bottom 0.3s ease
 
 *:focus
-  outline: none !important
-  box-shadow: none !important
+  outline: 2px solid rgba($blue, 0.5) !important
+  outline-offset: 2px
 
 a:focus
   outline: none !important
@@ -16,13 +23,50 @@ a:focus
 
 a:hover, a:focus, a:active
   color: $link-active
-  text-decoration: underline
+  text-decoration: none
+  border-bottom: 1px solid $link-active
+
+.title, h1, h2, h3
+  color: $black
+  font-weight: 600
+  margin-bottom: 1rem
 
 .title
-  color: $lighter-red
-  font-weight: 700
+  color: $red
 
 .subtitle
-  color: $grey
-  font-weight: 700
+  color: $dark-grey
+  font-weight: 500
+  font-size: 1.1rem
+
+.button, button, input[type="submit"]
+  background-color: $blue !important
+  color: $white !important
+  padding: 10px 24px
+  border-radius: 8px
+  border: none
+  font-weight: 600
+  font-size: 0.95rem
+  cursor: pointer
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+  text-decoration: none !important
+  display: inline-block
+  box-shadow: 0 2px 4px rgba($blue, 0.2)
+  border-bottom: none !important
+  &:hover
+    background-color: $link-active
+    transform: translateY(-2px)
+    box-shadow: 0 4px 8px rgba($blue, 0.3)
+  &:active
+    transform: translateY(0)
+    box-shadow: 0 2px 4px rgba($blue, 0.2)
+
+.breadcrumb__text
+  font-weight: normal !important
+
+.breadcrumb__link, .breadcrumb__item a
+  color: $blue !important
+  &:hover
+    color: $link-active !important
+    text-decoration: underline
 
