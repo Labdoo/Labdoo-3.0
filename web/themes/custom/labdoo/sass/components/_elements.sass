@@ -39,27 +39,29 @@ a:hover, a:focus, a:active
   font-weight: 500
   font-size: 1.1rem
 
-.button, button, input[type="submit"]
-  background-color: $blue !important
-  color: $white !important
-  padding: 10px 24px
-  border-radius: 8px
-  border: none
-  font-weight: 600
-  font-size: 0.95rem
-  cursor: pointer
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
-  text-decoration: none !important
-  display: inline-block
-  box-shadow: 0 2px 4px rgba($blue, 0.2)
-  border-bottom: none !important
-  &:hover
-    background-color: $link-active
-    transform: translateY(-2px)
-    box-shadow: 0 4px 8px rgba($blue, 0.3)
-  &:active
-    transform: translateY(0)
+.page-wrapper
+  .button, .button:not(:focus), .form-actions .button, button, input[type="submit"]
+    width: fit-content !important
+    background-color: $blue !important
+    color: $white !important
+    padding: 10px 24px
+    border-radius: 0 !important
+    border: none !important
+    font-weight: 600
+    font-size: 0.95rem
+    cursor: pointer
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+    text-decoration: none !important
+    display: inline-block
     box-shadow: 0 2px 4px rgba($blue, 0.2)
+    border-bottom: none !important
+    &:hover
+      background-color: $link-active
+      transform: translateY(-2px)
+      box-shadow: 0 4px 8px rgba($blue, 0.3)
+    &:active
+      transform: translateY(0)
+      box-shadow: 0 2px 4px rgba($blue, 0.2)
 
 .breadcrumb__text
   font-weight: normal !important

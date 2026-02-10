@@ -3,19 +3,18 @@
 
 .horizontal-tabs-panes
   background-color: var(--gin-bg-layer)
-  border-radius: var(--gin-border-l)
+  border-radius: 0 !important
   box-shadow: var(--gin-shadow-l1)
   padding: 20px
 
-//.gin-secondary-toolbar,
-//.gin--horizontal-toolbar .region-sticky
-//  display: none
+.horizontal-tabs ul.horizontal-tabs-list li.horizontal-tab-button a
+  border-radius: 0 !important
+
+.is-horizontal .tabs--primary .tabs__link
+  border-radius: 0 !important
 
 #toolbar-administration-secondary
   display: none
 
 body.toolbar-horizontal.toolbar-fixed
   padding-top: 39px
-
-//.content-header
-//  margin-top: 50px

@@ -14,13 +14,12 @@
   .search-icon-wrapper
     display: flex
     align-items: center
-    margin-right: 10px
 
     .search-icon-trigger
       color: #333
       display: flex
       align-items: center
-      padding: 5px
+      padding: 0
       transition: color 0.3s ease
 
       &:hover
@@ -44,7 +43,7 @@
     .search-overlay-content
       background: white
       padding: 40px
-      border-radius: 8px
+      border-radius: 0
       width: 90%
       max-width: 600px
       position: relative
@@ -60,9 +59,3 @@
 
         &:hover
           color: #ff0000
-
-  // Position the icon next to language switcher
-  // We target the parent region to use flexbox
-
-// Target the header region items to align search and language
-// These rules moved to _region.sass to keep it cleaner

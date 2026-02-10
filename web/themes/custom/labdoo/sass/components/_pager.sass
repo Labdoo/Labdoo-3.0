@@ -5,6 +5,7 @@
 
   .pager__items
     display: flex
+    align-items: center
     list-style: none
     padding: 0
     margin: 0
@@ -15,9 +16,11 @@
 
     &.is-active
       .pager__link
-        background-color: $blue
-        color: $white !important
-        border-color: $blue
+        background-color: transparent !important
+        color: $blue !important
+        border-color: transparent !important
+        border-bottom: 1px solid $blue !important
+        border-radius: 0 !important
 
   .pager__link
     display: flex
@@ -26,19 +29,31 @@
     min-width: 40px
     height: 40px
     padding: 0 12px
-    border: none
+    border: none !important
+    border-radius: 0
     color: $dark-grey !important
     font-weight: 500
     transition: all 0.2s ease
     text-decoration: none !important
 
     &:hover
-      border-color: $blue
-      color: $blue !important
-      background-color: $lighter-blue
+      background-color: transparent !important
+      border-color: transparent !important
       border-bottom: 1px solid $blue !important
+      border-radius: 0 !important
+      &::before, &::after
+        background: var(--gin-color-text-light) !important
 
     &.is-active
-      background-color: $blue
-      color: $white !important
-      border-color: $blue
+      background-color: transparent !important
+      color: $blue !important
+      border-color: transparent !important
+      border-bottom: 1px solid $blue !important
+      border-radius: 0 !important
+
+  .pager__item--current
+    background-color: transparent !important
+    color: $blue !important
+    border-color: transparent !important
+    border-bottom: 1px solid $blue !important
+    border-radius: 0 !important
