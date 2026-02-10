@@ -1,0 +1,20 @@
+uuid: e68c4fa9-d308-46b3-8a81-8a14f643fa40
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_common
+  theme:
+    - labdoo
+id: labdoo_labdoofooteracts
+theme: labdoo
+region: footer
+weight: 0
+provider: null
+plugin: labdoo_footer_acts_block
+settings:
+  id: labdoo_footer_acts_block
+  label: 'Labdoo Footer Acts'
+  label_display: '0'
+  provider: labdoo_common
+visibility: {  }
