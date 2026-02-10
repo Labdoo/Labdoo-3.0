@@ -5,4 +5,5 @@ auto_rotate_mini_missions:
   dependencies:
     - core/jquery
     - core/drupal
+    - core/drupal.ajax
     - core/once
