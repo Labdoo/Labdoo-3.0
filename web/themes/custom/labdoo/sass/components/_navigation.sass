@@ -20,7 +20,37 @@
     &:hover
       color: $blue !important
 
+// Fix mobile menu overlay and toolbar handle styles
+.toolbar-icon.toolbar-handle
+  background: transparent !important
+  box-shadow: none !important
+  border-color: transparent !important
+  &:hover, &:focus, &:active
+    background: transparent !important
+    box-shadow: none !important
+
+// Ensure the Gin vertical tray sits above page UI on mobile
+.toolbar-tray.toolbar-tray-vertical
+  z-index: 10050 !important
+
 .region-header
   background: $white
   box-shadow: 0 2px 10px rgba(0,0,0,0.05)
   margin-bottom: 20px
+
+#gin-toolbar-bar
+  .toolbar-tab
+    display: block
+    > .toolbar-icon.is-active
+      background-color: white
+  @media only screen and (max-width: 1024px)
+    .menu-item .toolbar-icon
+      padding-left: 20px
+      &::before
+        display: none
+    .toolbar-menu a
+      padding-left: 20px
+    .toolbar-icon-menu.trigger,
+    .toolbar-icon-user.trigger
+      position: relative
+      z-index: 99999
