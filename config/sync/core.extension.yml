@@ -122,6 +122,7 @@ module:
   queue_manager: 0
   quick_node_clone: 0
   recaptcha_v3: 0
+  redirect: 0
   redis: 0
   rest: 0
   restui: 0

@@ -1,0 +1,20 @@
+uuid: f3538c29-b5b9-4e38-b9fc-0fee41043fe3
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_scraper
+title: 'Queue: Labdoo Scraper URL Processor'
+id: ultimate_cron_queue_labdoo_scraper_url_processor
+weight: 10
+module: labdoo_scraper
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

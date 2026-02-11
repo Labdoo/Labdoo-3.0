@@ -9,18 +9,24 @@ label: 'Main content'
 type: 'canonical_entities:node'
 pattern: 'content/[node:title]'
 selection_criteria:
-  30ae793f-80f6-4e30-b9f0-01c15bf8aeab:
+  c014aeb0-679e-487c-adc7-cfbae94b3b12:
     id: 'entity_bundle:node'
     negate: false
-    uuid: 30ae793f-80f6-4e30-b9f0-01c15bf8aeab
+    uuid: c014aeb0-679e-487c-adc7-cfbae94b3b12
     context_mapping:
       node: node
     bundles:
       article: article
+      dootrip: dootrip
       dootronic: dootronic
       edoovillage: edoovillage
+      gallery: gallery
       hub: hub
+      labdoo_story: labdoo_story
       page: page
+      task_team: task_team
+      team: team
+      team_post: team_post
 selection_logic: and
 weight: -5
 relationships: {  }

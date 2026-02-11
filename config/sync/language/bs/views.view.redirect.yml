@@ -1,0 +1,22 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Filter
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sortiraj prema'
+      pager:
+        options:
+          tags:
+            previous: '‹ prethodna'
+            next: 'iduća ›'
+            first: '« prva'
+            last: 'zadnja »'
+      fields:
+        enabled:
+          label: Omogućeno
+        created:
+          label: Kreiran
+  page_1:
+    display_title: Strana
