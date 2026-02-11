@@ -60,49 +60,58 @@
                 const scrollX = window.scrollX;
                 const scrollY = window.scrollY;
 
+                // Override all scroll methods BEFORE clicking
+                const originalScrollTo = window.scrollTo;
+                const originalScrollIntoView = Element.prototype.scrollIntoView;
+                const originalScroll = window.scroll;
+                const originalScrollBy = window.scrollBy;
+
+                window.scrollTo = function() { return; };
+                window.scroll = function() { return; };
+                window.scrollBy = function() { return; };
+                Element.prototype.scrollIntoView = function() { return; };
+
                 // Prevent any scroll attempts - capture phase to intercept early
                 const preventScroll = function(e) {
                   e.preventDefault();
                   e.stopImmediatePropagation();
-                  window.scrollTo(scrollX, scrollY);
+                  originalScrollTo.call(window, scrollX, scrollY);
                 };
 
                 // Block scroll events in capture phase
                 window.addEventListener('scroll', preventScroll, { passive: false, capture: true });
                 document.addEventListener('scroll', preventScroll, { passive: false, capture: true });
 
-                // Override scrollTo, scrollIntoView, and scroll
-                const originalScrollTo = window.scrollTo;
-                const originalScrollIntoView = Element.prototype.scrollIntoView;
-                const originalScroll = window.scroll;
-
-                window.scrollTo = function() { return; };
-                window.scroll = function() { return; };
-                Element.prototype.scrollIntoView = function() { return; };
-
-                // Use requestAnimationFrame to force position during any reflow
+                // Use requestAnimationFrame to continuously force position
                 let rafId;
+                let running = true;
                 const forcePosition = function() {
-                  if (window.scrollX !== scrollX || window.scrollY !== scrollY) {
-                    originalScrollTo.call(window, scrollX, scrollY);
+                  if (running) {
+                    if (window.scrollX !== scrollX || window.scrollY !== scrollY) {
+                      originalScrollTo.call(window, scrollX, scrollY);
+                    }
+                    rafId = requestAnimationFrame(forcePosition);
                   }
-                  rafId = requestAnimationFrame(forcePosition);
                 };
-                rafId = requestAnimationFrame(forcePosition);
+                forcePosition();
 
                 // Click the link
                 $nextLink[0].click();
 
                 // Restore everything after AJAX completes
                 setTimeout(function() {
-                  cancelAnimationFrame(rafId);
+                  running = false;
+                  if (rafId) {
+                    cancelAnimationFrame(rafId);
+                  }
                   window.scrollTo = originalScrollTo;
                   window.scroll = originalScroll;
+                  window.scrollBy = originalScrollBy;
                   Element.prototype.scrollIntoView = originalScrollIntoView;
                   window.removeEventListener('scroll', preventScroll, { capture: true });
                   document.removeEventListener('scroll', preventScroll, { capture: true });
                   originalScrollTo.call(window, scrollX, scrollY);
-                }, 500);
+                }, 1000);
 
                 // Set timer for next rotation.
                 rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
