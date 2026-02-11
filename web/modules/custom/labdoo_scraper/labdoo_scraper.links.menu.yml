@@ -1,0 +1,13 @@
+labdoo_scraper.form:
+  title: 'Labdoo Scraper'
+  description: 'Scrape a URL and verify slugs.'
+  parent: system.admin_config_services
+  route_name: labdoo_scraper.form
+  weight: 100
+
+labdoo_scraper.report:
+  title: 'Labdoo Scraper Report'
+  description: 'View the results of the URL scraper.'
+  parent: system.admin_reports
+  route_name: labdoo_scraper.report
+  weight: 100

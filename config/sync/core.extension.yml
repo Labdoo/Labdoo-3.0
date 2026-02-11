@@ -88,6 +88,7 @@ module:
   labdoo_migrate: 0
   labdoo_notifications: 0
   labdoo_privileges: 0
+  labdoo_scraper: 0
   labdoo_search_fix: 0
   labdoo_statistics: 0
   labdoo_story: 0
@@ -121,6 +122,7 @@ module:
   queue_manager: 0
   quick_node_clone: 0
   recaptcha_v3: 0
+  redirect: 0
   redis: 0
   rest: 0
   restui: 0

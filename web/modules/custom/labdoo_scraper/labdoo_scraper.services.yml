@@ -1,0 +1,4 @@
+services:
+  labdoo_scraper.scraper_service:
+    class: Drupal\labdoo_scraper\Service\ScraperService
+    arguments: ['@http_client', '@path_alias.manager', '@router.no_access_checks', '@database']

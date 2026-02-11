@@ -1,0 +1,30 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Ֆիլտր
+          reset_button_label: Վերականգնել
+          exposed_sorts_label: 'Դասակարգել ըստ'
+      pager:
+        options:
+          tags:
+            previous: '‹ նախորդը'
+            next: 'հաջորդը ›'
+            first: '« առաջինը'
+      fields:
+        redirect_source__path:
+          label: 'Ում կողմից'
+        enabled:
+          label: 'Ակտիվացված է'
+        created:
+          label: 'Ստեղծվել է'
+      filters:
+        redirect_source__path:
+          expose:
+            label: 'Ում կողմից'
+        redirect_redirect__uri:
+          expose:
+            label: Ում
+  page_1:
+    display_title: Էջ

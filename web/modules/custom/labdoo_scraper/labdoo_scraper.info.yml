@@ -1,0 +1,8 @@
+name: 'Labdoo Scraper'
+type: module
+description: 'Módulo para hacer scrapping de URLs y verificar su existencia en el portal.'
+package: Labdoo
+core_version_requirement: ^9 || ^10
+dependencies:
+  - drupal:node
+  - drupal:path_alias

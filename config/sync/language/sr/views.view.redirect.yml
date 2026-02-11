@@ -1,0 +1,12 @@
+display:
+  default:
+    display_options:
+      exposed_form:
+        options:
+          submit_button: Филтрирај
+          exposed_sorts_label: 'Сортирај по'
+      fields:
+        enabled:
+          label: Укључено
+        created:
+          label: Направљено

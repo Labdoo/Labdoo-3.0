@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the labdoo_scraper module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function labdoo_scraper_schema() {
+  $schema['labdoo_scraper_results'] = [
+    'description' => 'Almacena los resultados del scrapping.',
+    'fields' => [
+      'id' => [
+        'description' => 'ID autoincremental.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ],
+      'source_url' => [
+        'description' => 'La URL donde se encontró el enlace.',
+        'type' => 'varchar',
+        'length' => 2048,
+        'not null' => TRUE,
+      ],
+      'discovered_url' => [
+        'description' => 'La URL descubierta.',
+        'type' => 'varchar',
+        'length' => 2048,
+        'not null' => TRUE,
+      ],
+      'slug' => [
+        'description' => 'El slug extraído de la URL.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ],
+      'exists' => [
+        'description' => 'Indica si el slug existe en el portal (1) o no (0).',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'entity_type' => [
+        'description' => 'Tipo de entidad si existe.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => FALSE,
+      ],
+      'entity_id' => [
+        'description' => 'ID de la entidad si existe.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ],
+      'created' => [
+        'description' => 'Timestamp de creación.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'slug' => ['slug'],
+    ],
+  ];
+
+  return $schema;
+}
