@@ -1,0 +1,6 @@
+administer labdoo scraper:
+  title: 'Administer Labdoo Scraper'
+  description: 'Allows users to run the scraper and clear results.'
+access labdoo scraper report:
+  title: 'Access Labdoo Scraper report'
+  description: 'Allows users to view the scraper discovery report.'
