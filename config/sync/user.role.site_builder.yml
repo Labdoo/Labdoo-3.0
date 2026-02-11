@@ -1,0 +1,17 @@
+uuid: 85348a07-3b5b-4bd7-9f0b-23bf23493368
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_scraper
+    - pathauto
+    - redirect
+id: site_builder
+label: 'Site builder'
+weight: 11
+is_admin: null
+permissions:
+  - 'access labdoo scraper report'
+  - 'administer labdoo scraper'
+  - 'administer pathauto'
+  - 'administer redirects'

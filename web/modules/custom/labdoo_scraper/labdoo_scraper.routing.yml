@@ -4,7 +4,7 @@ labdoo_scraper.form:
     _form: '\Drupal\labdoo_scraper\Form\ScraperForm'
     _title: 'Labdoo Scraper'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer labdoo scraper'
 
 labdoo_scraper.report:
   path: '/admin/reports/labdoo-scraper'
@@ -12,4 +12,4 @@ labdoo_scraper.report:
     _controller: '\Drupal\labdoo_scraper\Controller\ScraperReportController::report'
     _title: 'Labdoo Scraper Report'
   requirements:
-    _permission: 'access site reports'
+    _permission: 'access labdoo scraper report'
