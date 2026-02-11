@@ -7,3 +7,6 @@
     }
 }
 
+.gin-secondary-toolbar .toolbar-secondary {
+  display: none !important;
+}
