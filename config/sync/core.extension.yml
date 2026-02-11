@@ -88,6 +88,7 @@ module:
   labdoo_migrate: 0
   labdoo_notifications: 0
   labdoo_privileges: 0
+  labdoo_scraper: 0
   labdoo_search_fix: 0
   labdoo_statistics: 0
   labdoo_story: 0
