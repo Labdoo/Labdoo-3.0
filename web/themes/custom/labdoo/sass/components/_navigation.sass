@@ -35,7 +35,7 @@
 
 .region-header
   background: $white
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05)
+  box-shadow: none
   margin-bottom: 20px
 
 #gin-toolbar-bar
@@ -54,6 +54,10 @@
     .toolbar-icon-user.trigger
       position: relative
       z-index: 99999
+    .contextual-toolbar-tab,
+    .announce-toolbar-tab,
+    .toolbar-tab--toolbar-item-shortcuts
+      display: none
 
 .toolbar-tab--toolbar-item-user
   display: none !important

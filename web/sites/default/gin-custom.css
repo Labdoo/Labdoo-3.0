@@ -7,6 +7,13 @@
     }
 }
 
-.gin-secondary-toolbar .toolbar-secondary {
-  display: none !important;
+#toolbar-administration-secondary {
+    display: none !important;
+}
+
+
+@media only screen and (max-width: 1024px) {
+  .toolbar .toolbar-bar .toolbar-tab, .toolbar .toolbar-bar .toolbar-tab .toolbar-menu__logo {
+    display: block;
+  }
 }
