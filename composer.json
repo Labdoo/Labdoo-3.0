@@ -70,6 +70,7 @@
         "drupal/masquerade_float_block": "^2.0",
         "drupal/media_entity_slideshow": "^2.6",
         "drupal/media_library_edit": "^3.0",
+        "drupal/menu_per_role": "^1.8",
         "drupal/owlcarousel": "^3.0",
         "drupal/paragraphs": "^1.19",
         "drupal/pathauto": "^1.12",
