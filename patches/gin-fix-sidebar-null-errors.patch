@@ -1,0 +1,34 @@
+--- a/js/sidebar.js
++++ b/js/sidebar.js
+@@ -73,6 +73,9 @@
+ 
+     toggleSidebar: () => {
+       const sidebarTrigger = document.querySelector('.meta-sidebar__trigger');
++      if (!sidebarTrigger) {
++        return;
++      }
+       // Set active state.
+       if (sidebarTrigger.classList.contains('is-active')) {
+         Drupal.ginSidebar.collapseSidebar();
+@@ -90,6 +93,10 @@
+       const hideLabel = Drupal.t('Hide sidebar panel');
+       const sidebarTrigger = document.querySelector('.meta-sidebar__trigger');
+ 
++      if (!sidebarTrigger) {
++        return;
++      }
++
+       sidebarTrigger.querySelector('span').innerHTML = hideLabel;
+       sidebarTrigger.setAttribute('title', hideLabel);
+       if (sidebarTrigger.nextSibling) {
+@@ -120,6 +127,10 @@
+       const showLabel = Drupal.t('Show sidebar panel');
+       const sidebarTrigger = document.querySelector('.meta-sidebar__trigger');
+ 
++      if (!sidebarTrigger) {
++        return;
++      }
++
+       sidebarTrigger.querySelector('span').innerHTML = showLabel;
+       sidebarTrigger.setAttribute('title', showLabel);
+       if (sidebarTrigger.nextSibling) {
