@@ -400,7 +400,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->set('field_description', [
           'value' => $sourceGroup['body']['value'],
           'summary' => $sourceGroup['body']['summary'],
-          'format' => 'basic_html', // Map D7 format to D10 format
+          'format' => $this->mapFormat($sourceGroup['body']['format']),
         ]);
       }
 
@@ -491,6 +491,24 @@ class TeamSynchronizerCommands extends DrushCommands {
     if ($this->progressBar) {
       $this->progressBar->advance();
     }
+  }
+
+  /**
+   * Maps Drupal 7 text formats to Drupal 10 text formats.
+   *
+   * @param string|null $format
+   *   The source format.
+   *
+   * @return string
+   *   The destination format.
+   */
+  protected function mapFormat(?string $format): string {
+    return match ($format) {
+      'full_html' => 'full_html',
+      'filtered_html', 'basic_html' => 'basic_html',
+      'plain_text' => 'plain_text',
+      default => 'full_html',
+    };
   }
 
   /**
@@ -703,7 +721,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->set('body', [
           'value' => $sourcePost['body']['value'],
           'summary' => $sourcePost['body']['summary'] ?? '',
-          'format' => 'basic_html', // Map D7 format to D10 format
+          'format' => $this->mapFormat($sourcePost['body']['format']),
         ]);
       }
 
@@ -733,7 +751,7 @@ class TeamSynchronizerCommands extends DrushCommands {
                 'subject' => $sourceComment['subject'],
                 'comment_body' => [
                   'value' => $sourceComment['body']['value'] ?? '',
-                  'format' => 'basic_html',
+                  'format' => $this->mapFormat($sourceComment['body']['format'] ?? 'basic_html'),
                 ],
                 'status' => $sourceComment['status'],
                 'created' => $sourceComment['created'],
