@@ -21,7 +21,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
  *
  * Usage:
  * drush labdoo-synchronize-galleries
- * drush labdoo-sync-galleries --nids=123,456,789 --limit=10 --dry-run
+ * drush labdoo-sync-galleries --nids=123,456,789 --limit=10 --dry-run --from-date="2026-02-01 00:00:00"
  *
  * Developed by Natiboo <info@natiboo.es>
  *
@@ -72,6 +72,13 @@ class GallerySynchronizerCommands extends DrushCommands {
   private $progressBar;
 
   /**
+   * Optional UNIX timestamp filter for source nodes.
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
+
+  /**
    * GallerySynchronizerCommands constructor.
    */
   public function __construct(
@@ -88,7 +95,7 @@ class GallerySynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-galleries [nids=123,456,789] [limit=9] [dry-run]
+   * @command labdoo-synchronize-galleries [nids=123,456,789] [limit=9] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"]
    * @aliases labdoo-sync-galleries
    * @usage labdoo-synchronize-galleries
    *   Synchronizes the galleries from Drupal 7 to Drupal 10.
@@ -96,12 +103,14 @@ class GallerySynchronizerCommands extends DrushCommands {
    * @option nids List of Drupal 7 gallery IDs to synchronize.
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
+   * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
    */
   public function startSync(
     array $options = [
       'nids' => NULL,
       'limit' => -1,
       'dry-run' => FALSE,
+      'from-date' => NULL,
     ]
   ) {
     try {
@@ -189,6 +198,7 @@ class GallerySynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
+    $this->fromTimestamp = NULL;
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
     if ($options['nids'] !== NULL) {
@@ -196,6 +206,14 @@ class GallerySynchronizerCommands extends DrushCommands {
     }
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
+    if (!empty($options['from-date'])) {
+      $ts = strtotime($options['from-date']);
+      if ($ts === FALSE) {
+        $this->logger->error(sprintf('Invalid value for option "from-date": %s. Expected format: YYYY-MM-DD HH:MM:SS', $options['from-date']));
+        die;
+      }
+      $this->fromTimestamp = (int) $ts;
+    }
   }
 
   /**
@@ -242,6 +260,13 @@ class GallerySynchronizerCommands extends DrushCommands {
 
     if ($this->limit > -1) {
       $query->range(0, $this->limit);
+    }
+
+    if ($this->fromTimestamp !== NULL) {
+      $or = $query->orConditionGroup()
+        ->condition('n.created', $this->fromTimestamp, '>=')
+        ->condition('n.changed', $this->fromTimestamp, '>=');
+      $query->condition($or);
     }
 
     // Execute query
@@ -325,6 +350,13 @@ class GallerySynchronizerCommands extends DrushCommands {
 
     if ($this->limit > -1) {
       $query->range(0, $this->limit);
+    }
+
+    if ($this->fromTimestamp !== NULL) {
+      $or = $query->orConditionGroup()
+        ->condition('n.created', $this->fromTimestamp, '>=')
+        ->condition('n.changed', $this->fromTimestamp, '>=');
+      $query->condition($or);
     }
 
     // Execute query
