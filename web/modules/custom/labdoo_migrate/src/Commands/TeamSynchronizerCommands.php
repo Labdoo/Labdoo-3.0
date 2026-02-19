@@ -69,6 +69,13 @@ class TeamSynchronizerCommands extends DrushCommands {
   private $dryRun;
 
   /**
+   * Optional UNIX timestamp filter for source nodes.
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
+
+  /**
    * The progress bar.
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
@@ -93,7 +100,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-teams [nids=123,456,789] [limit=9] [dry-run]
+   * @command labdoo-synchronize-teams [nids=123,456,789] [limit=9] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"]
    * @aliases labdoo-sync-teams
    * @usage labdoo-synchronize-teams
    *   Synchronizes the Organic Groups from Drupal 7 to Drupal 10 team structure.
@@ -101,12 +108,14 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @option nids List of Drupal 7 group IDs to synchronize.
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
+   * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
    */
   public function startSync(
     array $options = [
       'nids' => NULL,
       'limit' => -1,
       'dry-run' => FALSE,
+      'from-date' => NULL,
     ]
   ): void {
     try {
@@ -138,6 +147,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
+    $this->fromTimestamp = NULL;
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
     if ($options['nids'] !== NULL) {
@@ -145,6 +155,14 @@ class TeamSynchronizerCommands extends DrushCommands {
     }
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
+    if (!empty($options['from-date'])) {
+      $ts = strtotime($options['from-date']);
+      if ($ts === FALSE) {
+        $this->logger->error(sprintf('Invalid value for option "from-date": %s. Expected format: YYYY-MM-DD HH:MM:SS', $options['from-date']));
+        die;
+      }
+      $this->fromTimestamp = (int) $ts;
+    }
   }
 
   /**
@@ -169,6 +187,12 @@ class TeamSynchronizerCommands extends DrushCommands {
     }
     if ($this->limit > -1) {
       $groupsQuery->range(0, $this->limit);
+    }
+    if ($this->fromTimestamp !== NULL) {
+      $or = $groupsQuery->orConditionGroup()
+        ->condition('created', $this->fromTimestamp, '>=')
+        ->condition('changed', $this->fromTimestamp, '>=');
+      $groupsQuery->condition($or);
     }
     $groups = $groupsQuery->execute()->fetchAll();
 
@@ -518,6 +542,12 @@ class TeamSynchronizerCommands extends DrushCommands {
     }
     if ($this->limit > -1) {
       $postsQuery->range(0, $this->limit);
+    }
+    if ($this->fromTimestamp !== NULL) {
+      $or = $postsQuery->orConditionGroup()
+        ->condition('created', $this->fromTimestamp, '>=')
+        ->condition('changed', $this->fromTimestamp, '>=');
+      $postsQuery->condition($or);
     }
     $posts = $postsQuery->execute()->fetchAll();
 

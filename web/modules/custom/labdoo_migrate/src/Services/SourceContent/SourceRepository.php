@@ -57,6 +57,13 @@ class SourceRepository implements SourceRepositoryInterface {
   private array $mapping;
 
   /**
+   * Optional timestamp filter for created/changed fields.
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
+
+  /**
    * SourceRepository constructor.
    *
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
@@ -87,11 +94,13 @@ class SourceRepository implements SourceRepositoryInterface {
   public function getEntities(
     string $contentType,
     array $mapping,
-    ?array $entityIds = NULL
+    ?array $entityIds = NULL,
+    ?int $fromTimestamp = NULL
   ): array {
 
     $this->contentType = $contentType;
     $this->mapping = $mapping;
+    $this->fromTimestamp = $fromTimestamp;
     $entities = [];
     if (empty($entityIds)) {
       $entityIds = $this->getNodesByType();
@@ -137,12 +146,17 @@ class SourceRepository implements SourceRepositoryInterface {
   protected function getNodesByType(): array {
 
     $field = new FieldModel('node', 'nid', 'nid');
+    $special = 'nid = tnid OR tnid = 0';
+    if ($this->fromTimestamp !== NULL) {
+      $ts = (int) $this->fromTimestamp;
+      $special = sprintf('(created >= %d OR changed >= %d) AND (%s)', $ts, $ts, $special);
+    }
     $results = $this->getQueryResults(
       $field,
       NULL,
       TRUE,
       NULL,
-      'nid = tnid OR tnid = 0'
+      $special
     );
     $ids = [];
     foreach ($results as $result) {

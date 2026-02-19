@@ -111,6 +111,13 @@ class SynchronizerCommands extends DrushCommands {
   private $overrideMode;
 
   /**
+   * Optional UNIX timestamp filter for source nodes.
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
+
+  /**
    * SynchronizerCommands constructor.
    *
    * @param \Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface $configurationManager
@@ -136,7 +143,7 @@ class SynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-content content-type [nids=123,456,789] [limit=9] [mode=create|update] [override] [dry-run]
+   * @command labdoo-synchronize-content content-type [nids=123,456,789] [limit=9] [mode=create|update] [override] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"]
    * @aliases labdoo-sync
    * @usage labdoo-synchronize-content edoovillage
    *   Synchronizes the contents of the type "edoovillage".
@@ -146,6 +153,7 @@ class SynchronizerCommands extends DrushCommands {
    * @option mode Defines if the entities must be created or updated (valid values: not defined, "create", "update").
    * @option override Whether to override the nodes or fail gracefully. Specify this parameter to activate the override mode.
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
+   * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
    */
   public function startSync(
     string $contentType,
@@ -155,6 +163,7 @@ class SynchronizerCommands extends DrushCommands {
       'mode' => 'create',
       'override' => FALSE,
       'dry-run' => FALSE,
+      'from-date' => NULL,
     ]
   ): void {
     try {
@@ -217,6 +226,16 @@ class SynchronizerCommands extends DrushCommands {
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
     $this->overrideMode = $options['override'];
+
+    // Parse from-date if provided.
+    if (!empty($options['from-date'])) {
+      $ts = strtotime($options['from-date']);
+      if ($ts === FALSE) {
+        $this->logger->error(sprintf('Invalid value for option "from-date": %s. Expected format: YYYY-MM-DD HH:MM:SS', $options['from-date']));
+        die;
+      }
+      $this->fromTimestamp = (int) $ts;
+    }
 
     $sourceRepository = sprintf(
       'labdoo_migrate.source_content.repository.%s',
@@ -297,7 +316,8 @@ class SynchronizerCommands extends DrushCommands {
       ->getEntities(
         $contentType,
         $this->mapping,
-        $destinationEntitiesIds
+        $destinationEntitiesIds,
+        $this->fromTimestamp
       );
 
     $message = sprintf(

@@ -21,6 +21,8 @@ interface SourceRepositoryInterface {
    *   The mapping array.
    * @param array|null $entityIds
    *   The entity IDs array.
+   * @param int|null $fromTimestamp
+   *   Optional UNIX timestamp to filter nodes by created/updated date (>=).
    *
    * @return array
    *   Returns an array of source entities.
@@ -30,7 +32,8 @@ interface SourceRepositoryInterface {
   public function getEntities(
     string $contentType,
     array $mapping,
-    ?array $entityIds = NULL
+    ?array $entityIds = NULL,
+    ?int $fromTimestamp = NULL
   ): array;
 
 }
