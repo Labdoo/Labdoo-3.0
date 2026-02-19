@@ -1,8 +1,8 @@
 {
   "files_config": {
     "replacement_token": "public://",
-    "source_files_folder": "/home/emartos/Projects/labdoo2/sites/default/files/",
-    "destination_files_folder": "/var/www/html/labdoo3/web/sites/default/files/",
+    "source_files_folder": "/mnt/drupal-files-source/",
+    "destination_files_folder": "/var/www/html/labdoo/web/sites/default/files/",
     "media_location": "public://media/",
     "copy_files_content": "true"
   },
