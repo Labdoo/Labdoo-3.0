@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_migrate\Services\SpecialFieldTypes;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 
 /**
  * The special field type for formatted text fields.
@@ -13,6 +14,8 @@ use Drupal\Core\Entity\EntityInterface;
  * @link http://natiboo.es
  */
 class SpecialFieldTypeFormattedTextWithReplacement implements SpecialFieldTypeInterface {
+
+  use TextFormatMapperTrait;
 
   /**
    * {@inheritDoc}
@@ -28,9 +31,10 @@ class SpecialFieldTypeFormattedTextWithReplacement implements SpecialFieldTypeIn
 
     return [
       'value' => $value,
-      'format' => $metadata['format'],
+      'format' => $this->mapFormat($metadata['format']),
     ];
   }
+
 
   /**
    * {@inheritDoc}

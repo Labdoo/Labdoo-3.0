@@ -7,6 +7,7 @@ use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
 use Drupal\labdoo_migrate\Services\SourceContent\TranslationRepositoryInterface as SourceTranslationRepositoryInterface;
+use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -19,6 +20,8 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * @link http://natiboo.es
  */
 class BasicPageSynchronizerCommands extends DrushCommands {
+
+  use TextFormatMapperTrait;
 
   private const CONTENT_TYPE = 'page';
   private const DESTINATION_CONTENT_TYPE = 'page';
@@ -391,10 +394,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
    */
   protected function updateEntityWithValues($entity, array $values, string $langCode): void {
     // Convert Drupal 7 format to Drupal 10 format
-    $format = 'basic_html';
-    if ($values['body_format'] === 'full_html') {
-      $format = 'full_html';
-    }
+    $format = $this->mapFormat($values['body_format']);
 
     $body = [
       'value' => $values['body'],

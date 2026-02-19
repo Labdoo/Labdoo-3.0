@@ -5,6 +5,7 @@ namespace Drupal\labdoo_migrate\Commands;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
+use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -17,6 +18,8 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * @link http://natiboo.es
  */
 class StorySynchronizerCommands extends DrushCommands {
+
+  use TextFormatMapperTrait;
 
   private const CONTENT_TYPE = 'labdoo_story';
 
@@ -172,8 +175,9 @@ class StorySynchronizerCommands extends DrushCommands {
         );
         $text = $this->getCollectionField(
           'field_data_field_story_text',
-          ['field_story_text_value'],
-          $section->field_story_section_revision_id
+          ['field_story_text_value', 'field_story_text_format'],
+          $section->field_story_section_revision_id,
+          FALSE
         );
         $picture = $this->getCollectionField(
           'field_data_field_story_picture',
@@ -302,16 +306,16 @@ class StorySynchronizerCommands extends DrushCommands {
           $fid = $file->id();
         }
 
-        $text = [
-          'value' => $section['text'],
-          'format' => 'basic_html',
+        $textValue = [
+          'value' => $section['text']->field_story_text_value,
+          'format' => $this->mapFormat($section['text']->field_story_text_format),
         ];
         $newParagraph = $this->entityTypeManager
           ->getStorage('paragraph')
           ->create([
             'type' => 'story_section',
             'field_story_heading' => $section['heading'],
-            'field_story_text' => $text,
+            'field_story_text' => $textValue,
             'field_story_picture' => $fid,
           ]);
         if ($fid !== NULL) {
@@ -406,6 +410,7 @@ class StorySynchronizerCommands extends DrushCommands {
       $this->progressBar->advance();
     }
   }
+
 
   /**
    * Retrieves a specific field from a collection.

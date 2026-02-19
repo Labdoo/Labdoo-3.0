@@ -5,6 +5,7 @@ namespace Drupal\labdoo_migrate\Commands;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
+use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -28,6 +29,8 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * @link http://natiboo.es
  */
 class GallerySynchronizerCommands extends DrushCommands {
+
+  use TextFormatMapperTrait;
 
   private const GALLERY_CONTENT_TYPE = 'gallery';
   private const SOURCE_GALLERY_CONTENT_TYPE = 'node_gallery_gallery';
@@ -463,7 +466,7 @@ class GallerySynchronizerCommands extends DrushCommands {
         $destinationEntity->set('body', [
           'value' => $sourceGallery['body']['value'],
           'summary' => $sourceGallery['body']['summary'],
-          'format' => 'basic_html', // Map D7 format to D10 format
+          'format' => $this->mapFormat($sourceGallery['body']['format']),
         ]);
       }
 
@@ -829,6 +832,7 @@ class GallerySynchronizerCommands extends DrushCommands {
       $this->progressBar->advance();
     }
   }
+
 
   /**
    * Disables the entity storage cache.
