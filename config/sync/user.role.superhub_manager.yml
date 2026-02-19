@@ -12,6 +12,7 @@ dependencies:
   module:
     - eu_cookie_compliance
     - file
+    - labdoo_dootronics
     - labdoo_user
     - mini_wiki
     - node
@@ -32,6 +33,7 @@ permissions:
   - 'assign laptop_manager role'
   - 'assign team_manager role'
   - 'assign wiki_writer role'
+  - 'bulk upload dootronic'
   - 'clone dootrip content'
   - 'clone dootronic content'
   - 'clone edoovillage content'
