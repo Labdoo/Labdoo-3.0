@@ -59,8 +59,8 @@ class SequenceManager implements SequenceManagerInterface {
       throw new LockException(self::LOCK_KEY);
     }
 
-    // Find the first available node ID
-    return $this->findFirstAvailableNodeId();
+    // Find the first available numeric title (dootronic label), independent of NIDs.
+    return $this->findFirstAvailableTitleId();
   }
 
   /**
@@ -71,18 +71,19 @@ class SequenceManager implements SequenceManagerInterface {
   }
 
   /**
-   * Finds the first available ID for dootronics based on the title field.
+   * Finds the first available ID for dootronic titles (labels).
    *
-   * This method looks for gaps in the sequence of dootronic titles.
-   * Titles are expected to be numeric strings (e.g., "000000001").
-   * If a gap is found, it returns the first available ID in the gap.
-   * If no gap is found, it returns the next sequential ID.
+   * Searches for gaps in the numeric title sequence of dootronics
+   * (for example, "000000001"). If it finds a gap, it returns the first
+   * available ID in that gap. If there are no gaps, it returns the next
+   * sequential ID. This logic is completely independent of NIDs
+   * (internal node identifiers), as required.
    *
    * @return int
-   *   The first available ID.
+   *   The first available ID for the dootronic title.
    */
-  private function findFirstAvailableNodeId(): int {
-    // Query to get all dootronic titles that are numeric
+  private function findFirstAvailableTitleId(): int {
+    // Get all dootronic titles.
     $query = $this->database->select('node_field_data', 'n')
       ->fields('n', ['title'])
       ->condition('n.type', 'dootronic')
@@ -90,68 +91,34 @@ class SequenceManager implements SequenceManagerInterface {
 
     $result = $query->execute()->fetchCol();
 
-    // Filter out non-numeric titles and convert to integers
+    // Filter non-numeric titles and convert to integers.
     $ids = [];
     foreach ($result as $title) {
       if (is_numeric($title)) {
         $ids[] = (int) $title;
       }
     }
+
+    if (empty($ids)) {
+      // If no numeric dootronics exist, start at 1.
+      return 1;
+    }
+
     $ids = array_unique($ids);
     sort($ids);
 
-    if (empty($ids)) {
-      // If no numeric dootronics exist, start with 1
-      return $this->findFirstAvailableNodeIdInAllNodes(1);
-    }
-
-    // Find the first gap in the sequence
+    // Find the first gap.
     $previousId = 0;
     foreach ($ids as $id) {
       if ($id > $previousId + 1) {
-        // Found a gap, check if the ID is available in all nodes as nid
-        $potentialId = $previousId + 1;
-        return $this->findFirstAvailableNodeIdInAllNodes($potentialId);
+        return $previousId + 1;
       }
       $previousId = $id;
     }
 
-    // No gaps found, return the next sequential ID
-    return $this->findFirstAvailableNodeIdInAllNodes($previousId + 1);
+    // No gaps: return the next sequential ID.
+    return $previousId + 1;
   }
 
-  /**
-   * Finds the first available node ID starting from a given ID.
-   *
-   * This method checks if a node ID is already used by any node,
-   * not just dootronic nodes.
-   *
-   * @param int $startId
-   *   The ID to start checking from.
-   *
-   * @return int
-   *   The first available node ID.
-   */
-  private function findFirstAvailableNodeIdInAllNodes(int $startId): int {
-    $id = $startId;
-
-    while (true) {
-      // Check if the ID is already used by any node
-      $query = $this->database->select('node_field_data', 'n')
-        ->fields('n', ['nid'])
-        ->condition('n.nid', $id)
-        ->range(0, 1);
-
-      $result = $query->execute()->fetchField();
-
-      if ($result === false) {
-        // ID is not used, return it
-        return $id;
-      }
-
-      // ID is used, try the next one
-      $id++;
-    }
-  }
 
 }

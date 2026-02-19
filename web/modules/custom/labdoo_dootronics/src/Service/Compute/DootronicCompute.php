@@ -160,9 +160,15 @@ class DootronicCompute implements DootronicComputeInterface {
       return;
     }
 
+    // New nodes have their title already set in hook_entity_presave
+    // using the SequenceManager.
+    if ($entity->isNew()) {
+      return;
+    }
+
     try {
       $tagged = $entity->get('field_tagged')->value;
-      if (!$tagged || $entity->isNew()) {
+      if (!$tagged) {
         $sequenceNumber = $entity->id();
         $title = $this->dootronicRepository->updateId($sequenceNumber);
         $entity->set('title', $title);
