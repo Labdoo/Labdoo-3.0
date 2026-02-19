@@ -188,6 +188,16 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
       );
     }
 
+    $dootronicsLink = $this->linkHelper->generateUrlFromRoute(
+      'view.dootronics_dashboard.page_3',
+      ['arg_0' => $hub->id()],
+    );
+
+    $dootripsLink = $this->linkHelper->generateUrlFromRoute(
+      'view.dootrips_dashboard.page_3',
+      ['arg_0' => $hub->id()],
+    );
+
     $cacheTags = [
       sprintf(
         'hub:%d:%d',
@@ -209,6 +219,8 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
       '#semaphore' => $semaphore,
       '#dropping' => $dropping,
       '#sanitation' => $sanitation,
+      '#dootronics_link' => $dootronicsLink,
+      '#dootrips_link' => $dootripsLink,
       '#cache' => [
         'max-age' => Cache::PERMANENT,
         'contexts' => [

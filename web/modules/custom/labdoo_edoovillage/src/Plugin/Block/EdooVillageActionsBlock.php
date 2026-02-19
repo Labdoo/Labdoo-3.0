@@ -108,7 +108,7 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
       $linkHelper,
       $commonRepository,
       $currentUser,
-      $galleryRepository
+      $galleryRepository,
     );
   }
 
@@ -186,6 +186,16 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
       );
     }
 
+    $dootronicsLink = $this->linkHelper->generateUrlFromRoute(
+      'view.dootronics_dashboard.page_2',
+      ['arg_0' => $edooVillage->id()],
+    );
+
+    $dootripsLink = $this->linkHelper->generateUrlFromRoute(
+      'view.dootrips_dashboard.page_2',
+      ['arg_0' => $edooVillage->id()],
+    );
+
     $cacheTags = [
       'edoovillage:' . $edooVillage->id(),
     ];
@@ -202,6 +212,8 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
       '#previous_link' => $prevLink,
       '#semaphore' => $semaphore,
       '#status' => $status,
+      '#dootronics_link' => $dootronicsLink,
+      '#dootrips_link' => $dootripsLink,
       '#cache' => [
         'max-age' => Cache::PERMANENT,
         'contexts' => [

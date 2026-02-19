@@ -39,23 +39,14 @@ function labdoo_edoovillage_theme() {
         'clone_link' => '',
         'next_link' => '',
         'previous_link' => '',
+        'dootronics_link' => '',
+        'dootrips_link' => '',
         'pick_me_up_status' => '',
         'pick_me_up_link' => '',
         'semaphore' => NULL,
         'status' => NULL,
       ],
       'template' => 'block--edoovillage-actions-block',
-    ],
-    'edoovillage_tabs_block_block' => [
-      'variables' => [
-        'data_link' => '',
-        'dootronics_link' => '',
-        'dootrips_link' => '',
-        'metrics_link' => '',
-        'gics_link' => '',
-        'active_tab' => '',
-      ],
-      'template' => 'block--edoovillage-tabs-block',
     ],
   ];
 }
