@@ -53,7 +53,7 @@ mark
   margin-top: 15px
 
 .page-wrapper
-  .button, .button:not(:focus), .form-actions .button, button, input[type="submit"]
+  .button, .button:not(:focus), .form-actions .button, button:not(.ck), input[type="submit"]
     width: fit-content !important
     background-color: $blue !important
     color: $white !important
@@ -75,6 +75,34 @@ mark
     &:active
       transform: translateY(0)
       box-shadow: 0 2px 4px rgba($blue, 0.2)
+
+  .ck-button
+    background-color: transparent !important
+    color: inherit !important
+    box-shadow: none !important
+    border-radius: 0 !important
+    &:hover
+      background: var(--ck-color-button-hover-background) !important
+      transform: none !important
+    .ck-icon
+      color: inherit !important
+      fill: currentColor !important
+
+  .ck-reset_all, .ck.ck-reset, .ck.ck-reset_all, .ck.ck-reset_all *
+    border-radius: 0 !important
+    --ck-border-radius: 0px !important
+
+  .ck.ck-editor__main > .ck-editor__editable, .ck.ck-sticky-panel__content
+    border-radius: 0 !important
+    border-color: $border-color !important
+
+  .ck.ck-editor__top .ck-sticky-panel .ck-toolbar, .ck.ck-sticky-panel__content
+    border-radius: 0 !important
+    border-color: $border-color !important
+
+  .ck.ck-editor
+    --ck-color-base-border: #{$border-color}
+    --ck-border-radius: 0px
 
 .breadcrumb__text
   font-weight: normal !important

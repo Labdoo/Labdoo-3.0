@@ -10,8 +10,12 @@
 .horizontal-tabs ul.horizontal-tabs-list li.horizontal-tab-button a
   border-radius: 0 !important
 
-.is-horizontal .tabs--primary .tabs__link
-  border-radius: 0 !important
+.is-horizontal .tabs--primary
+  @media only screen and (min-width: 1024px)
+    .reset-appearance
+      display: none
+  .tabs__link
+    border-radius: 0 !important
 
 #toolbar-administration-secondary
   display: none
