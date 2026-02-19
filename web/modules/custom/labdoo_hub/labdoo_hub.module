@@ -33,6 +33,7 @@ function labdoo_hub_theme() {
     ],
     'hub_actions_block_block' => [
       'variables' => [
+        'data_link' => '',
         'edit_link' => '',
         'photo_album_link' => '',
         'story_link' => '',

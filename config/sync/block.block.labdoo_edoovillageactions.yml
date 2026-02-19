@@ -19,10 +19,7 @@ settings:
   label_display: '0'
   provider: labdoo_edoovillage
 visibility:
-  'entity_bundle:node':
-    id: 'entity_bundle:node'
+  request_path:
+    id: request_path
     negate: false
-    context_mapping:
-      node: '@node.node_route_context:node'
-    bundles:
-      edoovillage: edoovillage
+    pages: "/node/*\r\n/related-dootronics/*\r\n/related-dootrips/*"

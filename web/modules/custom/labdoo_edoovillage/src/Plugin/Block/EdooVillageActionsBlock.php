@@ -2,9 +2,11 @@
 
 namespace Drupal\labdoo_edoovillage\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\labdoo_common\Service\Helper\LinkHelper;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
@@ -115,12 +117,35 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function build() {
+  protected function blockAccess(AccountInterface $account) {
     $edooVillage = $this->linkHelper->getActiveNode();
 
     // Fallback for arg_0 (views).
     if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
       $entityId = $this->linkHelper->getActiveNode('arg_0');
+      if ($entityId) {
+        $edooVillage = $this->linkHelper->loadEntity($entityId);
+      }
+    }
+
+    if ($edooVillage instanceof \Drupal\node\NodeInterface && $edooVillage->bundle() === 'edoovillage') {
+      return AccessResult::allowed()->addCacheContexts(['url.path']);
+    }
+
+    return AccessResult::forbidden()->addCacheContexts(['url.path']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function build() {
+    $edooVillage = $this->linkHelper->getActiveNode();
+
+    // Fallback for arg_0 (views) or specific routes.
+    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
+      $entityId = $this->linkHelper->getActiveNode('arg_0');
+      // If it's not in arg_0, maybe it's in the route parameters as % (it depends on the route definition)
+      // but views usually use arg_0 for the first contextual filter.
       if ($entityId) {
         $edooVillage = $this->linkHelper->loadEntity($entityId);
       }
@@ -196,6 +221,11 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
       ['arg_0' => $edooVillage->id()],
     );
 
+    $dataLink = $this->linkHelper->generateUrlFromRoute(
+      'entity.node.canonical',
+      ['node' => $edooVillage->id()],
+    );
+
     $cacheTags = [
       'edoovillage:' . $edooVillage->id(),
     ];
@@ -214,6 +244,7 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
       '#status' => $status,
       '#dootronics_link' => $dootronicsLink,
       '#dootrips_link' => $dootripsLink,
+      '#data_link' => $dataLink,
       '#cache' => [
         'max-age' => Cache::PERMANENT,
         'contexts' => [

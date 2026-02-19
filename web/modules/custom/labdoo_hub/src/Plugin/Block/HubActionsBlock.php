@@ -2,13 +2,16 @@
 
 namespace Drupal\labdoo_hub\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\labdoo_common\Service\Helper\LinkHelper;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Drupal\labdoo_gallery\Services\LabdooGalleryRepositoryInterface;
+use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -108,8 +111,29 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
       $linkHelper,
       $commonRepository,
       $currentUser,
-      $galleryRepository
+      $galleryRepository,
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    $hub = $this->linkHelper->getActiveNode();
+
+    // Fallback for arg_0 (views).
+    if (!($hub instanceof NodeInterface) || $hub->bundle() !== 'hub') {
+      $entityId = $this->linkHelper->getActiveNode('arg_0');
+      if ($entityId) {
+        $hub = $this->linkHelper->loadEntity($entityId);
+      }
+    }
+
+    if ($hub instanceof NodeInterface && $hub->bundle() === 'hub') {
+      return AccessResult::allowed()->addCacheContexts(['url.path']);
+    }
+
+    return AccessResult::forbidden()->addCacheContexts(['url.path']);
   }
 
   /**
@@ -117,7 +141,18 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
    */
   public function build() {
     $hub = $this->linkHelper->getActiveNode();
-    if (!$hub) {
+
+    // Fallback for arg_0 (views) or specific routes.
+    if (!($hub instanceof NodeInterface) || $hub->bundle() !== 'hub') {
+      $entityId = $this->linkHelper->getActiveNode('arg_0');
+      // If it's not in arg_0, maybe it's in the route parameters as % (it depends on the route definition)
+      // but views usually use arg_0 for the first contextual filter.
+      if ($entityId) {
+        $hub = $this->linkHelper->loadEntity($entityId);
+      }
+    }
+
+    if (!($hub instanceof NodeInterface) || $hub->bundle() !== 'hub') {
       return [
         '#markup' => '',
       ];
@@ -198,6 +233,11 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
       ['arg_0' => $hub->id()],
     );
 
+    $dataLink = $this->linkHelper->generateUrlFromRoute(
+      'entity.node.canonical',
+      ['node' => $hub->id()],
+    );
+
     $cacheTags = [
       sprintf(
         'hub:%d:%d',
@@ -221,6 +261,7 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
       '#sanitation' => $sanitation,
       '#dootronics_link' => $dootronicsLink,
       '#dootrips_link' => $dootripsLink,
+      '#data_link' => $dataLink,
       '#cache' => [
         'max-age' => Cache::PERMANENT,
         'contexts' => [
