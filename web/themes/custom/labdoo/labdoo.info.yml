@@ -20,6 +20,7 @@ regions:
   sidebar: Sidebar
   content: Content
   post_content: 'Post-content'
+  pre_footer: 'Pre-footer'
   page_top: 'Page top'
   page_bottom: 'Page bottom'
   sidebar_first: 'First sidebar'
