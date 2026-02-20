@@ -10,7 +10,7 @@ dependencies:
     - labdoo
 id: labdoo_footerright
 theme: labdoo
-region: post_content
+region: pre_footer
 weight: -19
 provider: null
 plugin: 'system_menu_block:footer-right'
