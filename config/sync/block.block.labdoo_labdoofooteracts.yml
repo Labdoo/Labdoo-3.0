@@ -9,7 +9,7 @@ dependencies:
 id: labdoo_labdoofooteracts
 theme: labdoo
 region: footer
-weight: 0
+weight: -21
 provider: null
 plugin: labdoo_footer_acts_block
 settings:

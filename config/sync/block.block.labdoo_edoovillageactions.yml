@@ -4,7 +4,7 @@ status: true
 dependencies:
   module:
     - labdoo_edoovillage
-    - node
+    - system
   theme:
     - labdoo
 id: labdoo_edoovillageactions

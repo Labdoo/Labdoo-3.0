@@ -1,0 +1,25 @@
+uuid: 55db8177-1b3c-4109-8ac1-c3066eaf649d
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.footer-left
+  module:
+    - system
+  theme:
+    - labdoo
+id: labdoo_footerleft
+theme: labdoo
+region: post_content
+weight: -21
+provider: null
+plugin: 'system_menu_block:footer-left'
+settings:
+  id: 'system_menu_block:footer-left'
+  label: 'Footer left'
+  label_display: '0'
+  provider: system
+  level: 1
+  depth: 0
+  expand_all_items: false
+visibility: {  }

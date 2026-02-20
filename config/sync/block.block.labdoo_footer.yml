@@ -11,7 +11,7 @@ dependencies:
 id: labdoo_footer
 theme: labdoo
 region: footer
-weight: -15
+weight: -20
 provider: null
 plugin: 'system_menu_block:footer'
 settings:

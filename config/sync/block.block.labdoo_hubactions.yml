@@ -4,7 +4,7 @@ status: true
 dependencies:
   module:
     - labdoo_hub
-    - node
+    - system
   theme:
     - labdoo
 id: labdoo_hubactions
