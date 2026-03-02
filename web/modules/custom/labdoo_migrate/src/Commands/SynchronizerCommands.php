@@ -170,25 +170,88 @@ class SynchronizerCommands extends DrushCommands {
       $this->setEnvironment($contentType, $options);
 
       if ($this->create) {
-        $sourceEntities = $this->getSourceEntities($contentType, $this->nids);
-        if ($this->limit > -1) {
-          $sourceEntities = array_slice(
-            $sourceEntities,
-            0,
-            $this->limit,
-            TRUE
+        $sourceEntitiesIds = $this->nids;
+        if (empty($sourceEntitiesIds)) {
+          $sourceEntitiesIds = $this->sourceRepository->getNodesByType(
+            $contentType,
+            $this->mapping,
+            $this->fromTimestamp
           );
         }
 
-        $updatedEntities = $this->createDestinationEntities($sourceEntities);
+        if ($this->limit > -1) {
+          $sourceEntitiesIds = array_slice(
+            $sourceEntitiesIds,
+            0,
+            $this->limit
+          );
+        }
+
+        $total = count($sourceEntitiesIds);
+        $this->logger->notice(sprintf('%d source entities found.', $total));
+        $this->logger->notice('Creating the destination entities...');
+
+        $destinationTypes = $this->configData->getDestinationTypes();
+        $destinationContentType = reset($destinationTypes);
+        $this->destinationRepository->setOverrideMode($this->overrideMode);
+
+        $updatedEntities = 0;
+        foreach ($sourceEntitiesIds as $entityId) {
+          $sourceEntity = $this->sourceRepository->getEntity(
+            $contentType,
+            $this->mapping,
+            $entityId,
+            $this->fromTimestamp
+          );
+
+          if (empty($sourceEntity)) {
+            continue;
+          }
+
+          $updatedEntities += $this->destinationRepository->createEntities(
+            [$entityId => $sourceEntity],
+            $this->mapping,
+            $destinationContentType,
+            $this->dryRun
+          );
+        }
       }
       else {
         $destinationEntities = $this->getDestinationEntities();
-        $sourceEntities = $this->getSourceEntities(
-          $contentType,
-          array_keys($destinationEntities)
-        );
-        $updatedEntities = $this->updateDestinationEntities($sourceEntities, $destinationEntities);
+        $sourceEntitiesIds = array_keys($destinationEntities);
+
+        if ($this->limit > -1) {
+          $sourceEntitiesIds = array_slice(
+            $sourceEntitiesIds,
+            0,
+            $this->limit
+          );
+        }
+
+        $total = count($sourceEntitiesIds);
+        $this->logger->notice(sprintf('%d source entities found.', $total));
+        $this->logger->notice('Updating the destination entities...');
+
+        $updatedEntities = 0;
+        foreach ($sourceEntitiesIds as $entityId) {
+          $sourceEntity = $this->sourceRepository->getEntity(
+            $contentType,
+            $this->mapping,
+            $entityId,
+            $this->fromTimestamp
+          );
+
+          if (empty($sourceEntity)) {
+            continue;
+          }
+
+          $updatedEntities += $this->destinationRepository->updateEntities(
+            [$entityId => $sourceEntity],
+            $this->mapping,
+            [$entityId => $destinationEntities[$entityId]],
+            $this->dryRun
+          );
+        }
       }
 
       $this->tearDown(
@@ -294,94 +357,6 @@ class SynchronizerCommands extends DrushCommands {
     return $destinationEntities;
   }
 
-  /**
-   * Retrieves the source entities.
-   *
-   * @param string $contentType
-   *   The content type.
-   * @param array|null $destinationEntitiesIds
-   *   An array with the destination entities IDs.
-   *
-   * @return array
-   *   Returns an array of source entities.
-   *
-   * @throws \Exception
-   */
-  protected function getSourceEntities(
-    string $contentType,
-    ?array $destinationEntitiesIds = NULL
-  ): array {
-    $this->logger->notice('Retrieving the source entities...');
-    $sourceEntities = $this->sourceRepository
-      ->getEntities(
-        $contentType,
-        $this->mapping,
-        $destinationEntitiesIds,
-        $this->fromTimestamp
-      );
-
-    $message = sprintf(
-      '%d source entities found.',
-      count($sourceEntities)
-    );
-    $this->logger->notice($message);
-
-    return $sourceEntities;
-  }
-
-  /**
-   * Creates the destination entities with the source values.
-   *
-   * @param array $sourceEntities
-   *   The source entities.
-   *
-   * @return int
-   *   Returns the number of created entities.
-   *
-   * @throws \Exception
-   */
-  protected function createDestinationEntities(array $sourceEntities): int {
-    $this->logger->notice('Creating the destination entities...');
-    $destinationTypes = $this->configData->getDestinationTypes();
-    $contentType = reset($destinationTypes);
-    $this->destinationRepository->setOverrideMode($this->overrideMode);
-
-    return $this->destinationRepository
-      ->createEntities(
-        $sourceEntities,
-        $this->mapping,
-        $contentType,
-        $this->dryRun
-      );
-  }
-
-  /**
-   * Updates the destination entities with the source values.
-   *
-   * @param array $sourceEntities
-   *   The source entities.
-   * @param array $destinationEntities
-   *   The destination entities.
-   *
-   * @return int
-   *   Returns the number of updated entities.
-   *
-   * @throws \Exception
-   */
-  protected function updateDestinationEntities(
-    array $sourceEntities,
-    array $destinationEntities
-  ): int {
-    $this->logger->notice('Updating the destination entities...');
-
-    return $this->destinationRepository
-      ->updateEntities(
-        $sourceEntities,
-        $this->mapping,
-        $destinationEntities,
-        $this->dryRun
-      );
-  }
 
   /**
    * Finishes the process.

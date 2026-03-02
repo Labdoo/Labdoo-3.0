@@ -128,11 +128,67 @@ class BasicPageSynchronizerCommands extends DrushCommands {
   ): void {
     try {
       $this->setEnvironment($options);
-      $sourceEntities = $this->getSourceEntities();
+
+      $this->logger->notice('Retrieving the source entities IDs...');
+      $pagesQuery = $this->externalConnectionManager
+        ->setConnection()
+        ->select('node', 'n')
+        ->fields('n', ['nid', 'language', 'tnid'])
+        ->condition('type', self::CONTENT_TYPE)
+        ->condition(
+          $this->externalConnectionManager->setConnection()->condition('OR')
+            ->condition('tnid', 0)
+            ->where('nid = tnid')
+        );
+
+      if ($this->nids !== NULL) {
+        $pagesQuery->condition('nid', $this->nids, 'IN');
+      }
+      if ($this->limit > -1) {
+        $pagesQuery->range(0, $this->limit);
+      }
+      $pages = $pagesQuery->execute()->fetchAll();
+      $total = count($pages);
+      $this->logger->notice(sprintf('%d source entities found.', $total));
       $this->externalConnectionManager->restoreConnection();
-      $result = $this->updateDestinationEntities($sourceEntities);
-      $this->
-      tearDown($result['created'], $result['updated'], $result['skipped']);
+
+      $this->logger->notice('Updating the destination entities...');
+      $result = ['created' => 0, 'updated' => 0, 'skipped' => 0];
+      $this->initProgressBar($total, 'Processing pages');
+
+      foreach ($pages as $page) {
+        $mainLangCode = $page->language ?: 'en';
+        $entityId = $page->nid;
+
+        // Initialize the entity structure for a single page
+        $singlePageData = [
+          $entityId => [
+            'metadata' => [
+              'main_langcode' => $mainLangCode
+            ],
+            $mainLangCode => $this->getPageData($entityId, $mainLangCode)
+          ]
+        ];
+
+        // Get translations
+        if ($page->tnid > 0) {
+          $translations = $this->sourceTranslationRepository->getTranslations($entityId, $mainLangCode);
+          foreach ($translations as $translation) {
+            $translationId = $translation->getId();
+            $translationLangCode = $translation->getLangCode();
+            $singlePageData[$entityId][$translationLangCode] = $this->getPageData($translationId, $translationLangCode);
+            $singlePageData[$entityId]['metadata'][$translationLangCode] = $translationId;
+          }
+        }
+
+        $processResult = $this->updateDestinationEntities($singlePageData);
+        $result['created'] += $processResult['created'];
+        $result['updated'] += $processResult['updated'];
+        $result['skipped'] += $processResult['skipped'];
+        $this->advanceProgressBar();
+      }
+
+      $this->tearDown($result['created'], $result['updated'], $result['skipped']);
     }
     catch (\Exception $e) {
       $this->logger->error($e->getMessage());
@@ -157,74 +213,6 @@ class BasicPageSynchronizerCommands extends DrushCommands {
     $this->dryRun = $options['dry-run'];
   }
 
-  /**
-   * Retrieves the source entities.
-   *
-   * @return array
-   *   Returns an array of source entities.
-   *
-   * @throws \Exception
-   */
-  protected function getSourceEntities(): array {
-    $this->logger->notice('Retrieving the source entities...');
-
-    // Get main nodes (those that are either the source of a translation set or have no translation)
-    $pagesQuery = $this->externalConnectionManager
-      ->setConnection()
-      ->select('node', 'n')
-      ->fields('n', ['nid', 'title', 'uid', 'status', 'created', 'changed', 'language', 'tnid'])
-      ->condition('type', self::CONTENT_TYPE)
-      ->condition(
-        $this->externalConnectionManager->setConnection()->condition('OR')
-          ->condition('tnid', 0)
-          ->where('nid = tnid')
-      );
-
-    if ($this->nids !== NULL) {
-      $pagesQuery->condition('nid', $this->nids, 'IN');
-    }
-    if ($this->limit > -1) {
-      $pagesQuery->range(0, $this->limit);
-    }
-    $pages = $pagesQuery->execute()->fetchAll();
-
-    $pagesResult = [];
-    foreach ($pages as $page) {
-      $mainLangCode = $page->language ?: 'en';
-      $entityId = $page->nid;
-
-      // Initialize the entity structure
-      $pagesResult[$entityId] = [
-        'metadata' => [
-          'main_langcode' => $mainLangCode
-        ]
-      ];
-
-      // Add the main language version
-      $pagesResult[$entityId][$mainLangCode] = $this->getPageData($entityId, $mainLangCode);
-
-      // Get translations
-      if ($page->tnid > 0) {
-        $translations = $this->sourceTranslationRepository->getTranslations($entityId, $mainLangCode);
-
-        foreach ($translations as $translation) {
-          $translationId = $translation->getId();
-          $translationLangCode = $translation->getLangCode();
-
-          $pagesResult[$entityId][$translationLangCode] = $this->getPageData($translationId, $translationLangCode);
-          $pagesResult[$entityId]['metadata'][$translationLangCode] = $translationId;
-        }
-      }
-    }
-
-    $message = sprintf(
-      '%d source entities found.',
-      count($pagesResult)
-    );
-    $this->logger->notice($message);
-
-    return $pagesResult;
-  }
 
   /**
    * Gets the page data for a specific node ID and language.
