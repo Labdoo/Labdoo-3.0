@@ -206,13 +206,16 @@ class DootronicCompute implements DootronicComputeInterface {
    * {@inheritDoc}
    */
   public function computeRelatedDootrips(EntityInterface &$dootronic): void {
-    foreach ($dootronic->get('field_dootrips') as $dootrip) {
-      $dootrip = $dootrip->entity;
+    foreach ($dootronic->get('field_dootrips') as $item) {
+      $dootrip = $item->entity;
+      if (!$dootrip) {
+        continue;
+      }
       $found = FALSE;
 
       foreach ($dootrip->get('field_laptops') as $dootronicAssigned) {
         $dootronicAssigned = $dootronicAssigned->entity;
-        if ($dootronicAssigned->id() === $dootronic->id()) {
+        if ($dootronicAssigned && $dootronicAssigned->id() === $dootronic->id()) {
           $found = TRUE;
         }
       }
