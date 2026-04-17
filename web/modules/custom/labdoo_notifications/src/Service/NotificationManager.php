@@ -205,20 +205,20 @@ class NotificationManager {
     // Determine the template based on the event type
     switch ($eventType) {
       case 'insert':
-        $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_added_subject');
-        $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_added_body');
+        $subjectTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_added_subject') : NULL;
+        $bodyTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_added_body') : NULL;
         break;
       case 'update':
-        $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_updated_subject');
-        $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_updated_body');
+        $subjectTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_updated_subject') : NULL;
+        $bodyTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_updated_body') : NULL;
         break;
       case 'expired':
-        $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_expired_subject');
-        $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_expired_body');
+        $subjectTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_expired_subject') : NULL;
+        $bodyTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_expired_body') : NULL;
         break;
       case 'announce':
-        $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_announce_subject');
-        $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_announce_body');
+        $subjectTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_announce_subject') : NULL;
+        $bodyTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_announce_body') : NULL;
         break;
       default:
         return;
@@ -235,16 +235,20 @@ class NotificationManager {
     $dootripUrl = Url::fromRoute('entity.node.canonical', ['node' => $dootripId], ['absolute' => TRUE])->toString();
 
     // Get origin and destination
-    $origin = $node->hasField('field_origin') ? $node->get('field_origin')->value : '';
-    $destination = $node->hasField('field_destination') ? $node->get('field_destination')->value : '';
+    $origin = $node->hasField('field_origin') && $node->get('field_origin')->first() ? $node->get('field_origin')->value : '';
+    $destination = $node->hasField('field_destination') && $node->get('field_destination')->first() ? $node->get('field_destination')->value : '';
 
     // Get recipient email addresses
-    $emailsList = $this->configFactory->get('system.site')->get('mail');
+    $mailConfig = $this->configFactory->get('system.site')->get('mail');
+    $emailsList = $mailConfig ?: '';
 
     // Add the author of the dootrip
-    $author = $this->entityTypeManager->getStorage('user')->load($node->getOwnerId());
-    if ($author) {
-      $emailsList .= ', ' . $author->getEmail();
+    $authorId = $node->getOwnerId();
+    if ($authorId) {
+      $author = $this->entityTypeManager->getStorage('user')->load($authorId);
+      if ($author) {
+        $emailsList .= ',' . $author->getEmail();
+      }
     }
 
     // For announcements, add hub managers near the origin and destination
