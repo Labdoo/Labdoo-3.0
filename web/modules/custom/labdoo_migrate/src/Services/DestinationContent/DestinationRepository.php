@@ -168,6 +168,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
     $this->mapping = $mapping;
     $this->dryRun = $dryRun;
+    if ($this->totalSourceEntitiesCount === 0) {
+      $this->totalSourceEntitiesCount = count($sourceEntities);
+    }
 
     $this->disableEntityStorageCache();
     $createdEntities = 0;
@@ -230,13 +233,14 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
     if ($result) {
       ++$this->mainEntitiesCount;
+      $divisor = $this->totalSourceEntitiesCount > 0 ? $this->totalSourceEntitiesCount : 1;
       $message = sprintf(
         'Processed entity %d (%s) [%d/%d %s%%]',
         $mainEntity->id(),
         $mainLangCode,
         $this->mainEntitiesCount,
         $this->totalSourceEntitiesCount,
-        round($this->mainEntitiesCount * 100 / $this->totalSourceEntitiesCount, 2)
+        round($this->mainEntitiesCount * 100 / $divisor, 2)
       );
       $this->logger->notice($message);
     }
@@ -293,6 +297,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
     $this->mapping = $mapping;
     $this->dryRun = $dryRun;
+    if ($this->totalSourceEntitiesCount === 0) {
+      $this->totalSourceEntitiesCount = count($sourceEntities);
+    }
 
     $updatedEntities = 0;
     $this->disableEntityStorageCache();

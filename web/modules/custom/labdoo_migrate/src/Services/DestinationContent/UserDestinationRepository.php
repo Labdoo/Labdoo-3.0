@@ -149,6 +149,9 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
 
     $this->mapping = $mapping;
     $this->dryRun = $dryRun;
+    if ($this->totalSourceEntitiesCount === 0) {
+      $this->totalSourceEntitiesCount = count($sourceEntities);
+    }
 
     $this->disableEntityStorageCache();
     $createdEntities = 0;
@@ -195,12 +198,13 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
 
     if ($result) {
       ++$this->mainEntitiesCount;
+      $divisor = $this->totalSourceEntitiesCount > 0 ? $this->totalSourceEntitiesCount : 1;
       $message = sprintf(
         'Processed user %d [%d/%d %f%%]',
         $mainEntity->id(),
         $this->mainEntitiesCount,
         $this->totalSourceEntitiesCount,
-        round($this->mainEntitiesCount * 100 / $this->totalSourceEntitiesCount, 2)
+        round($this->mainEntitiesCount * 100 / $divisor, 2)
       );
       $this->logger->notice($message);
     }
@@ -223,6 +227,9 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
 
     $this->mapping = $mapping;
     $this->dryRun = $dryRun;
+    if ($this->totalSourceEntitiesCount === 0) {
+      $this->totalSourceEntitiesCount = count($sourceEntities);
+    }
 
     $updatedEntities = 0;
     $this->disableEntityStorageCache();
