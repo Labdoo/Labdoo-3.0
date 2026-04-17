@@ -50,6 +50,13 @@ class UserSourceRepository implements SourceRepositoryInterface {
   private array $mapping;
 
   /**
+   * Optional timestamp filter for created/access fields (users).
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
+
+  /**
    * SourceRepository constructor.
    *
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
@@ -76,11 +83,13 @@ class UserSourceRepository implements SourceRepositoryInterface {
   public function getEntities(
     string $contentType,
     array $mapping,
-    ?array $entityIds = NULL
+    ?array $entityIds = NULL,
+    ?int $fromTimestamp = NULL
   ): array {
 
     $this->contentType = $contentType;
     $this->mapping = $mapping;
+    $this->fromTimestamp = $fromTimestamp;
     $entities = [];
     if (empty($entityIds)) {
       $entityIds = $this->getNodesByType();
@@ -88,7 +97,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
 
     /** @var \Drupal\labdoo_migrate\Model\FieldModel $field */
     foreach ($entityIds as $entityId) {
-      $entities[$entityId] = $this->getFieldValues($entityId);
+      $entities[$entityId] = $this->getEntity($contentType, $mapping, $entityId, $fromTimestamp);
     }
 
     $this->externalConnectionManager->restoreConnection();
@@ -97,17 +106,56 @@ class UserSourceRepository implements SourceRepositoryInterface {
   }
 
   /**
-   * Retrieves nodes by type.
-   *
-   * @return array
-   *   Returns an array of node IDs.
-   *
-   * @throws \Exception
+   * {@inheritDoc}
    */
-  protected function getNodesByType(): array {
+  public function getEntity(
+    string $contentType,
+    array $mapping,
+    int $entityId,
+    ?int $fromTimestamp = NULL
+  ): array {
+
+    $this->contentType = $contentType;
+    $this->mapping = $mapping;
+    $this->fromTimestamp = $fromTimestamp;
+
+    return $this->getFieldValues($entityId);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getNodesByType(
+    ?string $contentType = NULL,
+    ?array $mapping = NULL,
+    ?int $fromTimestamp = NULL
+  ): array {
+
+    if ($contentType !== NULL) {
+      $this->contentType = $contentType;
+    }
+    if ($mapping !== NULL) {
+      $this->mapping = $mapping;
+    }
+    if ($fromTimestamp !== NULL) {
+      $this->fromTimestamp = $fromTimestamp;
+    }
 
     $field = new FieldModel('users', 'uid', 'uid');
-    $results = $this->getQueryResults($field);
+    // Build a basic select with optional date filter.
+    $query = $this->externalConnectionManager
+      ->setConnection()
+      ->select($field->getTableName())
+      ->fields($field->getTableName(), [$field->getFieldName()]);
+    if ($this->fromTimestamp !== NULL) {
+      $ts = (int) $this->fromTimestamp;
+      // Drupal 7 users table: use created and access fields as activity markers.
+      $or = $query->orConditionGroup()
+        ->condition('created', $ts, '>=')
+        ->condition('access', $ts, '>=');
+      $query->condition($or);
+    }
+    $results = $query->execute()->fetchAll();
     $ids = [];
     foreach ($results as $result) {
       $ids[] = $result->uid;

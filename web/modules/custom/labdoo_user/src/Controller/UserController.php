@@ -57,6 +57,20 @@ class UserController extends ControllerBase {
   }
 
   /**
+   * User page redirect.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   A redirect to the login or user profile.
+   */
+  public function userPage(): RedirectResponse {
+    $currentUser = \Drupal::currentUser();
+    if ($currentUser->isAnonymous()) {
+      return $this->redirect('user.login');
+    }
+    return $this->redirect('entity.user.canonical', ['user' => $currentUser->id()]);
+  }
+
+  /**
    * Redirects to the user dashboard.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse

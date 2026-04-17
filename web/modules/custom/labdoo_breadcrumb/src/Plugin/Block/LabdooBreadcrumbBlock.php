@@ -7,6 +7,8 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
+use Drupal\labdoo_team\Service\MembershipManager;
+use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -34,6 +36,13 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
   protected RouteMatchInterface $routeMatch;
 
   /**
+   * The membership manager service.
+   *
+   * @var \Drupal\labdoo_team\Service\MembershipManager
+   */
+  protected MembershipManager $membershipManager;
+
+  /**
    * Constructs a new LabdooBreadcrumbBlock instance.
    *
    * @param array $configuration
@@ -44,15 +53,19 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
    *   The plugin definition.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match service.
+   * @param \Drupal\labdoo_team\Service\MembershipManager $membership_manager
+   *   The membership manager service.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    RouteMatchInterface $route_match
+    RouteMatchInterface $route_match,
+    MembershipManager $membership_manager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->routeMatch = $route_match;
+    $this->membershipManager = $membership_manager;
   }
 
   /**
@@ -63,7 +76,8 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('current_route_match')
+      $container->get('current_route_match'),
+      $container->get('labdoo_team.membership.manager')
     );
   }
 
@@ -148,6 +162,19 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
               'text' => $this->t('Teams'),
               'url' => Url::fromRoute('view.teams.page_1')->toString(),
             ];
+
+            if ($type === 'team_post') {
+              $team_id = $this->membershipManager->getTeamIdFromNode($node);
+              if ($team_id) {
+                $team_node = Node::load($team_id);
+                if ($team_node) {
+                  $items[] = [
+                    'text' => $team_node->label(),
+                    'url' => Url::fromUserInput('/team-wall/' . $team_id)->toString(),
+                  ];
+                }
+              }
+            }
             break;
         }
 

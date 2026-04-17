@@ -136,9 +136,11 @@ function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id
     }
 
     $teamId = Drupal::request()->query->get('team_id');
-    if ($membershipManager->isGlobalTeamRestricted($teamId)) {
+    if (!$membershipManager->isAllowed((int) $teamId)) {
       $form['#access'] = FALSE;
-      \Drupal::messenger()->addError(t('Only superhub managers can post in the Global Team.'));
+      if ($form_state->isSubmitted()) {
+        \Drupal::messenger()->addError(t('Only superhub managers can post in the Global Team.'));
+      }
     }
   }
 
@@ -155,12 +157,40 @@ function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id
 
     if ($node instanceof NodeInterface) {
       $teamId = $membershipManager->getTeamIdFromNode($node);
-      if ($membershipManager->isGlobalTeamRestricted($teamId)) {
+      if (!$membershipManager->isAllowed($teamId)) {
         $form['#access'] = FALSE;
-        \Drupal::messenger()->addError(t('Only superhub managers can post in the Global Team.'));
+        if ($form_state->isSubmitted()) {
+          \Drupal::messenger()->addError(t('Only superhub managers can post in the Global Team.'));
+        }
       }
     }
   }
+}
+
+/**
+ * Implements hook_entity_field_access().
+ */
+function labdoo_team_entity_field_access($operation, \Drupal\Core\Field\FieldDefinitionInterface $field_definition, AccountInterface $account, \Drupal\Core\Field\FieldItemListInterface $items = NULL) {
+  if ($field_definition->getName() === 'field_team_comments') {
+    $node = NULL;
+    if ($items) {
+      $node = $items->getEntity();
+    }
+    else {
+      // Fallback for when items is not provided.
+      $node = \Drupal::routeMatch()->getParameter('node');
+    }
+
+    if ($node instanceof NodeInterface) {
+      /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
+      $membershipManager = \Drupal::service('labdoo_team.membership.manager');
+      $teamId = $membershipManager->getTeamIdFromNode($node);
+      if (!$membershipManager->isAllowed($teamId, $account)) {
+        return AccessResult::forbidden();
+      }
+    }
+  }
+  return AccessResult::neutral();
 }
 
 /**
@@ -172,14 +202,14 @@ function labdoo_team_node_access(NodeInterface $node, $op, AccountInterface $acc
 
   if ($op === 'create' && ($node->getType() === 'team_post' || $node->getType() === 'task_team')) {
     $teamId = Drupal::request()->query->get('team_id');
-    if ($membershipManager->isGlobalTeamRestricted($teamId)) {
+    if (!$membershipManager->isAllowed((int) $teamId, $account)) {
       return AccessResult::forbidden();
     }
   }
 
   if ($op === 'update' || $op === 'delete') {
     $teamId = $membershipManager->getTeamIdFromNode($node);
-    if ($membershipManager->isGlobalTeamRestricted($teamId)) {
+    if (!$membershipManager->isAllowed($teamId, $account)) {
       return AccessResult::forbidden();
     }
   }
@@ -205,12 +235,68 @@ function labdoo_team_comment_access(EntityInterface $entity, $operation, Account
 
     if ($node instanceof NodeInterface) {
       $teamId = $membershipManager->getTeamIdFromNode($node);
-      if ($membershipManager->isGlobalTeamRestricted($teamId)) {
+      if (!$membershipManager->isAllowed($teamId, $account)) {
         return AccessResult::forbidden();
       }
     }
   }
   return AccessResult::neutral();
+}
+
+/**
+ * Implements hook_node_links_alter().
+ */
+function labdoo_team_node_links_alter(array &$links, NodeInterface $node, array &$context) {
+  /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
+  $membershipManager = \Drupal::service('labdoo_team.membership.manager');
+  $teamId = $membershipManager->getTeamIdFromNode($node);
+  if (!$membershipManager->isAllowed($teamId)) {
+    // Standard comment link keys: comment__[field_name]
+    foreach ($links as $key => $value) {
+      if (strpos($key, 'comment__') === 0 && isset($links[$key]['#links']['comment-add'])) {
+        unset($links[$key]['#links']['comment-add']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_view_alter().
+ */
+function labdoo_team_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  if ($entity instanceof NodeInterface) {
+    /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
+    $membershipManager = \Drupal::service('labdoo_team.membership.manager');
+    $teamId = $membershipManager->getTeamIdFromNode($entity);
+    if (!$membershipManager->isAllowed($teamId)) {
+      if (isset($build['field_team_comments'])) {
+        $build['field_team_comments']['#access'] = FALSE;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_comment_links_alter().
+ */
+function labdoo_team_comment_links_alter(array &$links, CommentInterface $entity, array &$context) {
+  /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
+  $membershipManager = \Drupal::service('labdoo_team.membership.manager');
+  $node = $entity->getCommentedEntity();
+  if ($node instanceof NodeInterface) {
+    $teamId = $membershipManager->getTeamIdFromNode($node);
+    if (!$membershipManager->isAllowed($teamId)) {
+      if (isset($links['comment']['#links']['comment-reply'])) {
+        unset($links['comment']['#links']['comment-reply']);
+      }
+      // Check if there are other comment link keys just in case.
+      foreach ($links as $key => $value) {
+        if (isset($links[$key]['#links']['comment-reply'])) {
+          unset($links[$key]['#links']['comment-reply']);
+        }
+      }
+    }
+  }
 }
 
 /**

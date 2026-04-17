@@ -13,8 +13,6 @@ use Drupal\user\UserInterface;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\file\FileInterface;
 use Drupal\image\Entity\ImageStyle;
-use Drupal\mini_wiki\Entity\MiniWikiPage;
-use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_webform_element_alter().
@@ -228,77 +226,5 @@ function labdoo_common_entity_insert(EntityInterface $entity) {
         $style->buildUri($entity->getFileUri())
       );
     }
-  }
-}
-
-/**
- * Implements hook_preprocess_breadcrumb().
- */
-function labdoo_common_preprocess_breadcrumb(&$variables) {
-  $route_name = \Drupal::routeMatch()->getRouteName();
-
-  // Handle Wiki pages to prevent Gin from adding 'View wiki page'.
-  if ($route_name === 'entity.mini_wiki_page.canonical') {
-    $wiki_page = \Drupal::routeMatch()->getParameter('mini_wiki_page');
-    if ($wiki_page instanceof MiniWikiPage) {
-      // Gin adds 'View wiki page' as the last item.
-      // Remove any last item that contains this text.
-      $last_item = end($variables['breadcrumb']);
-      if ($last_item && isset($last_item['text'])) {
-        $text = is_object($last_item['text']) ? (string) $last_item['text'] : $last_item['text'];
-        if (stripos($text, 'View wiki page') !== FALSE || stripos($text, 'Ver página wiki') !== FALSE) {
-          array_pop($variables['breadcrumb']);
-        }
-      }
-    }
-  }
-
-  // Handle specific nodes to prevent Gin from nuking their breadcrumbs.
-  if ($route_name === 'entity.node.canonical') {
-    $node = \Drupal::routeMatch()->getParameter('node');
-    if ($node instanceof NodeInterface) {
-      $type = $node->getType();
-      $types = ['edoovillage', 'hub', 'dootronic', 'dootrip', 'team', 'team_post'];
-      if (in_array($type, $types)) {
-        // Gin preprocess for nodes removes all items except the first one.
-        // We need to restore them from the breadcrumb builder.
-        $breadcrumb_manager = \Drupal::service('breadcrumb');
-        $breadcrumb = $breadcrumb_manager->build(\Drupal::routeMatch());
-        $links = $breadcrumb->getLinks();
-
-        if (!empty($links)) {
-          $new_breadcrumb = [];
-          foreach ($links as $link) {
-            $new_breadcrumb[] = [
-              'text' => $link->getText(),
-              'url' => $link->getUrl()->toString(),
-            ];
-          }
-          $variables['breadcrumb'] = $new_breadcrumb;
-        }
-      }
-    }
-  }
-
-  // Remove 'Edit' link for anonymous users in Gin breadcrumb.
-  $current_user = \Drupal::currentUser();
-  if ($current_user->isAnonymous()) {
-    foreach ($variables['breadcrumb'] as $key => $item) {
-      if (isset($item['attributes']['class'])) {
-        $classes = is_array($item['attributes']['class']) ? $item['attributes']['class'] : [$item['attributes']['class']];
-        if (in_array('gin-back-to-admin', $classes)) {
-          unset($variables['breadcrumb'][$key]);
-        }
-      }
-      // Also check if the text contains 'Edit' and the URL contains '/edit'.
-      if (isset($item['text']) && isset($item['url'])) {
-        $text = is_object($item['text']) ? (string) $item['text'] : $item['text'];
-        if ((stripos($text, 'Edit') !== FALSE || stripos($text, 'Editar') !== FALSE) && stripos($item['url'], '/edit') !== FALSE) {
-          unset($variables['breadcrumb'][$key]);
-        }
-      }
-    }
-    // Re-index array after removing items.
-    $variables['breadcrumb'] = array_values($variables['breadcrumb']);
   }
 }

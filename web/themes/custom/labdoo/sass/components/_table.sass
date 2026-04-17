@@ -3,15 +3,45 @@
   max-width: 100%
 
 table
+  width: 100%
+  border-collapse: separate
+  border-spacing: 0
+  margin-bottom: 20px
+  border: 1px solid $border-color
+  border-radius: 0
+  overflow: hidden
+  
+  thead
+    th
+      background-color: $summary-row
+      color: $black
+      font-weight: 600
+      text-align: left
+      padding: 12px 15px
+      border-bottom: 2px solid $border-color
+  
+  tbody
+    tr
+      transition: background-color 0.2s ease
+      &:hover
+        background-color: #fcfcfc
+      &:last-child td
+        border-bottom: none
+    td
+      padding: 12px 15px
+      border-bottom: 1px solid $border-color
+      vertical-align: middle
+
   &.tablesorter
     thead
       th
         background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==)
         background-repeat: no-repeat
-        background-position: center right
-        padding: 4px 18px 4px 4px
-        white-space: normal
+        background-position: center right 10px
+        padding-right: 30px
         cursor: pointer
+        &:hover
+          background-color: $light-grey
         &.tablesorter-headerDesc
           background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7)
         &.tablesorter-headerAsc

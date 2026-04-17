@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\MediaManagerInterface;
+use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -32,6 +33,8 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * @link http://natiboo.es
  */
 class TeamSynchronizerCommands extends DrushCommands {
+
+  use TextFormatMapperTrait;
 
   private const TEAM_CONTENT_TYPE = 'team';
   private const TEAM_POST_CONTENT_TYPE = 'team_post';
@@ -66,6 +69,13 @@ class TeamSynchronizerCommands extends DrushCommands {
   private $dryRun;
 
   /**
+   * Optional UNIX timestamp filter for source nodes.
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
+
+  /**
    * The progress bar.
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
@@ -90,7 +100,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-teams [nids=123,456,789] [limit=9] [dry-run]
+   * @command labdoo-synchronize-teams [nids=123,456,789] [limit=9] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"]
    * @aliases labdoo-sync-teams
    * @usage labdoo-synchronize-teams
    *   Synchronizes the Organic Groups from Drupal 7 to Drupal 10 team structure.
@@ -98,12 +108,14 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @option nids List of Drupal 7 group IDs to synchronize.
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
+   * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
    */
   public function startSync(
     array $options = [
       'nids' => NULL,
       'limit' => -1,
       'dry-run' => FALSE,
+      'from-date' => NULL,
     ]
   ): void {
     try {
@@ -135,6 +147,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
+    $this->fromTimestamp = NULL;
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
     if ($options['nids'] !== NULL) {
@@ -142,6 +155,14 @@ class TeamSynchronizerCommands extends DrushCommands {
     }
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
+    if (!empty($options['from-date'])) {
+      $ts = strtotime($options['from-date']);
+      if ($ts === FALSE) {
+        $this->logger->error(sprintf('Invalid value for option "from-date": %s. Expected format: YYYY-MM-DD HH:MM:SS', $options['from-date']));
+        die;
+      }
+      $this->fromTimestamp = (int) $ts;
+    }
   }
 
   /**
@@ -166,6 +187,12 @@ class TeamSynchronizerCommands extends DrushCommands {
     }
     if ($this->limit > -1) {
       $groupsQuery->range(0, $this->limit);
+    }
+    if ($this->fromTimestamp !== NULL) {
+      $or = $groupsQuery->orConditionGroup()
+        ->condition('created', $this->fromTimestamp, '>=')
+        ->condition('changed', $this->fromTimestamp, '>=');
+      $groupsQuery->condition($or);
     }
     $groups = $groupsQuery->execute()->fetchAll();
 
@@ -364,15 +391,15 @@ class TeamSynchronizerCommands extends DrushCommands {
     $this->initProgressBar(count($sourceGroups), 'Processing teams');
 
     foreach ($sourceGroups as $sourceGroup) {
-      // Check if the team already exists by title
+      // Check if the team already exists by NID
       $destinationEntity = $this->entityTypeManager
         ->getStorage('node')
-        ->loadByProperties([
-          'type' => self::TEAM_CONTENT_TYPE,
-          'title' => $sourceGroup['title'],
-        ]);
+        ->load($sourceGroup['nid']);
 
       if (empty($destinationEntity)) {
+        // Clean up any orphaned field data for this NID
+        $this->cleanOrphanedFieldData($sourceGroup['nid']);
+
         // Create a new team with the original node ID
         $destinationEntity = $this->entityTypeManager
           ->getStorage('node')
@@ -384,7 +411,6 @@ class TeamSynchronizerCommands extends DrushCommands {
       }
       else {
         // Update existing team
-        $destinationEntity = reset($destinationEntity);
         ++$updated;
       }
 
@@ -400,7 +426,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->set('field_description', [
           'value' => $sourceGroup['body']['value'],
           'summary' => $sourceGroup['body']['summary'],
-          'format' => 'basic_html', // Map D7 format to D10 format
+          'format' => $this->mapFormat($sourceGroup['body']['format']),
         ]);
       }
 
@@ -493,6 +519,7 @@ class TeamSynchronizerCommands extends DrushCommands {
     }
   }
 
+
   /**
    * Retrieves the source team posts from Drupal 7.
    *
@@ -510,8 +537,17 @@ class TeamSynchronizerCommands extends DrushCommands {
       ->select('node', 'n')
       ->fields('n', ['nid', 'title', 'uid', 'status', 'created', 'changed'])
       ->condition('type', 'team_page');
+    if ($this->nids !== NULL) {
+      $postsQuery->condition('nid', $this->nids, 'IN');
+    }
     if ($this->limit > -1) {
       $postsQuery->range(0, $this->limit);
+    }
+    if ($this->fromTimestamp !== NULL) {
+      $or = $postsQuery->orConditionGroup()
+        ->condition('created', $this->fromTimestamp, '>=')
+        ->condition('changed', $this->fromTimestamp, '>=');
+      $postsQuery->condition($or);
     }
     $posts = $postsQuery->execute()->fetchAll();
 
@@ -559,7 +595,7 @@ class TeamSynchronizerCommands extends DrushCommands {
             'mail' => $comment->mail,
             'body' => $commentBody ? [
               'value' => $commentBody->comment_body_value,
-              'format' => $commentBody->comment_body_format,
+              'format' => $this->mapFormat($commentBody->comment_body_format),
             ] : NULL,
           ];
         }
@@ -667,15 +703,15 @@ class TeamSynchronizerCommands extends DrushCommands {
     $this->initProgressBar(count($sourcePosts), 'Processing team posts');
 
     foreach ($sourcePosts as $sourcePost) {
-      // Check if the team post already exists by title
+      // Check if the team post already exists by NID
       $destinationEntity = $this->entityTypeManager
         ->getStorage('node')
-        ->loadByProperties([
-          'type' => self::TEAM_POST_CONTENT_TYPE,
-          'title' => $sourcePost['title'],
-        ]);
+        ->load($sourcePost['nid']);
 
       if (empty($destinationEntity)) {
+        // Clean up any orphaned field data for this NID
+        $this->cleanOrphanedFieldData($sourcePost['nid']);
+
         // Create a new team post with the original node ID
         $destinationEntity = $this->entityTypeManager
           ->getStorage('node')
@@ -687,7 +723,6 @@ class TeamSynchronizerCommands extends DrushCommands {
       }
       else {
         // Update existing team post
-        $destinationEntity = reset($destinationEntity);
         ++$updated;
       }
 
@@ -703,8 +738,14 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->set('body', [
           'value' => $sourcePost['body']['value'],
           'summary' => $sourcePost['body']['summary'] ?? '',
-          'format' => 'basic_html', // Map D7 format to D10 format
+          'format' => $this->mapFormat($sourcePost['body']['format']),
         ]);
+      }
+
+      // Ensure the node exists in storage before creating comments to avoid
+      // double inserts into comment_entity_statistics.
+      if (!$this->dryRun) {
+        $destinationEntity->save();
       }
 
       // Set comments
@@ -733,7 +774,7 @@ class TeamSynchronizerCommands extends DrushCommands {
                 'subject' => $sourceComment['subject'],
                 'comment_body' => [
                   'value' => $sourceComment['body']['value'] ?? '',
-                  'format' => 'basic_html',
+                  'format' => $this->mapFormat($sourceComment['body']['format'] ?? 'basic_html'),
                 ],
                 'status' => $sourceComment['status'],
                 'created' => $sourceComment['created'],
@@ -831,6 +872,76 @@ class TeamSynchronizerCommands extends DrushCommands {
       'created' => $created,
       'updated' => $updated,
     ];
+  }
+
+  /**
+   * Cleans up orphaned field data for a given node ID.
+   *
+   * @param int $nid
+   *   The node ID.
+   */
+  protected function cleanOrphanedFieldData(int $nid): void {
+    $database = \Drupal::database();
+    $tables = [
+      'node__field_description',
+      'node_revision__field_description',
+      'node__field_team_members',
+      'node_revision__field_team_members',
+      'node__field_team_picture',
+      'node_revision__field_team_picture',
+      'node__body',
+      'node_revision__body',
+      'node__field_team',
+      'node_revision__field_team',
+      'node__field_attachment',
+      'node_revision__field_attachment',
+      'comment_entity_statistics',
+    ];
+
+    foreach ($tables as $table) {
+      if ($database->schema()->tableExists($table)) {
+        $database->delete($table)
+          ->condition('entity_id', $nid)
+          ->execute();
+      }
+    }
+
+    // Clean up orphaned comments for this node.
+    if ($database->schema()->tableExists('comment_field_data')) {
+      $cids = $database->select('comment_field_data', 'cfd')
+        ->fields('cfd', ['cid'])
+        ->condition('entity_id', $nid)
+        ->condition('entity_type', 'node')
+        ->execute()
+        ->fetchCol();
+
+      if (!empty($cids)) {
+        // Comment tables that use 'cid' as the primary key or identifier.
+        $comment_core_tables = [
+          'comment',
+          'comment_field_data',
+        ];
+        foreach ($comment_core_tables as $table) {
+          if ($database->schema()->tableExists($table)) {
+            $database->delete($table)
+              ->condition('cid', $cids, 'IN')
+              ->execute();
+          }
+        }
+
+        // Comment field tables that use 'entity_id' for the comment ID.
+        $comment_field_tables = [
+          'comment__comment_body',
+        ];
+        foreach ($comment_field_tables as $table) {
+          if ($database->schema()->tableExists($table)) {
+            $database->delete($table)
+              ->condition('entity_id', $cids, 'IN')
+              ->execute();
+          }
+        }
+      }
+    }
   }
 
 }

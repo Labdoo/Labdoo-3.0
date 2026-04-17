@@ -57,6 +57,13 @@ class SourceRepository implements SourceRepositoryInterface {
   private array $mapping;
 
   /**
+   * Optional timestamp filter for created/changed fields.
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
+
+  /**
    * SourceRepository constructor.
    *
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
@@ -87,11 +94,13 @@ class SourceRepository implements SourceRepositoryInterface {
   public function getEntities(
     string $contentType,
     array $mapping,
-    ?array $entityIds = NULL
+    ?array $entityIds = NULL,
+    ?int $fromTimestamp = NULL
   ): array {
 
     $this->contentType = $contentType;
     $this->mapping = $mapping;
+    $this->fromTimestamp = $fromTimestamp;
     $entities = [];
     if (empty($entityIds)) {
       $entityIds = $this->getNodesByType();
@@ -99,26 +108,7 @@ class SourceRepository implements SourceRepositoryInterface {
 
     /** @var \Drupal\labdoo_migrate\Model\FieldModel $field */
     foreach ($entityIds as $entityId) {
-      $mainEntityLangCode = $this->translationRepository->getLangCode($entityId);
-      $entities[$entityId]['metadata']['main_langcode'] = $mainEntityLangCode;
-      $entities[$entityId][$mainEntityLangCode] = $this->getFieldValues(
-        $entityId,
-        $mainEntityLangCode,
-        $mainEntityLangCode
-      );
-      $translations = $this->translationRepository
-        ->getTranslations($entityId, $mainEntityLangCode);
-      /** @var \Drupal\labdoo_migrate\Model\TranslationModel $translation */
-      foreach ($translations as $translation) {
-        $langCode = $translation->getLangCode();
-        $entities[$entityId][$langCode] = $this->getFieldValues(
-          $translation->getId(),
-          $langCode,
-          $mainEntityLangCode,
-          TRUE
-        );
-        $entities[$entityId]['metadata'][$langCode] = $translation->getId();
-      }
+      $entities[$entityId] = $this->getEntity($contentType, $mapping, $entityId, $fromTimestamp);
     }
 
     $this->externalConnectionManager->restoreConnection();
@@ -127,22 +117,75 @@ class SourceRepository implements SourceRepositoryInterface {
   }
 
   /**
-   * Retrieves nodes by type.
-   *
-   * @return array
-   *   Returns an array of node IDs.
-   *
-   * @throws \Exception
+   * {@inheritDoc}
    */
-  protected function getNodesByType(): array {
+  public function getEntity(
+    string $contentType,
+    array $mapping,
+    int $entityId,
+    ?int $fromTimestamp = NULL
+  ): array {
+
+    $this->contentType = $contentType;
+    $this->mapping = $mapping;
+    $this->fromTimestamp = $fromTimestamp;
+
+    $entity = [];
+    $mainEntityLangCode = $this->translationRepository->getLangCode($entityId);
+    $entity['metadata']['main_langcode'] = $mainEntityLangCode;
+    $entity[$mainEntityLangCode] = $this->getFieldValues(
+      $entityId,
+      $mainEntityLangCode,
+      $mainEntityLangCode
+    );
+    $translations = $this->translationRepository
+      ->getTranslations($entityId, $mainEntityLangCode);
+    /** @var \Drupal\labdoo_migrate\Model\TranslationModel $translation */
+    foreach ($translations as $translation) {
+      $langCode = $translation->getLangCode();
+      $entity[$langCode] = $this->getFieldValues(
+        $translation->getId(),
+        $langCode,
+        $mainEntityLangCode,
+        TRUE
+      );
+      $entity['metadata'][$langCode] = $translation->getId();
+    }
+
+    return $entity;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getNodesByType(
+    ?string $contentType = NULL,
+    ?array $mapping = NULL,
+    ?int $fromTimestamp = NULL
+  ): array {
+
+    if ($contentType !== NULL) {
+      $this->contentType = $contentType;
+    }
+    if ($mapping !== NULL) {
+      $this->mapping = $mapping;
+    }
+    if ($fromTimestamp !== NULL) {
+      $this->fromTimestamp = $fromTimestamp;
+    }
 
     $field = new FieldModel('node', 'nid', 'nid');
+    $special = 'nid = tnid OR tnid = 0';
+    if ($this->fromTimestamp !== NULL) {
+      $ts = (int) $this->fromTimestamp;
+      $special = sprintf('(created >= %d OR changed >= %d) AND (%s)', $ts, $ts, $special);
+    }
     $results = $this->getQueryResults(
       $field,
       NULL,
       TRUE,
       NULL,
-      'nid = tnid OR tnid = 0'
+      $special
     );
     $ids = [];
     foreach ($results as $result) {

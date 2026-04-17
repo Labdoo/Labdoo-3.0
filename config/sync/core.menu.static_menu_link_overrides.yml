@@ -8,9 +8,9 @@ definitions:
     expanded: false
     enabled: true
   standard__front_page:
-    weight: -50
     menu_name: main
     parent: ''
+    weight: -50
     expanded: false
     enabled: false
   labdoo_dootronics__bulk_upload:
@@ -20,15 +20,15 @@ definitions:
     expanded: false
     enabled: true
   labdoo_dootronics__clone_dootronics:
-    weight: -47
     menu_name: main
     parent: 'views_view:views.dootronics_dashboard.page_1'
+    weight: -47
     expanded: false
     enabled: true
   labdoo_dootronics__update_dootronics:
-    weight: -46
     menu_name: main
     parent: 'views_view:views.dootronics_dashboard.page_1'
+    weight: -46
     expanded: false
     enabled: true
   system__admin:
@@ -38,9 +38,9 @@ definitions:
     expanded: false
     enabled: true
   labdoo_common__admin_dashboard:
-    weight: -42
     menu_name: main
     parent: ''
+    weight: -42
     expanded: false
     enabled: false
   labdoo_user__profile:

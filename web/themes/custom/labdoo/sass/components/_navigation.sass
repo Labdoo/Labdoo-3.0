@@ -1,11 +1,84 @@
 #block-labdoo-mainnavigation
+  padding: 10px 0
   .menu
     display: flex
     justify-content: flex-start
     li
       list-style: none
-      margin-right: 20px
+      margin-right: 25px
+      a
+        font-weight: 500
+        padding: 5px 0
+        border-bottom: 2px solid transparent !important
+        &:hover
+          color: $blue !important
+          border-bottom: 2px solid $blue !important
 
 .toolbar-menu
   a
-    color: #333333 !important
+    color: #444 !important
+    &:hover
+      color: $blue !important
+
+// Fix mobile menu overlay and toolbar handle styles
+.toolbar-icon.toolbar-handle
+  box-shadow: none !important
+  border-color: transparent !important
+  &:hover, &:focus, &:active
+    background: transparent !important
+    box-shadow: none !important
+
+// Ensure the Gin vertical tray sits above page UI on mobile
+.toolbar-tray.toolbar-tray-vertical
+  z-index: 10050 !important
+
+.region-header
+  background: $white
+  box-shadow: none
+  margin-bottom: 20px
+
+#gin-toolbar-bar
+  .toolbar-tab
+    display: block
+    > .toolbar-icon.is-active
+      background-color: white
+  @media only screen and (max-width: 1024px)
+    .menu-item .toolbar-icon:not(.toolbar-handle)
+      padding-left: 20px
+      &::before
+        display: none
+    .menu-item .toolbar-menu
+      padding-left: 20px
+    .toolbar-menu a
+      padding-left: 20px
+    .toolbar-icon.toolbar-handle
+      &::before
+        background-color: $blue !important
+    .toolbar-icon-menu.trigger,
+    .toolbar-icon-user.trigger
+      position: relative
+      z-index: 99999
+    .contextual-toolbar-tab,
+    .announce-toolbar-tab,
+    .toolbar-tab--toolbar-item-shortcuts
+      display: none
+
+.toolbar-tab--toolbar-item-user
+  display: none !important
+
+.toolbar-tray-horizontal ul li.menu-item--expanded.hover-intent ul
+  width: 250px
+
+.region-pre-footer
+  display: flex
+  justify-content: space-evenly
+  margin: 75px 0
+  @media only screen and (max-width: 1024px)
+    flex-direction: column
+    align-items: center
+    gap: 35px
+    margin: 25px 0
+  .menu
+    margin-left: 0
+    .menu-item
+      list-style: none

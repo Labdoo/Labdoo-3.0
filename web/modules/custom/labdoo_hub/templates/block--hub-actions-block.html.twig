@@ -2,6 +2,15 @@
     <div class="views-exposed-form block-views">
         <div class="block-title-wrapper"><span class="block-title">{{ "Actions available for this hub:"|t }}</span></div>
         <div class="actions">
+            {% if data_link is not empty %}
+            <div class="action tab"><a href="{{ data_link }}"><img class="icon" src="/themes/custom/labdoo/img/hub.png" alt="Hub details">{{ "Hub details"|t }}</a></div>
+            {% endif %}
+            {% if dootronics_link is not empty %}
+            <div class="action tab"><a href="{{ dootronics_link }}"><img class="icon" src="/themes/custom/labdoo/img/laptop.png" alt="Related dootronics">{{ "Related dootronics"|t }}</a></div>
+            {% endif %}
+            {% if dootrips_link is not empty %}
+            <div class="action tab"><a href="{{ dootrips_link }}"><img class="icon" src="/themes/custom/labdoo/img/dootrip.png" alt="Related dootrips">{{ "Related dootrips"|t }}</a></div>
+            {% endif %}
             {% if edit_link is not empty %}
                 <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/hub.png">{{ "Edit this hub"|t }}</a></div>
             {% endif %}

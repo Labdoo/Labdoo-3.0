@@ -1,0 +1,8 @@
+uuid: bfd8f179-247b-4cf4-b457-81d669c3caa5
+langcode: en
+status: true
+dependencies: {  }
+id: footer-middle
+label: 'Footer middle'
+description: ''
+locked: false

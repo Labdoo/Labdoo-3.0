@@ -12,12 +12,12 @@ dependencies:
   module:
     - eu_cookie_compliance
     - file
+    - labdoo_dootronics
     - labdoo_user
     - mini_wiki
     - node
     - quick_node_clone
     - system
-    - workbench
 id: superhub_manager
 label: 'Superhub Manager'
 weight: 5
@@ -25,7 +25,6 @@ is_admin: null
 permissions:
   - 'access administration pages'
   - 'access files overview'
-  - 'access workbench'
   - 'administer mini_wiki_page'
   - 'administer user roles'
   - 'administer users'
@@ -34,6 +33,7 @@ permissions:
   - 'assign laptop_manager role'
   - 'assign team_manager role'
   - 'assign wiki_writer role'
+  - 'bulk upload dootronic'
   - 'clone dootrip content'
   - 'clone dootronic content'
   - 'clone edoovillage content'

@@ -13,6 +13,12 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
+@media only screen and (max-width: 1024px) {
+  .labdoo-admin-toolbar  {
+    display: none;
+  }
+}
+
 /* Main menu list */
 .labdoo-admin-menu {
   display: flex;
@@ -126,12 +132,8 @@ body.has-labdoo-admin-toolbar .toolbar-tray {
   margin-top: 45px;
 }
 
-body.has-labdoo-admin-toolbar #block-labdoo-languagedropdownswitcher .form-item {
-  margin-top: 52px;
-}
-
 /* Responsive adjustments */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   .labdoo-admin-menu {
     flex-wrap: wrap;
   }

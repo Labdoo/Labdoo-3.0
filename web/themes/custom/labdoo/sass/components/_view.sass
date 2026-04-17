@@ -4,11 +4,17 @@
     border-bottom: 1px solid #e5e5e5
     padding-bottom: 20px
 
+.view-footer
+  margin-top: 20px
+  text-align: center
+  .button
+    @extend .button
+
 .ajax-progress
   display: none
 
 .block-views .view-actions
-  width: 375px
+  width: 100%
 
 #views-exposed-form-labdoers-page-1
   > fieldset
@@ -29,3 +35,38 @@
             flex-direction: column
             input
               width: 100%
+
+.views-exposed-form
+  border-radius: 0 !important
+  fieldset
+    border: none !important
+    .fieldset__label
+      padding-left: 0 !important
+    .fieldset__wrapper
+      margin-left: 0 !important
+
+.view-edoovillages,
+.view-dootronics-dashboard,
+.view-dootrips-dashboard,
+.view-hubs-dashboard,
+.view-wiki
+  .view-content
+    padding: 0
+    border: 0
+    border-radius: 0
+
+.view-team-wall
+  .view-content.gin-layer-wrapper
+    padding: 0
+    border: 0
+    box-shadow: none
+
+@media only screen and (max-width: 1024px)
+  .tableresponsive-toggle-columns
+    background: white
+    .tableresponsive-toggle
+      padding: 10px
+      margin-top: 10px
+      margin-bottom: 20px
+      font-weight: normal
+      font-size: 14px

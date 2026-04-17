@@ -1,5 +1,0 @@
-name: Labdoo Core Library Module
-description: 'This module holds core functionality used across all Labdoo custom modules.'
-type: module
-package: Labdoo
-core_version_requirement: ^9

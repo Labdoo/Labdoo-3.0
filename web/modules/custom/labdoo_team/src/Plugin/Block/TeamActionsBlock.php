@@ -113,6 +113,12 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
       $team = $team->get('field_team')->entity;
     }
 
+    if (empty($team)) {
+      return [
+        '#markup' => '',
+      ];
+    }
+
     $editLink = $this->linkHelper->generateEditLink($team);
     $wallLink = $this->linkHelper->generateWallLink($team);
 

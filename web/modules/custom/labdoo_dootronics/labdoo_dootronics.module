@@ -82,13 +82,17 @@ function labdoo_dootronics_entity_presave(EntityInterface $entity) {
     return;
   }
 
-  // If this is a new dootronic node, set its ID using the sequence manager
+  // If this is a new dootronic node, set its title using the sequence manager
   if ($entity->isNew()) {
     /** @var \Drupal\labdoo_dootronics\Service\SequenceManagerInterface $sequenceManager */
     $sequenceManager = \Drupal::service('labdoo_dootronics.sequence_manager');
-    $nid = $sequenceManager->get();
-    $entity->set('nid', $nid);
-    // Release the lock as soon as we've reserved the NID to avoid nested/acquire conflicts.
+    $sequenceId = $sequenceManager->get();
+    /** @var \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository */
+    $dootronicRepository = \Drupal::service('labdoo_dootronics.repository');
+    $title = $dootronicRepository->updateId($sequenceId);
+    $entity->set('title', $title);
+    $entity->set('field_tagged', TRUE);
+    // Release the lock.
     $sequenceManager->commit();
   }
 

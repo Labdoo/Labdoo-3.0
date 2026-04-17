@@ -50,14 +50,69 @@
               return 1;
             };
 
-            // Function to click the "next" pager link.
+            // Function to trigger AJAX pagination without scrolling.
             const rotateToNext = function() {
               const currentPage = getCurrentPage();
               const $nextLink = $block.find('.pager__item--next a');
-          
+
               if ($nextLink.length && currentPage < MAX_PAGE) {
-                // Continue to next page
+                // Save current scroll position
+                const scrollX = window.scrollX;
+                const scrollY = window.scrollY;
+
+                // Override all scroll methods BEFORE clicking
+                const originalScrollTo = window.scrollTo;
+                const originalScrollIntoView = Element.prototype.scrollIntoView;
+                const originalScroll = window.scroll;
+                const originalScrollBy = window.scrollBy;
+
+                window.scrollTo = function() { return; };
+                window.scroll = function() { return; };
+                window.scrollBy = function() { return; };
+                Element.prototype.scrollIntoView = function() { return; };
+
+                // Prevent any scroll attempts - capture phase to intercept early
+                const preventScroll = function(e) {
+                  e.preventDefault();
+                  e.stopImmediatePropagation();
+                  originalScrollTo.call(window, scrollX, scrollY);
+                };
+
+                // Block scroll events in capture phase
+                window.addEventListener('scroll', preventScroll, { passive: false, capture: true });
+                document.addEventListener('scroll', preventScroll, { passive: false, capture: true });
+
+                // Use requestAnimationFrame to continuously force position
+                let rafId;
+                let running = true;
+                const forcePosition = function() {
+                  if (running) {
+                    if (window.scrollX !== scrollX || window.scrollY !== scrollY) {
+                      originalScrollTo.call(window, scrollX, scrollY);
+                    }
+                    rafId = requestAnimationFrame(forcePosition);
+                  }
+                };
+                forcePosition();
+
+                // Click the link
                 $nextLink[0].click();
+
+                // Restore everything after AJAX completes
+                setTimeout(function() {
+                  running = false;
+                  if (rafId) {
+                    cancelAnimationFrame(rafId);
+                  }
+                  window.scrollTo = originalScrollTo;
+                  window.scroll = originalScroll;
+                  window.scrollBy = originalScrollBy;
+                  Element.prototype.scrollIntoView = originalScrollIntoView;
+                  window.removeEventListener('scroll', preventScroll, { capture: true });
+                  document.removeEventListener('scroll', preventScroll, { capture: true });
+                  originalScrollTo.call(window, scrollX, scrollY);
+                }, 1000);
+
                 // Set timer for next rotation.
                 rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
               } else {

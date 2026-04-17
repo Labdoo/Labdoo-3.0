@@ -33,6 +33,7 @@ function labdoo_hub_theme() {
     ],
     'hub_actions_block_block' => [
       'variables' => [
+        'data_link' => '',
         'edit_link' => '',
         'photo_album_link' => '',
         'story_link' => '',
@@ -44,18 +45,10 @@ function labdoo_hub_theme() {
         'semaphore' => NULL,
         'dropping' => '',
         'sanitation' => '',
-      ],
-      'template' => 'block--hub-actions-block',
-    ],
-    'hub_tabs_block_block' => [
-      'variables' => [
-        'data_link' => '',
         'dootronics_link' => '',
         'dootrips_link' => '',
-        'metrics_link' => '',
-        'active_tab' => '',
       ],
-      'template' => 'block--hub-tabs-block',
+      'template' => 'block--hub-actions-block',
     ],
   ];
 }

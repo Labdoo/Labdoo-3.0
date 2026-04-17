@@ -962,7 +962,7 @@ display:
         options:
           query_comment: ''
           disable_sql_rewrite: false
-          distinct: false
+          distinct: true
           replica: false
           query_tags: {  }
       relationships: {  }
@@ -992,7 +992,7 @@ display:
           empty: false
           content:
             value: '<a href="/dootrip/export/csv/dootrips_dashboard/page_1?[custom:get_parameters]" class="button">Download</a>'
-            format: basic_html
+            format: full_html
           tokenize: false
       display_extenders: {  }
     cache_metadata:

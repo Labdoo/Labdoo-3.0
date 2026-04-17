@@ -21,6 +21,8 @@ interface SourceRepositoryInterface {
    *   The mapping array.
    * @param array|null $entityIds
    *   The entity IDs array.
+   * @param int|null $fromTimestamp
+   *   Optional UNIX timestamp to filter nodes by created/updated date (>=).
    *
    * @return array
    *   Returns an array of source entities.
@@ -30,7 +32,53 @@ interface SourceRepositoryInterface {
   public function getEntities(
     string $contentType,
     array $mapping,
-    ?array $entityIds = NULL
+    ?array $entityIds = NULL,
+    ?int $fromTimestamp = NULL
+  ): array;
+
+  /**
+   * Retrieves a single source entity.
+   *
+   * @param string $contentType
+   *   The content type.
+   * @param array $mapping
+   *   The mapping array.
+   * @param int $entityId
+   *   The entity ID.
+   * @param int|null $fromTimestamp
+   *   Optional UNIX timestamp to filter nodes by created/updated date (>=).
+   *
+   * @return array
+   *   Returns an array of source entity data.
+   *
+   * @throws \Exception
+   */
+  public function getEntity(
+    string $contentType,
+    array $mapping,
+    int $entityId,
+    ?int $fromTimestamp = NULL
+  ): array;
+
+  /**
+   * Retrieves nodes by type.
+   *
+   * @param string|null $contentType
+   *   Optional content type.
+   * @param array|null $mapping
+   *   Optional mapping array.
+   * @param int|null $fromTimestamp
+   *   Optional UNIX timestamp to filter nodes by created/updated date (>=).
+   *
+   * @return array
+   *   Returns an array of node IDs.
+   *
+   * @throws \Exception
+   */
+  public function getNodesByType(
+    ?string $contentType = NULL,
+    ?array $mapping = NULL,
+    ?int $fromTimestamp = NULL
   ): array;
 
 }

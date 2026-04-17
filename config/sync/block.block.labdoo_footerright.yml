@@ -1,0 +1,25 @@
+uuid: e17a6db0-3440-43d0-b175-017732e894d3
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.footer-right
+  module:
+    - system
+  theme:
+    - labdoo
+id: labdoo_footerright
+theme: labdoo
+region: pre_footer
+weight: -19
+provider: null
+plugin: 'system_menu_block:footer-right'
+settings:
+  id: 'system_menu_block:footer-right'
+  label: 'Footer right'
+  label_display: '0'
+  provider: system
+  level: 1
+  depth: 0
+  expand_all_items: false
+visibility: {  }

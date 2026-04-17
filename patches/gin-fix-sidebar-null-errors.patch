@@ -1,0 +1,40 @@
+--- js/sidebar.js	2025-06-18 13:29:11.000000000 +0200
++++ js/sidebar_mod.js	2026-02-15 14:48:28.789387289 +0100
+@@ -72,8 +72,14 @@
+     },
+ 
+     toggleSidebar: () => {
++      const sidebarTrigger = document.querySelector('.meta-sidebar__trigger');
++
++      if (!sidebarTrigger) {
++        return;
++      }
++
+       // Set active state.
+-      if (document.querySelector('.meta-sidebar__trigger').classList.contains('is-active')) {
++      if (sidebarTrigger.classList.contains('is-active')) {
+         Drupal.ginSidebar.collapseSidebar();
+         Drupal.ginStickyFormActions?.hideMoreActions();
+       }
+@@ -88,6 +94,10 @@
+       const hideLabel = Drupal.t('Hide sidebar panel');
+       const sidebarTrigger = document.querySelector('.meta-sidebar__trigger');
+ 
++      if (!sidebarTrigger) {
++        return;
++      }
++
+       sidebarTrigger.querySelector('span').innerHTML = hideLabel;
+       sidebarTrigger.setAttribute('title', hideLabel);
+       if (sidebarTrigger.nextSibling) {
+@@ -118,6 +128,10 @@
+       const showLabel = Drupal.t('Show sidebar panel');
+       const sidebarTrigger = document.querySelector('.meta-sidebar__trigger');
+ 
++      if (!sidebarTrigger) {
++        return;
++      }
++
+       sidebarTrigger.querySelector('span').innerHTML = showLabel;
+       sidebarTrigger.setAttribute('title', showLabel);
+       if (sidebarTrigger.nextSibling) {

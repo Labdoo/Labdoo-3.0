@@ -1,19 +1,29 @@
 .block-actions-block-block
   width: 375px
+  background: $white
+  //padding: 24px
+  border-radius: 0
+  //border: 1px solid rgba($border-color, 0.5)
+  //box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05)
   .actions
     .action
-      margin: 5px 0
+      margin: 8px 0
       a
         display: flex
         flex-wrap: nowrap
+        align-items: center
+        padding: 5px
+        border-radius: 0
+        &:hover
+          background-color: $lighter-blue
+          border-bottom: none
   .block-title-wrapper
-    border-top: 1px solid $light-grey
-    border-bottom: 1px solid $light-grey
-    margin: 10px 0
-    padding: 10px 0
+    border-bottom: 1px solid $border-color
+    margin: 15px 0
     .block-title
-      color: $light-green
-      font-weight: 700
+      color: $green
+      font-weight: 600
+      font-size: 1.1rem
   .icon
     height: 100% !important
     margin-right: 15px
@@ -52,15 +62,80 @@
     background: none !important
 
 #block-labdoo-languagedropdownswitcher
-  position: absolute
-  top: 0
-  z-index: 999
-  right: 45px
+  position: fixed
+  top: 10px
+  z-index: 502
+  right: 100px
   @media only screen and (max-width: 1024px)
-    position: relative
-    right: 0
+    top: 7px
+    right: 60px
+  .form-item
+    margin: 0
+  // Reduce height of language dropdown specifically in header
+  select
+    height: 32px !important
+    line-height: 32px !important
+    padding: 0 32px 0 10px !important
+    font-size: 0.9rem
+    border: 1px solid $border-color !important
+    border-radius: 0 !important
+    @media only screen and (max-width: 1024px)
+      height: 22px !important
+      padding-left: 8px !important
+      min-height: 22px !important
+      line-height: 16px !important
+
+  // If chosen is active, it might be creating a double UI or double border
+  // We should style chosen specifically here if it's used
+  .chosen-container-single .chosen-single
+    height: 32px !important
+    line-height: 32px !important
+    padding: 0 32px 0 10px !important
+    font-size: 0.9rem
+    background-image: none !important // Remove double arrow if any
+    border: 1px solid $border-color !important
+    span
+      line-height: 32px !important
+      padding-top: 0 !important
+      padding-bottom: 0 !important
+
+  .chosen-container
+    @media only screen and (max-width: 1024px)
+      min-height: 60px
+      margin-top: 0
+
+  // Hide the native select if chosen is present to avoid duplication
+  .chosen-container + select
+    display: none !important
+
+.has-labdoo-admin-toolbar
+  #block-labdoo-languagedropdownswitcher
+    top: 57px
+    @media only screen and (max-width: 1024px)
+      top: 7px
+
+#block-labdoo-exposedformsearch-resultspage-1
+  position: fixed
+  top: 14px
+  z-index: 503
+  right: 48px
+  padding: 0
+  border: none
+  box-shadow: none
+  @media only screen and (max-width: 1024px)
+    top: 7px
+    right: 20px
+    background: transparent
+    svg
+      stroke: white
   .form-item
     margin-top: 7px
+
+.has-labdoo-admin-toolbar
+  #block-labdoo-exposedformsearch-resultspage-1
+    top: 60px
+    @media only screen and (max-width: 1024px)
+      top: 7px
 
 .block-views-exposed-filter-blocksearch-results-page-1
   width: fit-content !important
@@ -101,3 +176,16 @@
           content: " ·"
           margin-left: 2px
           margin-right: 4px
+
+#block-labdoo-dootronicchart,
+#block-labdoo-hubchart,
+#block-dootrips-chart,
+#block-labdoo-edoovillagechart
+  margin-bottom: 30px
+
+.gin-layer-wrapper
+  border-radius: 0 !important
+
+.view-actions
+  .gin-layer-wrapper
+    max-width: 376px

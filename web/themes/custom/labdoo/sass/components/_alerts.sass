@@ -1,0 +1,60 @@
+.messages
+  border-radius: 0 !important
+  .messages__header
+    h2
+      color: white
+
+  &.messages--warning
+    background: #dda800 !important
+
+.alert
+  padding: 15px
+  margin-bottom: 20px
+  border: 1px solid transparent
+  border-radius: 0
+  position: relative
+  img
+    vertical-align: middle
+    margin-right: 10px
+
+.alert-success
+  background-color: #fcf8e3
+  border-color: #fbeed5
+  color: #c09853
+  a
+    color: darken(#c09853, 10%)
+    text-decoration: underline
+    font-weight: bold
+
+.alert-warning
+  background-color: #d9edf7
+  border-color: #bce8f1
+  color: #31708f
+  a
+    color: darken(#31708f, 10%)
+    text-decoration: underline
+    font-weight: bold
+
+.close
+  float: right
+  font-size: 21px
+  font-weight: 700
+  line-height: 1
+  color: #000
+  text-shadow: 0 1px 0 #fff
+  filter: alpha(opacity=20)
+  opacity: .2
+  text-decoration: none
+  &:hover
+    color: #000
+    text-decoration: none
+    cursor: pointer
+    opacity: .5
+
+.element-invisible
+  position: absolute !important
+  clip: rect(1px, 1px, 1px, 1px)
+  overflow: hidden
+  height: 1px
+  width: 1px
+  word-wrap: normal

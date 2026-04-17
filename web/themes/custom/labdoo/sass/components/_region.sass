@@ -9,6 +9,8 @@
 
 .region-sidebar
   margin-right: 40px
+  @media only screen and (max-width: 1024px)
+    margin-right: 0 !important
 
 .region-post-content, .region-highlighted
   display: flex
@@ -32,15 +34,33 @@
 
 .region-header
   display: flex
-  justify-content: space-between
+  justify-content: flex-start
   @media only screen and (max-width: 1024px)
     display: block
 
+  .search-overlay-block
+    margin-left: 0
+    order: 1
+
 .page-wrapper
-  padding-top: 45px
+  padding-top: 0
+
+.has-labdoo-admin-toolbar
+  .page-wrapper
+    padding-top: 45px
+    @media only screen and (max-width: 1024px)
+      padding-top: 0
 
 .page-content
   width: 100%
+  > .region-highlighted,
+  > .region-content,
+  > .help
+    margin-block-start: 0 !important
+
+.page-content
+  > .region-content
+    margin-block-start: 5px !important
 
 @media (min-width: 64em)
   .page-wrapper

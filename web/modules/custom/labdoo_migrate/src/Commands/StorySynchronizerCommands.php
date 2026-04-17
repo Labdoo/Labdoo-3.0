@@ -5,7 +5,9 @@ namespace Drupal\labdoo_migrate\Commands;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
+use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
+use Drupal\Core\Database\Query\Condition;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 /**
@@ -16,7 +18,9 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
-class StorySynchronizerCommands extends DrushCommands {
+class StorySynchronizerCommands extends DrushCommands { 
+
+  use TextFormatMapperTrait;
 
   private const CONTENT_TYPE = 'labdoo_story';
 
@@ -26,6 +30,13 @@ class StorySynchronizerCommands extends DrushCommands {
    * @var mixed
    */
   private $startTime;
+
+  /**
+   * Optional UNIX timestamp filter for source nodes.
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
 
   /**
    * The nids.
@@ -72,7 +83,7 @@ class StorySynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-stories [nids=123,456,789] [limit=9] [dry-run]
+   * @command labdoo-synchronize-stories [nids=123,456,789] [limit=9] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"]
    * @aliases labdoo-sync-stories
    * @usage labdoo-synchronize-stories
    *   Synchronizes the contents of the type "labdoo_story".
@@ -81,12 +92,14 @@ class StorySynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option mode Defines if the entities must be created or updated (valid values: not defined, "create", "update").
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
+   * @option from-date Date/time lower bound to filter stories by created/updated (format: "YYYY-MM-DD HH:MM:SS").
    */
   public function startSync(
     array $options = [
       'nids' => NULL,
       'limit' => -1,
       'dry-run' => FALSE,
+      'from-date' => NULL,
     ]
   ): void {
 
@@ -111,6 +124,7 @@ class StorySynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
+    $this->fromTimestamp = NULL;
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
     if ($options['nids'] !== NULL) {
@@ -118,6 +132,14 @@ class StorySynchronizerCommands extends DrushCommands {
     }
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
+    if (!empty($options['from-date'])) {
+      $ts = strtotime($options['from-date']);
+      if ($ts === FALSE) {
+        $this->logger->error(sprintf('Invalid value for option "from-date": %s. Expected format: YYYY-MM-DD HH:MM:SS', $options['from-date']));
+        die;
+      }
+      $this->fromTimestamp = (int) $ts;
+    }
   }
 
   /**
@@ -129,6 +151,7 @@ class StorySynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function getSourceEntities(): array {
+    /** @var int|null $this->fromTimestamp */
     $this->logger->notice('Retrieving the source entities...');
 
     $storiesResult = [];
@@ -142,6 +165,12 @@ class StorySynchronizerCommands extends DrushCommands {
     }
     if ($this->limit > -1) {
       $storiesQuery->range(0, $this->limit);
+    }
+    if (isset($this->fromTimestamp) && $this->fromTimestamp !== NULL) {
+      $or = $storiesQuery->orConditionGroup()
+        ->condition('created', $this->fromTimestamp, '>=')
+        ->condition('changed', $this->fromTimestamp, '>=');
+      $storiesQuery->condition($or);
     }
     $stories = $storiesQuery->execute()->fetchAll();
 
@@ -172,8 +201,9 @@ class StorySynchronizerCommands extends DrushCommands {
         );
         $text = $this->getCollectionField(
           'field_data_field_story_text',
-          ['field_story_text_value'],
-          $section->field_story_section_revision_id
+          ['field_story_text_value', 'field_story_text_format'],
+          $section->field_story_section_revision_id,
+          FALSE
         );
         $picture = $this->getCollectionField(
           'field_data_field_story_picture',
@@ -302,16 +332,16 @@ class StorySynchronizerCommands extends DrushCommands {
           $fid = $file->id();
         }
 
-        $text = [
-          'value' => $section['text'],
-          'format' => 'basic_html',
+        $textValue = [
+          'value' => $section['text']->field_story_text_value,
+          'format' => $this->mapFormat($section['text']->field_story_text_format),
         ];
         $newParagraph = $this->entityTypeManager
           ->getStorage('paragraph')
           ->create([
             'type' => 'story_section',
             'field_story_heading' => $section['heading'],
-            'field_story_text' => $text,
+            'field_story_text' => $textValue,
             'field_story_picture' => $fid,
           ]);
         if ($fid !== NULL) {
@@ -406,6 +436,7 @@ class StorySynchronizerCommands extends DrushCommands {
       $this->progressBar->advance();
     }
   }
+
 
   /**
    * Retrieves a specific field from a collection.

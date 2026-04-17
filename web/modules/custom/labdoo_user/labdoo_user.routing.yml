@@ -1,3 +1,11 @@
+labdoo_user.user_page:
+  path: '/labdoo-user'
+  defaults:
+    _controller: '\Drupal\labdoo_user\Controller\UserController::userPage'
+    _title: 'User'
+  requirements:
+    _access: 'TRUE'
+
 labdoo_user.dashboard_redirect:
   path: '/user/dashboard'
   defaults:

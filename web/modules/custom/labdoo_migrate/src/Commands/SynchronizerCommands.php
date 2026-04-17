@@ -111,6 +111,13 @@ class SynchronizerCommands extends DrushCommands {
   private $overrideMode;
 
   /**
+   * Optional UNIX timestamp filter for source nodes.
+   *
+   * @var int|null
+   */
+  private ?int $fromTimestamp = NULL;
+
+  /**
    * SynchronizerCommands constructor.
    *
    * @param \Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface $configurationManager
@@ -136,7 +143,7 @@ class SynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-content content-type [nids=123,456,789] [limit=9] [mode=create|update] [override] [dry-run]
+   * @command labdoo-synchronize-content content-type [nids=123,456,789] [limit=9] [mode=create|update] [override] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"]
    * @aliases labdoo-sync
    * @usage labdoo-synchronize-content edoovillage
    *   Synchronizes the contents of the type "edoovillage".
@@ -146,6 +153,7 @@ class SynchronizerCommands extends DrushCommands {
    * @option mode Defines if the entities must be created or updated (valid values: not defined, "create", "update").
    * @option override Whether to override the nodes or fail gracefully. Specify this parameter to activate the override mode.
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
+   * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
    */
   public function startSync(
     string $contentType,
@@ -155,31 +163,95 @@ class SynchronizerCommands extends DrushCommands {
       'mode' => 'create',
       'override' => FALSE,
       'dry-run' => FALSE,
+      'from-date' => NULL,
     ]
   ): void {
     try {
       $this->setEnvironment($contentType, $options);
 
       if ($this->create) {
-        $sourceEntities = $this->getSourceEntities($contentType, $this->nids);
-        if ($this->limit > -1) {
-          $sourceEntities = array_slice(
-            $sourceEntities,
-            0,
-            $this->limit,
-            TRUE
+        $sourceEntitiesIds = $this->nids;
+        if (empty($sourceEntitiesIds)) {
+          $sourceEntitiesIds = $this->sourceRepository->getNodesByType(
+            $contentType,
+            $this->mapping,
+            $this->fromTimestamp
           );
         }
 
-        $updatedEntities = $this->createDestinationEntities($sourceEntities);
+        if ($this->limit > -1) {
+          $sourceEntitiesIds = array_slice(
+            $sourceEntitiesIds,
+            0,
+            $this->limit
+          );
+        }
+
+        $total = count($sourceEntitiesIds);
+        $this->logger->notice(sprintf('%d source entities found.', $total));
+        $this->logger->notice('Creating the destination entities...');
+
+        $destinationTypes = $this->configData->getDestinationTypes();
+        $destinationContentType = reset($destinationTypes);
+        $this->destinationRepository->setOverrideMode($this->overrideMode);
+
+        $updatedEntities = 0;
+        foreach ($sourceEntitiesIds as $entityId) {
+          $sourceEntity = $this->sourceRepository->getEntity(
+            $contentType,
+            $this->mapping,
+            $entityId,
+            $this->fromTimestamp
+          );
+
+          if (empty($sourceEntity)) {
+            continue;
+          }
+
+          $updatedEntities += $this->destinationRepository->createEntities(
+            [$entityId => $sourceEntity],
+            $this->mapping,
+            $destinationContentType,
+            $this->dryRun
+          );
+        }
       }
       else {
         $destinationEntities = $this->getDestinationEntities();
-        $sourceEntities = $this->getSourceEntities(
-          $contentType,
-          array_keys($destinationEntities)
-        );
-        $updatedEntities = $this->updateDestinationEntities($sourceEntities, $destinationEntities);
+        $sourceEntitiesIds = array_keys($destinationEntities);
+
+        if ($this->limit > -1) {
+          $sourceEntitiesIds = array_slice(
+            $sourceEntitiesIds,
+            0,
+            $this->limit
+          );
+        }
+
+        $total = count($sourceEntitiesIds);
+        $this->logger->notice(sprintf('%d source entities found.', $total));
+        $this->logger->notice('Updating the destination entities...');
+
+        $updatedEntities = 0;
+        foreach ($sourceEntitiesIds as $entityId) {
+          $sourceEntity = $this->sourceRepository->getEntity(
+            $contentType,
+            $this->mapping,
+            $entityId,
+            $this->fromTimestamp
+          );
+
+          if (empty($sourceEntity)) {
+            continue;
+          }
+
+          $updatedEntities += $this->destinationRepository->updateEntities(
+            [$entityId => $sourceEntity],
+            $this->mapping,
+            [$entityId => $destinationEntities[$entityId]],
+            $this->dryRun
+          );
+        }
       }
 
       $this->tearDown(
@@ -217,6 +289,16 @@ class SynchronizerCommands extends DrushCommands {
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
     $this->overrideMode = $options['override'];
+
+    // Parse from-date if provided.
+    if (!empty($options['from-date'])) {
+      $ts = strtotime($options['from-date']);
+      if ($ts === FALSE) {
+        $this->logger->error(sprintf('Invalid value for option "from-date": %s. Expected format: YYYY-MM-DD HH:MM:SS', $options['from-date']));
+        die;
+      }
+      $this->fromTimestamp = (int) $ts;
+    }
 
     $sourceRepository = sprintf(
       'labdoo_migrate.source_content.repository.%s',
@@ -275,95 +357,6 @@ class SynchronizerCommands extends DrushCommands {
     return $destinationEntities;
   }
 
-  /**
-   * Retrieves the source entities.
-   *
-   * @param string $contentType
-   *   The content type.
-   * @param array|null $destinationEntitiesIds
-   *   An array with the destination entities IDs.
-   *
-   * @return array
-   *   Returns an array of source entities.
-   *
-   * @throws \Exception
-   */
-  protected function getSourceEntities(
-    string $contentType,
-    ?array $destinationEntitiesIds = NULL
-  ): array {
-    $this->logger->notice('Retrieving the source entities...');
-    $sourceEntities = $this->sourceRepository
-      ->getEntities(
-        $contentType,
-        $this->mapping,
-        $destinationEntitiesIds
-      );
-
-    $message = sprintf(
-      '%d source entities found.',
-      count($sourceEntities)
-    );
-    $this->logger->notice($message);
-
-    return $sourceEntities;
-  }
-
-  /**
-   * Creates the destination entities with the source values.
-   *
-   * @param array $sourceEntities
-   *   The source entities.
-   *
-   * @return int
-   *   Returns the number of created entities.
-   *
-   * @throws \Exception
-   */
-  protected function createDestinationEntities(array $sourceEntities): int {
-    $this->logger->notice('Creating the destination entities...');
-    $destinationTypes = $this->configData->getDestinationTypes();
-    $contentType = reset($destinationTypes);
-    $this->destinationRepository->setOverrideMode($this->overrideMode);
-    $this->destinationRepository->setTotalCount(count($sourceEntities));
-
-    return $this->destinationRepository
-      ->createEntities(
-        $sourceEntities,
-        $this->mapping,
-        $contentType,
-        $this->dryRun
-      );
-  }
-
-  /**
-   * Updates the destination entities with the source values.
-   *
-   * @param array $sourceEntities
-   *   The source entities.
-   * @param array $destinationEntities
-   *   The destination entities.
-   *
-   * @return int
-   *   Returns the number of updated entities.
-   *
-   * @throws \Exception
-   */
-  protected function updateDestinationEntities(
-    array $sourceEntities,
-    array $destinationEntities
-  ): int {
-    $this->logger->notice('Updating the destination entities...');
-    $this->destinationRepository->setTotalCount(count($sourceEntities));
-
-    return $this->destinationRepository
-      ->updateEntities(
-        $sourceEntities,
-        $this->mapping,
-        $destinationEntities,
-        $this->dryRun
-      );
-  }
 
   /**
    * Finishes the process.

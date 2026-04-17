@@ -283,18 +283,36 @@ class MembershipManager {
    *   TRUE if it is the global team and the user is not a superhub manager.
    */
   public function isGlobalTeamRestricted($teamId): bool {
+    return !$this->isAllowed((int) $teamId);
+  }
+
+  /**
+   * Checks if a user is allowed to perform actions in a team.
+   *
+   * @param int|null $teamId
+   *   The team ID.
+   * @param \Drupal\Core\Session\AccountInterface|null $account
+   *   (Optional) The user account to check. Defaults to current user.
+   *
+   * @return bool
+   *   TRUE if the user is allowed, FALSE otherwise.
+   */
+  public function isAllowed(?int $teamId, AccountInterface $account = NULL): bool {
     if (empty($teamId)) {
-      return FALSE;
+      return TRUE;
     }
 
-    if (defined('TEAM_GLOBAL')) {
-      $globalTeamId = TEAM_GLOBAL;
-    }
-    else {
-      $globalTeamId = 24;
+    if (!$account) {
+      $account = $this->currentUser;
     }
 
-    return (int) $teamId === (int) $globalTeamId && !$this->currentUser->hasRole('superhub_manager');
+    $globalTeamId = defined('TEAM_GLOBAL') ? TEAM_GLOBAL : 24;
+
+    if ((int) $teamId === (int) $globalTeamId) {
+      return $account->hasRole('superhub_manager');
+    }
+
+    return TRUE;
   }
 
   /**
