@@ -37,9 +37,9 @@
       "source": {
         "fields": [
           {
-            "table": "field_data_field_project_summary",
-            "key": "entity_id",
-            "field": "field_project_summary_value"
+            "table": "node",
+            "key": "nid",
+            "field": "title"
           }
         ]
       },
