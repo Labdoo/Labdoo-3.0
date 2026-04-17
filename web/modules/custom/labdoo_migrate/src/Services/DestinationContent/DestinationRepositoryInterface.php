@@ -95,4 +95,14 @@ interface DestinationRepositoryInterface {
     bool $dryRun = FALSE
   ): int;
 
+  /**
+   * Sets the total source entities count.
+   *
+   * @param int $total
+   *   The total source entities count.
+   *
+   * @return void
+   */
+  public function setTotalCount(int $total): void;
+
 }

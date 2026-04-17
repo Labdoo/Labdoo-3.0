@@ -325,6 +325,7 @@ class SynchronizerCommands extends DrushCommands {
     $destinationTypes = $this->configData->getDestinationTypes();
     $contentType = reset($destinationTypes);
     $this->destinationRepository->setOverrideMode($this->overrideMode);
+    $this->destinationRepository->setTotalCount(count($sourceEntities));
 
     return $this->destinationRepository
       ->createEntities(
@@ -353,6 +354,7 @@ class SynchronizerCommands extends DrushCommands {
     array $destinationEntities
   ): int {
     $this->logger->notice('Updating the destination entities...');
+    $this->destinationRepository->setTotalCount(count($sourceEntities));
 
     return $this->destinationRepository
       ->updateEntities(

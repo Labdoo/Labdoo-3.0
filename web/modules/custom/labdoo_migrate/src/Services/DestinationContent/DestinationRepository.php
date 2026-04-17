@@ -168,7 +168,6 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
     $this->mapping = $mapping;
     $this->dryRun = $dryRun;
-    $this->totalSourceEntitiesCount = count($sourceEntities);
 
     $this->disableEntityStorageCache();
     $createdEntities = 0;
@@ -294,7 +293,6 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
     $this->mapping = $mapping;
     $this->dryRun = $dryRun;
-    $this->totalSourceEntitiesCount = count($sourceEntities);
 
     $updatedEntities = 0;
     $this->disableEntityStorageCache();
@@ -669,6 +667,16 @@ class DestinationRepository implements DestinationRepositoryInterface {
         'langcode' => $langCode,
         'nid' => $entityId,
       ]);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function setTotalCount(int $total): void {
+    $this->totalSourceEntitiesCount = $total;
+    $this->mainEntitiesCount = 0;
+    $this->translationsCount = 0;
+    $this->failingIds = [];
   }
 
 }
