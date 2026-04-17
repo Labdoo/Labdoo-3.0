@@ -194,6 +194,7 @@ class SynchronizerCommands extends DrushCommands {
         $destinationTypes = $this->configData->getDestinationTypes();
         $destinationContentType = reset($destinationTypes);
         $this->destinationRepository->setOverrideMode($this->overrideMode);
+        $this->destinationRepository->setTotalCount($total);
 
         $updatedEntities = 0;
         foreach ($sourceEntitiesIds as $entityId) {
@@ -231,6 +232,7 @@ class SynchronizerCommands extends DrushCommands {
         $total = count($sourceEntitiesIds);
         $this->logger->notice(sprintf('%d source entities found.', $total));
         $this->logger->notice('Updating the destination entities...');
+        $this->destinationRepository->setTotalCount($total);
 
         $updatedEntities = 0;
         foreach ($sourceEntitiesIds as $entityId) {
