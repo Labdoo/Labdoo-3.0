@@ -42,32 +42,53 @@ class SpecialFieldTypeGeolocation implements SpecialFieldTypeInterface {
     string $mainLangCode
   ) {
 
+    if ($value === NULL || $value === '') {
+      return NULL;
+    }
+
     if (!is_array($value)) {
       return $this->processSingleValue($value);
     }
 
     $result = [];
     foreach ($value as $singleValue) {
-      $result[] = $this->processSingleValue($singleValue);
+      $processedValue = $this->processSingleValue($singleValue);
+      if ($processedValue !== NULL) {
+        $result[] = $processedValue;
+      }
     }
 
-    return $result;
+    return $result ?: NULL;
   }
 
   /**
    * Processes a single value.
    *
-   * @param string $value
+   * @param mixed $value
    *   The field value.
    *
-   * @return string
+   * @return string|null
    *   Returns the processed value as an array.
    */
-  protected function processSingleValue(string $value): string {
-    $coords = explode(',', $value);
+  protected function processSingleValue($value): ?string {
+    if (!is_string($value) || trim($value) === '') {
+      return NULL;
+    }
+
+    $coords = array_map('trim', explode(',', $value));
+    if (count($coords) !== 2 || !is_numeric($coords[0]) || !is_numeric($coords[1])) {
+      return NULL;
+    }
+
+    $latitude = (float) $coords[0];
+    $longitude = (float) $coords[1];
+    if ($latitude < -90 || $latitude > 90 || $longitude < -180 || $longitude > 180) {
+      return NULL;
+    }
+
     $point = [
-      $coords[1],
-      $coords[0],
+      $longitude,
+      $latitude,
     ];
 
     return $this->wktGenerator->WktBuildPoint($point);
