@@ -8,10 +8,10 @@ ifneq (,$(wildcard ./.env))
 	endif
 
 	# Default commands
-	COMPOSER_COMMAND ?= ddev composer
-	DRUSH_COMMAND ?= ddev drush
-	WEB_EXEC_COMMAND ?= ddev exec
-	NODE_EXEC_COMMAND ?= ddev exec
+	COMPOSER_COMMAND ?= composer
+	DRUSH_COMMAND ?= vendor/bin/drush
+	WEB_EXEC_COMMAND ?=
+	NODE_EXEC_COMMAND ?=
 default: help
 else
 	PROJECT_NAME = project
