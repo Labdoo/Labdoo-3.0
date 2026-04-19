@@ -8,6 +8,7 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\UserInterface;
 use Drupal\Core\Block\BlockPluginInterface;
@@ -219,6 +220,10 @@ function labdoo_common_block_view_alter(array &$build, BlockPluginInterface $blo
  * Implements hook_entity_insert().
  */
 function labdoo_common_entity_insert(EntityInterface $entity) {
+  if ($entity instanceof FieldableEntityInterface) {
+    \Drupal::service('labdoo_common.geocode_cache_manager')->storeEntityCoordinates($entity);
+  }
+
   if ($entity instanceof FileInterface && str_starts_with($entity->getMimeType(), 'image/')) {
     foreach (ImageStyle::loadMultiple() as $style) {
       $style->createDerivative(
@@ -227,4 +232,35 @@ function labdoo_common_entity_insert(EntityInterface $entity) {
       );
     }
   }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function labdoo_common_entity_update(EntityInterface $entity) {
+  if ($entity instanceof FieldableEntityInterface) {
+    \Drupal::service('labdoo_common.geocode_cache_manager')->storeEntityCoordinates($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function labdoo_common_entity_presave(EntityInterface $entity) {
+  if ($entity instanceof FieldableEntityInterface) {
+    \Drupal::service('labdoo_common.geocode_cache_manager')->applyCacheToEntity($entity);
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function labdoo_common_module_implements_alter(array &$implementations, string $hook) {
+  if ($hook !== 'entity_presave' || !isset($implementations['labdoo_common'])) {
+    return;
+  }
+
+  $group = ['labdoo_common' => $implementations['labdoo_common']];
+  unset($implementations['labdoo_common']);
+  $implementations = $group + $implementations;
 }

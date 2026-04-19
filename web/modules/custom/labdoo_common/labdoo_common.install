@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Install and update hooks for the Labdoo Common module.
+ */
+
+/**
+ * Installs geocode cache entity schema and migrates legacy table rows.
+ */
+function labdoo_common_update_9001(): void {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $database = \Drupal::database();
+
+  $entity_type = $entity_type_manager->getDefinition('labdoo_geocode_cache');
+  $entity_definition_update_manager->installEntityType($entity_type);
+
+  $schema = $database->schema();
+  if (!$schema->tableExists('labdoo_common_geocode_cache')) {
+    return;
+  }
+
+  $storage = $entity_type_manager->getStorage('labdoo_geocode_cache');
+  $rows = $database->select('labdoo_common_geocode_cache', 'c')
+    ->fields('c', [
+      'address_normalized',
+      'address_original',
+      'latitude',
+      'longitude',
+      'provider',
+      'hits',
+      'created',
+      'changed',
+    ])
+    ->execute();
+
+  foreach ($rows as $row) {
+    $entry = $storage->create([
+      'address_normalized' => (string) $row->address_normalized,
+      'address_original' => $row->address_original,
+      'latitude' => (float) $row->latitude,
+      'longitude' => (float) $row->longitude,
+      'provider' => $row->provider,
+      'hits' => (int) $row->hits,
+      'created' => (int) $row->created,
+      'changed' => (int) $row->changed,
+    ]);
+    $entry->save();
+  }
+
+  $schema->dropTable('labdoo_common_geocode_cache');
+}

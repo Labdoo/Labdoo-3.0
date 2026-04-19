@@ -4,6 +4,7 @@ namespace Drupal\labdoo_common\Commands;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\labdoo_common\Service\GeocodeCacheManager;
 use Drush\Commands\DrushCommands;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 
@@ -27,17 +28,25 @@ class GeocodeCommands extends DrushCommands {
   protected EntityFieldManagerInterface $entityFieldManager;
 
   /**
+   * The geocode cache manager.
+   */
+  protected GeocodeCacheManager $geocodeCacheManager;
+
+  /**
    * GeocodeCommands constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager.
+   * @param \Drupal\labdoo_common\Service\GeocodeCacheManager $geocodeCacheManager
+   *   The geocode cache manager.
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, EntityFieldManagerInterface $entityFieldManager) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, EntityFieldManagerInterface $entityFieldManager, GeocodeCacheManager $geocodeCacheManager) {
     parent::__construct();
     $this->entityTypeManager = $entityTypeManager;
     $this->entityFieldManager = $entityFieldManager;
+    $this->geocodeCacheManager = $geocodeCacheManager;
   }
 
   /**
@@ -152,6 +161,9 @@ class GeocodeCommands extends DrushCommands {
     $chunks = array_chunk($ids, 50);
     $processed = 0;
     $regeocoded = 0;
+    $cache_hits = 0;
+    $cache_stores = 0;
+    $source_field_name = $this->getSourceFieldName($fields, $geofield_name);
 
     foreach ($chunks as $chunk) {
       $entities = $storage->loadMultiple($chunk);
@@ -167,12 +179,27 @@ class GeocodeCommands extends DrushCommands {
         }
 
         try {
+          $address_value = $source_field_name ? $this->getSourceAddressValue($entity, $source_field_name) : NULL;
+          if ($address_value) {
+            $cached_coordinates = $this->geocodeCacheManager->getCachedCoordinates($address_value);
+            if ($cached_coordinates !== NULL) {
+              $this->geocodeCacheManager->applyCoordinatesToGeofield($entity, $geofield_name, $cached_coordinates);
+              $cache_hits++;
+            }
+          }
+
           // Ensure the entity is not treated as new if it already has an ID.
           if (!$entity->isNew()) {
             $entity->enforceIsNew(FALSE);
           }
           $entity->save();
           $regeocoded++;
+
+          $coordinates = $this->geocodeCacheManager->extractCoordinatesFromGeofield($entity, $geofield_name);
+          if (!empty($address_value) && $coordinates !== NULL) {
+            $this->geocodeCacheManager->storeCachedCoordinates($address_value, $coordinates);
+            $cache_stores++;
+          }
         }
         catch (\Exception $e) {
           $this->logger()->error(dt('Error saving entity @id: @message', [
@@ -192,6 +219,11 @@ class GeocodeCommands extends DrushCommands {
       ]));
     }
 
+    $this->logger()->notice(dt('Geocode cache hits: @hits. Cache entries stored/updated: @stores.', [
+      '@hits' => $cache_hits,
+      '@stores' => $cache_stores,
+    ]));
+
     if ($onlyMissing) {
       $this->logger()->success(dt('Evaluated @processed entities and regeocoded @regeocoded without coordinates.', [
         '@processed' => $processed,
@@ -201,6 +233,51 @@ class GeocodeCommands extends DrushCommands {
     }
 
     $this->logger()->success(dt('Processed @count entities.', ['@count' => $regeocoded]));
+  }
+
+  /**
+   * Resolves the source field configured for geocoding.
+   */
+  protected function getSourceFieldName(array $fields, string $geofieldName): ?string {
+    if (!isset($fields[$geofieldName])) {
+      return NULL;
+    }
+
+    $geocoder_settings = $fields[$geofieldName]->getThirdPartySettings('geocoder_field');
+    if (empty($geocoder_settings['field']) || !isset($fields[$geocoder_settings['field']])) {
+      return NULL;
+    }
+
+    return $geocoder_settings['field'];
+  }
+
+  /**
+   * Gets a geocodable address string from the configured source field.
+   */
+  protected function getSourceAddressValue(FieldableEntityInterface $entity, string $sourceFieldName): ?string {
+    if (!$entity->hasField($sourceFieldName) || $entity->get($sourceFieldName)->isEmpty()) {
+      return NULL;
+    }
+
+    $values = $entity->get($sourceFieldName)->getValue();
+    if (empty($values[0]) || !is_array($values[0])) {
+      return NULL;
+    }
+
+    $item = $values[0];
+    foreach (['value', 'address', 'address_line1'] as $key) {
+      if (!empty($item[$key]) && is_string($item[$key])) {
+        $value = trim($item[$key]);
+        return $value !== '' ? $value : NULL;
+      }
+    }
+
+    $scalar_values = array_filter($item, static fn($value) => is_scalar($value) && trim((string) $value) !== '');
+    if (empty($scalar_values)) {
+      return NULL;
+    }
+
+    return trim(implode(' ', $scalar_values)) ?: NULL;
   }
 
 }

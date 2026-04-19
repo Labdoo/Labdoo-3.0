@@ -29,3 +29,6 @@ services:
     arguments: ['@language_manager', '@current_route_match']
     tags:
       - { name: breadcrumb_builder, priority: 1100 }
+  labdoo_common.geocode_cache_manager:
+    class: Drupal\labdoo_common\Service\GeocodeCacheManager
+    arguments: ['@entity_type.manager', '@entity_field.manager']
