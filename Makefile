@@ -73,6 +73,20 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "theme-watch" "👁️  Start theme watch mode using gulp."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "tests" "🧪 Run project tests."
 	@echo ""
+	@echo "$(GREEN)[ Migration ]$(RESET)"
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all" "🔄 Run full migration sequence (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-action" "🔄 Migrate action (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-dootrip" "🔄 Migrate dootrip (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-dootronic" "🔄 Migrate dootronic (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-edoovillage" "🔄 Migrate edoovillage (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-gallery" "🔄 Migrate gallery (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-hub" "🔄 Migrate hub (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-page" "🔄 Migrate page (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-story" "🔄 Migrate story (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team" "🔄 Migrate team (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-user" "🔄 Migrate user (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-bg" "🌙 Run migration in background with nohup and migration-[entity].log."
+	@echo ""
 
 .PHONY: pull
 pull: ## 📥 Update code from git repository.
@@ -238,6 +252,151 @@ theme-watch: ## 👁️  Start theme watch mode using gulp.
 	@echo "$(CYAN)👁️  Watching theme changes (gulp)...$(RESET)"
 	$(DRUSH_COMMAND) cr
 	$(NODE_EXEC_COMMAND) "cd web/themes/custom/$(THEME_NAME) && gulp"
+
+.PHONY: migrate-all
+migrate-all: ## 🔄 Run full migration sequence (foreground).
+	@echo "$(CYAN)🔄 Running full migration sequence...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush entity:delete node --bundle action
+	vendor/bin/drush entity:delete user
+	vendor/bin/drush labdoo-sync user
+	vendor/bin/drush entity:delete node --bundle=hub
+	vendor/bin/drush labdoo-sync hub
+	vendor/bin/drush entity:delete node --bundle=edoovillage
+	vendor/bin/drush labdoo-sync edoovillage
+	vendor/bin/drush entity:delete node --bundle=dootronic
+	vendor/bin/drush labdoo-sync laptop
+	vendor/bin/drush entity:delete node --bundle=dootrip
+	vendor/bin/drush labdoo-sync dootrip
+	vendor/bin/drush entity:delete node --bundle=team_comment
+	vendor/bin/drush entity:delete node --bundle=team_post
+	vendor/bin/drush entity:delete node --bundle=team
+	vendor/bin/drush sql-query "DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'"
+	vendor/bin/drush labdoo-sync-teams
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+
+.PHONY: migrate-all-bg
+migrate-all-bg: ## 🌙 Run full migration sequence in background (nohup + log).
+	@echo "$(CYAN)🌙 Running full migration sequence in background (migration-all.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush entity:delete node --bundle action && vendor/bin/drush entity:delete user && vendor/bin/drush labdoo-sync user && vendor/bin/drush entity:delete node --bundle=hub && vendor/bin/drush labdoo-sync hub && vendor/bin/drush entity:delete node --bundle=edoovillage && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush entity:delete node --bundle=dootronic && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush entity:delete node --bundle=dootrip && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush entity:delete node --bundle=team_comment && vendor/bin/drush entity:delete node --bundle=team_post && vendor/bin/drush entity:delete node --bundle=team && vendor/bin/drush sql-query \"DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'\" && vendor/bin/drush labdoo-sync-teams && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-all.log 2>&1 &
+
+.PHONY: migrate-action
+migrate-action: ## 🔄 Migrate action (foreground).
+	@echo "$(CYAN)🔄 Running action migration...$(RESET)"
+	vendor/bin/drush labdoo-sync action
+
+.PHONY: migrate-action-bg
+migrate-action-bg: ## 🌙 Migrate action in background (nohup + log).
+	@echo "$(CYAN)🌙 Running action migration in background (migration-action.log)...$(RESET)"
+	nohup vendor/bin/drush labdoo-sync action > migration-action.log 2>&1 &
+
+.PHONY: migrate-dootrip
+migrate-dootrip: ## 🔄 Migrate dootrip (foreground).
+	@echo "$(CYAN)🔄 Running dootrip migration...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush labdoo-sync dootrip
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+
+.PHONY: migrate-dootrip-bg
+migrate-dootrip-bg: ## 🌙 Migrate dootrip in background (nohup + log).
+	@echo "$(CYAN)🌙 Running dootrip migration in background (migration-dootrip.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-dootrip.log 2>&1 &
+
+.PHONY: migrate-dootronic
+migrate-dootronic: ## 🔄 Migrate dootronic (foreground).
+	@echo "$(CYAN)🔄 Running dootronic migration...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush labdoo-sync laptop
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+
+.PHONY: migrate-dootronic-bg
+migrate-dootronic-bg: ## 🌙 Migrate dootronic in background (nohup + log).
+	@echo "$(CYAN)🌙 Running dootronic migration in background (migration-dootronic.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-dootronic.log 2>&1 &
+
+.PHONY: migrate-edoovillage
+migrate-edoovillage: ## 🔄 Migrate edoovillage (foreground).
+	@echo "$(CYAN)🔄 Running edoovillage migration...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush entity:delete node --bundle=edoovillage
+	vendor/bin/drush labdoo-sync edoovillage
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+
+.PHONY: migrate-edoovillage-bg
+migrate-edoovillage-bg: ## 🌙 Migrate edoovillage in background (nohup + log).
+	@echo "$(CYAN)🌙 Running edoovillage migration in background (migration-edoovillage.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush entity:delete node --bundle=edoovillage && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-edoovillage.log 2>&1 &
+
+.PHONY: migrate-gallery
+migrate-gallery: ## 🔄 Migrate gallery (foreground).
+	@echo "$(CYAN)🔄 Running gallery migration...$(RESET)"
+	vendor/bin/drush entity:delete node --bundle=gallery
+	vendor/bin/drush labdoo-sync-galleries
+
+.PHONY: migrate-gallery-bg
+migrate-gallery-bg: ## 🌙 Migrate gallery in background (nohup + log).
+	@echo "$(CYAN)🌙 Running gallery migration in background (migration-gallery.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush entity:delete node --bundle=gallery && vendor/bin/drush labdoo-sync-galleries" > migration-gallery.log 2>&1 &
+
+.PHONY: migrate-hub
+migrate-hub: ## 🔄 Migrate hub (foreground).
+	@echo "$(CYAN)🔄 Running hub migration...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush labdoo-sync hub
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+
+.PHONY: migrate-hub-bg
+migrate-hub-bg: ## 🌙 Migrate hub in background (nohup + log).
+	@echo "$(CYAN)🌙 Running hub migration in background (migration-hub.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync hub && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-hub.log 2>&1 &
+
+.PHONY: migrate-page
+migrate-page: ## 🔄 Migrate page (foreground).
+	@echo "$(CYAN)🔄 Running page migration...$(RESET)"
+	vendor/bin/drush entity:delete node --bundle=basic_page
+	vendor/bin/drush labdoo-sync-basic-pages
+
+.PHONY: migrate-page-bg
+migrate-page-bg: ## 🌙 Migrate page in background (nohup + log).
+	@echo "$(CYAN)🌙 Running page migration in background (migration-page.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush entity:delete node --bundle=basic_page && vendor/bin/drush labdoo-sync-basic-pages" > migration-page.log 2>&1 &
+
+.PHONY: migrate-story
+migrate-story: ## 🔄 Migrate story (foreground).
+	@echo "$(CYAN)🔄 Running story migration...$(RESET)"
+	vendor/bin/drush entity:delete node --bundle=labdoo_story
+	vendor/bin/drush labdoo-sync-stories
+
+.PHONY: migrate-story-bg
+migrate-story-bg: ## 🌙 Migrate story in background (nohup + log).
+	@echo "$(CYAN)🌙 Running story migration in background (migration-story.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush entity:delete node --bundle=labdoo_story && vendor/bin/drush labdoo-sync-stories" > migration-story.log 2>&1 &
+
+.PHONY: migrate-team
+migrate-team: ## 🔄 Migrate team (foreground).
+	@echo "$(CYAN)🔄 Running team migration...$(RESET)"
+	vendor/bin/drush entity:delete node --bundle=team_comment
+	vendor/bin/drush entity:delete node --bundle=team_post
+	vendor/bin/drush entity:delete node --bundle=team
+	vendor/bin/drush sql-query "DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'"
+	vendor/bin/drush labdoo-sync-teams
+
+.PHONY: migrate-team-bg
+migrate-team-bg: ## 🌙 Migrate team in background (nohup + log).
+	@echo "$(CYAN)🌙 Running team migration in background (migration-team.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush entity:delete node --bundle=team_comment && vendor/bin/drush entity:delete node --bundle=team_post && vendor/bin/drush entity:delete node --bundle=team && vendor/bin/drush sql-query \"DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'\" && vendor/bin/drush labdoo-sync-teams" > migration-team.log 2>&1 &
+
+.PHONY: migrate-user
+migrate-user: ## 🔄 Migrate user (foreground).
+	@echo "$(CYAN)🔄 Running user migration...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush labdoo-sync user
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+
+.PHONY: migrate-user-bg
+migrate-user-bg: ## 🌙 Migrate user in background (nohup + log).
+	@echo "$(CYAN)🌙 Running user migration in background (migration-user.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-user.log 2>&1 &
 
 .PHONY: confirm
 confirm: ## ❓ Ask for confirmation to continue.
