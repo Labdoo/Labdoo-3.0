@@ -58,6 +58,34 @@ class TranslationRepository implements TranslationRepositoryInterface {
   private $keyName;
 
   /**
+   * Cache for original translations.
+   *
+   * @var array<string, false|string>
+   */
+  private array $originalTranslationCache = [];
+
+  /**
+   * Cache for auxiliary entity IDs.
+   *
+   * @var array<string, false|int>
+   */
+  private array $auxiliaryEntityIdCache = [];
+
+  /**
+   * Cache for current translation IDs.
+   *
+   * @var array<string, false|int>
+   */
+  private array $currentTranslationIdCache = [];
+
+  /**
+   * Cache for main translations.
+   *
+   * @var array<string, false|string>
+   */
+  private array $mainTranslationCache = [];
+
+  /**
    * TranslationRepository constructor.
    *
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
@@ -138,15 +166,32 @@ class TranslationRepository implements TranslationRepositoryInterface {
     string $mainLangCode
   ): string {
 
-    if (!($taxonomyData = $field->getTaxonomy())) {
+    $taxonomyData = $field->getTaxonomy();
+    if (!$taxonomyData) {
       return FALSE;
     }
 
+    $originalTranslationCacheKey = implode(':', [
+      $entityId,
+      $field->getTableName(),
+      $field->getFieldName(),
+      $taxonomyData->getBaseTable(),
+      $taxonomyData->getTranslationField(),
+      $taxonomyData->getLanguageField(),
+      $taxonomyData->getValueField(),
+      $mainLangCode,
+    ]);
+    if (array_key_exists($originalTranslationCacheKey, $this->originalTranslationCache)) {
+      return $this->originalTranslationCache[$originalTranslationCacheKey];
+    }
+
     if (!($auxiliaryEntityId = $this->getAuxiliaryEntityId($entityId, $field))) {
+      $this->originalTranslationCache[$originalTranslationCacheKey] = FALSE;
       return FALSE;
     }
 
     if (!($translationId = $this->getCurrentTranslationId($auxiliaryEntityId, $taxonomyData))) {
+      $this->originalTranslationCache[$originalTranslationCacheKey] = FALSE;
       return FALSE;
     }
 
@@ -157,6 +202,8 @@ class TranslationRepository implements TranslationRepositoryInterface {
     );
 
     $this->externalConnectionManager->restoreConnection();
+
+    $this->originalTranslationCache[$originalTranslationCacheKey] = $mainTranslation;
 
     return $mainTranslation;
   }
@@ -174,6 +221,11 @@ class TranslationRepository implements TranslationRepositoryInterface {
    */
   protected function getAuxiliaryEntityId(int $entityId, FieldModel $field) {
 
+    $cacheKey = implode(':', [$entityId, $field->getTableName(), $field->getFieldName(), $field->getKeyName()]);
+    if (array_key_exists($cacheKey, $this->auxiliaryEntityIdCache)) {
+      return $this->auxiliaryEntityIdCache[$cacheKey];
+    }
+
     $auxiliaryEntityId = $this->externalConnectionManager
       ->setConnection()
       ->select($field->getTableName())
@@ -182,9 +234,13 @@ class TranslationRepository implements TranslationRepositoryInterface {
       ->execute()
       ->fetch();
 
-    return $auxiliaryEntityId->{$field->getFieldName()}
+    $value = $auxiliaryEntityId->{$field->getFieldName()}
       ? (int) $auxiliaryEntityId->{$field->getFieldName()}
       : FALSE;
+
+    $this->auxiliaryEntityIdCache[$cacheKey] = $value;
+
+    return $value;
   }
 
   /**
@@ -206,6 +262,10 @@ class TranslationRepository implements TranslationRepositoryInterface {
     $table = $taxonomyData->getBaseTable();
     $translationField = $taxonomyData->getTranslationField();
     $keyField = $taxonomyData->getKeyField();
+    $cacheKey = implode(':', [$entityId, $table, $translationField, $keyField]);
+    if (array_key_exists($cacheKey, $this->currentTranslationIdCache)) {
+      return $this->currentTranslationIdCache[$cacheKey];
+    }
 
     $translationId = $this->externalConnectionManager
       ->setConnection()
@@ -215,9 +275,13 @@ class TranslationRepository implements TranslationRepositoryInterface {
       ->execute()
       ->fetch();
 
-    return $translationId->{$translationField}
+    $value = $translationId->{$translationField}
       ? (int) $translationId->{$translationField}
       : FALSE;
+
+    $this->currentTranslationIdCache[$cacheKey] = $value;
+
+    return $value;
   }
 
   /**
@@ -243,6 +307,10 @@ class TranslationRepository implements TranslationRepositoryInterface {
     $translationField = $taxonomyData->getTranslationField();
     $languageField = $taxonomyData->getLanguageField();
     $valueField = $taxonomyData->getValueField();
+    $cacheKey = implode(':', [$translationId, $table, $translationField, $languageField, $valueField, $mainLangCode]);
+    if (array_key_exists($cacheKey, $this->mainTranslationCache)) {
+      return $this->mainTranslationCache[$cacheKey];
+    }
 
     $mainTranslationId = $this->externalConnectionManager
       ->setConnection()
@@ -253,7 +321,10 @@ class TranslationRepository implements TranslationRepositoryInterface {
       ->execute()
       ->fetch();
 
-    return $mainTranslationId->{$valueField} ?? FALSE;
+    $value = $mainTranslationId->{$valueField} ?? FALSE;
+    $this->mainTranslationCache[$cacheKey] = $value;
+
+    return $value;
   }
 
 }
