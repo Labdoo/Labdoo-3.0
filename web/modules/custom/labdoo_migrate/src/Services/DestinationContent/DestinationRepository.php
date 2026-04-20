@@ -551,7 +551,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
         }
       }
       else {
-        $entity->{$fieldName}->appendItem($value);
+        if (!$this->checkIfValueExists($field, $value)) {
+          $entity->{$fieldName}->appendItem($value);
+        }
       }
     }
     else {
