@@ -69,11 +69,22 @@ abstract class AbstractActionGenerator {
    *   An array with two keys: city and country, or NULL in case of error.
    */
   protected function reverseGeocode(string $lat, string $lon): ?array {
-    $addressCollection = $this->geocoder->reverse(
-      $lat,
-      $lon,
-      ['plugin' => 'googlemaps']
-    );
+    $geocoderConfig = \Drupal::configFactory()->get('geocoder.settings');
+    if ($geocoderConfig->get('geocoder_presave_disabled')) {
+      return NULL;
+    }
+
+    try {
+      $addressCollection = $this->geocoder->reverse(
+        $lat,
+        $lon,
+        ['plugin' => 'googlemaps']
+      );
+    }
+    catch (\Throwable $exception) {
+      return NULL;
+    }
+
     if ($addressCollection === NULL ||  !$addressCollection->get(0)) {
       return NULL;
     }
