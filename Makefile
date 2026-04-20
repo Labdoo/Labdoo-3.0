@@ -280,6 +280,11 @@ migrate-all-bg: ## 🌙 Run full migration sequence in background (nohup + log).
 	@echo "$(CYAN)🌙 Running full migration sequence in background (migration-all.log)...$(RESET)"
 	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush entity:delete node --bundle action && vendor/bin/drush entity:delete user && vendor/bin/drush labdoo-sync user && vendor/bin/drush entity:delete node --bundle=hub && vendor/bin/drush labdoo-sync hub && vendor/bin/drush entity:delete node --bundle=edoovillage && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush entity:delete node --bundle=dootronic && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush entity:delete node --bundle=dootrip && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush entity:delete node --bundle=team_comment && vendor/bin/drush entity:delete node --bundle=team_post && vendor/bin/drush entity:delete node --bundle=team && vendor/bin/drush sql-query \"DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'\" && vendor/bin/drush labdoo-sync-teams && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-all.log 2>&1 &
 
+.PHONY: migrate-all-resume-bg
+migrate-all-resume-bg: ## 🌙 Resume full migration in background without deleting existing entities.
+	@echo "$(CYAN)🌙 Resuming full migration in background (migration-all-resume.log) without deletions...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user && vendor/bin/drush labdoo-sync hub && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush labdoo-sync-teams && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-all-resume.log 2>&1 &
+
 .PHONY: migrate-action
 migrate-action: ## 🔄 Migrate action (foreground).
 	@echo "$(CYAN)🔄 Running action migration...$(RESET)"
