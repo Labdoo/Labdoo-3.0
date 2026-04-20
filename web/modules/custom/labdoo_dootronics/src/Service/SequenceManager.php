@@ -83,40 +83,33 @@ class SequenceManager implements SequenceManagerInterface {
    *   The first available ID for the dootronic title.
    */
   private function findFirstAvailableTitleId(): int {
-    // Get all dootronic titles.
+    // Get numeric dootronic titles in ascending order.
     $query = $this->database->select('node_field_data', 'n')
       ->fields('n', ['title'])
       ->condition('n.type', 'dootronic')
+      ->condition('n.title', '^[0-9]+$', 'REGEXP')
       ->orderBy('n.title', 'ASC');
 
-    $result = $query->execute()->fetchCol();
+    $result = $query->execute();
 
-    // Filter non-numeric titles and convert to integers.
-    $ids = [];
-    foreach ($result as $title) {
-      if (is_numeric($title)) {
-        $ids[] = (int) $title;
-      }
-    }
-
-    if (empty($ids)) {
-      // If no numeric dootronics exist, start at 1.
-      return 1;
-    }
-
-    $ids = array_unique($ids);
-    sort($ids);
-
-    // Find the first gap.
+    // Find the first gap while streaming results to avoid high memory usage.
     $previousId = 0;
-    foreach ($ids as $id) {
+    while (($title = $result->fetchField()) !== FALSE) {
+      $id = (int) $title;
+      if ($id === $previousId) {
+        // Ignore duplicates.
+        continue;
+      }
+
       if ($id > $previousId + 1) {
         return $previousId + 1;
       }
+
       $previousId = $id;
     }
 
-    // No gaps: return the next sequential ID.
+    // If no numeric dootronics exist, this returns 1.
+    // Otherwise, no gaps: return the next sequential ID.
     return $previousId + 1;
   }
 
