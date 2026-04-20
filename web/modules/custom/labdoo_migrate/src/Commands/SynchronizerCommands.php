@@ -20,6 +20,11 @@ use Drush\Commands\DrushCommands;
 class SynchronizerCommands extends DrushCommands {
 
   /**
+   * Batch size for source entity loading/processing.
+   */
+  private const SYNC_BATCH_SIZE = 200;
+
+  /**
    * The configuration manager.
    *
    * @var \Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface
@@ -197,20 +202,21 @@ class SynchronizerCommands extends DrushCommands {
         $this->destinationRepository->setTotalCount($total);
 
         $updatedEntities = 0;
-        foreach ($sourceEntitiesIds as $entityId) {
-          $sourceEntity = $this->sourceRepository->getEntity(
+        foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
+          $sourceEntities = $this->sourceRepository->getEntities(
             $contentType,
             $this->mapping,
-            $entityId,
+            $sourceIdsChunk,
             $this->fromTimestamp
           );
+          $sourceEntities = array_filter($sourceEntities);
 
-          if (empty($sourceEntity)) {
+          if (empty($sourceEntities)) {
             continue;
           }
 
           $updatedEntities += $this->destinationRepository->createEntities(
-            [$entityId => $sourceEntity],
+            $sourceEntities,
             $this->mapping,
             $destinationContentType,
             $this->dryRun
@@ -235,22 +241,28 @@ class SynchronizerCommands extends DrushCommands {
         $this->destinationRepository->setTotalCount($total);
 
         $updatedEntities = 0;
-        foreach ($sourceEntitiesIds as $entityId) {
-          $sourceEntity = $this->sourceRepository->getEntity(
+        foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
+          $sourceEntities = $this->sourceRepository->getEntities(
             $contentType,
             $this->mapping,
-            $entityId,
+            $sourceIdsChunk,
             $this->fromTimestamp
           );
+          $sourceEntities = array_filter($sourceEntities);
 
-          if (empty($sourceEntity)) {
+          if (empty($sourceEntities)) {
             continue;
           }
 
+          $destinationEntitiesChunk = array_intersect_key(
+            $destinationEntities,
+            array_flip(array_keys($sourceEntities))
+          );
+
           $updatedEntities += $this->destinationRepository->updateEntities(
-            [$entityId => $sourceEntity],
+            $sourceEntities,
             $this->mapping,
-            [$entityId => $destinationEntities[$entityId]],
+            $destinationEntitiesChunk,
             $this->dryRun
           );
         }
