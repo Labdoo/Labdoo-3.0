@@ -24,6 +24,11 @@ use Psr\Log\LoggerAwareTrait;
  */
 class DestinationRepository implements DestinationRepositoryInterface {
 
+  /**
+   * Progress log interval.
+   */
+  private const PROGRESS_LOG_INTERVAL = 100;
+
   use LoggerAwareTrait;
 
   /**
@@ -252,16 +257,22 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
       ++$this->mainEntitiesCount;
       $divisor = $this->totalSourceEntitiesCount > 0 ? $this->totalSourceEntitiesCount : 1;
-      $message = sprintf(
-        'Processed entity %d (%s) [%s] [%d/%d %s%%]',
-        $mainEntity->id(),
-        $mainLangCode,
-        $contentType,
-        $this->mainEntitiesCount,
-        $this->totalSourceEntitiesCount,
-        round($this->mainEntitiesCount * 100 / $divisor, 2)
-      );
-      $this->logger->notice($message);
+      if (
+        $this->mainEntitiesCount === 1
+        || $this->mainEntitiesCount === $this->totalSourceEntitiesCount
+        || $this->mainEntitiesCount % self::PROGRESS_LOG_INTERVAL === 0
+      ) {
+        $message = sprintf(
+          'Processed entity %d (%s) [%s] [%d/%d %s%%]',
+          $mainEntity->id(),
+          $mainLangCode,
+          $contentType,
+          $this->mainEntitiesCount,
+          $this->totalSourceEntitiesCount,
+          round($this->mainEntitiesCount * 100 / $divisor, 2)
+        );
+        $this->logger->notice($message);
+      }
     }
     else {
       $this->failingIds[] = $mainEntity->id();
@@ -296,7 +307,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
           $translation->id(),
           $langCode
         );
-        $this->logger->notice($message);
+        $this->logger->debug($message);
         ++$this->translationsCount;
       }
     }
@@ -396,13 +407,19 @@ class DestinationRepository implements DestinationRepositoryInterface {
           $this->migrationTracker->track('node', $destinationEntity->bundle(), $sourceId, (int) $destinationEntity->id(), $durationMs);
         }
 
-        $message = sprintf(
-          'Updated entity %d (%s) [%s]',
-          $currentDestinationEntity->id(),
-          $langCode,
-          $currentDestinationEntity->bundle()
-        );
-        $this->logger->notice($message);
+        if (
+          $this->mainEntitiesCount === 1
+          || $this->mainEntitiesCount === $this->totalSourceEntitiesCount
+          || $this->mainEntitiesCount % self::PROGRESS_LOG_INTERVAL === 0
+        ) {
+          $message = sprintf(
+            'Updated entity %d (%s) [%s]',
+            $currentDestinationEntity->id(),
+            $langCode,
+            $currentDestinationEntity->bundle()
+          );
+          $this->logger->notice($message);
+        }
       }
     }
 
