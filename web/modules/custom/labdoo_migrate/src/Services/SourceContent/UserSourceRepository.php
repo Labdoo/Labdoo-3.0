@@ -449,7 +449,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
     $dbResult
   ) {
 
-    if (!$dbResult || !isset($dbResult->{$field->getFieldName()})) {
+    if (!$dbResult || !property_exists($dbResult, $field->getFieldName())) {
       $errorMessage = sprintf(
         'Could not retrieve the field %s for the entity_id %d',
         $field->getFieldName(),
