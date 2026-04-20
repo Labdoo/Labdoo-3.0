@@ -42,6 +42,13 @@ function labdoo_migrate_schema(): array {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ],
+      'duration_ms' => [
+        'description' => 'Duration in milliseconds of the latest migration for the entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
     ],
     'primary key' => ['entity_type', 'bundle', 'source_id'],
     'indexes' => [
@@ -52,4 +59,20 @@ function labdoo_migrate_schema(): array {
   ];
 
   return $schema;
+}
+
+/**
+ * Add migration duration to tracking table.
+ */
+function labdoo_migrate_update_9001(): void {
+  $table = 'labdoo_migrate_tracking';
+  if (!\Drupal::database()->schema()->fieldExists($table, 'duration_ms')) {
+    \Drupal::database()->schema()->addField($table, 'duration_ms', [
+      'description' => 'Duration in milliseconds of the latest migration for the entity.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ]);
+  }
 }

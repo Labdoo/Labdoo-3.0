@@ -18,8 +18,10 @@ interface MigrationTrackerInterface {
    *   The source Drupal 7 entity ID.
    * @param int $destinationId
    *   The destination Drupal 10 entity ID.
+   * @param int $durationMs
+   *   The migration duration in milliseconds.
    */
-  public function track(string $entityType, string $bundle, int $sourceId, int $destinationId): void;
+  public function track(string $entityType, string $bundle, int $sourceId, int $destinationId, int $durationMs = 0): void;
 
   /**
    * Builds dashboard metrics by content type.

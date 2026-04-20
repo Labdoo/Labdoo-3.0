@@ -46,12 +46,17 @@ class MigrationDashboardController extends ControllerBase {
   public function build(): array {
     $rows = [];
     foreach ($this->migrationTracker->getDashboardRows() as $item) {
+      $migratedPercentage = $item['d7_count'] > 0
+        ? round(($item['migrated_count'] / $item['d7_count']) * 100)
+        : 0;
+
       $rows[] = [
         'data' => [
           ['data' => $item['entity_type']],
           ['data' => $item['d7_count']],
           ['data' => $item['d10_count']],
-          ['data' => $item['migrated_count']],
+          ['data' => sprintf('%d (%d%%)', $item['migrated_count'], $migratedPercentage)],
+          ['data' => sprintf('%.2f s', $item['avg_duration_ms'] / 1000)],
           ['data' => $item['last_migration']],
         ],
       ];
@@ -64,6 +69,7 @@ class MigrationDashboardController extends ControllerBase {
         $this->t('Drupal 7 entities'),
         $this->t('Drupal 10 entities'),
         $this->t('Migrated from Drupal 7'),
+        $this->t('Average migration time per entity'),
         $this->t('Latest migration'),
       ],
       '#rows' => $rows,

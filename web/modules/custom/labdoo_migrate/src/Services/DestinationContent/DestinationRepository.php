@@ -217,6 +217,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
     ?int $entityId
   ): bool {
 
+    $startedAt = microtime(TRUE);
     $result = TRUE;
 
     $metadata = $sourceEntity['metadata'] ?? [];
@@ -245,7 +246,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
     if ($result) {
       if ($entityId !== NULL && !$this->dryRun) {
-        $this->migrationTracker->track('node', $contentType, $entityId, (int) $mainEntity->id());
+        $durationMs = (int) round((microtime(TRUE) - $startedAt) * 1000);
+        $this->migrationTracker->track('node', $contentType, $entityId, (int) $mainEntity->id(), $durationMs);
       }
 
       ++$this->mainEntitiesCount;
@@ -370,6 +372,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
     EntityInterface $destinationEntity
   ): bool {
 
+    $startedAt = microtime(TRUE);
     $result = TRUE;
     $defaultLangCode = $destinationEntity->language()->getId();
 
@@ -389,7 +392,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
       if ($result) {
         $sourceId = (int) $destinationEntity->{self::SOURCE_ID_FIELD}->value;
         if ($sourceId > 0 && !$this->dryRun) {
-          $this->migrationTracker->track('node', $destinationEntity->bundle(), $sourceId, (int) $destinationEntity->id());
+          $durationMs = (int) round((microtime(TRUE) - $startedAt) * 1000);
+          $this->migrationTracker->track('node', $destinationEntity->bundle(), $sourceId, (int) $destinationEntity->id(), $durationMs);
         }
 
         $message = sprintf(

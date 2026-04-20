@@ -72,7 +72,7 @@ class MigrationTracker implements MigrationTrackerInterface {
   /**
    * {@inheritDoc}
    */
-  public function track(string $entityType, string $bundle, int $sourceId, int $destinationId): void {
+  public function track(string $entityType, string $bundle, int $sourceId, int $destinationId, int $durationMs = 0): void {
     $this->database->merge(self::TRACKING_TABLE)
       ->keys([
         'entity_type' => $entityType,
@@ -82,6 +82,7 @@ class MigrationTracker implements MigrationTrackerInterface {
       ->fields([
         'destination_id' => $destinationId,
         'last_migrated' => time(),
+        'duration_ms' => max(0, $durationMs),
       ])
       ->execute();
   }
@@ -137,6 +138,7 @@ class MigrationTracker implements MigrationTrackerInterface {
       'd7_count' => $d7Count,
       'd10_count' => $d10Count,
       'migrated_count' => $trackingData['migrated_count'],
+      'avg_duration_ms' => $trackingData['avg_duration_ms'],
       'last_migration' => $trackingData['last_migrated'] > 0
         ? $this->dateFormatter->format($trackingData['last_migrated'], 'custom', 'Y-m-d H:i:s')
         : 'N/A',
@@ -224,12 +226,14 @@ class MigrationTracker implements MigrationTrackerInterface {
     $query->condition('t.bundle', $bundle);
     $query->addExpression('COUNT(*)', 'migrated_count');
     $query->addExpression('MAX(t.last_migrated)', 'last_migrated');
+    $query->addExpression('AVG(t.duration_ms)', 'avg_duration_ms');
 
     $result = $query->execute()->fetchAssoc() ?: [];
 
     return [
       'migrated_count' => (int) ($result['migrated_count'] ?? 0),
       'last_migrated' => (int) ($result['last_migrated'] ?? 0),
+      'avg_duration_ms' => (float) ($result['avg_duration_ms'] ?? 0),
     ];
   }
 

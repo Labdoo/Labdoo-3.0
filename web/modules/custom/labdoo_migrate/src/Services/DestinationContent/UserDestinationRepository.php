@@ -195,6 +195,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
     ?int $entityId
   ): bool {
 
+    $startedAt = microtime(TRUE);
     $result = TRUE;
 
     // Creates the main entity.
@@ -210,7 +211,8 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
 
     if ($result) {
       if ($entityId !== NULL && !$this->dryRun) {
-        $this->migrationTracker->track('user', 'user', $entityId, (int) $mainEntity->id());
+        $durationMs = (int) round((microtime(TRUE) - $startedAt) * 1000);
+        $this->migrationTracker->track('user', 'user', $entityId, (int) $mainEntity->id(), $durationMs);
       }
 
       ++$this->mainEntitiesCount;
@@ -299,6 +301,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
     EntityInterface $destinationEntity
   ): bool {
 
+    $startedAt = microtime(TRUE);
     $result = $this->updateEntity(
         $sourceEntity,
         $destinationEntity
@@ -307,7 +310,8 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
     if ($result) {
       $sourceId = (int) $destinationEntity->{self::SOURCE_ID_FIELD}->value;
       if ($sourceId > 0 && !$this->dryRun) {
-        $this->migrationTracker->track('user', 'user', $sourceId, (int) $destinationEntity->id());
+        $durationMs = (int) round((microtime(TRUE) - $startedAt) * 1000);
+        $this->migrationTracker->track('user', 'user', $sourceId, (int) $destinationEntity->id(), $durationMs);
       }
 
       $message = sprintf(
