@@ -325,6 +325,26 @@ class SynchronizerCommands extends DrushCommands {
       die;
     }
     $this->create = $options['mode'] === 'create';
+
+    $headerMessage = sprintf(
+      "=====================\n"
+      . "Entity type: %s\n"
+      . "Option mode: %s\n"
+      . "Option nids: %s\n"
+      . "Option limit: %s\n"
+      . "Option override: %s\n"
+      . "Option dry-run: %s\n"
+      . "Option from-date: %s\n"
+      . "=====================",
+      $this->contentType,
+      $this->create ? 'create' : 'update',
+      empty($this->nids) ? 'all' : implode(',', $this->nids),
+      (string) $this->limit,
+      $this->overrideMode ? 'true' : 'false',
+      $this->dryRun ? 'true' : 'false',
+      $options['from-date'] ?? 'none'
+    );
+    $this->logger->notice($headerMessage);
   }
 
   /**
@@ -371,7 +391,9 @@ class SynchronizerCommands extends DrushCommands {
   protected function tearDown(int $updated, array $summary): void {
     $mainEntitiesCount = $summary['main'] ?? 0;
     $translationsCount = $summary['translations'] ?? 0;
-    $failingIds = implode("\n", $summary['failing_ids']);
+    $failingIdsArray = $summary['failing_ids'] ?? [];
+    $failingIds = implode("\n", $failingIdsArray);
+    $failingCount = count($failingIdsArray);
     $total = $mainEntitiesCount + $translationsCount;
 
     $timeElapsedSeconds = microtime(TRUE) - $this->startTime;
@@ -392,6 +414,30 @@ class SynchronizerCommands extends DrushCommands {
       $failingIds
     );
     $this->logger->notice($infoMessage);
+
+    $footerMessage = sprintf(
+      "=====================\n"
+      . "Entity type: %s\n"
+      . "Option mode: %s\n"
+      . "Option nids: %s\n"
+      . "Option limit: %s\n"
+      . "Option override: %s\n"
+      . "Option dry-run: %s\n"
+      . "Option from-date: %s\n"
+      . "Entities processed: %d\n"
+      . "Entities failed: %d\n"
+      . "=====================",
+      $this->contentType,
+      $this->create ? 'create' : 'update',
+      empty($this->nids) ? 'all' : implode(',', $this->nids),
+      (string) $this->limit,
+      $this->overrideMode ? 'true' : 'false',
+      $this->dryRun ? 'true' : 'false',
+      $this->fromTimestamp !== NULL ? date('Y-m-d H:i:s', $this->fromTimestamp) : 'none',
+      $mainEntitiesCount,
+      $failingCount
+    );
+    $this->logger->notice($footerMessage);
   }
 
 }

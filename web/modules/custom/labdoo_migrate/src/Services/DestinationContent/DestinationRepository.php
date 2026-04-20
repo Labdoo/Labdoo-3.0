@@ -235,9 +235,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
       ++$this->mainEntitiesCount;
       $divisor = $this->totalSourceEntitiesCount > 0 ? $this->totalSourceEntitiesCount : 1;
       $message = sprintf(
-        'Processed entity %d (%s) [%d/%d %s%%]',
+        'Processed entity %d (%s) [%s] [%d/%d %s%%]',
         $mainEntity->id(),
         $mainLangCode,
+        $contentType,
         $this->mainEntitiesCount,
         $this->totalSourceEntitiesCount,
         round($this->mainEntitiesCount * 100 / $divisor, 2)
@@ -371,9 +372,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
       if ($result) {
         $message = sprintf(
-          'Updated entity %d (%s)',
+          'Updated entity %d (%s) [%s]',
           $currentDestinationEntity->id(),
-          $langCode
+          $langCode,
+          $currentDestinationEntity->bundle()
         );
         $this->logger->notice($message);
       }
