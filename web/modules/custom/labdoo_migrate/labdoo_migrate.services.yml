@@ -15,10 +15,10 @@ services:
     arguments: ['@entity_type.manager', '@labdoo_migrate.media.file_manager']
   labdoo_migrate.destination_content.repository.node:
     class: Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepository
-    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.destination_content.translation_repository']
+    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.destination_content.translation_repository', '@labdoo_migrate.tracking.migration_tracker']
   labdoo_migrate.destination_content.repository.user:
     class: Drupal\labdoo_migrate\Services\DestinationContent\UserDestinationRepository
-    arguments: ['@entity_type.manager', '@logger.factory']
+    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.tracking.migration_tracker']
   labdoo_migrate.destination_content.translation_repository:
     class: Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepository
     arguments: ['@entity.repository', '@logger.factory', '@labdoo_migrate.config.configuration_manager']
@@ -79,3 +79,6 @@ services:
     arguments: ['@geofield.wkt_generator']
   labdoo_migrate.special_field_types.watt_hours:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeWattHours
+  labdoo_migrate.tracking.migration_tracker:
+    class: Drupal\labdoo_migrate\Services\Tracking\MigrationTracker
+    arguments: ['@database', '@labdoo_migrate.database.external_connection_manager', '@module_handler', '@date.formatter']

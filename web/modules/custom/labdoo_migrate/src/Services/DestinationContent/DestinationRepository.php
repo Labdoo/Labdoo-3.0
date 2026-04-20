@@ -11,6 +11,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\labdoo_migrate\Model\SpecialTypeModel;
 use Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeFactory;
+use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Psr\Log\LoggerAwareTrait;
 
 /**
@@ -50,6 +51,13 @@ class DestinationRepository implements DestinationRepositoryInterface {
    * @var \Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface
    */
   private TranslationRepositoryInterface $translationRepository;
+
+  /**
+   * The migration tracker.
+   *
+   * @var \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface
+   */
+  private MigrationTrackerInterface $migrationTracker;
 
   /**
    * The mapping array.
@@ -109,16 +117,20 @@ class DestinationRepository implements DestinationRepositoryInterface {
    *   The logger channel factory.
    * @param \Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface $translationRepository
    *   The translation repository.
+   * @param \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface $migrationTracker
+   *   The migration tracker.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    TranslationRepositoryInterface $translationRepository
+    TranslationRepositoryInterface $translationRepository,
+    MigrationTrackerInterface $migrationTracker
   ) {
 
     $this->entityTypeManager = $entityTypeManager;
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
     $this->translationRepository = $translationRepository;
+    $this->migrationTracker = $migrationTracker;
     $this->overrideMode = FALSE;
   }
 
@@ -232,6 +244,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
       );
 
     if ($result) {
+      if ($entityId !== NULL && !$this->dryRun) {
+        $this->migrationTracker->track('node', $contentType, $entityId, (int) $mainEntity->id());
+      }
+
       ++$this->mainEntitiesCount;
       $divisor = $this->totalSourceEntitiesCount > 0 ? $this->totalSourceEntitiesCount : 1;
       $message = sprintf(
@@ -371,6 +387,11 @@ class DestinationRepository implements DestinationRepositoryInterface {
         );
 
       if ($result) {
+        $sourceId = (int) $destinationEntity->{self::SOURCE_ID_FIELD}->value;
+        if ($sourceId > 0 && !$this->dryRun) {
+          $this->migrationTracker->track('node', $destinationEntity->bundle(), $sourceId, (int) $destinationEntity->id());
+        }
+
         $message = sprintf(
           'Updated entity %d (%s) [%s]',
           $currentDestinationEntity->id(),

@@ -1,0 +1,7 @@
+labdoo_migrate.dashboard:
+  path: '/admin/reports/labdoo-migrate-dashboard'
+  defaults:
+    _controller: '\Drupal\labdoo_migrate\Controller\MigrationDashboardController::build'
+    _title: 'Labdoo migration dashboard'
+  requirements:
+    _permission: 'access labdoo migration dashboard'

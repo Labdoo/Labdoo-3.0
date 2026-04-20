@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall hooks for the Labdoo Migrate module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function labdoo_migrate_schema(): array {
+  $schema['labdoo_migrate_tracking'] = [
+    'description' => 'Tracks Drupal 7 to Drupal 10 migrated entities.',
+    'fields' => [
+      'entity_type' => [
+        'description' => 'Destination entity type in Drupal 10.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ],
+      'bundle' => [
+        'description' => 'Destination bundle/content type in Drupal 10.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+      ],
+      'source_id' => [
+        'description' => 'Source Drupal 7 entity ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'destination_id' => [
+        'description' => 'Destination Drupal 10 entity ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'last_migrated' => [
+        'description' => 'Unix timestamp of the latest successful migration.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['entity_type', 'bundle', 'source_id'],
+    'indexes' => [
+      'bundle_idx' => ['bundle'],
+      'last_migrated_idx' => ['last_migrated'],
+      'destination_id_idx' => ['destination_id'],
+    ],
+  ];
+
+  return $schema;
+}

@@ -1,0 +1,3 @@
+access labdoo migration dashboard:
+  title: 'Access Labdoo migration dashboard'
+  restrict access: true

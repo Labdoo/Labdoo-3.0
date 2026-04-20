@@ -1,0 +1,5 @@
+labdoo_migrate.dashboard:
+  title: 'Labdoo migration dashboard'
+  description: 'Shows migration progress by content type between Drupal 7 and Drupal 10.'
+  route_name: labdoo_migrate.dashboard
+  parent: system.admin_reports
