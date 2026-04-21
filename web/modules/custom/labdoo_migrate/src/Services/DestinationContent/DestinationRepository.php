@@ -29,6 +29,11 @@ class DestinationRepository implements DestinationRepositoryInterface {
    */
   private const PROGRESS_LOG_INTERVAL = 100;
 
+  /**
+   * Cache clear interval for long-running migrations.
+   */
+  private const CACHE_CLEAR_INTERVAL = 100;
+
   use LoggerAwareTrait;
 
   /**
@@ -196,6 +201,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
       if ($this->createTranslations($sourceEntity, $contentType, $entityId)) {
         ++$createdEntities;
       }
+
+      if ($createdEntities % self::CACHE_CLEAR_INTERVAL === 0) {
+        $this->clearEntityStorageRuntimeCache();
+      }
     }
 
     return $createdEntities;
@@ -338,6 +347,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
       if ($this->updateTranslations($sourceEntity, $destinationEntities[$entityId])) {
         ++$updatedEntities;
       }
+
+      if ($updatedEntities % self::CACHE_CLEAR_INTERVAL === 0) {
+        $this->clearEntityStorageRuntimeCache();
+      }
     }
 
     return $updatedEntities;
@@ -359,6 +372,26 @@ class DestinationRepository implements DestinationRepositoryInterface {
     catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
       $errorMessage = sprintf(
         'Error disabling the entity storage cache: %s',
+        $e->getMessage()
+      );
+      $this->logger->error($errorMessage);
+    }
+  }
+
+  /**
+   * Clears runtime entity storage cache to reduce memory usage.
+   *
+   * @return void
+   */
+  protected function clearEntityStorageRuntimeCache(): void {
+    try {
+      $this->entityTypeManager
+        ->getStorage('node')
+        ->resetCache();
+    }
+    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
+      $errorMessage = sprintf(
+        'Error clearing entity storage runtime cache: %s',
         $e->getMessage()
       );
       $this->logger->error($errorMessage);
