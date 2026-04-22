@@ -14,3 +14,6 @@ services:
   labdoo_dootronics.compute:
     class: Drupal\labdoo_dootronics\Service\Compute\DootronicCompute
     arguments: ['@labdoo_common.repository.common', '@labdoo_dootronics.repository', '@logger.factory']
+  labdoo_dootronics.queue.feeder.recompute:
+    class: Drupal\labdoo_dootronics\Service\Queue\Feeder\DootronicRecomputeQueueFeeder
+    arguments: ['@queue_manager.helper']

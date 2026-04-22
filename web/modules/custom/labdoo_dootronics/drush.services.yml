@@ -1,6 +1,6 @@
 services:
   labdoo_dootronics.commands:
     class: \Drupal\labdoo_dootronics\Commands\ComputeCommands
-    arguments: ['@labdoo_dootronics.repository']
+    arguments: ['@labdoo_dootronics.repository', '@labdoo_dootronics.queue.feeder.recompute']
     tags:
       - { name: drush.command }

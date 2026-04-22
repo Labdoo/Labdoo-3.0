@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_dootronics\Commands;
 
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
+use Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -44,6 +45,13 @@ class ComputeCommands extends DrushCommands {
   protected DootronicRepositoryInterface $dootronicRepository;
 
   /**
+   * The recompute queue feeder.
+   *
+   * @var \Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface
+   */
+  protected QueueFeederInterface $queueFeeder;
+
+  /**
    * The total entities.
    *
    * @var int
@@ -55,12 +63,16 @@ class ComputeCommands extends DrushCommands {
    *
    * @param \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository
    *   The Dootronic repository.
+   * @param \Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface $queueFeeder
+   *   The queue feeder.
    */
   public function __construct(
-    DootronicRepositoryInterface $dootronicRepository
+    DootronicRepositoryInterface $dootronicRepository,
+    QueueFeederInterface $queueFeeder
   ) {
     parent::__construct();
     $this->dootronicRepository = $dootronicRepository;
+    $this->queueFeeder = $queueFeeder;
   }
 
   /**
@@ -86,8 +98,8 @@ class ComputeCommands extends DrushCommands {
     try {
       $this->setEnvironment($options);
       $sourceEntities = $this->getEntities();
-      $updatedEntities = $this->updateEntities($sourceEntities);
-      $this->tearDown($updatedEntities);
+      $queuedEntities = $this->enqueueEntities($sourceEntities);
+      $this->tearDown($queuedEntities);
     }
     catch (\Exception $e) {
       $this->logger->error($e->getMessage());
@@ -144,28 +156,28 @@ class ComputeCommands extends DrushCommands {
   }
 
   /**
-   * Updates the entities.
+   * Enqueues the entities.
    *
    * @param array $entities
    *   The entities.
    *
    * @return int
-   *   Returns the number of updated entities.
+   *   Returns the number of enqueued entities.
    *
    * @throws \Exception
    */
-  protected function updateEntities(
+  protected function enqueueEntities(
     array $entities
   ): int {
-    $this->logger->notice('Updating the entities...');
+    $this->logger->notice('Enqueuing the entities...');
     $i = 0;
-    $updatedEntities = 0;
+    $queuedEntities = 0;
 
     foreach ($entities as $entity) {
       ++$i;
 
       $infoMessage = sprintf(
-        '[%s] [%d/%d] Updated %d',
+        '[%s] [%d/%d] Enqueued %d',
         date('d/m/Y H:i:s'),
         $i,
         $this->total,
@@ -174,34 +186,33 @@ class ComputeCommands extends DrushCommands {
 
       if ($this->dryRun === TRUE) {
         $this->logger->notice($infoMessage);
-        ++$updatedEntities;
+        ++$queuedEntities;
 
         continue;
       }
 
-      if ($this->dootronicRepository->saveEntity($entity)) {
-        $this->logger->notice($infoMessage);
-        ++$updatedEntities;
-      }
+      $this->queueFeeder->feedQueue($entity);
+      $this->logger->notice($infoMessage);
+      ++$queuedEntities;
     }
 
-    return $updatedEntities;
+    return $queuedEntities;
   }
 
   /**
    * Finishes the process.
    *
-   * @param int $updated
-   *   The number of updated entities.
+   * @param int $queued
+   *   The number of enqueued entities.
    */
-  protected function tearDown(int $updated): void {
+  protected function tearDown(int $queued): void {
     $timeElapsedSeconds = microtime(TRUE) - $this->startTime;
     $infoMessage = sprintf(
       "\n\nPROCESS FINISHED:\n"
       . "-- Time elapsed: %s.\n"
-      . "-- %d/%d entities processed.\n",
+      . "-- %d/%d entities enqueued.\n",
       gmdate("H:i:s", $timeElapsedSeconds),
-      $updated,
+      $queued,
       $this->total
     );
     $this->logger->notice($infoMessage);
