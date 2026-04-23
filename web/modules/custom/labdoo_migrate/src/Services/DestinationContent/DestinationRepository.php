@@ -32,7 +32,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
   /**
    * Cache clear interval for long-running migrations.
    */
-  private const CACHE_CLEAR_INTERVAL = 100;
+  private const CACHE_CLEAR_INTERVAL = 50;
 
   use LoggerAwareTrait;
 
@@ -362,19 +362,23 @@ class DestinationRepository implements DestinationRepositoryInterface {
    * @return void
    */
   protected function disableEntityStorageCache(): void {
-    try {
-      $entityType = $this->entityTypeManager
-        ->getStorage('node')
-        ->getEntityType();
-      $entityType->set('static_cache', FALSE);
-      $entityType->set('persistent_cache', FALSE);
-    }
-    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
-      $errorMessage = sprintf(
-        'Error disabling the entity storage cache: %s',
-        $e->getMessage()
-      );
-      $this->logger->error($errorMessage);
+    $entityTypes = ['node', 'media', 'paragraph', 'taxonomy_term'];
+    foreach ($entityTypes as $entityType) {
+      try {
+        $definition = $this->entityTypeManager
+          ->getStorage($entityType)
+          ->getEntityType();
+        $definition->set('static_cache', FALSE);
+        $definition->set('persistent_cache', FALSE);
+      }
+      catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
+        $errorMessage = sprintf(
+          'Error disabling the entity storage cache for %s: %s',
+          $entityType,
+          $e->getMessage()
+        );
+        $this->logger->error($errorMessage);
+      }
     }
   }
 
@@ -384,17 +388,21 @@ class DestinationRepository implements DestinationRepositoryInterface {
    * @return void
    */
   protected function clearEntityStorageRuntimeCache(): void {
-    try {
-      $this->entityTypeManager
-        ->getStorage('node')
-        ->resetCache();
-    }
-    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
-      $errorMessage = sprintf(
-        'Error clearing entity storage runtime cache: %s',
-        $e->getMessage()
-      );
-      $this->logger->error($errorMessage);
+    $entityTypes = ['node', 'media', 'paragraph', 'taxonomy_term'];
+    foreach ($entityTypes as $entityType) {
+      try {
+        $this->entityTypeManager
+          ->getStorage($entityType)
+          ->resetCache();
+      }
+      catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
+        $errorMessage = sprintf(
+          'Error clearing entity storage runtime cache for %s: %s',
+          $entityType,
+          $e->getMessage()
+        );
+        $this->logger->error($errorMessage);
+      }
     }
   }
 
