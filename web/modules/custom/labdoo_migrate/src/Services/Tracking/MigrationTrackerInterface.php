@@ -31,4 +31,17 @@ interface MigrationTrackerInterface {
    */
   public function getDashboardRows(): array;
 
+  /**
+   * Retrieves the source IDs that have been already migrated for a bundle.
+   *
+   * @param string $entityType
+   *   The destination entity type.
+   * @param string $bundle
+   *   The destination bundle/content type.
+   *
+   * @return array
+   *   An array of source entity IDs.
+   */
+  public function getMigratedSourceIds(string $entityType, string $bundle): array;
+
 }

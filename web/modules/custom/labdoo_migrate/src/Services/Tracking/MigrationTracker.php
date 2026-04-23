@@ -255,4 +255,16 @@ class MigrationTracker implements MigrationTrackerInterface {
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getMigratedSourceIds(string $entityType, string $bundle): array {
+    return $this->database->select(self::TRACKING_TABLE, 't')
+      ->fields('t', ['source_id'])
+      ->condition('t.entity_type', $entityType)
+      ->condition('t.bundle', $bundle)
+      ->execute()
+      ->fetchCol();
+  }
+
 }

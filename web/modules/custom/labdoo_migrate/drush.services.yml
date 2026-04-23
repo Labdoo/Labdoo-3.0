@@ -4,6 +4,7 @@ services:
     arguments:
       - '@labdoo_migrate.config.configuration_manager'
       - '@labdoo_migrate.mapper.fields_mapper'
+      - '@labdoo_migrate.tracking.migration_tracker'
     tags:
       - { name: drush.command }
 

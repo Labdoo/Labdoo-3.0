@@ -85,6 +85,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-story" "🔄 Migrate story (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team" "🔄 Migrate team (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-user" "🔄 Migrate user (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-incremental" "🔄 Run incremental migration for all entities."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-bg" "🌙 Run migration in background with nohup and migration-[entity].log."
 	@echo ""
 
@@ -402,6 +403,23 @@ migrate-user: ## 🔄 Migrate user (foreground).
 migrate-user-bg: ## 🌙 Migrate user in background (nohup + log).
 	@echo "$(CYAN)🌙 Running user migration in background (migration-user.log)...$(RESET)"
 	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-user.log 2>&1 &
+
+.PHONY: migrate-incremental
+migrate-incremental: ## 🔄 Run incremental migration for all entities.
+	@echo "$(CYAN)🔄 Running incremental migration...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush labdoo-sync user --incremental
+	vendor/bin/drush labdoo-sync hub --incremental
+	vendor/bin/drush labdoo-sync edoovillage --incremental
+	vendor/bin/drush labdoo-sync laptop --incremental
+	vendor/bin/drush labdoo-sync dootrip --incremental
+	vendor/bin/drush labdoo-sync-teams --incremental
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+
+.PHONY: migrate-incremental-bg
+migrate-incremental-bg: ## 🌙 Run incremental migration in background.
+	@echo "$(CYAN)🌙 Running incremental migration in background (migration-incremental.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user --incremental && vendor/bin/drush labdoo-sync hub --incremental && vendor/bin/drush labdoo-sync edoovillage --incremental && vendor/bin/drush labdoo-sync laptop --incremental && vendor/bin/drush labdoo-sync dootrip --incremental && vendor/bin/drush labdoo-sync-teams --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-incremental.log 2>&1 &
 
 .PHONY: confirm
 confirm: ## ❓ Ask for confirmation to continue.

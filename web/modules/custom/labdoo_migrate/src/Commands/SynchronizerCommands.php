@@ -7,6 +7,7 @@ use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Mapper\MapperInterface;
 use Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface;
+use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -51,6 +52,13 @@ class SynchronizerCommands extends DrushCommands {
    * @var \Drupal\labdoo_migrate\Services\Mapper\MapperInterface
    */
   private MapperInterface $mapper;
+
+  /**
+   * The migration tracker.
+   *
+   * @var \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface
+   */
+  private MigrationTrackerInterface $migrationTracker;
 
   /**
    * The start time.
@@ -116,6 +124,13 @@ class SynchronizerCommands extends DrushCommands {
   private $overrideMode;
 
   /**
+   * Incremental mode.
+   *
+   * @var bool
+   */
+  private bool $incremental = FALSE;
+
+  /**
    * Optional UNIX timestamp filter for source nodes.
    *
    * @var int|null
@@ -129,15 +144,19 @@ class SynchronizerCommands extends DrushCommands {
    *   The migration configuration manager.
    * @param \Drupal\labdoo_migrate\Services\Mapper\MapperInterface $mapper
    *   The content mapper.
+   * @param \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface $migrationTracker
+   *   The migration tracker.
    */
   public function __construct(
     ConfigurationManagerInterface $configurationManager,
-    MapperInterface $mapper
+    MapperInterface $mapper,
+    MigrationTrackerInterface $migrationTracker
   ) {
 
     parent::__construct();
     $this->configurationManager = $configurationManager;
     $this->mapper = $mapper;
+    $this->migrationTracker = $migrationTracker;
   }
 
   /**
@@ -148,7 +167,7 @@ class SynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-content content-type [nids=123,456,789] [limit=9] [mode=create|update] [override] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"]
+   * @command labdoo-synchronize-content content-type [nids=123,456,789] [limit=9] [mode=create|update] [override] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"] [incremental]
    * @aliases labdoo-sync
    * @usage labdoo-synchronize-content edoovillage
    *   Synchronizes the contents of the type "edoovillage".
@@ -159,6 +178,7 @@ class SynchronizerCommands extends DrushCommands {
    * @option override Whether to override the nodes or fail gracefully. Specify this parameter to activate the override mode.
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
    * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   * @option incremental Migrates only those entities that are in Drupal 7 but not in Drupal 10.
    */
   public function startSync(
     string $contentType,
@@ -169,6 +189,7 @@ class SynchronizerCommands extends DrushCommands {
       'override' => FALSE,
       'dry-run' => FALSE,
       'from-date' => NULL,
+      'incremental' => FALSE,
     ]
   ): void {
     try {
@@ -182,6 +203,16 @@ class SynchronizerCommands extends DrushCommands {
             $this->mapping,
             $this->fromTimestamp
           );
+        }
+
+        if ($this->incremental) {
+          $destinationTypes = $this->configData->getDestinationTypes();
+          $destinationContentType = reset($destinationTypes);
+          $migratedSourceIds = $this->migrationTracker->getMigratedSourceIds(
+            $this->configData->getEntityType(),
+            $destinationContentType
+          );
+          $sourceEntitiesIds = array_diff($sourceEntitiesIds, $migratedSourceIds);
         }
 
         if ($this->limit > -1) {
@@ -303,6 +334,7 @@ class SynchronizerCommands extends DrushCommands {
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
     $this->overrideMode = $options['override'];
+    $this->incremental = $options['incremental'];
 
     // Parse from-date if provided.
     if (!empty($options['from-date'])) {
@@ -347,6 +379,7 @@ class SynchronizerCommands extends DrushCommands {
       . "Option override: %s\n"
       . "Option dry-run: %s\n"
       . "Option from-date: %s\n"
+      . "Option incremental: %s\n"
       . "=====================",
       $this->contentType,
       $this->create ? 'create' : 'update',
@@ -354,7 +387,8 @@ class SynchronizerCommands extends DrushCommands {
       (string) $this->limit,
       $this->overrideMode ? 'true' : 'false',
       $this->dryRun ? 'true' : 'false',
-      $options['from-date'] ?? 'none'
+      $options['from-date'] ?? 'none',
+      $this->incremental ? 'true' : 'false'
     );
     $this->logger->notice($headerMessage);
   }
@@ -436,6 +470,7 @@ class SynchronizerCommands extends DrushCommands {
       . "Option override: %s\n"
       . "Option dry-run: %s\n"
       . "Option from-date: %s\n"
+      . "Option incremental: %s\n"
       . "Entities processed: %d\n"
       . "Entities failed: %d\n"
       . "=====================",
@@ -446,6 +481,7 @@ class SynchronizerCommands extends DrushCommands {
       $this->overrideMode ? 'true' : 'false',
       $this->dryRun ? 'true' : 'false',
       $this->fromTimestamp !== NULL ? date('Y-m-d H:i:s', $this->fromTimestamp) : 'none',
+      $this->incremental ? 'true' : 'false',
       $mainEntitiesCount,
       $failingCount
     );
