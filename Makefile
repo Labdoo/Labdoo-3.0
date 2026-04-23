@@ -86,7 +86,9 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team" "🔄 Migrate team (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-user" "🔄 Migrate user (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-incremental" "🔄 Run incremental migration for all entities."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all-incremental-bg" "🌙 Run incremental migration for all entities in background."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-bg" "🌙 Run migration in background with nohup and migration-[entity].log."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-incremental-bg" "🌙 Run incremental migration in background."
 	@echo ""
 
 .PHONY: pull
@@ -416,10 +418,40 @@ migrate-incremental: ## 🔄 Run incremental migration for all entities.
 	vendor/bin/drush labdoo-sync-teams --incremental
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
 
-.PHONY: migrate-incremental-bg
-migrate-incremental-bg: ## 🌙 Run incremental migration in background.
-	@echo "$(CYAN)🌙 Running incremental migration in background (migration-incremental.log)...$(RESET)"
+.PHONY: migrate-all-incremental-bg
+migrate-all-incremental-bg: ## 🌙 Run incremental migration for all entities in background.
+	@echo "$(CYAN)🌙 Running incremental migration for all entities in background (migration-incremental.log)...$(RESET)"
 	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user --incremental && vendor/bin/drush labdoo-sync hub --incremental && vendor/bin/drush labdoo-sync edoovillage --incremental && vendor/bin/drush labdoo-sync laptop --incremental && vendor/bin/drush labdoo-sync dootrip --incremental && vendor/bin/drush labdoo-sync-teams --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-incremental.log 2>&1 &
+
+.PHONY: migrate-user-incremental-bg
+migrate-user-incremental-bg: ## 🌙 Run incremental user migration in background.
+	@echo "$(CYAN)🌙 Running incremental user migration in background (migration-user-incremental.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-user-incremental.log 2>&1 &
+
+.PHONY: migrate-hub-incremental-bg
+migrate-hub-incremental-bg: ## 🌙 Run incremental hub migration in background.
+	@echo "$(CYAN)🌙 Running incremental hub migration in background (migration-hub-incremental.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync hub --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-hub-incremental.log 2>&1 &
+
+.PHONY: migrate-edoovillage-incremental-bg
+migrate-edoovillage-incremental-bg: ## 🌙 Run incremental edoovillage migration in background.
+	@echo "$(CYAN)🌙 Running incremental edoovillage migration in background (migration-edoovillage-incremental.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync edoovillage --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-edoovillage-incremental.log 2>&1 &
+
+.PHONY: migrate-dootronic-incremental-bg
+migrate-dootronic-incremental-bg: ## 🌙 Run incremental dootronic migration in background.
+	@echo "$(CYAN)🌙 Running incremental dootronic migration in background (migration-dootronic-incremental.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync laptop --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-dootronic-incremental.log 2>&1 &
+
+.PHONY: migrate-dootrip-incremental-bg
+migrate-dootrip-incremental-bg: ## 🌙 Run incremental dootrip migration in background.
+	@echo "$(CYAN)🌙 Running incremental dootrip migration in background (migration-dootrip-incremental.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync dootrip --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-dootrip-incremental.log 2>&1 &
+
+.PHONY: migrate-team-incremental-bg
+migrate-team-incremental-bg: ## 🌙 Run incremental team migration in background.
+	@echo "$(CYAN)🌙 Running incremental team migration in background (migration-team-incremental.log)...$(RESET)"
+	nohup sh -c "vendor/bin/drush labdoo-sync-teams --incremental" > migration-team-incremental.log 2>&1 &
 
 .PHONY: confirm
 confirm: ## ❓ Ask for confirmation to continue.
