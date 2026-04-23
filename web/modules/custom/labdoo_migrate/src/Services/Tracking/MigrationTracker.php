@@ -177,9 +177,10 @@ class MigrationTracker implements MigrationTrackerInterface {
       }
 
       $sourceType = $data['source_type'];
-      $mappings[$sourceType] = [
+      $destinationType = $data['destination_types'][0] ?? $sourceType;
+      $mappings[$destinationType] = [
         'source_type' => $sourceType,
-        'destination_type' => $data['destination_types'][0] ?? $sourceType,
+        'destination_type' => $destinationType,
         'entity_type' => $data['entity_type'] ?? 'node',
       ];
     }
