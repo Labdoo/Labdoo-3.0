@@ -521,10 +521,18 @@ class DestinationRepository implements DestinationRepositoryInterface {
       /** @var \Drupal\labdoo_migrate\Model\MappingModel $mapping */
       $mapping = $this->mapping[$sourceIdentifier];
       $destination = $mapping->getDestinationField();
+      $fieldName = $destination->getFieldName();
+
+      if ($fieldName && $destinationEntity->hasField($fieldName)) {
+        $fieldDefinition = $destinationEntity->getFieldDefinition($fieldName);
+        if ($fieldDefinition->getFieldStorageDefinition()->isMultiple()) {
+          $destinationEntity->set($fieldName, []);
+        }
+      }
 
       $destinationEntity = $this->setFieldValue(
         $destinationEntity,
-        $destination->getFieldName(),
+        $fieldName,
         $value,
         $mainLangCode,
         $destination->getSpecialType()
