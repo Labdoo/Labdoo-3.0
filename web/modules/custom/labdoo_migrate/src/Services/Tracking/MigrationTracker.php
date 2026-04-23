@@ -92,12 +92,12 @@ class MigrationTracker implements MigrationTrackerInterface {
    */
   public function getDashboardRows(): array {
     $rows = [];
-    $contentTypes = $this->getConfiguredContentTypes();
+    $mappings = $this->getConfiguredContentTypes();
 
     $externalConnection = $this->externalConnectionManager->setConnection();
     try {
-      foreach ($contentTypes as $contentType) {
-        $rows[] = $this->buildRow($externalConnection, $contentType);
+      foreach ($mappings as $mapping) {
+        $rows[] = $this->buildRow($externalConnection, $mapping);
       }
     }
     finally {
@@ -112,29 +112,30 @@ class MigrationTracker implements MigrationTrackerInterface {
    *
    * @param \Drupal\Core\Database\Connection $externalConnection
    *   The external Drupal 7 connection.
-   * @param string $contentType
-   *   The content type.
+   * @param array $mapping
+   *   The mapping data.
    *
    * @return array
    *   Row data.
    */
-  protected function buildRow(Connection $externalConnection, string $contentType): array {
-    $isUserType = $contentType === 'user';
-    $entityType = $isUserType ? 'user' : 'node';
-    $bundle = $contentType;
+  protected function buildRow(Connection $externalConnection, array $mapping): array {
+    $sourceType = $mapping['source_type'];
+    $destinationType = $mapping['destination_type'];
+    $entityType = $mapping['entity_type'];
+    $isUserType = $entityType === 'user';
 
     $d7Count = $isUserType
       ? $this->countDrupal7Users($externalConnection)
-      : $this->countDrupal7Nodes($externalConnection, $contentType);
+      : $this->countDrupal7Nodes($externalConnection, $sourceType);
 
     $d10Count = $isUserType
       ? $this->countDrupal10Users()
-      : $this->countDrupal10Nodes($contentType);
+      : $this->countDrupal10Nodes($destinationType);
 
-    $trackingData = $this->getTrackingData($entityType, $bundle);
+    $trackingData = $this->getTrackingData($entityType, $destinationType);
 
     return [
-      'entity_type' => $contentType,
+      'entity_type' => $destinationType,
       'd7_count' => $d7Count,
       'd10_count' => $d10Count,
       'migrated_count' => $trackingData['migrated_count'],
@@ -146,10 +147,10 @@ class MigrationTracker implements MigrationTrackerInterface {
   }
 
   /**
-   * Returns available content types from mapping config files.
+   * Returns available content types and their mappings from config files.
    *
    * @return array
-   *   Content type machine names.
+   *   Mapping data keyed by source type.
    */
   protected function getConfiguredContentTypes(): array {
     $modulePath = $this->moduleHandler->getModule('labdoo_migrate')->getPath();
@@ -158,17 +159,33 @@ class MigrationTracker implements MigrationTrackerInterface {
       return [];
     }
 
-    $types = [];
+    $mappings = [];
     foreach ($files as $filePath) {
       $name = pathinfo($filePath, PATHINFO_FILENAME);
       if ($name === 'global') {
         continue;
       }
-      $types[] = strtolower($name);
+
+      $content = file_get_contents($filePath);
+      if (!$content) {
+        continue;
+      }
+
+      $data = json_decode($content, TRUE);
+      if (!$data || !isset($data['source_type'])) {
+        continue;
+      }
+
+      $sourceType = $data['source_type'];
+      $mappings[$sourceType] = [
+        'source_type' => $sourceType,
+        'destination_type' => $data['destination_types'][0] ?? $sourceType,
+        'entity_type' => $data['entity_type'] ?? 'node',
+      ];
     }
 
-    sort($types);
-    return $types;
+    ksort($mappings);
+    return $mappings;
   }
 
   /**
