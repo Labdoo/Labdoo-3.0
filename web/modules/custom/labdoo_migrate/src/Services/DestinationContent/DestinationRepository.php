@@ -4,7 +4,6 @@ namespace Drupal\labdoo_migrate\Services\DestinationContent;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Database\IntegrityConstraintViolationException;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -693,93 +692,16 @@ class DestinationRepository implements DestinationRepositoryInterface {
       }
       return $entity->save();
     }
-    catch (IntegrityConstraintViolationException $e) {
-      if ($entity->isNew() && $entity->id()) {
-        // Orphaned field data exists in the DB for this entity ID (from a
-        // previous failed migration). Purge it and retry.
-        $this->purgeOrphanedFieldData($entity);
-        try {
-          if ($entity instanceof \Drupal\Core\Entity\RevisionableInterface) {
-            $entity->setNewRevision(FALSE);
-          }
-          return $entity->save();
-        }
-        catch (EntityStorageException | \Exception | \Throwable $retryException) {
-          $this->logger->error(sprintf(
-            'Error updating content with NID %d: %s',
-            $entity->id(),
-            $retryException->getMessage()
-          ));
-        }
-      }
-      else {
-        $this->logger->error(sprintf(
-          'Error updating content with NID %d: %s',
-          $entity->id(),
-          $e->getMessage()
-        ));
-      }
-    }
     catch (EntityStorageException | \Exception | \Throwable $e) {
-      $this->logger->error(sprintf(
+      $errorMessage = sprintf(
         'Error updating content with NID %d: %s',
         $entity->id(),
         $e->getMessage()
-      ));
+      );
+      $this->logger->error($errorMessage);
     }
 
     return FALSE;
-  }
-
-  /**
-   * Deletes orphaned field data for an entity ID across all dedicated tables.
-   *
-   * This is needed when a previous migration run partially saved field data
-   * without completing the node base table save, leaving the field tables in
-   * an inconsistent state.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity whose orphaned field data should be purged.
-   */
-  private function purgeOrphanedFieldData(EntityInterface $entity): void {
-    $entityTypeId = $entity->getEntityTypeId();
-    $entityId = (int) $entity->id();
-
-    try {
-      $storage = $this->entityTypeManager->getStorage($entityTypeId);
-      if (!($storage instanceof SqlContentEntityStorage)) {
-        return;
-      }
-
-      $tableMapping = $storage->getTableMapping();
-      $fieldDefinitions = \Drupal::service('entity_field.manager')
-        ->getFieldStorageDefinitions($entityTypeId);
-      $database = \Drupal::database();
-
-      foreach ($fieldDefinitions as $definition) {
-        if ($tableMapping->requiresDedicatedTableStorage($definition)) {
-          $database->delete($tableMapping->getDedicatedDataTableName($definition))
-            ->condition('entity_id', $entityId)
-            ->execute();
-          $database->delete($tableMapping->getDedicatedRevisionTableName($definition))
-            ->condition('entity_id', $entityId)
-            ->execute();
-        }
-      }
-
-      $this->logger->notice(sprintf(
-        'Purged orphaned field data for entity %d (%s)',
-        $entityId,
-        $entityTypeId
-      ));
-    }
-    catch (\Exception $e) {
-      $this->logger->warning(sprintf(
-        'Could not purge orphaned field data for entity %d: %s',
-        $entityId,
-        $e->getMessage()
-      ));
-    }
   }
 
   /**
@@ -841,6 +763,11 @@ class DestinationRepository implements DestinationRepositoryInterface {
       return $entity;
     }
 
+    // The node doesn't exist in D9. A previous failed migration run may have
+    // left orphaned field data in node__field_* tables. Purge it now, before
+    // any INSERT, to prevent duplicate key violations on save.
+    $this->purgeOrphanedNodeFieldData($entityId);
+
     return $this->entityTypeManager
       ->getStorage('node')
       ->create([
@@ -848,6 +775,50 @@ class DestinationRepository implements DestinationRepositoryInterface {
         'langcode' => $langCode,
         'nid' => $entityId,
       ]);
+  }
+
+  /**
+   * Deletes orphaned field data for an entity ID from all dedicated tables.
+   *
+   * Called when the node base table has no entry for the given ID but
+   * node__field_* tables may still have rows from a previous failed migration.
+   *
+   * @param int $entityId
+   *   The entity ID whose orphaned field data should be removed.
+   */
+  private function purgeOrphanedNodeFieldData(int $entityId): void {
+    try {
+      $storage = $this->entityTypeManager->getStorage('node');
+      if (!($storage instanceof SqlContentEntityStorage)) {
+        return;
+      }
+      $tableMapping = $storage->getTableMapping();
+      $fieldDefinitions = \Drupal::service('entity_field.manager')
+        ->getFieldStorageDefinitions('node');
+      $database = \Drupal::database();
+
+      foreach ($fieldDefinitions as $definition) {
+        if ($tableMapping->requiresDedicatedTableStorage($definition)) {
+          $database->delete($tableMapping->getDedicatedDataTableName($definition))
+            ->condition('entity_id', $entityId)
+            ->execute();
+          $database->delete($tableMapping->getDedicatedRevisionTableName($definition))
+            ->condition('entity_id', $entityId)
+            ->execute();
+        }
+      }
+      $this->logger->notice(sprintf(
+        'Purged orphaned field data for node %d before creation.',
+        $entityId
+      ));
+    }
+    catch (\Exception $e) {
+      $this->logger->warning(sprintf(
+        'Could not purge orphaned field data for node %d: %s',
+        $entityId,
+        $e->getMessage()
+      ));
+    }
   }
 
   /**
