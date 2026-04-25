@@ -520,33 +520,60 @@ class DestinationRepository implements DestinationRepositoryInterface {
       return FALSE;
     }
 
+    $accumulatedValues = [];
+
     foreach ($sourceEntity as $sourceIdentifier => $value) {
       /** @var \Drupal\labdoo_migrate\Model\MappingModel $mapping */
+      if (!isset($this->mapping[$sourceIdentifier])) {
+        continue;
+      }
       $mapping = $this->mapping[$sourceIdentifier];
       $destination = $mapping->getDestinationField();
       $fieldName = $destination->getFieldName();
 
-      if ($fieldName && $destinationEntity->hasField($fieldName)) {
-        $fieldDefinition = $destinationEntity->getFieldDefinition($fieldName);
-        if ($fieldDefinition->getFieldStorageDefinition()->isMultiple()) {
-          $destinationEntity->set($fieldName, []);
+      if (!$fieldName || !$destinationEntity->hasField($fieldName)) {
+        if ($fieldName && !$destinationEntity->hasField($fieldName)) {
+          $this->logger->warning(sprintf('Field %s is unknown for entity %d (%s).', $fieldName, $destinationEntity->id(), $destinationEntity->bundle()));
         }
+        continue;
       }
 
-      $destinationEntity = $this->setFieldValue(
+      $fieldValue = $this->getPreparedFieldValue(
         $destinationEntity,
         $fieldName,
         $value,
         $mainLangCode,
         $destination->getSpecialType()
       );
+
+      $fieldDefinition = $destinationEntity->getFieldDefinition($fieldName);
+      if ($fieldDefinition->getFieldStorageDefinition()->isMultiple()) {
+        if (!isset($accumulatedValues[$fieldName])) {
+          $accumulatedValues[$fieldName] = [];
+        }
+        if (is_array($fieldValue) && $this->checkMultiValue($fieldValue)) {
+          foreach ($fieldValue as $v) {
+            $accumulatedValues[$fieldName][] = $v;
+          }
+        }
+        else {
+          $accumulatedValues[$fieldName][] = $fieldValue;
+        }
+      }
+      else {
+        $accumulatedValues[$fieldName] = $fieldValue;
+      }
+    }
+
+    foreach ($accumulatedValues as $fieldName => $value) {
+      $destinationEntity->set($fieldName, $value);
     }
 
     return $this->dryRun || $this->saveEntity($destinationEntity);
   }
 
   /**
-   * Sets the value of the given field.
+   * Prepares the value of the given field.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity.
@@ -554,56 +581,39 @@ class DestinationRepository implements DestinationRepositoryInterface {
    *   The file name.
    * @param mixed $value
    *   The value to be set.
+   * @param string $mainLangCode
+   *   The main language code.
    * @param \Drupal\labdoo_migrate\Model\SpecialTypeModel|null $specialType
    *   The special type model.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
-   *   Returns the updated entity.
+   * @return mixed
+   *   Returns the prepared value.
    *
    * @throws \Exception
    */
-  protected function setFieldValue(
+  protected function getPreparedFieldValue(
     EntityInterface $entity,
     string $fieldName,
     $value,
     string $mainLangCode,
     ?SpecialTypeModel $specialType
-  ): EntityInterface {
+  ) {
 
     if (!$specialType) {
       if (is_array($value) && isset($value['value'])) {
         $value = $value['value'];
       }
-      $this->setOrAppend($entity, $fieldName, $value);
 
-      return $entity;
+      return $value;
     }
 
     $specialFieldType = SpecialFieldTypeFactory::get($specialType->getType());
-    $value = $specialFieldType->getValue(
+    return $specialFieldType->getValue(
       $value,
       $specialType->getMetadata(),
       $entity,
       $mainLangCode
     );
-
-    // Early return. We need it here because some destination fields are
-    // indeed virtual fields so that, they cannot be stored.
-    if (!$fieldName) {
-      return $entity;
-    }
-
-    if (!$this->checkMultiValue($value)) {
-      $this->setOrAppend($entity, $fieldName, $value);
-
-      return $entity;
-    }
-
-    foreach ($value as $singleValue) {
-      $this->setOrAppend($entity, $fieldName, $singleValue);
-    }
-
-    return $entity;
   }
 
   /**
@@ -621,44 +631,6 @@ class DestinationRepository implements DestinationRepositoryInterface {
       && count(array_filter(array_keys($value), 'is_string')) === 0;
   }
 
-  /**
-   * Sets or appends a value according to the field type.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity.
-   * @param string $fieldName
-   *   The field name.
-   * @param mixed $value
-   *   The value.
-   */
-  protected function setOrAppend(
-    EntityInterface $entity,
-    string $fieldName,
-    $value
-  ) {
-
-    $field = $entity->get($fieldName);
-    $fieldStorage = $entity->getFieldDefinition($fieldName)->getFieldStorageDefinition();
-    if ($fieldStorage->isMultiple()) {
-      if (is_array($value)) {
-        foreach ($value as $singleValue) {
-          if (!$this->checkIfValueExists($field, $singleValue)) {
-            $entity->{$fieldName}->appendItem($singleValue);
-          }
-        }
-      }
-      else {
-        if (!$this->checkIfValueExists($field, $value)) {
-          $entity->{$fieldName}->appendItem($value);
-        }
-      }
-    }
-    else {
-      // For single value fields, we just set the value.
-      // We don't need to check for existence because set() overwrites.
-      $entity->set($fieldName, $value);
-    }
-  }
 
   /**
    * Checks if a value exists in the target field to prevent duplicates.
@@ -674,12 +646,23 @@ class DestinationRepository implements DestinationRepositoryInterface {
   protected function checkIfValueExists(FieldItemListInterface $field, $value): bool {
 
     if (is_array($value)) {
-      $value = $value['value'] ?? '';
+      if (isset($value['target_id'])) {
+        $val = $value['target_id'];
+        $key = 'target_id';
+      }
+      else {
+        $val = $value['value'] ?? '';
+        $key = 'value';
+      }
+    }
+    else {
+      $val = $value;
+      $key = 'value';
     }
 
     foreach ($field->getValue() as $existingValue) {
-      $existingValue = $existingValue['value'] ?? '';
-      if ((string) $existingValue === (string) $value) {
+      $existingVal = $existingValue[$key] ?? $existingValue['value'] ?? '';
+      if ((string) $existingVal === (string) $val) {
         return TRUE;
       }
     }
