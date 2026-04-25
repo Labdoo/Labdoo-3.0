@@ -569,6 +569,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
     }
 
     foreach ($accumulatedValues as $fieldName => $value) {
+      $destinationEntity->set($fieldName, NULL);
       $destinationEntity->set($fieldName, $value);
     }
 
@@ -685,6 +686,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
   protected function saveEntity(EntityInterface $entity): bool {
 
     try {
+      if ($entity instanceof \Drupal\Core\Entity\RevisionableInterface) {
+        $entity->setNewRevision(FALSE);
+      }
       return $entity->save();
     }
     catch (EntityStorageException | \Exception | \Throwable $e) {
