@@ -32,7 +32,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
   /**
    * Cache clear interval for long-running migrations.
    */
-  private const CACHE_CLEAR_INTERVAL = 50;
+  private const CACHE_CLEAR_INTERVAL = 20;
 
   use LoggerAwareTrait;
 
@@ -404,6 +404,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
         $this->logger->error($errorMessage);
       }
     }
+
+    // Force PHP garbage collection.
+    gc_collect_cycles();
   }
 
   /**
@@ -635,7 +638,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
   ) {
 
     $field = $entity->get($fieldName);
-    if ($entity->getFieldDefinition($fieldName)->getFieldStorageDefinition()->isMultiple()) {
+    $fieldStorage = $entity->getFieldDefinition($fieldName)->getFieldStorageDefinition();
+    if ($fieldStorage->isMultiple()) {
       if (is_array($value)) {
         foreach ($value as $singleValue) {
           if (!$this->checkIfValueExists($field, $singleValue)) {
@@ -650,6 +654,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
       }
     }
     else {
+      // For single value fields, we just set the value.
+      // We don't need to check for existence because set() overwrites.
       $entity->set($fieldName, $value);
     }
   }
@@ -667,9 +673,13 @@ class DestinationRepository implements DestinationRepositoryInterface {
    */
   protected function checkIfValueExists(FieldItemListInterface $field, $value): bool {
 
+    if (is_array($value)) {
+      $value = $value['value'] ?? '';
+    }
+
     foreach ($field->getValue() as $existingValue) {
       $existingValue = $existingValue['value'] ?? '';
-      if ($existingValue === $value) {
+      if ((string) $existingValue === (string) $value) {
         return TRUE;
       }
     }
