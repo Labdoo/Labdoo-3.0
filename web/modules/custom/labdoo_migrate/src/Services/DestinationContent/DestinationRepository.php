@@ -569,9 +569,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
     }
 
     foreach ($accumulatedValues as $fieldName => $value) {
-      if ($destinationEntity->get($fieldName)->getValue() !== (array) $value) {
-        $destinationEntity->set($fieldName, $value);
-      }
+      $destinationEntity->set($fieldName, $value);
     }
 
     return $this->dryRun || $this->saveEntity($destinationEntity);
