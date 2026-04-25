@@ -201,12 +201,11 @@ class MigrationTracker implements MigrationTrackerInterface {
   }
 
   /**
-   * Counts Drupal 10 nodes by type (base language rows only).
+   * Counts Drupal 10 nodes by type.
    */
   protected function countDrupal10Nodes(string $contentType): int {
-    return (int) $this->database->select('node_field_data', 'n')
+    return (int) $this->database->select('node', 'n')
       ->condition('n.type', $contentType)
-      ->condition('n.default_langcode', 1)
       ->countQuery()
       ->execute()
       ->fetchField();
