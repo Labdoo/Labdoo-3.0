@@ -432,6 +432,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
     $defaultLangCode = $destinationEntity->language()->getId();
 
     foreach ($sourceEntity as $langCode => $values) {
+      if ($langCode === 'metadata') {
+        continue;
+      }
       $currentDestinationEntity = $this->getEntityVariant(
         $langCode,
         $defaultLangCode,
@@ -566,7 +569,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
     }
 
     foreach ($accumulatedValues as $fieldName => $value) {
-      $destinationEntity->set($fieldName, $value);
+      if ($destinationEntity->get($fieldName)->getValue() !== (array) $value) {
+        $destinationEntity->set($fieldName, $value);
+      }
     }
 
     return $this->dryRun || $this->saveEntity($destinationEntity);

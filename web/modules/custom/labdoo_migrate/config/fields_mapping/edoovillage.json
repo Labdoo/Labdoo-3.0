@@ -389,50 +389,6 @@
       "source": {
         "fields": [
           {
-            "table": "field_data_field_project_application",
-            "key": "entity_id",
-            "field": "field_project_application_fid",
-            "join": {
-              "table": "file_managed",
-              "key_field": "fid",
-              "value_field": "uri"
-            }
-          }
-        ]
-      },
-      "destination": {
-        "field": "field_project_application",
-        "special_type": {
-          "type": "managed_file"
-        }
-      }
-    },
-    {
-      "source": {
-        "fields": [
-          {
-            "table": "field_data_field_additional_files",
-            "key": "entity_id",
-            "field": "field_additional_files_fid",
-            "join": {
-              "table": "file_managed",
-              "key_field": "fid",
-              "value_field": "uri"
-            }
-          }
-        ]
-      },
-      "destination": {
-        "field": "field_additional_files",
-        "special_type": {
-          "type": "managed_file"
-        }
-      }
-    },
-    {
-      "source": {
-        "fields": [
-          {
             "table": "location",
             "key": "node.nid",
             "field": "coords",
