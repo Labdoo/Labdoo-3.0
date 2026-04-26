@@ -56,6 +56,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@echo "$(GREEN)[ Maintenance ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "backup" "💾 Generate a database backup."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "backup-files" "📁 Generate a site files backup."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "import" "📥 Import a database backup (e.g., make import file=dump.sql[.gz])."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "fix-permissions" "🔑 Fix file and folder permissions."
 	@echo ""
 	@echo "$(GREEN)[ Translations ]$(RESET)"
@@ -154,13 +155,55 @@ deploy-database: ## 🗄️ Sync database state (backup + deploy).
 backup: ## 💾 Generate a database backup.
 	@echo "$(CYAN)💾 Generating database backup...$(RESET)"
 	mkdir -p backups
-	$(DRUSH_COMMAND) sql-dump --gzip --skip-tables-key=common --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false"
+	@if $(DRUSH_COMMAND) sql-dump --gzip --skip-tables-key=common --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false" 2>/dev/null; then \
+		echo "$(GREEN)✅ Backup generated with Drush.$(RESET)"; \
+	else \
+		echo "$(YELLOW)⚠️ Drush failed, trying native mysqldump...$(RESET)"; \
+		BACKUP_FILE="backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql.gz"; \
+		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p$(DB_PASSWORD) $(DB_NAME) --single-transaction=false | gzip > $$BACKUP_FILE; \
+		if [ $$? -eq 0 ]; then \
+			echo "$(GREEN)✅ Backup generated successfully (native). File: $$BACKUP_FILE$(RESET)"; \
+		else \
+			echo "$(RED)❌ Error generating backup (native).$(RESET)"; \
+			exit 1; \
+		fi \
+	fi
 
 .PHONY: backup-files
 backup-files: ## 📁 Generate a site files backup.
 	@echo "$(CYAN)📁 Generating files backup...$(RESET)"
 	mkdir -p backups
 	tar -zcf "backups/$(PROJECT_NAME)_$(ENVIRONMENT)_files_$$(date +%Y%m%d_%H%M).tar.gz" --exclude='css' --exclude='js' --exclude='php' --exclude='styles' -C "web/sites/default" files
+
+.PHONY: import
+import: ## 📥 Import a database backup (e.g., make import file=dump.sql[.gz]).
+	@if [ -z "$(file)" ]; then \
+		echo "$(RED)❌ Error: You must specify a file to import (e.g., make import file=dump.sql).$(RESET)"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(file)" ]; then \
+		echo "$(RED)❌ Error: File '$(file)' not found.$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)📥 Importing database from $(file)...$(RESET)"
+	@IMPORT_CMD=""; \
+	if echo "$(file)" | grep -q "\.gz$$"; then \
+		IMPORT_CMD="gunzip -c $(file)"; \
+	else \
+		IMPORT_CMD="cat $(file)"; \
+	fi; \
+	if $$IMPORT_CMD | $(DRUSH_COMMAND) sql-cli 2>/dev/null; then \
+		echo "$(GREEN)✅ Database imported successfully with Drush!$(RESET)"; \
+	else \
+		echo "$(YELLOW)⚠️ Drush failed, trying native mysql...$(RESET)"; \
+		$$IMPORT_CMD | mysql -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p$(DB_PASSWORD) $(DB_NAME); \
+		if [ $$? -eq 0 ]; then \
+			echo "$(GREEN)✅ Database imported successfully (native)!$(RESET)"; \
+		else \
+			echo "$(RED)❌ Error importing database (native).$(RESET)"; \
+			exit 1; \
+		fi \
+	fi
 
 .PHONY: fix-permissions
 fix-permissions: ## 🔑 Fix file and folder permissions.
