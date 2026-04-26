@@ -33,7 +33,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
   /**
    * Cache clear interval for long-running migrations.
    */
-  private const CACHE_CLEAR_INTERVAL = 20;
+  private const CACHE_CLEAR_INTERVAL = 10;
 
   use LoggerAwareTrait;
 
@@ -207,6 +207,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
         $this->clearEntityStorageRuntimeCache();
       }
     }
+
+    $this->clearEntityStorageRuntimeCache();
 
     return $createdEntities;
   }
@@ -389,7 +391,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
    * @return void
    */
   protected function clearEntityStorageRuntimeCache(): void {
-    $entityTypes = ['node', 'media', 'paragraph', 'taxonomy_term'];
+    $entityTypes = ['node', 'media', 'paragraph', 'taxonomy_term', 'user'];
     foreach ($entityTypes as $entityType) {
       try {
         $this->entityTypeManager
@@ -408,6 +410,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
     // Force PHP garbage collection.
     gc_collect_cycles();
+    drupal_static_reset();
   }
 
   /**

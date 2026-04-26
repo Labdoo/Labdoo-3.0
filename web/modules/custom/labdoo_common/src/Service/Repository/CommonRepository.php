@@ -143,7 +143,7 @@ class CommonRepository {
       $query->condition('nh.field_hub_target_id', $hubId);
     }
     try {
-      $results = $query->execute()->fetchAll();
+      return (int) $query->countQuery()->execute()->fetchField();
     }
     catch (\Exception $e) {
       $errorMessage = sprintf(
@@ -154,8 +154,6 @@ class CommonRepository {
 
       return 0;
     }
-
-    return empty($results) ? 0 : count($results);
   }
 
   /**

@@ -77,6 +77,7 @@ class DootronicCompute implements DootronicComputeInterface {
 
     try {
       $edooVillage->save();
+      \Drupal::entityTypeManager()->getStorage('node')->resetCache([$edooVillage->id()]);
     }
     catch (EntityStorageException $e) {
       $errorMessage = sprintf(
@@ -134,6 +135,7 @@ class DootronicCompute implements DootronicComputeInterface {
 
     try {
       $hub->save();
+      \Drupal::entityTypeManager()->getStorage('node')->resetCache([$hub->id()]);
     }
     catch (EntityStorageException $e) {
       $errorMessage = sprintf(
@@ -223,6 +225,7 @@ class DootronicCompute implements DootronicComputeInterface {
       if (!$found) {
         $dootrip->field_laptops->appendItem($dootronic);
         $dootrip->save();
+        \Drupal::entityTypeManager()->getStorage('node')->resetCache([$dootrip->id()]);
       }
     }
   }
