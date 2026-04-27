@@ -696,12 +696,36 @@ class DestinationRepository implements DestinationRepositoryInterface {
       return $entity->save();
     }
     catch (EntityStorageException | \Exception | \Throwable $e) {
-      $errorMessage = sprintf(
-        'Error updating content with NID %d: %s',
-        $entity->id(),
-        $e->getMessage()
-      );
-      $this->logger->error($errorMessage);
+      // If the save fails, it might be due to orphaned field data from a
+      // previous failed migration. Try to purge and retry once.
+      if ($entity->getEntityTypeId() === 'node' && $entity->id()) {
+        $this->logger->warning(sprintf(
+          'Save failed for node %d. Attempting to purge orphaned field data and retry. Error: %s',
+          $entity->id(),
+          $e->getMessage()
+        ));
+
+        $this->purgeOrphanedNodeFieldData((int) $entity->id());
+
+        try {
+          return $entity->save();
+        }
+        catch (\Exception | \Throwable $e2) {
+          $this->logger->error(sprintf(
+            'Retry save failed for node %d: %s',
+            $entity->id(),
+            $e2->getMessage()
+          ));
+        }
+      }
+      else {
+        $errorMessage = sprintf(
+          'Error updating content with ID %s: %s',
+          $entity->id() ?? 'unknown',
+          $e->getMessage()
+        );
+        $this->logger->error($errorMessage);
+      }
     }
 
     return FALSE;
@@ -766,11 +790,6 @@ class DestinationRepository implements DestinationRepositoryInterface {
       return $entity;
     }
 
-    // The node doesn't exist in D9. A previous failed migration run may have
-    // left orphaned field data in node__field_* tables. Purge it now, before
-    // any INSERT, to prevent duplicate key violations on save.
-    $this->purgeOrphanedNodeFieldData($entityId);
-
     return $this->entityTypeManager
       ->getStorage('node')
       ->create([
@@ -810,7 +829,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
             ->execute();
         }
       }
-      $this->logger->notice(sprintf(
+      $this->logger->debug(sprintf(
         'Purged orphaned field data for node %d before creation.',
         $entityId
       ));
