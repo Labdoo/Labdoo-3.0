@@ -88,7 +88,6 @@ third_party_settings:
         - field_doojects_additional_notes
         - field_technical_notes
         - field_pick_me_up
-        - field_battery_watt_hours
       label: 'Additional Information'
       region: content
       parent_name: group_dootronics
@@ -134,14 +133,6 @@ content:
     weight: 31
     region: content
     settings:
-      placeholder: ''
-    third_party_settings: {  }
-  field_battery_watt_hours:
-    type: string_textfield
-    weight: 46
-    region: content
-    settings:
-      size: 60
       placeholder: ''
     third_party_settings: {  }
   field_cpu:
@@ -407,7 +398,7 @@ content:
     third_party_settings: {  }
   langcode:
     type: language_select
-    weight: 2
+    weight: 1
     region: content
     settings:
       include_locked: true
@@ -421,12 +412,13 @@ content:
       placeholder: ''
     third_party_settings: {  }
   url_redirects:
-    weight: 50
+    weight: 2
     region: content
     settings: {  }
     third_party_settings: {  }
 hidden:
   created: true
+  field_battery_watt_hours: true
   field_country: true
   field_tagged: true
   path: true
