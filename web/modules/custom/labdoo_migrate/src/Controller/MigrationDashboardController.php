@@ -47,15 +47,20 @@ class MigrationDashboardController extends ControllerBase {
     $rows = [];
     foreach ($this->migrationTracker->getDashboardRows() as $item) {
       $migratedPercentage = $item['d7_count'] > 0
-        ? round(($item['migrated_count'] / $item['d7_count']) * 100)
+        ? ($item['migrated_count'] / $item['d7_count']) * 100
         : 0;
+
+      // If not fully migrated, avoid rounding up to 100%.
+      if ($item['migrated_count'] < $item['d7_count'] && $migratedPercentage > 99.9) {
+        $migratedPercentage = 99.9;
+      }
 
       $rows[] = [
         'data' => [
           ['data' => $item['entity_type']],
           ['data' => $item['d7_count']],
           ['data' => $item['d10_count']],
-          ['data' => sprintf('%d (%d%%)', $item['migrated_count'], $migratedPercentage)],
+          ['data' => sprintf('%d (%.1f%%)', $item['migrated_count'], $migratedPercentage)],
           ['data' => sprintf('%.2f s', $item['avg_duration_ms'] / 1000)],
           ['data' => $item['last_migration']],
         ],
