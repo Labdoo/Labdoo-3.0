@@ -660,6 +660,76 @@ class DootronicRepository implements DootronicRepositoryInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getPreviousDootronicByTitle(string $title): int {
+    $query = $this->database->select('node_field_data', 'n');
+    $query->addField('n', 'nid');
+    $query->condition('n.title', $title, '<');
+    $query->condition('n.type', 'dootronic');
+    $query->orderBy('n.title', 'DESC');
+    $query->range(0, 1);
+    try {
+      $prevNid = $query->execute()->fetchField();
+    }
+    catch (\Exception $e) {
+      $this->logger->error('Error retrieving the previous dootronic for %title: %message', [
+        '%title' => $title,
+        '%message' => $e->getMessage(),
+      ]);
+
+      return -1;
+    }
+
+    if ($prevNid) {
+      return (int) $prevNid;
+    }
+
+    // Wrap around to the last one by title.
+    $query = $this->database->select('node_field_data', 'n');
+    $query->addField('n', 'nid');
+    $query->condition('n.type', 'dootronic');
+    $query->orderBy('n.title', 'DESC');
+    $query->range(0, 1);
+    return (int) $query->execute()->fetchField();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getNextDootronicByTitle(string $title): int {
+    $query = $this->database->select('node_field_data', 'n');
+    $query->addField('n', 'nid');
+    $query->condition('n.title', $title, '>');
+    $query->condition('n.type', 'dootronic');
+    $query->orderBy('n.title', 'ASC');
+    $query->range(0, 1);
+    try {
+      $nextNid = $query->execute()->fetchField();
+    }
+    catch (\Exception $e) {
+      $this->logger->error('Error retrieving the next dootronic for %title: %message', [
+        '%title' => $title,
+        '%message' => $e->getMessage(),
+      ]);
+
+      return -1;
+    }
+
+    if ($nextNid) {
+      return (int) $nextNid;
+    }
+
+    // Wrap around to the first one by title.
+    $query = $this->database->select('node_field_data', 'n');
+    $query->addField('n', 'nid');
+    $query->condition('n.type', 'dootronic');
+    $query->orderBy('n.title', 'ASC');
+    $query->range(0, 1);
+    return (int) $query->execute()->fetchField();
+  }
+
+  /**
    * Invalidates the dootronic cache tag.
    *
    * @param \Drupal\Core\Entity\EntityInterface $dootronic

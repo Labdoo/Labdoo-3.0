@@ -141,19 +141,29 @@ class DootronicsActionsBlock extends BlockBase implements ContainerFactoryPlugin
       ['attributes' => ['target' => '_blank']]
     );
 
-    $prevNode = $this->commonRepository->getPreviousEntity(
-      $dootronic->id(),
-      $dootronic->bundle()
-    );
+    if ($dootronic->bundle() === 'dootronic') {
+      $prevNode = $this->dootronicRepository->getPreviousDootronicByTitle($dootronic->label());
+    }
+    else {
+      $prevNode = $this->commonRepository->getPreviousEntity(
+        $dootronic->id(),
+        $dootronic->bundle()
+      );
+    }
     $prevLink = $this->linkHelper->generateUrlFromRoute(
       'entity.node.canonical',
       ['node' => $prevNode],
     );
 
-    $nextNode = $this->commonRepository->getNextEntity(
-      $dootronic->id(),
-      $dootronic->bundle()
-    );
+    if ($dootronic->bundle() === 'dootronic') {
+      $nextNode = $this->dootronicRepository->getNextDootronicByTitle($dootronic->label());
+    }
+    else {
+      $nextNode = $this->commonRepository->getNextEntity(
+        $dootronic->id(),
+        $dootronic->bundle()
+      );
+    }
     $nextLink = $this->linkHelper->generateUrlFromRoute(
       'entity.node.canonical',
       ['node' => $nextNode],

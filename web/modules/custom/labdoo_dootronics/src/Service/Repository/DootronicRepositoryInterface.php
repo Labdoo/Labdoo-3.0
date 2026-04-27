@@ -177,6 +177,28 @@ interface DootronicRepositoryInterface {
   ): array;
 
   /**
+   * Retrieves the previous dootronic ID by title.
+   *
+   * @param string $title
+   *   The dootronic title.
+   *
+   * @return int
+   *   The previous dootronic ID.
+   */
+  public function getPreviousDootronicByTitle(string $title): int;
+
+  /**
+   * Retrieves the next dootronic ID by title.
+   *
+   * @param string $title
+   *   The dootronic title.
+   *
+   * @return int
+   *   The next dootronic ID.
+   */
+  public function getNextDootronicByTitle(string $title): int;
+
+  /**
    * Retrieves the allowed field values for a list field.
    *
    * @param string $entityType
