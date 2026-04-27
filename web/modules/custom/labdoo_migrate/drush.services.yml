@@ -60,3 +60,11 @@ services:
       - '@labdoo_migrate.destination_content.translation_repository'
     tags:
       - { name: drush.command }
+
+  labdoo_migrate.cleanup_commands:
+    class: \Drupal\labdoo_migrate\Commands\CleanupCommands
+    arguments:
+      - '@database'
+      - '@labdoo_migrate.database.external_connection_manager'
+    tags:
+      - { name: drush.command }

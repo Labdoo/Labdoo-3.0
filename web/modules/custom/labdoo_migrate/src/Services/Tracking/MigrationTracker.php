@@ -239,6 +239,16 @@ class MigrationTracker implements MigrationTrackerInterface {
    */
   protected function getTrackingData(string $entityType, string $bundle): array {
     $query = $this->database->select(self::TRACKING_TABLE, 't');
+
+    // Filter to ensure the destination entity still exists and matches the expected bundle.
+    if ($entityType === 'node') {
+      $query->join('node', 'n', 't.destination_id = n.nid');
+      $query->condition('n.type', $bundle);
+    }
+    elseif ($entityType === 'user') {
+      $query->join('users', 'u', 't.destination_id = u.uid');
+    }
+
     $query->condition('t.entity_type', $entityType);
     $query->condition('t.bundle', $bundle);
     $query->addExpression('COUNT(*)', 'migrated_count');
@@ -258,12 +268,21 @@ class MigrationTracker implements MigrationTrackerInterface {
    * {@inheritdoc}
    */
   public function getMigratedSourceIds(string $entityType, string $bundle): array {
-    return $this->database->select(self::TRACKING_TABLE, 't')
-      ->fields('t', ['source_id'])
-      ->condition('t.entity_type', $entityType)
-      ->condition('t.bundle', $bundle)
-      ->execute()
-      ->fetchCol();
+    $query = $this->database->select(self::TRACKING_TABLE, 't');
+    $query->fields('t', ['source_id']);
+    $query->condition('t.entity_type', $entityType);
+    $query->condition('t.bundle', $bundle);
+
+    // Filter to ensure the destination entity still exists and matches the expected bundle.
+    if ($entityType === 'node') {
+      $query->join('node', 'n', 't.destination_id = n.nid');
+      $query->condition('n.type', $bundle);
+    }
+    elseif ($entityType === 'user') {
+      $query->join('users', 'u', 't.destination_id = u.uid');
+    }
+
+    return $query->execute()->fetchCol();
   }
 
 }
