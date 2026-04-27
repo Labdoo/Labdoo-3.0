@@ -35,6 +35,11 @@ class DestinationRepository implements DestinationRepositoryInterface {
    */
   private const CACHE_CLEAR_INTERVAL = 10;
 
+  /**
+   * Memory threshold in bytes for aggressive cleanup (e.g., 400MB if limit is 512MB).
+   */
+  private const MEMORY_THRESHOLD = 419430400;
+
   use LoggerAwareTrait;
 
   /**
@@ -199,12 +204,23 @@ class DestinationRepository implements DestinationRepositoryInterface {
     $createdEntities = 0;
 
     foreach ($sourceEntities as $entityId => $sourceEntity) {
-      if ($this->createTranslations($sourceEntity, $contentType, $entityId)) {
-        ++$createdEntities;
+      try {
+        if ($this->createTranslations($sourceEntity, $contentType, $entityId)) {
+          ++$createdEntities;
+        }
+      }
+      catch (\Throwable $t) {
+        $this->logger->error(sprintf(
+          'Critical error processing entity %s: %s. Attempting memory cleanup and continuing...',
+          $entityId,
+          $t->getMessage()
+        ));
+        $this->clearEntityStorageRuntimeCache(TRUE);
+        $this->failingIds[] = $entityId;
       }
 
-      if ($createdEntities % self::CACHE_CLEAR_INTERVAL === 0) {
-        $this->clearEntityStorageRuntimeCache();
+      if ($createdEntities % self::CACHE_CLEAR_INTERVAL === 0 || memory_get_usage(TRUE) > self::MEMORY_THRESHOLD) {
+        $this->clearEntityStorageRuntimeCache(memory_get_usage(TRUE) > self::MEMORY_THRESHOLD);
       }
     }
 
@@ -347,12 +363,23 @@ class DestinationRepository implements DestinationRepositoryInterface {
     $this->disableEntityStorageCache();
 
     foreach ($sourceEntities as $entityId => $sourceEntity) {
-      if ($this->updateTranslations($sourceEntity, $destinationEntities[$entityId])) {
-        ++$updatedEntities;
+      try {
+        if ($this->updateTranslations($sourceEntity, $destinationEntities[$entityId])) {
+          ++$updatedEntities;
+        }
+      }
+      catch (\Throwable $t) {
+        $this->logger->error(sprintf(
+          'Critical error updating entity %s: %s. Attempting memory cleanup and continuing...',
+          $entityId,
+          $t->getMessage()
+        ));
+        $this->clearEntityStorageRuntimeCache(TRUE);
+        $this->failingIds[] = $destinationEntities[$entityId]->id();
       }
 
-      if ($updatedEntities % self::CACHE_CLEAR_INTERVAL === 0) {
-        $this->clearEntityStorageRuntimeCache();
+      if ($updatedEntities % self::CACHE_CLEAR_INTERVAL === 0 || memory_get_usage(TRUE) > self::MEMORY_THRESHOLD) {
+        $this->clearEntityStorageRuntimeCache(memory_get_usage(TRUE) > self::MEMORY_THRESHOLD);
       }
     }
 
@@ -388,10 +415,13 @@ class DestinationRepository implements DestinationRepositoryInterface {
   /**
    * Clears runtime entity storage cache to reduce memory usage.
    *
+   * @param bool $aggressive
+   *   Whether to perform a more aggressive cleanup.
+   *
    * @return void
    */
-  protected function clearEntityStorageRuntimeCache(): void {
-    $entityTypes = ['node', 'media', 'paragraph', 'taxonomy_term', 'user'];
+  protected function clearEntityStorageRuntimeCache(bool $aggressive = FALSE): void {
+    $entityTypes = ['node', 'media', 'paragraph', 'taxonomy_term', 'user', 'file'];
     foreach ($entityTypes as $entityType) {
       try {
         $this->entityTypeManager
@@ -411,6 +441,13 @@ class DestinationRepository implements DestinationRepositoryInterface {
     // Force PHP garbage collection.
     gc_collect_cycles();
     drupal_static_reset();
+
+    if ($aggressive) {
+      if (function_exists('malloc_trim')) {
+        // Only works on Linux if PHP has this extension or via shell.
+        @shell_exec('sync; echo 1 > /proc/sys/vm/drop_caches');
+      }
+    }
   }
 
   /**
