@@ -43,7 +43,7 @@ class MiniWikiTreeManager {
   public function getParentEntityUrl(EntityInterface $entity): ?array {
     if ($entity->hasField('parent') && !$entity->get('parent')->isEmpty()) {
       $parentEntity = $entity->get('parent')->entity;
-      if ($parentEntity) {
+      if ($parentEntity && $parentEntity->access('view')) {
         $url = Url::fromRoute(
           'entity.mini_wiki_page.canonical',
           ['mini_wiki_page' => $parentEntity->id()]
@@ -73,6 +73,9 @@ class MiniWikiTreeManager {
     $query = $database->select('mini_wiki_page_field_data', 'fd');
     $query->fields('fd', ['id', 'label']);
     $query->condition('fd.parent', $entityId);
+    if (!\Drupal::currentUser()->hasPermission('edit mini_wiki_page') && !\Drupal::currentUser()->hasPermission('administer mini_wiki_page')) {
+      $query->condition('fd.status', 1);
+    }
     $query->condition('fd.langcode', $this->languageManager->getCurrentLanguage()->getId());
     try {
       $results = $query->execute()->fetchAll();

@@ -32,7 +32,9 @@ final class MiniWikiPageAccessControlHandler extends EntityAccessControlHandler 
     }
 
     return match($operation) {
-      'view' => AccessResult::allowedIfHasPermission($account, 'view mini_wiki_page'),
+      'view' => AccessResult::allowedIfHasPermission($account, 'view mini_wiki_page')
+        ->andIf(AccessResult::allowedIf($entity->get('status')->value || $account->hasPermission('edit mini_wiki_page') || $account->hasPermission('administer mini_wiki_page')))
+        ->addCacheableDependency($entity),
       'update' => AccessResult::allowedIfHasPermission($account, 'edit mini_wiki_page'),
       'delete' => AccessResult::allowedIfHasPermission($account, 'delete mini_wiki_page'),
       'delete revision' => AccessResult::allowedIfHasPermission($account, 'delete mini_wiki_page revision'),
