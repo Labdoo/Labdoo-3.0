@@ -1,0 +1,53 @@
+display:
+  block_1:
+    display_options:
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'Items per page'
+            offset_label: Offset
+      title: 'Happening right now...'
+    display_title: 'Happening right now...'
+  default:
+    display_options:
+      exposed_form:
+        options:
+          exposed_sorts_label: 'Sort by'
+          reset_button_label: Reset
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+          submit_button: Apply
+      fields:
+        body:
+          label: Action
+        created:
+          label: 'Action date'
+        field_address_country_code:
+          label: Country
+        field_address_locality:
+          label: City
+      filters:
+        field_action_type_value:
+          expose:
+            label: 'Actions related to'
+        field_address_country_code:
+          expose:
+            label: Country
+        field_address_locality:
+          expose:
+            label: City
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'Items per page'
+            offset_label: Offset
+      title: Actions
+    display_title: Default
+  page_1:
+    display_options:
+      menu:
+        title: 'Global actions'
+    display_title: Page
+  rest_export_1:
+    display_title: 'REST export'
+label: Actions

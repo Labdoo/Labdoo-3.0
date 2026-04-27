@@ -15,7 +15,7 @@ dependencies:
     - text
     - user
 id: actions
-label: Comportamiento
+label: Actions
 module: views
 description: null
 tag: ''
@@ -24,11 +24,11 @@ base_field: nid
 display:
   default:
     id: default
-    display_title: 'Por defecto'
+    display_title: Default
     display_plugin: default
     position: 0
     display_options:
-      title: Comportamiento
+      title: Actions
       fields:
         body:
           id: body
@@ -38,7 +38,7 @@ display:
           group_type: group
           admin_label: null
           plugin_id: field
-          label: Acción
+          label: Action
           exclude: false
           alter:
             alter_text: false
@@ -100,7 +100,7 @@ display:
           group_type: group
           admin_label: null
           plugin_id: subdivision
-          label: Ciudad
+          label: City
           exclude: false
           alter:
             alter_text: false
@@ -150,7 +150,7 @@ display:
           group_type: group
           admin_label: null
           plugin_id: country
-          label: País
+          label: Country
           exclude: false
           alter:
             alter_text: false
@@ -202,7 +202,7 @@ display:
           entity_type: node
           entity_field: created
           plugin_id: field
-          label: 'Fecha de la acción'
+          label: 'Action date'
           exclude: false
           alter:
             alter_text: false
@@ -280,27 +280,27 @@ display:
           tags:
             next: ››
             previous: ‹‹
-            first: '" Primero'
-            last: 'Último "'
+            first: '" First'
+            last: 'Last "'
           expose:
             items_per_page: false
-            items_per_page_label: 'Artículos por página'
+            items_per_page_label: 'Items per page'
             items_per_page_options: '5, 10, 25, 50'
             items_per_page_options_all: false
-            items_per_page_options_all_label: '- Todo -'
+            items_per_page_options_all_label: '- All -'
             offset: false
-            offset_label: Compensar
+            offset_label: Offset
           quantity: 9
       exposed_form:
         type: basic
         options:
-          submit_button: Aplicar
+          submit_button: Apply
           reset_button: false
-          reset_button_label: Reiniciar
-          exposed_sorts_label: 'Ordenar por'
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
           expose_sort_order: true
           sort_asc_label: Asc
-          sort_desc_label: Descripción
+          sort_desc_label: Desc
       access:
         type: perm
         options:
@@ -328,6 +328,21 @@ display:
           granularity: second
       arguments: {  }
       filters:
+        default_langcode:
+          id: default_langcode
+          table: node_field_data
+          field: default_langcode
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: default_langcode
+          plugin_id: boolean
+          value: '1'
+          group: 1
+          exposed: false
+          expose:
+            operator: ''
         status:
           id: status
           table: node_field_data
@@ -362,7 +377,7 @@ display:
           exposed: true
           expose:
             operator_id: field_action_type_value_op
-            label: 'Acciones relacionadas con'
+            label: 'Actions related to'
             description: null
             use_operator: false
             operator: field_action_type_value_op
@@ -405,7 +420,7 @@ display:
           exposed: true
           expose:
             operator_id: field_address_country_code_op
-            label: País
+            label: Country
             description: null
             use_operator: false
             operator: field_address_country_code_op
@@ -447,7 +462,7 @@ display:
           exposed: true
           expose:
             operator_id: field_address_locality_op
-            label: Ciudad
+            label: City
             description: null
             use_operator: false
             operator: field_address_locality_op
@@ -745,12 +760,12 @@ display:
             previous: ‹‹
           expose:
             items_per_page: false
-            items_per_page_label: 'Artículos por página'
+            items_per_page_label: 'Items per page'
             items_per_page_options: '5, 10, 25, 50'
             items_per_page_options_all: false
-            items_per_page_options_all_label: '- Todo -'
+            items_per_page_options_all_label: '- All -'
             offset: false
-            offset_label: Compensar
+            offset_label: Offset
       filters:
         status:
           id: status
@@ -849,10 +864,11 @@ display:
         - 'config:field.storage.node.body'
   page_1:
     id: page_1
-    display_title: Página
+    display_title: Page
     display_plugin: page
     position: 1
     display_options:
+      rendering_language: '***LANGUAGE_language_interface***'
       exposed_block: true
       display_extenders: {  }
       path: actions
@@ -879,7 +895,7 @@ display:
         - 'config:field.storage.node.body'
   rest_export_1:
     id: rest_export_1
-    display_title: 'Exportación REST'
+    display_title: 'REST export'
     display_plugin: rest_export
     position: 3
     display_options:

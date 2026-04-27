@@ -1,34 +1,42 @@
-label: Accions
 display:
-  default:
-    display_title: 'Per defecte'
+  block_1:
     display_options:
-      title: Accions
+      fields:
+        created:
+          settings:
+            time_diff:
+              future_format: '@interval després'
+              past_format: 'fa @interval'
+      pager:
+        options:
+          expose:
+            items_per_page_label: 'Articles per pàgina'
+            items_per_page_options_all_label: '- Tot -'
+            offset_label: Compensar
+      title: 'Passant ara mateix...'
+    display_title: 'Passant ara mateix...'
+  default:
+    display_options:
+      exposed_form:
+        options:
+          exposed_sorts_label: 'Ordena per'
+          reset_button_label: Reinicia
+          sort_asc_label: Ascendent
+          sort_desc_label: Desc.
+          submit_button: Aplica
       fields:
         body:
           label: Acció
-        field_address_locality:
-          label: Ciutat
-        field_address_country_code:
-          label: País
         created:
           label: "Data de l'acció"
-      pager:
-        options:
-          tags:
-            first: '« Primer'
-            last: 'Últim »'
-          expose:
-            items_per_page_label: 'Elements per pàgina'
-            items_per_page_options_all_label: '- Tot -'
-            offset_label: Desplaçament
-      exposed_form:
-        options:
-          submit_button: Aplica
-          reset_button_label: Restablir
-          exposed_sorts_label: 'Ordena per'
-          sort_asc_label: Ascensor
-          sort_desc_label: Desc.
+          settings:
+            time_diff:
+              future_format: '@interval després'
+              past_format: 'fa @interval'
+        field_address_country_code:
+          label: País
+        field_address_locality:
+          label: Ciutat
       filters:
         field_action_type_value:
           expose:
@@ -39,20 +47,22 @@ display:
         field_address_locality:
           expose:
             label: Ciutat
-  block_1:
-    display_title: 'Minimissions actuals'
-    display_options:
-      title: 'Minimissions actuals'
       pager:
         options:
           expose:
-            items_per_page_label: 'Elements per pàgina'
+            items_per_page_label: 'Articles per pàgina'
             items_per_page_options_all_label: '- Tot -'
-            offset_label: Desplaçament
+            offset_label: Compensar
+          tags:
+            first: '« Primer'
+            last: 'Últim »'
+      title: Accions
+    display_title: 'Per defecte'
   page_1:
-    display_title: Pàgina
     display_options:
       menu:
         title: 'Accions globals'
+    display_title: Pàgina
   rest_export_1:
     display_title: 'Exportació REST'
+label: Accions

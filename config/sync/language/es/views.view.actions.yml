@@ -1,33 +1,42 @@
-label: Comportamiento
 display:
-  default:
-    display_title: 'Por defecto'
+  block_1:
     display_options:
-      title: Comportamiento
       fields:
-        body:
-          label: Acción
-        field_address_locality:
-          label: Ciudad
-        field_address_country_code:
-          label: País
         created:
-          label: 'Fecha de la acción'
+          settings:
+            time_diff:
+              future_format: '@interval después'
+              past_format: 'hace @interval'
       pager:
         options:
-          tags:
-            first: '" Primero'
-            last: 'Último "'
           expose:
             items_per_page_label: 'Artículos por página'
             items_per_page_options_all_label: '- Todo -'
             offset_label: Compensar
+      title: 'Pasando ahora mismo...'
+    display_title: 'Pasando ahora mismo...'
+  default:
+    display_options:
       exposed_form:
         options:
-          submit_button: Aplicar
-          reset_button_label: Reiniciar
           exposed_sorts_label: 'Ordenar por'
+          reset_button_label: Reiniciar
+          sort_asc_label: Ascendente
           sort_desc_label: Descripción
+          submit_button: Aplicar
+      fields:
+        body:
+          label: Acción
+        created:
+          label: 'Fecha de la acción'
+          settings:
+            time_diff:
+              future_format: '@interval después'
+              past_format: 'hace @interval'
+        field_address_country_code:
+          label: País
+        field_address_locality:
+          label: Ciudad
       filters:
         field_action_type_value:
           expose:
@@ -38,20 +47,22 @@ display:
         field_address_locality:
           expose:
             label: Ciudad
-  block_1:
-    display_title: 'Happening right now...'
-    display_options:
-      title: 'Happening right now...'
       pager:
         options:
           expose:
             items_per_page_label: 'Artículos por página'
             items_per_page_options_all_label: '- Todo -'
             offset_label: Compensar
+          tags:
+            first: '" Primero'
+            last: 'Último "'
+      title: Acciones
+    display_title: 'Por defecto'
   page_1:
-    display_title: Página
     display_options:
       menu:
         title: 'Acciones globales'
+    display_title: Página
   rest_export_1:
     display_title: 'Exportación REST'
+label: Acciones
