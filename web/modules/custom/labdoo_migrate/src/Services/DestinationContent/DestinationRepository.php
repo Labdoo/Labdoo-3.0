@@ -55,6 +55,13 @@ class DestinationRepository implements DestinationRepositoryInterface {
   protected array $failingIds = [];
 
   /**
+   * Whether indexing is enabled.
+   *
+   * @var bool
+   */
+  private bool $indexingEnabled = TRUE;
+
+  /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -726,6 +733,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
    */
   protected function saveEntity(EntityInterface $entity): bool {
 
+    if (!$this->indexingEnabled) {
+      $entity->search_api_skip_tracking = TRUE;
+    }
+
     try {
       if ($entity instanceof \Drupal\Core\Entity\RevisionableInterface) {
         $entity->setNewRevision(FALSE);
@@ -888,6 +899,14 @@ class DestinationRepository implements DestinationRepositoryInterface {
     $this->mainEntitiesCount = 0;
     $this->translationsCount = 0;
     $this->failingIds = [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setIndexingMode(bool $indexingEnabled): void {
+    $this->indexingEnabled = $indexingEnabled;
+    \Drupal::state()->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
   }
 
 }

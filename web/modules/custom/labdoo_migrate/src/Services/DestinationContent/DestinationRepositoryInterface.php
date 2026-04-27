@@ -105,4 +105,14 @@ interface DestinationRepositoryInterface {
    */
   public function setTotalCount(int $total): void;
 
+  /**
+   * Sets the indexing mode.
+   *
+   * @param bool $indexingEnabled
+   *   Whether to enable or disable indexing.
+   *
+   * @return void
+   */
+  public function setIndexingMode(bool $indexingEnabled): void;
+
 }

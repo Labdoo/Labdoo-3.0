@@ -231,6 +231,7 @@ class SynchronizerCommands extends DrushCommands {
         $destinationContentType = reset($destinationTypes);
         $this->destinationRepository->setOverrideMode($this->overrideMode);
         $this->destinationRepository->setTotalCount($total);
+        $this->destinationRepository->setIndexingMode(FALSE);
 
         $updatedEntities = 0;
         foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
@@ -270,6 +271,7 @@ class SynchronizerCommands extends DrushCommands {
         $this->logger->notice(sprintf('%d source entities found.', $total));
         $this->logger->notice('Updating the destination entities...');
         $this->destinationRepository->setTotalCount($total);
+        $this->destinationRepository->setIndexingMode(FALSE);
 
         $updatedEntities = 0;
         foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
@@ -435,6 +437,8 @@ class SynchronizerCommands extends DrushCommands {
    *   The process summary.
    */
   protected function tearDown(int $updated, array $summary): void {
+    $this->destinationRepository->setIndexingMode(TRUE);
+
     $mainEntitiesCount = $summary['main'] ?? 0;
     $translationsCount = $summary['translations'] ?? 0;
     $failingIdsArray = $summary['failing_ids'] ?? [];
