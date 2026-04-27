@@ -233,7 +233,24 @@ content:
       match_limit: 10
       size: 60
       placeholder: ''
-    third_party_settings: {  }
+    third_party_settings:
+      conditional_fields:
+        105b9655-8a4c-4b3c-a2a1-6bdc5ddd4c2b:
+          entity_type: node
+          bundle: dootronic
+          dependee: field_dootronic_status
+          settings:
+            state: required
+            reset: true
+            condition: value
+            grouping: AND
+            values_set: 3
+            value: ''
+            values: "S3\r\nS4\r\nS7\r\nS8\r\nS9\r\nT1"
+            value_form: {  }
+            effect: show
+            effect_options: {  }
+            selector: ''
   field_hard_drive:
     type: number
     weight: 30
@@ -402,6 +419,11 @@ content:
     settings:
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  url_redirects:
+    weight: 50
+    region: content
+    settings: {  }
     third_party_settings: {  }
 hidden:
   created: true
