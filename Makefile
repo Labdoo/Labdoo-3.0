@@ -55,6 +55,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@echo ""
 	@echo "$(GREEN)[ Maintenance ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "backup" "💾 Generate a database backup."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "backup-slim" "📉 Generate a slim database backup (no cache/watchdog data)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "backup-files" "📁 Generate a site files backup."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "import" "📥 Import a database backup (e.g., make import file=dump.sql[.gz])."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "fix-permissions" "🔑 Fix file and folder permissions."
@@ -155,7 +156,7 @@ deploy-database: ## 🗄️ Sync database state (backup + deploy).
 backup: ## 💾 Generate a database backup.
 	@echo "$(CYAN)💾 Generating database backup...$(RESET)"
 	mkdir -p backups
-	@if $(DRUSH_COMMAND) sql-dump --gzip --skip-tables-key=common --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false" 2>/dev/null; then \
+	@if $(DRUSH_COMMAND) sql-dump --gzip --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false" 2>/dev/null; then \
 		echo "$(GREEN)✅ Backup generated with Drush.$(RESET)"; \
 	else \
 		echo "$(YELLOW)⚠️ Drush failed, trying native mysqldump...$(RESET)"; \
@@ -165,6 +166,25 @@ backup: ## 💾 Generate a database backup.
 			echo "$(GREEN)✅ Backup generated successfully (native). File: $$BACKUP_FILE$(RESET)"; \
 		else \
 			echo "$(RED)❌ Error generating backup (native).$(RESET)"; \
+			exit 1; \
+		fi \
+	fi
+
+.PHONY: backup-slim
+backup-slim: ## 📉 Generate a slim database backup (no cache/watchdog data).
+	@echo "$(CYAN)📉 Generating slim database backup...$(RESET)"
+	mkdir -p backups
+	@if $(DRUSH_COMMAND) sql-dump --gzip --structure-tables-key=common --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false" 2>/dev/null; then \
+		echo "$(GREEN)✅ Slim backup generated with Drush.$(RESET)"; \
+	else \
+		echo "$(YELLOW)⚠️ Drush failed, trying native mysqldump with exclusions...$(RESET)"; \
+		BACKUP_FILE="backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql.gz"; \
+		EXCLUDES="--ignore-table=$(DB_NAME).cache_% --ignore-table=$(DB_NAME).watchdog --ignore-table=$(DB_NAME).history --ignore-table=$(DB_NAME).sessions --ignore-table=$(DB_NAME).search_% --ignore-table=$(DB_NAME).webprofiler"; \
+		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p$(DB_PASSWORD) $(DB_NAME) --single-transaction=false $$EXCLUDES | gzip > $$BACKUP_FILE; \
+		if [ $$? -eq 0 ]; then \
+			echo "$(GREEN)✅ Slim backup generated successfully (native). File: $$BACKUP_FILE$(RESET)"; \
+		else \
+			echo "$(RED)❌ Error generating slim backup (native).$(RESET)"; \
 			exit 1; \
 		fi \
 	fi
