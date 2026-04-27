@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations for the Labdoo Migrate module.
+ */
+
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * Prevents Search API from indexing entities if the migration is running.
+ */
+function labdoo_migrate_entity_presave(EntityInterface $entity): void {
+  if ($entity instanceof ContentEntityInterface) {
+    // We use a static variable to avoid expensive service calls if possible,
+    // but the most reliable way is to check the repository state if it's available.
+    // However, since we want this to be global and easy, we can check a state variable
+    // or just rely on the search_api_skip_tracking property being set.
+    
+    // If the global state 'labdoo_migrate.disable_indexing' is set, we skip tracking.
+    if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
+      $entity->search_api_skip_tracking = TRUE;
+    }
+  }
+}
