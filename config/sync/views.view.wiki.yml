@@ -24,18 +24,18 @@ display:
     display_options:
       title: Wiki
       fields:
-        label:
-          id: label
+        id:
+          id: id
           table: mini_wiki_page_field_data
-          field: label
+          field: id
           relationship: none
           group_type: group
           admin_label: ''
           entity_type: null
-          entity_field: label
+          entity_field: id
           plugin_id: field
-          label: Title
-          exclude: false
+          label: ''
+          exclude: true
           alter:
             alter_text: false
             text: ''
@@ -78,7 +78,72 @@ display:
           click_sort_column: value
           type: string
           settings:
-            link_to_entity: true
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        label:
+          id: label
+          table: mini_wiki_page_field_data
+          field: label
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: null
+          entity_field: label
+          plugin_id: field
+          label: Title
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: true
+            path: 'wiki-page/{{ id }}'
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -323,8 +388,8 @@ display:
           alter:
             alter_text: false
             text: ''
-            make_link: false
-            path: ''
+            make_link: true
+            path: 'wiki-page/{{ id }}/edit?destination=wiki'
             absolute: false
             external: false
             replace_spaces: false
@@ -397,6 +462,21 @@ display:
       sorts: {  }
       arguments: {  }
       filters:
+        default_langcode:
+          id: default_langcode
+          table: mini_wiki_page_field_data
+          field: default_langcode
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: mini_wiki_page
+          entity_field: default_langcode
+          plugin_id: boolean
+          value: '1'
+          group: 1
+          exposed: false
+          expose:
+            operator: ''
         parent_verf:
           id: parent_verf
           table: mini_wiki_page_field_data
@@ -497,6 +577,7 @@ display:
           row_class: ''
           default_row_class: true
           columns:
+            id: id
             label: label
             langcode: langcode
             created: created
@@ -504,6 +585,13 @@ display:
             edit_mini_wiki_page: edit_mini_wiki_page
           default: '-1'
           info:
+            id:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
             label:
               sortable: true
               default_sort_order: asc
@@ -567,8 +655,8 @@ display:
           admin_label: ''
           plugin_id: text_custom
           empty: true
-          content: '<a href="/wiki-page/add?destination=/wiki" class="button">Add a new wiki page</a>'
-          tokenize: false
+          content: '<a href="wiki-page/add?destination=wiki" class="button">Add a new wiki page</a>'
+          tokenize: true
       footer: {  }
       display_extenders: {  }
     cache_metadata:
@@ -588,7 +676,7 @@ display:
     position: 1
     display_options:
       display_description: ''
-      rendering_language: '***LANGUAGE_entity_translation***'
+      rendering_language: '***LANGUAGE_language_interface***'
       exposed_block: true
       display_extenders: {  }
       path: wiki
@@ -618,18 +706,18 @@ display:
     position: 1
     display_options:
       fields:
-        label:
-          id: label
+        id:
+          id: id
           table: mini_wiki_page_field_data
-          field: label
+          field: id
           relationship: none
           group_type: group
           admin_label: ''
           entity_type: null
-          entity_field: label
+          entity_field: id
           plugin_id: field
-          label: Title
-          exclude: false
+          label: ''
+          exclude: true
           alter:
             alter_text: false
             text: ''
@@ -672,7 +760,72 @@ display:
           click_sort_column: value
           type: string
           settings:
-            link_to_entity: true
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        label:
+          id: label
+          table: mini_wiki_page_field_data
+          field: label
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: null
+          entity_field: label
+          plugin_id: field
+          label: Title
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: true
+            path: 'wiki-page/{{ id }}'
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -917,8 +1070,8 @@ display:
           alter:
             alter_text: false
             text: ''
-            make_link: false
-            path: ''
+            make_link: true
+            path: 'wiki-page/{{ id }}/edit?destination=wiki'
             absolute: false
             external: false
             replace_spaces: false
@@ -1133,7 +1286,7 @@ display:
         filters: false
         filter_groups: false
       display_description: ''
-      rendering_language: '***LANGUAGE_entity_translation***'
+      rendering_language: '***LANGUAGE_language_interface***'
       exposed_block: true
       display_extenders: {  }
       path: wiki/search
