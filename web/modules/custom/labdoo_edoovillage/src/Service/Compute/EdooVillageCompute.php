@@ -22,27 +22,40 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
     // 1. Obtain unique ID and Prefix.
     // Follow the logic from v2: labdoo_lib_node_presave.
     $edoovillagePrefix = "";
-    $edoovillageWords = explode(' ', $title);
+    $extractedId = NULL;
+
+    // Try to extract ID from current title.
+    if (preg_match('/Edoovillage\s+#(\d+)/i', $title, $matches)) {
+      $extractedId = (int) $matches[1];
+    }
 
     if (!$entity->isNew()) {
       // This is an update of an existing edoovillage.
-      if (!isset($edoovillageWords[0]) || $edoovillageWords[0] !== "Edoovillage") {
-        // Support legacy naming convention for older edoovillages (name without IDs).
-        $edoovillagePrefix = "";
+      $originalTitle = isset($entity->original) ? $entity->original->getTitle() : '';
+
+      // Try to extract ID from original title.
+      $originalId = NULL;
+      if (preg_match('/Edoovillage\s+#(\d+)/i', $originalTitle, $matches)) {
+        $originalId = (int) $matches[1];
+      }
+
+      if ($originalId !== NULL) {
+        // The original title was standard, so we MUST keep the ID regardless of current title.
+        $edoovillagePrefix = "Edoovillage #" . $originalId . " - ";
+      }
+      elseif ($extractedId !== NULL) {
+        // The original was legacy but the user is trying to make it standard by adding an ID.
+        $edoovillagePrefix = "Edoovillage #" . $extractedId . " - ";
       }
       else {
-        // Preserve the existing ID.
-        if (isset($edoovillageWords[1])) {
-          $edoovillageId = explode('#', $edoovillageWords[1]);
-          if (isset($edoovillageId[1])) {
-            $edoovillagePrefix = "Edoovillage #" . $edoovillageId[1] . " - ";
-          }
-        }
-
-        // If for some reason we couldn't extract the ID from "Edoovillage ...",
-        // we might need to allocate one (though v2 assumes it's there).
-        if (empty($edoovillagePrefix)) {
+        // Check if the current title starts with "Edoovillage" even without ID.
+        // If it does, we should probably assign an ID if it's missing.
+        if (stripos(trim($title), 'Edoovillage') === 0) {
           $edoovillagePrefix = "Edoovillage #" . $this->allocateNewId() . " - ";
+        }
+        else {
+          // Support legacy naming convention for older edoovillages (name without IDs).
+          $edoovillagePrefix = "";
         }
       }
     }
@@ -80,7 +93,18 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
     // v2 uses field_project_summary. In v3 config it is field_project_description.
     $summary = $this->getProjectSummary($entity);
 
-    $finalTitle = $edoovillagePrefix . ": " . $summary;
+    if (empty($edoovillagePrefix)) {
+      // For legacy titles, we want to ensure we don't accidentally mess up the title
+      // if it was manually edited to something completely different.
+      $finalTitle = $title;
+    }
+    else {
+      // If we have a prefix (Edoovillage #ID - Country, City), we concatenate the summary.
+      // We also want to make sure the summary isn't already part of the title
+      // in a way that would cause double concatenation, although setEdooVillageTitle
+      // usually replaces the whole title.
+      $finalTitle = $edoovillagePrefix . ": " . $summary;
+    }
     $entity->setTitle($finalTitle);
   }
 
