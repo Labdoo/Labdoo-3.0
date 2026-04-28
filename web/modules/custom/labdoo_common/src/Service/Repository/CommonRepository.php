@@ -188,6 +188,30 @@ class CommonRepository {
   }
 
   /**
+   * Gets the total number of objects of a given bundle.
+   *
+   * @param string $bundle
+   *   The bundle.
+   *
+   * @return int
+   *   The total number of objects.
+   */
+  public function getBundleCount(string $bundle): int {
+    $query = $this->database->select('node_field_data', 'n');
+    $query->condition('n.type', $bundle);
+    try {
+      return (int) $query->countQuery()->execute()->fetchField();
+    }
+    catch (\Exception $e) {
+      $this->logger->error('Error getting bundle count for %bundle: %message', [
+        '%bundle' => $bundle,
+        '%message' => $e->getMessage(),
+      ]);
+      return 0;
+    }
+  }
+
+  /**
    * Retrieves the total edoovillages.
    *
    * @param int|null $userId

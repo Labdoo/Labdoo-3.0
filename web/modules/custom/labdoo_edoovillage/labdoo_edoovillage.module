@@ -66,6 +66,23 @@ function labdoo_edoovillage_form_alter(&$form, FormStateInterface $form_state, $
 }
 
 /**
+ * Implements hook_entity_presave().
+ */
+function labdoo_edoovillage_entity_presave(EntityInterface $entity) {
+  if ($entity->bundle() !== 'edoovillage') {
+    return;
+  }
+
+  // If this is a new edoovillage node, its title will be set in EdooVillageCompute::setEdooVillageTitle
+  // which is called below. We no longer need to assign the ID here to avoid duplication
+  // and ensure consistency between new and existing nodes.
+
+  /** @var \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface $edoovillageCompute */
+  $edoovillageCompute = \Drupal::service('labdoo_edoovillage.compute');
+  $edoovillageCompute->setEdooVillageTitle($entity);
+}
+
+/**
  * Implements hook_entity_insert().
  */
 function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
@@ -73,6 +90,7 @@ function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
 
   if ($entity->bundle() === 'edoovillage') {
     labdoo_gallery_create_or_update($entity);
+    __labdoo_edoovillage_enqueue_geocoding($entity);
   }
 }
 
@@ -84,6 +102,7 @@ function labdoo_edoovillage_entity_update(EntityInterface $entity) {
 
   if ($entity->bundle() === 'edoovillage') {
     labdoo_gallery_create_or_update($entity);
+    __labdoo_edoovillage_enqueue_geocoding($entity);
   }
 }
 
@@ -91,34 +110,7 @@ function labdoo_edoovillage_entity_update(EntityInterface $entity) {
  * Implements hook_preprocess_page_title().
  */
 function labdoo_edoovillage_preprocess_page_title(&$variables) {
-  $node = \Drupal::routeMatch()->getParameter('node');
-
-  // Check if we're on a node page and it's an edoovillage node
-  if ($node instanceof NodeInterface && $node->bundle() === 'edoovillage') {
-    // Get the node ID
-    $nid = $node->id();
-
-    // Get the country and city
-    $country = '';
-    if (!$node->get('field_country')->isEmpty()) {
-      $country_code = $node->get('field_country')->value;
-      // Get the country name from the country code
-      $country_manager = \Drupal::service('country_manager');
-      $countries = $country_manager->getList();
-      $country = $countries[$country_code] ?? $country_code;
-    }
-
-
-    // Remove any potential "Edoovillage #NNN - " prefix from the title
-    $nodeTitle = $node->getTitle();
-    if (preg_match('/^Edoovillage #\d+ - /', $nodeTitle)) {
-      $nodeTitle = preg_replace('/^Edoovillage #\d+ - /', '', $nodeTitle);
-    }
-
-    // Set the title in the format: "Edoovillage #{{nid}} - {{country}}: {{title}}"
-    $title = sprintf('Edoovillage #%d - %s: %s', $nid, $country, $nodeTitle);
-    $variables['title'] = $title;
-  }
+  // We no longer need to override the title here as it's correctly persisted in the node.
 }
 
 /**
@@ -161,4 +153,35 @@ function __labdoo_edoovillage_clear_cachetag(EntityInterface $entity): void {
   /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
   $eventDispatcher = \Drupal::service('event_dispatcher');
   $eventDispatcher->dispatch($event, InvalidateCacheTagsEvent::EVENT_NAME);
+}
+
+/**
+ * Enqueue geocoding task if needed.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ */
+function __labdoo_edoovillage_enqueue_geocoding(EntityInterface $entity): void {
+  if ($entity->bundle() !== 'edoovillage') {
+    return;
+  }
+
+  $countryCode = !$entity->get('field_country')->isEmpty() ? $entity->get('field_country')->value : '';
+  $nodeCity = '';
+  if ($entity->hasField('field_city') && !$entity->get('field_city')->isEmpty()) {
+    $nodeCity = $entity->get('field_city')->value;
+  }
+
+  // If city or country are missing and we have coordinates, enqueue.
+  if (empty($countryCode) || empty($nodeCity)) {
+    if ($entity->hasField('field_location') && !$entity->get('field_location')->isEmpty()) {
+      $locationData = $entity->get('field_location')->first()->getValue();
+      if (isset($locationData['lat']) && isset($locationData['lon'])) {
+        /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
+        $queueFactory = \Drupal::service('queue');
+        $queue = $queueFactory->get('labdoo_edoovillage_geocoding');
+        $queue->createItem(['nid' => $entity->id()]);
+      }
+    }
+  }
 }
