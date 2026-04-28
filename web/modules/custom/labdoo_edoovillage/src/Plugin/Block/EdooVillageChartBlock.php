@@ -5,7 +5,7 @@ namespace Drupal\labdoo_edoovillage\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\labdoo_common\Service\Repository\ViewRepository;
+use Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,14 +25,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The chart block generator.
+   * The EdooVillage repository.
    *
-   * @var \Drupal\labdoo_common\Service\Repository\ViewRepository
+   * @var \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface
    */
-  protected ViewRepository $viewRepository;
+  protected EdooVillageRepositoryInterface $edoovillageRepository;
 
   /**
-   * DootronicsChartBlock constructor.
+   * EdooVillageChartBlock constructor.
    *
    * @param array $configuration
    *   The configuration array.
@@ -40,17 +40,17 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
    *   The plugin ID.
    * @param mixed $plugin_definition
    *   The plugin definition.
-   * @param \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository
-   *   The View repository.
+   * @param \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface $edoovillageRepository
+   *   The EdooVillage repository.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    ViewRepository $viewRepository
+    EdooVillageRepositoryInterface $edoovillageRepository
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->viewRepository = $viewRepository;
+    $this->edoovillageRepository = $edoovillageRepository;
   }
 
   /**
@@ -64,14 +64,14 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
     $plugin_id,
     $plugin_definition
   ) {
-    /** @var \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository */
-    $viewRepository = $container->get('labdoo_common.repository.view');
+    /** @var \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface $edoovillageRepository */
+    $edoovillageRepository = $container->get('labdoo_edoovillage.repository');
 
     return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $viewRepository
+      $edoovillageRepository
     );
   }
 
@@ -79,10 +79,6 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function build() {
-    $needed = 0;
-    $delivered = 0;
-    $inTransit = 0;
-    $remaining = 0;
     $userId = \Drupal::request()->query->get('u');
     $mine = \Drupal::request()->query->get('mine');
     $filterUserId = NULL;
@@ -91,32 +87,17 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
       $filterUserId = (int) $userId;
     }
     elseif (!empty($mine) && (int) $mine === 1) {
-      $filterUserId = (int) \Drupal::currentUser()->id();
+      $filterUserId = \Drupal::currentUser()->id();
     }
 
-    $results = $this->viewRepository->getResults(
-      'edoovillages',
-      'page_1'
-    );
-
-    foreach ($results as $row) {
-      $edooVillage = $row->_entity;
-      if ($edooVillage === NULL) {
-        continue;
-      }
-
-      $needed += $edooVillage->get('field_number_of_laptops_needed')->value;
-      $delivered += $edooVillage->get('field_dootronics_delivered')->value;
-      $inTransit += $edooVillage->get('field_dootronics_in_transit')->value;
-      $remaining += $edooVillage->get('field_dootronics_remaining')->value;
-    }
+    $stats = $this->edoovillageRepository->getStats($filterUserId);
 
     return [
       '#theme' => 'edoovillage_chart_block_block',
-      '#needed' => $needed,
-      '#delivered' => $delivered,
-      '#in_transit' => $inTransit,
-      '#remaining' => $remaining,
+      '#needed' => $stats['needed'],
+      '#delivered' => $stats['delivered'],
+      '#in_transit' => $stats['in_transit'],
+      '#remaining' => $stats['remaining'],
       '#cache' => [
         'max-age' => Cache::PERMANENT,
         'contexts' => [

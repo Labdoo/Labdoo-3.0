@@ -5,7 +5,7 @@ namespace Drupal\labdoo_hub\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\labdoo_common\Service\Repository\ViewRepository;
+use Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,14 +25,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The chart block generator.
+   * The Hub repository.
    *
-   * @var \Drupal\labdoo_common\Service\Repository\ViewRepository
+   * @var \Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface
    */
-  protected ViewRepository $viewRepository;
+  protected HubRepositoryInterface $hubRepository;
 
   /**
-   * DootronicsChartBlock constructor.
+   * HubChartBlock constructor.
    *
    * @param array $configuration
    *   The configuration array.
@@ -40,17 +40,17 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
    *   The plugin ID.
    * @param mixed $plugin_definition
    *   The plugin definition.
-   * @param \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository
-   *   The View repository.
+   * @param \Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface $hubRepository
+   *   The Hub repository.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    ViewRepository $viewRepository
+    HubRepositoryInterface $hubRepository
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->viewRepository = $viewRepository;
+    $this->hubRepository = $hubRepository;
   }
 
   /**
@@ -64,14 +64,14 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
     $plugin_id,
     $plugin_definition
   ) {
-    /** @var \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository */
-    $viewRepository = $container->get('labdoo_common.repository.view');
+    /** @var \Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface $hubRepository */
+    $hubRepository = $container->get('labdoo_hub.repository');
 
     return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $viewRepository
+      $hubRepository
     );
   }
 
@@ -79,10 +79,6 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
    * {@inheritdoc}
    */
   public function build() {
-    $needed = 0;
-    $delivered = 0;
-    $inTransit = 0;
-    $remaining = 0;
     $userId = \Drupal::request()->query->get('u');
     $mine = \Drupal::request()->query->get('mine');
     $filterUserId = NULL;
@@ -94,29 +90,14 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
       $filterUserId = (int) \Drupal::currentUser()->id();
     }
 
-    $results = $this->viewRepository->getResults(
-      'hubs_dashboard',
-      'page_1'
-    );
-
-    foreach ($results as $row) {
-      $hub = $row->_entity;
-      if ($hub === NULL) {
-        continue;
-      }
-
-      $needed += $hub->get('field_dootronics_needed')->value;
-      $delivered += $hub->get('field_dootronics_delivered')->value;
-      $inTransit += $hub->get('field_dootronics_in_transit')->value;
-      $remaining += $hub->get('field_dootronics_remaining')->value;
-    }
+    $stats = $this->hubRepository->getStats($filterUserId);
 
     return [
       '#theme' => 'hub_chart_block_block',
-      '#needed' => $needed,
-      '#delivered' => $delivered,
-      '#in_transit' => $inTransit,
-      '#remaining' => $remaining,
+      '#needed' => $stats['needed'],
+      '#delivered' => $stats['delivered'],
+      '#in_transit' => $stats['in_transit'],
+      '#remaining' => $stats['remaining'],
       '#cache' => [
         'max-age' => Cache::PERMANENT,
         'contexts' => [

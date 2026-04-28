@@ -5,7 +5,7 @@ namespace Drupal\labdoo_dootronics\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\labdoo_common\Service\Repository\ViewRepository;
+use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,11 +25,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DootronicsChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The chart block generator.
+   * The Dootronic repository.
    *
-   * @var \Drupal\labdoo_common\Service\Repository\ViewRepository
+   * @var \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface
    */
-  protected ViewRepository $viewRepository;
+  protected DootronicRepositoryInterface $dootronicRepository;
 
   /**
    * DootronicsChartBlock constructor.
@@ -40,17 +40,17 @@ class DootronicsChartBlock extends BlockBase implements ContainerFactoryPluginIn
    *   The plugin ID.
    * @param mixed $plugin_definition
    *   The plugin definition.
-   * @param \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository
-   *   The View repository.
+   * @param \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository
+   *   The Dootronic repository.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    ViewRepository $viewRepository
+    DootronicRepositoryInterface $dootronicRepository
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->viewRepository = $viewRepository;
+    $this->dootronicRepository = $dootronicRepository;
   }
 
   /**
@@ -64,14 +64,14 @@ class DootronicsChartBlock extends BlockBase implements ContainerFactoryPluginIn
     $plugin_id,
     $plugin_definition
   ) {
-    /** @var \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository */
-    $viewRepository = $container->get('labdoo_common.repository.view');
+    /** @var \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository */
+    $dootronicRepository = $container->get('labdoo_dootronics.repository');
 
     return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $viewRepository
+      $dootronicRepository
     );
   }
 
@@ -133,20 +133,11 @@ class DootronicsChartBlock extends BlockBase implements ContainerFactoryPluginIn
       $filterUserId = (int) \Drupal::currentUser()->id();
     }
 
-    $results = $this->viewRepository->getResults(
-      'dootronics_dashboard',
-      'page_1'
-    );
+    $stats = $this->dootronicRepository->getStats($filterUserId);
 
-    foreach ($results as $row) {
-      $dootronic = $row->_entity;
-      if ($dootronic === NULL) {
-        continue;
-      }
-
-      $status = $dootronic->get('field_dootronic_status')->value;
+    foreach ($stats as $status => $count) {
       if (isset($statusInfo[$status])) {
-        ++$statusInfo[$status]['count'];
+        $statusInfo[$status]['count'] = (int) $count;
       }
     }
 

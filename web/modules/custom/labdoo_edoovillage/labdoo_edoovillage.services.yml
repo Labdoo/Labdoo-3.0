@@ -9,6 +9,6 @@ services:
     arguments: ['@lock.persistent', '@database', '@labdoo_common.repository.common']
   labdoo_edoovillage.repository:
     class: Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepository
-    arguments: ['@labdoo_edoovillage.sequence_manager']
+    arguments: ['@labdoo_edoovillage.sequence_manager', '@database']
   labdoo_edoovillage.compute:
     class: Drupal\labdoo_edoovillage\Service\Compute\EdooVillageCompute

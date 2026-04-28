@@ -6,7 +6,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
-use Drupal\labdoo_common\Service\Repository\ViewRepository;
+use Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,11 +26,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The chart block generator.
+   * The Dootrip repository.
    *
-   * @var \Drupal\labdoo_common\Service\Repository\ViewRepository
+   * @var \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface
    */
-  protected ViewRepository $viewRepository;
+  protected DootripRepositoryInterface $dootripRepository;
 
   /**
    * The common repository.
@@ -40,7 +40,7 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
   protected CommonRepository $commonRepository;
 
   /**
-   * DootronicsChartBlock constructor.
+   * DootripChartBlock constructor.
    *
    * @param array $configuration
    *   The configuration array.
@@ -48,18 +48,20 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
    *   The plugin ID.
    * @param mixed $plugin_definition
    *   The plugin definition.
-   * @param \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository
-   *   The View repository.
+   * @param \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface $dootripRepository
+   *   The Dootrip repository.
+   * @param \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository
+   *   The common repository.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    ViewRepository $viewRepository,
+    DootripRepositoryInterface $dootripRepository,
     CommonRepository $commonRepository
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->viewRepository = $viewRepository;
+    $this->dootripRepository = $dootripRepository;
     $this->commonRepository = $commonRepository;
   }
 
@@ -74,8 +76,8 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
     $plugin_id,
     $plugin_definition
   ) {
-    /** @var \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository */
-    $viewRepository = $container->get('labdoo_common.repository.view');
+    /** @var \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface $dootripRepository */
+    $dootripRepository = $container->get('labdoo_dootrip.repository');
     /** @var \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository */
     $commonRepository = $container->get('labdoo_common.repository.common');
 
@@ -83,7 +85,7 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $viewRepository,
+      $dootripRepository,
       $commonRepository
     );
   }
@@ -92,10 +94,6 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
    * {@inheritdoc}
    */
   public function build() {
-    $capacity = 0;
-    $inTransit = 0;
-    $transported = 0;
-
     $userId = \Drupal::request()->query->get('u');
     $mine = \Drupal::request()->query->get('mine');
     $filterUserId = NULL;
@@ -107,29 +105,14 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
       $filterUserId = (int) \Drupal::currentUser()->id();
     }
 
-    $results = $this->viewRepository->getResults(
-      'dootrips_dashboard',
-      'page_1'
-    );
-
-    foreach ($results as $row) {
-      $dootrip = $row->_entity;
-      if ($dootrip === NULL) {
-        continue;
-      }
-
-      $capacity += $dootrip->get('field_dootrip_capacity')->value;
-      $inTransit += $dootrip->get('field_dootronics_in_transit')->value;
-      $transported += $dootrip->get('field_dootronics_delivered')->value;
-    }
-
+    $stats = $this->dootripRepository->getStats($filterUserId);
     $total = $this->commonRepository->getDootripsCount($filterUserId);
 
     return [
       '#theme' => 'dootrip_chart_block_block',
-      '#capacity' => $capacity,
-      '#in_transit' => $inTransit,
-      '#transported' => $transported,
+      '#capacity' => $stats['capacity'],
+      '#in_transit' => $stats['in_transit'],
+      '#transported' => $stats['transported'],
       '#total' => $total,
       '#cache' => [
         'max-age' => Cache::PERMANENT,

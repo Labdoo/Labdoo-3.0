@@ -22,4 +22,15 @@ interface EdooVillageRepositoryInterface {
    */
   public function commit(): void;
 
+  /**
+   * Retrieves aggregated stats for EdooVillages.
+   *
+   * @param int|null $userId
+   *   Filter by user ID if provided.
+   *
+   * @return array
+   *   An array with stats: needed, delivered, in_transit, remaining.
+   */
+  public function getStats(?int $userId = NULL): array;
+
 }

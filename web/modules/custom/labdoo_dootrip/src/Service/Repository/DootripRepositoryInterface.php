@@ -110,4 +110,15 @@ interface DootripRepositoryInterface {
    */
   public function getRelatedEdooVillages(int $dootripId): array;
 
+  /**
+   * Retrieves aggregated stats for dootrips.
+   *
+   * @param int|null $userId
+   *   Filter by user ID if provided.
+   *
+   * @return array
+   *   An array with stats: capacity, in_transit, transported.
+   */
+  public function getStats(?int $userId = NULL): array;
+
 }

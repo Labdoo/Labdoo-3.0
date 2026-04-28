@@ -2,3 +2,6 @@ services:
   labdoo_hub.export.csv:
     class: Drupal\labdoo_hub\Service\Export\CsvExport
     arguments: ['@labdoo_common.repository.view']
+  labdoo_hub.repository:
+    class: Drupal\labdoo_hub\Service\Repository\HubRepository
+    arguments: ['@database']

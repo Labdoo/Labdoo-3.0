@@ -236,4 +236,33 @@ class DootripRepository implements DootripRepositoryInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getStats(?int $userId = NULL): array {
+    $query = $this->database->select('node_field_data', 'n');
+    $query->condition('n.type', 'dootrip');
+    $query->condition('n.status', 1);
+
+    if ($userId !== NULL) {
+      $query->condition('n.uid', $userId);
+    }
+
+    $query->leftJoin('node__field_dootrip_capacity', 'f_capacity', 'n.nid = f_capacity.entity_id AND f_capacity.deleted = 0');
+    $query->leftJoin('node__field_dootronics_in_transit', 'f_transit', 'n.nid = f_transit.entity_id AND f_transit.deleted = 0');
+    $query->leftJoin('node__field_dootronics_delivered', 'f_delivered', 'n.nid = f_delivered.entity_id AND f_delivered.deleted = 0');
+
+    $query->addExpression('SUM(f_capacity.field_dootrip_capacity_value)', 'capacity');
+    $query->addExpression('SUM(f_transit.field_dootronics_in_transit_value)', 'in_transit');
+    $query->addExpression('SUM(f_delivered.field_dootronics_delivered_value)', 'transported');
+
+    $result = $query->execute()->fetchAssoc();
+
+    return [
+      'capacity' => (int) ($result['capacity'] ?? 0),
+      'in_transit' => (int) ($result['in_transit'] ?? 0),
+      'transported' => (int) ($result['transported'] ?? 0),
+    ];
+  }
+
 }

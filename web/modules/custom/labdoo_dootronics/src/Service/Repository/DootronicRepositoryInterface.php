@@ -249,4 +249,15 @@ interface DootronicRepositoryInterface {
     bool $edoovillageOnly
   ): void;
 
+  /**
+   * Retrieves aggregated stats for dootronics by status.
+   *
+   * @param int|null $userId
+   *   Filter by user ID if provided.
+   *
+   * @return array
+   *   An array with stats keyed by status.
+   */
+  public function getStats(?int $userId = NULL): array;
+
 }

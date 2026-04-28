@@ -764,4 +764,26 @@ class DootronicRepository implements DootronicRepositoryInterface {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getStats(?int $userId = NULL): array {
+    $query = $this->database->select('node_field_data', 'n');
+    $query->condition('n.type', 'dootronic');
+    $query->condition('n.status', 1);
+
+    if ($userId !== NULL) {
+      $query->condition('n.uid', $userId);
+    }
+
+    $query->innerJoin('node__field_dootronic_status', 'f_status', 'n.nid = f_status.entity_id AND f_status.deleted = 0');
+    $query->fields('f_status', ['field_dootronic_status_value']);
+    $query->addExpression('COUNT(n.nid)', 'count');
+    $query->groupBy('f_status.field_dootronic_status_value');
+
+    $results = $query->execute()->fetchAllKeyed();
+
+    return $results;
+  }
+
 }
