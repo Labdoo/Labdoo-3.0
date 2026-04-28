@@ -21,7 +21,6 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
 
     // 1. Obtain unique ID and Prefix.
     // Follow the logic from v2: labdoo_lib_node_presave.
-    $edoovillagePrefix = "";
     $extractedId = NULL;
 
     // Try to extract ID from current title.

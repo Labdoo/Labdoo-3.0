@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.edoovillage.field_additional_files
     - field.field.node.edoovillage.field_additional_info_language
+    - field.field.node.edoovillage.field_city
     - field.field.node.edoovillage.field_country
     - field.field.node.edoovillage.field_doojects_additional_notes
     - field.field.node.edoovillage.field_dootronics_delivered
@@ -72,6 +73,7 @@ third_party_settings:
         - field_additional_info_language
         - field_location
         - field_country
+        - field_city
       label: 'Geographic information'
       region: content
       parent_name: group_edoovillage
@@ -165,9 +167,17 @@ content:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
+  field_city:
+    type: string_textfield
+    weight: 21
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_country:
     type: address_country_default
-    weight: 21
+    weight: 20
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -251,7 +261,7 @@ content:
     third_party_settings: {  }
   field_location:
     type: geofield_map
-    weight: 20
+    weight: 19
     region: content
     settings:
       html5_geolocation: false
@@ -398,6 +408,11 @@ content:
     settings:
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  url_redirects:
+    weight: 3
+    region: content
+    settings: {  }
     third_party_settings: {  }
 hidden:
   created: true

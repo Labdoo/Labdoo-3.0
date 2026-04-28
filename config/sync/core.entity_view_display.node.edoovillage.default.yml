@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.edoovillage.field_additional_files
     - field.field.node.edoovillage.field_additional_info_language
+    - field.field.node.edoovillage.field_city
     - field.field.node.edoovillage.field_country
     - field.field.node.edoovillage.field_doojects_additional_notes
     - field.field.node.edoovillage.field_dootronics_delivered
@@ -74,6 +75,7 @@ third_party_settings:
         - field_additional_info_language
         - field_location
         - field_country
+        - field_city
       label: 'Geographic information'
       parent_name: group_edoovillage
       region: content
@@ -161,12 +163,20 @@ content:
     third_party_settings: {  }
     weight: 16
     region: content
+  field_city:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 19
+    region: content
   field_country:
     type: address_country_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 19
+    weight: 18
     region: content
   field_doojects_additional_notes:
     type: basic_string
@@ -882,7 +892,7 @@ content:
         bounceAtZoomLimits: true
       data_provider_settings: {  }
     third_party_settings: {  }
-    weight: 18
+    weight: 17
     region: content
   field_number_of_laptops_needed:
     type: number_integer

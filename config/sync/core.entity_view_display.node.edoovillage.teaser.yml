@@ -6,6 +6,7 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.edoovillage.field_additional_files
     - field.field.node.edoovillage.field_additional_info_language
+    - field.field.node.edoovillage.field_city
     - field.field.node.edoovillage.field_country
     - field.field.node.edoovillage.field_doojects_additional_notes
     - field.field.node.edoovillage.field_dootronics_delivered
@@ -48,6 +49,7 @@ content:
 hidden:
   field_additional_files: true
   field_additional_info_language: true
+  field_city: true
   field_country: true
   field_doojects_additional_notes: true
   field_dootronics_delivered: true

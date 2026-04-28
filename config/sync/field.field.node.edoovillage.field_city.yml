@@ -1,0 +1,19 @@
+uuid: e6a4d739-1c97-4305-ac6c-aeaab1afa607
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_city
+    - node.type.edoovillage
+id: node.edoovillage.field_city
+field_name: field_city
+entity_type: node
+bundle: edoovillage
+label: City
+description: ''
+required: null
+translatable: null
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
