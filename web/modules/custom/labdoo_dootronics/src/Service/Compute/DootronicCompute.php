@@ -228,6 +228,27 @@ class DootronicCompute implements DootronicComputeInterface {
         \Drupal::entityTypeManager()->getStorage('node')->resetCache([$dootrip->id()]);
       }
     }
+
+    if (!isset($dootronic->original)) {
+      return;
+    }
+
+    $originalDootrips = $dootronic->original->get('field_dootrips')->referencedEntities();
+    $currentDootripIds = array_map(fn($entity) => $entity->id(), $dootronic->get('field_dootrips')->referencedEntities());
+
+    foreach ($originalDootrips as $originalDootrip) {
+      if (!in_array($originalDootrip->id(), $currentDootripIds)) {
+        $laptops = $originalDootrip->get('field_laptops');
+        foreach ($laptops as $index => $item) {
+          if ($item->target_id == $dootronic->id()) {
+            $laptops->removeItem($index);
+            $originalDootrip->save();
+            \Drupal::entityTypeManager()->getStorage('node')->resetCache([$originalDootrip->id()]);
+            break;
+          }
+        }
+      }
+    }
   }
 
 }

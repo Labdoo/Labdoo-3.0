@@ -225,6 +225,28 @@ class DootripCompute implements DootripComputeInterface {
       if (!$found) {
         $dootronic->field_dootrips->appendItem($dootrip);
         $dootronic->save();
+        \Drupal::entityTypeManager()->getStorage('node')->resetCache([$dootronic->id()]);
+      }
+    }
+
+    if (!isset($dootrip->original)) {
+      return;
+    }
+
+    $originalDootronics = $dootrip->original->get('field_laptops')->referencedEntities();
+    $currentDootronicIds = array_map(fn($entity) => $entity->id(), $dootrip->get('field_laptops')->referencedEntities());
+
+    foreach ($originalDootronics as $originalDootronic) {
+      if (!in_array($originalDootronic->id(), $currentDootronicIds)) {
+        $dootrips = $originalDootronic->get('field_dootrips');
+        foreach ($dootrips as $index => $item) {
+          if ($item->target_id == $dootrip->id()) {
+            $dootrips->removeItem($index);
+            $originalDootronic->save();
+            \Drupal::entityTypeManager()->getStorage('node')->resetCache([$originalDootronic->id()]);
+            break;
+          }
+        }
       }
     }
   }
