@@ -95,6 +95,13 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   private bool $overrideMode;
 
   /**
+   * The indexing mode.
+   *
+   * @var bool
+   */
+  protected bool $indexingEnabled = TRUE;
+
+  /**
    * DestinationRepository constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -580,6 +587,14 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
     $this->totalSourceEntitiesCount = $total;
     $this->mainEntitiesCount = 0;
     $this->failingIds = [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setIndexingMode(bool $indexingEnabled): void {
+    $this->indexingEnabled = $indexingEnabled;
+    \Drupal::state()->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
   }
 
 }
