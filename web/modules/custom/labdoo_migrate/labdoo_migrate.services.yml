@@ -58,6 +58,8 @@ services:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeFormattedTextWithReplacement
   labdoo_migrate.special_field_types.role:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeRole
+  labdoo_migrate.special_field_types.password:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypePassword
   labdoo_migrate.special_field_types.image:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeImage
     arguments: ['@labdoo_migrate.media.file_manager', '@labdoo_migrate.media.media_manager']

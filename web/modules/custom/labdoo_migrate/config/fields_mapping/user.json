@@ -44,7 +44,10 @@
         ]
       },
       "destination": {
-        "field": "pass"
+        "field": "pass",
+        "special_type": {
+          "type": "password"
+        }
       }
     },
     {
