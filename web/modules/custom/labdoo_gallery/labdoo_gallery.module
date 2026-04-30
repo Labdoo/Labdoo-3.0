@@ -25,8 +25,16 @@ function labdoo_gallery_create_or_update(EntityInterface $entity): void {
    */
   $galleryRepository = \Drupal::service('labdoo_gallery.repository');
   $gallery = $galleryRepository->loadByParentId((int) $entity->id());
+  $label = $entity->label();
+  $suffix = ' - Photo Album';
+  $title = $label . $suffix;
+  if (mb_strlen($title) > 255) {
+    $label = mb_substr($label, 0, 255 - mb_strlen($suffix) - 3) . '...';
+    $title = $label . $suffix;
+  }
+
   $data = [
-    'title' => $entity->label() . ' - Photo Album',
+    'title' => $title,
   ];
   if (empty($gallery)) {
     $galleryRepository->create($data);

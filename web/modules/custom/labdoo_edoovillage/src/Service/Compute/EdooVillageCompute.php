@@ -96,14 +96,25 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
       // For legacy titles, we want to ensure we don't accidentally mess up the title
       // if it was manually edited to something completely different.
       $finalTitle = $title;
+      if (mb_strlen($finalTitle) > 255) {
+        $finalTitle = mb_substr($finalTitle, 0, 252) . '...';
+      }
     }
     else {
       // If we have a prefix (Edoovillage #ID - Country, City), we concatenate the summary.
       // We also want to make sure the summary isn't already part of the title
       // in a way that would cause double concatenation, although setEdooVillageTitle
       // usually replaces the whole title.
-      $finalTitle = $edoovillagePrefix . ": " . $summary;
+      $prefixWithSeparator = $edoovillagePrefix . ": ";
+      $finalTitle = $prefixWithSeparator . $summary;
+
+      // Drupal titles have a 255 character limit.
+      if (mb_strlen($finalTitle) > 255) {
+        $summary = mb_substr($summary, 0, 255 - mb_strlen($prefixWithSeparator) - 3) . '...';
+        $finalTitle = $prefixWithSeparator . $summary;
+      }
     }
+
     $entity->setTitle($finalTitle);
   }
 
