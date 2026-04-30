@@ -87,10 +87,15 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-story" "🔄 Migrate story (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team" "🔄 Migrate team (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-user" "🔄 Migrate user (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all-queue" "📥 Enqueue all entities for migration."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-incremental" "🔄 Run incremental migration for all entities."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all-incremental-bg" "🌙 Run incremental migration for all entities in background."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-bg" "🌙 Run migration in background with nohup and migration-[entity].log."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-incremental-bg" "🌙 Run incremental migration in background."
+	@echo ""
+	@echo "$(GREEN)[ Queue ]$(RESET)"
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-process" "⚙️  Process the migration queue (labdoo_migrate_migration)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-stats" "📊 Show statistics of the migration queue."
 	@echo ""
 
 .PHONY: pull
@@ -464,6 +469,18 @@ migrate-user: ## 🔄 Migrate user (foreground).
 	vendor/bin/drush labdoo-sync user
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
 
+.PHONY: migrate-all-queue
+migrate-all-queue: ## 📥 Enqueue all entities for migration.
+	@echo "$(CYAN)📥 Enqueueing all entities for migration...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush labdoo-sync user --queue
+	vendor/bin/drush labdoo-sync hub --queue
+	vendor/bin/drush labdoo-sync edoovillage --queue
+	vendor/bin/drush labdoo-sync laptop --queue
+	vendor/bin/drush labdoo-sync dootrip --queue
+	vendor/bin/drush labdoo-sync-teams --queue
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+
 .PHONY: migrate-user-bg
 migrate-user-bg: ## 🌙 Migrate user in background (nohup + log).
 	@echo "$(CYAN)🌙 Running user migration in background (migration-user.log)...$(RESET)"
@@ -515,6 +532,21 @@ migrate-dootrip-incremental-bg: ## 🌙 Run incremental dootrip migration in bac
 migrate-team-incremental-bg: ## 🌙 Run incremental team migration in background.
 	@echo "$(CYAN)🌙 Running incremental team migration in background (migration-team-incremental.log)...$(RESET)"
 	nohup sh -c "vendor/bin/drush labdoo-sync-teams --incremental" > migration-team-incremental.log 2>&1 &
+
+.PHONY: queue-process
+queue-process: ## ⚙️ Process all migration queues.
+	@echo "$(CYAN)⚙️ Processing migration queues...$(RESET)"
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_action
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_user
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_hub
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_edoovillage
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_laptop
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_dootrip
+
+.PHONY: queue-stats
+queue-stats: ## 📊 Show statistics of the migration queues.
+	@echo "$(CYAN)📊 Migration queues statistics:$(RESET)"
+	$(DRUSH_COMMAND) queue:list | grep labdoo_migrate_migration
 
 .PHONY: confirm
 confirm: ## ❓ Ask for confirmation to continue.
