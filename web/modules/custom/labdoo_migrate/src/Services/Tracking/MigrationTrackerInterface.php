@@ -44,4 +44,17 @@ interface MigrationTrackerInterface {
    */
   public function getMigratedSourceIds(string $entityType, string $bundle): array;
 
+  /**
+   * Retrieves the source ID for a given destination ID.
+   *
+   * @param string $entityType
+   *   The destination entity type.
+   * @param int $destinationId
+   *   The destination entity ID.
+   *
+   * @return int|null
+   *   The source entity ID or NULL if not found.
+   */
+  public function getSourceIdByDestinationId(string $entityType, int $destinationId): ?int;
+
 }
