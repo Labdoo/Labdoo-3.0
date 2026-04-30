@@ -95,7 +95,7 @@ class DootronicCompute implements DootronicComputeInterface {
   public function computeHubData(EntityInterface $entity): void {
     /** @var \Drupal\Core\Entity\EntityInterface $hub */
     $hub = $entity->get('field_hub')->entity;
-    if ($hub === NULL) {
+    if ($hub === NULL || $hub->bundle() !== 'hub') {
       return;
     }
 
