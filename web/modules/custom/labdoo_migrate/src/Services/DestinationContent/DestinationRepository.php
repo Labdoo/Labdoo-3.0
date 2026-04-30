@@ -794,7 +794,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     foreach ($entities as $entity) {
-      $sourceId = $entity->get(self::SOURCE_ID_FIELD)->value ?? FALSE;
+      $sourceId = $this->migrationTracker->getSourceIdByDestinationId($entity->getEntityTypeId(), (int) $entity->id());
       if (!$sourceId) {
         $errorMessage = sprintf(
           'Could not retrieve D7 entity from D9 entity %d',
