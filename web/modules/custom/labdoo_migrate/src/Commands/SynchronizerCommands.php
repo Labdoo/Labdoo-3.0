@@ -6,8 +6,9 @@ use Drupal\labdoo_migrate\Model\ContentConfigurationModel;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Mapper\MapperInterface;
-use Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
+use Drupal\queue_manager\Model\QueueDataModel;
+use Drupal\queue_manager\Service\QueueHelper;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -59,6 +60,13 @@ class SynchronizerCommands extends DrushCommands {
    * @var \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface
    */
   private MigrationTrackerInterface $migrationTracker;
+
+  /**
+   * The queue helper.
+   *
+   * @var \Drupal\queue_manager\Service\QueueHelper
+   */
+  private QueueHelper $queueHelper;
 
   /**
    * The start time.
@@ -146,17 +154,21 @@ class SynchronizerCommands extends DrushCommands {
    *   The content mapper.
    * @param \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface $migrationTracker
    *   The migration tracker.
+   * @param \Drupal\queue_manager\Service\QueueHelper $queueHelper
+   *   The queue helper.
    */
   public function __construct(
     ConfigurationManagerInterface $configurationManager,
     MapperInterface $mapper,
-    MigrationTrackerInterface $migrationTracker
+    MigrationTrackerInterface $migrationTracker,
+    QueueHelper $queueHelper
   ) {
 
     parent::__construct();
     $this->configurationManager = $configurationManager;
     $this->mapper = $mapper;
     $this->migrationTracker = $migrationTracker;
+    $this->queueHelper = $queueHelper;
   }
 
   /**
@@ -179,6 +191,7 @@ class SynchronizerCommands extends DrushCommands {
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
    * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
    * @option incremental Migrates only those entities that are in Drupal 7 but not in Drupal 10.
+   * @option queue Whether to queue the items instead of processing them directly.
    */
   public function startSync(
     string $contentType,
@@ -190,125 +203,276 @@ class SynchronizerCommands extends DrushCommands {
       'dry-run' => FALSE,
       'from-date' => NULL,
       'incremental' => FALSE,
+      'queue' => FALSE,
     ]
   ): void {
     try {
       $this->setEnvironment($contentType, $options);
 
       if ($this->create) {
-        $sourceEntitiesIds = $this->nids;
-        if (empty($sourceEntitiesIds)) {
-          $sourceEntitiesIds = $this->sourceRepository->getNodesByType(
-            $contentType,
-            $this->mapping,
-            $this->fromTimestamp
-          );
-        }
-
-        if ($this->incremental) {
-          $destinationTypes = $this->configData->getDestinationTypes();
-          $destinationContentType = reset($destinationTypes);
-          $migratedSourceIds = $this->migrationTracker->getMigratedSourceIds(
-            $this->configData->getEntityType(),
-            $destinationContentType
-          );
-          $sourceEntitiesIds = array_diff($sourceEntitiesIds, $migratedSourceIds);
-        }
-
-        if ($this->limit > -1) {
-          $sourceEntitiesIds = array_slice(
-            $sourceEntitiesIds,
-            0,
-            $this->limit
-          );
-        }
-
-        $total = count($sourceEntitiesIds);
-        $this->logger->notice(sprintf('%d source entities found.', $total));
-        $this->logger->notice('Creating the destination entities...');
-
-        $destinationTypes = $this->configData->getDestinationTypes();
-        $destinationContentType = reset($destinationTypes);
-        $this->destinationRepository->setOverrideMode($this->overrideMode);
-        $this->destinationRepository->setTotalCount($total);
-        $this->destinationRepository->setIndexingMode(FALSE);
-
-        $updatedEntities = 0;
-        foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
-          $sourceEntities = $this->sourceRepository->getEntities(
-            $contentType,
-            $this->mapping,
-            $sourceIdsChunk,
-            $this->fromTimestamp
-          );
-          $sourceEntities = array_filter($sourceEntities);
-
-          if (empty($sourceEntities)) {
-            continue;
-          }
-
-          $updatedEntities += $this->destinationRepository->createEntities(
-            $sourceEntities,
-            $this->mapping,
-            $destinationContentType,
-            $this->dryRun
-          );
-        }
+        $this->processCreate($contentType, $options);
       }
       else {
-        $destinationEntities = $this->getDestinationEntities();
-        $sourceEntitiesIds = array_keys($destinationEntities);
-
-        if ($this->limit > -1) {
-          $sourceEntitiesIds = array_slice(
-            $sourceEntitiesIds,
-            0,
-            $this->limit
-          );
-        }
-
-        $total = count($sourceEntitiesIds);
-        $this->logger->notice(sprintf('%d source entities found.', $total));
-        $this->logger->notice('Updating the destination entities...');
-        $this->destinationRepository->setTotalCount($total);
-        $this->destinationRepository->setIndexingMode(FALSE);
-
-        $updatedEntities = 0;
-        foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
-          $sourceEntities = $this->sourceRepository->getEntities(
-            $contentType,
-            $this->mapping,
-            $sourceIdsChunk,
-            $this->fromTimestamp
-          );
-          $sourceEntities = array_filter($sourceEntities);
-
-          if (empty($sourceEntities)) {
-            continue;
-          }
-
-          $destinationEntitiesChunk = array_intersect_key(
-            $destinationEntities,
-            array_flip(array_keys($sourceEntities))
-          );
-
-          $updatedEntities += $this->destinationRepository->updateEntities(
-            $sourceEntities,
-            $this->mapping,
-            $destinationEntitiesChunk,
-            $this->dryRun
-          );
-        }
+        $this->processUpdate($contentType, $options);
       }
 
       $this->tearDown(
-        $updatedEntities,
+        $this->destinationRepository->getProcessedEntitiesSummary()['main'] ?? 0,
         $this->destinationRepository->getProcessedEntitiesSummary()
       );
     }
     catch (\Exception $e) {
       $this->logger->error($e->getMessage());
     }
+  }
+
+  /**
+   * Processes the creation mode.
+   *
+   * @param string $contentType
+   *   The content type.
+   * @param array $options
+   *   The command options.
+   *
+   * @throws \Exception
+   */
+  protected function processCreate(string $contentType, array $options): void {
+    $sourceEntitiesIds = $this->getSourceEntitiesIds($contentType);
+
+    if ($this->incremental) {
+      $sourceEntitiesIds = $this->applyIncrementalFilter($sourceEntitiesIds);
+    }
+
+    if ($this->limit > -1) {
+      $sourceEntitiesIds = array_slice($sourceEntitiesIds, 0, $this->limit);
+    }
+
+    $total = count($sourceEntitiesIds);
+    $this->logger->notice(sprintf('%d source entities found.', $total));
+    $this->logger->notice('Creating the destination entities...');
+
+    $destinationTypes = $this->configData->getDestinationTypes();
+    $destinationContentType = reset($destinationTypes);
+    $this->destinationRepository->setOverrideMode($this->overrideMode);
+    $this->destinationRepository->setTotalCount($total);
+    $this->destinationRepository->setIndexingMode(FALSE);
+
+    foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
+      if ($options['queue']) {
+        $this->enqueueItems($contentType, $sourceIdsChunk, 'create', $destinationContentType);
+        continue;
+      }
+
+      $this->processCreateChunk($contentType, $sourceIdsChunk, $destinationContentType);
+    }
+  }
+
+  /**
+   * Processes the update mode.
+   *
+   * @param string $contentType
+   *   The content type.
+   * @param array $options
+   *   The command options.
+   *
+   * @throws \Exception
+   */
+  protected function processUpdate(string $contentType, array $options): void {
+    $destinationEntities = $this->getDestinationEntities();
+    $sourceEntitiesIds = array_keys($destinationEntities);
+
+    if ($this->limit > -1) {
+      $sourceEntitiesIds = array_slice($sourceEntitiesIds, 0, $this->limit);
+    }
+
+    $total = count($sourceEntitiesIds);
+    $this->logger->notice(sprintf('%d source entities found.', $total));
+    $this->logger->notice('Updating the destination entities...');
+    $this->destinationRepository->setTotalCount($total);
+    $this->destinationRepository->setIndexingMode(FALSE);
+
+    $destinationTypes = $this->configData->getDestinationTypes();
+    $destinationContentType = reset($destinationTypes);
+
+    foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
+      if ($options['queue']) {
+        $this->enqueueItems($contentType, $sourceIdsChunk, 'update', $destinationContentType, $destinationEntities);
+        continue;
+      }
+
+      $this->processUpdateChunk($contentType, $sourceIdsChunk, $destinationContentType, $destinationEntities);
+    }
+  }
+
+  /**
+   * Gets the source entities IDs.
+   *
+   * @param string $contentType
+   *   The content type.
+   *
+   * @return array
+   *   The source entities IDs.
+   *
+   * @throws \Exception
+   */
+  protected function getSourceEntitiesIds(string $contentType): array {
+    $sourceEntitiesIds = $this->nids;
+    if (empty($sourceEntitiesIds)) {
+      $sourceEntitiesIds = $this->sourceRepository->getNodesByType(
+        $contentType,
+        $this->mapping,
+        $this->fromTimestamp
+      );
+    }
+
+    return $sourceEntitiesIds;
+  }
+
+  /**
+   * Applies the incremental filter to source IDs.
+   *
+   * @param array $sourceEntitiesIds
+   *   The source entities IDs.
+   *
+   * @return array
+   *   The filtered IDs.
+   */
+  protected function applyIncrementalFilter(array $sourceEntitiesIds): array {
+    $destinationTypes = $this->configData->getDestinationTypes();
+    $destinationContentType = reset($destinationTypes);
+    $migratedSourceIds = $this->migrationTracker->getMigratedSourceIds(
+      $this->configData->getEntityType(),
+      $destinationContentType
+    );
+
+    return array_diff($sourceEntitiesIds, $migratedSourceIds);
+  }
+
+  /**
+   * Enqueues items for processing.
+   *
+   * @param string $contentType
+   *   The source content type.
+   * @param array $sourceIdsChunk
+   *   The chunk of source IDs.
+   * @param string $mode
+   *   The mode (create|update).
+   * @param string $destinationContentType
+   *   The destination content type.
+   * @param array $destinationEntities
+   *   Optional destination entities mapping for updates.
+   */
+  protected function enqueueItems(
+    string $contentType,
+    array $sourceIdsChunk,
+    string $mode,
+    string $destinationContentType,
+    array $destinationEntities = []
+  ): void {
+    $queueId = sprintf('labdoo_migrate_migration_%s', $contentType);
+    foreach ($sourceIdsChunk as $sourceId) {
+      $queueDataModel = new QueueDataModel();
+      $queueDataModel->setQueueId($queueId);
+      $data = [
+        'content_type' => $contentType,
+        'entity_id' => $sourceId,
+        'mapping' => $this->mapping,
+        'dry_run' => $this->dryRun,
+        'mode' => $mode,
+        'override' => $this->overrideMode,
+        'destination_content_type' => $destinationContentType,
+      ];
+
+      if ($mode === 'update' && isset($destinationEntities[$sourceId])) {
+        $data['destination_entity_id'] = $destinationEntities[$sourceId];
+      }
+
+      $queueDataModel->setData($data);
+      $queueDataModel->setTimestamp(new \DateTime());
+      $this->queueHelper->enqueueData($queueId, $queueDataModel->__serialize());
+    }
+  }
+
+  /**
+   * Processes a chunk of entities for creation.
+   *
+   * @param string $contentType
+   *   The source content type.
+   * @param array $sourceIdsChunk
+   *   The chunk of source IDs.
+   * @param string $destinationContentType
+   *   The destination content type.
+   *
+   * @throws \Exception
+   */
+  protected function processCreateChunk(
+    string $contentType,
+    array $sourceIdsChunk,
+    string $destinationContentType
+  ): void {
+    $sourceEntities = $this->sourceRepository->getEntities(
+      $contentType,
+      $this->mapping,
+      $sourceIdsChunk,
+      $this->fromTimestamp
+    );
+    $sourceEntities = array_filter($sourceEntities);
+
+    if (empty($sourceEntities)) {
+      return;
+    }
+
+    $this->destinationRepository->createEntities(
+      $sourceEntities,
+      $this->mapping,
+      $destinationContentType,
+      $this->dryRun
+    );
+  }
+
+  /**
+   * Processes a chunk of entities for update.
+   *
+   * @param string $contentType
+   *   The source content type.
+   * @param array $sourceIdsChunk
+   *   The chunk of source IDs.
+   * @param string $destinationContentType
+   *   The destination content type.
+   * @param array $destinationEntities
+   *   The destination entities mapping.
+   *
+   * @throws \Exception
+   */
+  protected function processUpdateChunk(
+    string $contentType,
+    array $sourceIdsChunk,
+    string $destinationContentType,
+    array $destinationEntities
+  ): void {
+    $sourceEntities = $this->sourceRepository->getEntities(
+      $contentType,
+      $this->mapping,
+      $sourceIdsChunk,
+      $this->fromTimestamp
+    );
+    $sourceEntities = array_filter($sourceEntities);
+
+    if (empty($sourceEntities)) {
+      return;
+    }
+
+    $destinationEntitiesChunk = array_intersect_key(
+      $destinationEntities,
+      array_flip(array_keys($sourceEntities))
+    );
+
+    $this->destinationRepository->updateEntities(
+      $sourceEntities,
+      $this->mapping,
+      $destinationEntitiesChunk,
+      $this->dryRun
+    );
   }
 
   /**

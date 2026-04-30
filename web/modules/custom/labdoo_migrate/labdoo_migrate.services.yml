@@ -84,3 +84,8 @@ services:
   labdoo_migrate.tracking.migration_tracker:
     class: Drupal\labdoo_migrate\Services\Tracking\MigrationTracker
     arguments: ['@database', '@labdoo_migrate.database.external_connection_manager', '@module_handler', '@date.formatter']
+  labdoo_migrate.commands.synchronizer:
+    class: Drupal\labdoo_migrate\Commands\SynchronizerCommands
+    arguments: ['@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@labdoo_migrate.tracking.migration_tracker', '@queue_manager.helper']
+    tags:
+      - { name: drush.command }
