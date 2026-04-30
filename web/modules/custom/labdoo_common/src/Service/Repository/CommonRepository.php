@@ -129,17 +129,18 @@ class CommonRepository {
     ?int $hubId = NULL
   ): int {
     $query = $this->database->select('node__field_dootronic_status', 'nfs');
+    $query->distinct();
     $query->fields('nfs', ['entity_id']);
-    $query->addJoin('INNER', 'node__field_edoovillage_destination', 'ned', 'ned.entity_id = nfs.entity_id');
-    $query->addJoin('INNER', 'node__field_hub', 'nh', 'nh.entity_id = nfs.entity_id');
     $query->condition('nfs.bundle', 'dootronic');
     if ($status !== NULL) {
       $query->condition('nfs.field_dootronic_status_value', $status);
     }
     if ($edooVillageId !== NULL) {
+      $query->addJoin('INNER', 'node__field_edoovillage_destination', 'ned', 'ned.entity_id = nfs.entity_id');
       $query->condition('ned.field_edoovillage_destination_target_id', $edooVillageId);
     }
     if ($hubId !== NULL) {
+      $query->addJoin('INNER', 'node__field_hub', 'nh', 'nh.entity_id = nfs.entity_id');
       $query->condition('nh.field_hub_target_id', $hubId);
     }
     try {
