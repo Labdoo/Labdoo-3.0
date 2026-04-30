@@ -78,27 +78,35 @@ class CommonRepository {
   /**
    * Retrieves the active countries.
    *
-   * @param string $bundle
+   * @param string|null $bundle
    *   Tbe bundle.
    *
    * @return array
    *   An array with the active countries.
    */
-  public function getActiveCountries(string $bundle): array {
+  public function getActiveCountries(?string $bundle = NULL): array {
     try {
-      $results = $this->database
-        ->select('node__field_country', 'nfc')
-        ->fields('nfc', ['field_country_value'])
-        ->condition('nfc.bundle', $bundle)
-        ->execute()
-        ->fetchAllAssoc('field_country_value');
+      $query = $this->database->select('node__field_country', 'nfc');
+      $query->fields('nfc', ['field_country_value']);
+      if ($bundle !== NULL) {
+        $query->condition('nfc.bundle', $bundle);
+      }
+      $results = $query->execute()->fetchAllAssoc('field_country_value');
     }
     catch (\Exception $e) {
-      $errorMessage = sprintf(
-        'Error retrieving the active countries for bundle %s: %s',
-        $bundle,
-        $e->getMessage()
-      );
+      if ($bundle !== NULL) {
+        $errorMessage = sprintf(
+          'Error retrieving the active countries: %s',
+          $e->getMessage()
+        );
+      }
+      else {
+        $errorMessage = sprintf(
+          'Error retrieving the active countries for bundle %s: %s',
+          $bundle,
+          $e->getMessage()
+        );
+      }
       $this->logger->error($errorMessage);
 
       return [];

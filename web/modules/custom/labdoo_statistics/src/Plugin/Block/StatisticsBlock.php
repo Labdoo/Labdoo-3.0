@@ -95,7 +95,7 @@ class StatisticsBlock extends BlockBase implements ContainerFactoryPluginInterfa
       ->getCo2Saved($dootronicsDelivered);
     $countries = count(
       $this->commonRepository
-        ->getActiveCountries('dootronic')
+        ->getActiveCountries()
     );
     $dootronicsUrl = Url::fromRoute('view.dootronics_dashboard.page_1')->toString();
     $edoovillagesUrl = Url::fromRoute('view.edoovillages.page_1')->toString();

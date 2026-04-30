@@ -116,7 +116,7 @@ class StatisticsResource extends ResourceBase {
       ->getCo2Saved($dootronicsDelivered);
     $countries = count(
       $this->commonRepository
-        ->getActiveCountries('dootronic')
+        ->getActiveCountries()
     );
     $data = [
       'dootronics_tagged' => $dootronicsTagged,
