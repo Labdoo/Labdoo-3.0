@@ -93,6 +93,19 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-bg" "🌙 Run migration in background with nohup and migration-[entity].log."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-incremental-bg" "🌙 Run incremental migration in background."
 	@echo ""
+	@echo "$(GREEN)[ Deletion ]$(RESET)"
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-action" "🗑️  Delete all action nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-user" "🗑️  Delete all users (except admin)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-hub" "🗑️  Delete all hub nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-edoovillage" "🗑️  Delete all edoovillage nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-dootronic" "🗑️  Delete all dootronic nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-dootrip" "🗑️  Delete all dootrip nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-gallery" "🗑️  Delete all gallery nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-page" "🗑️  Delete all basic page nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-story" "🗑️  Delete all labdoo story nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-teams" "🗑️  Delete all team related nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-all" "🗑️  Delete all migrated entities (except wiki and teams)."
+	@echo ""
 	@echo "$(GREEN)[ Queue ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-process" "⚙️  Process the migration queue (labdoo_migrate_migration)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-stats" "📊 Show statistics of the migration queue."
@@ -547,6 +560,73 @@ queue-process: ## ⚙️ Process all migration queues.
 queue-stats: ## 📊 Show statistics of the migration queues.
 	@echo "$(CYAN)📊 Migration queues statistics:$(RESET)"
 	$(DRUSH_COMMAND) queue:list | grep labdoo_migrate_migration
+	@echo ""
+
+.PHONY: delete-action
+delete-action: confirm ## 🗑️ Delete all action nodes.
+	@echo "$(CYAN)🗑️ Deleting action nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle action
+
+.PHONY: delete-user
+delete-user: confirm ## 🗑️ Delete all users (except admin).
+	@echo "$(CYAN)🗑️ Deleting users...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete user
+
+.PHONY: delete-hub
+delete-hub: confirm ## 🗑️ Delete all hub nodes.
+	@echo "$(CYAN)🗑️ Deleting hub nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle=hub
+
+.PHONY: delete-edoovillage
+delete-edoovillage: confirm ## 🗑️ Delete all edoovillage nodes.
+	@echo "$(CYAN)🗑️ Deleting edoovillage nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle=edoovillage
+
+.PHONY: delete-dootronic
+delete-dootronic: confirm ## 🗑️ Delete all dootronic nodes.
+	@echo "$(CYAN)🗑️ Deleting dootronic nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle=dootronic
+
+.PHONY: delete-dootrip
+delete-dootrip: confirm ## 🗑️ Delete all dootrip nodes.
+	@echo "$(CYAN)🗑️ Deleting dootrip nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle=dootrip
+
+.PHONY: delete-gallery
+delete-gallery: confirm ## 🗑️ Delete all gallery nodes.
+	@echo "$(CYAN)🗑️ Deleting gallery nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle=gallery
+
+.PHONY: delete-page
+delete-page: confirm ## 🗑️ Delete all basic page nodes.
+	@echo "$(CYAN)🗑️ Deleting basic page nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle=basic_page
+
+.PHONY: delete-story
+delete-story: confirm ## 🗑️ Delete all labdoo story nodes.
+	@echo "$(CYAN)🗑️ Deleting story nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle=labdoo_story
+
+.PHONY: delete-teams
+delete-teams: confirm ## 🗑️ Delete all team related nodes.
+	@echo "$(CYAN)🗑️ Deleting team nodes...$(RESET)"
+	$(DRUSH_COMMAND) entity:delete node --bundle=team_comment
+	$(DRUSH_COMMAND) entity:delete node --bundle=team_post
+	$(DRUSH_COMMAND) entity:delete node --bundle=team
+	$(DRUSH_COMMAND) sql-query "DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'"
+
+.PHONY: delete-all
+delete-all: ## 🗑️ Delete all migrated entities (except wiki and teams).
+	@echo "$(YELLOW)⚠️ Deleting all migrated entities except wiki and teams...$(RESET)"
+	$(MAKE) delete-action
+	$(MAKE) delete-user
+	$(MAKE) delete-hub
+	$(MAKE) delete-edoovillage
+	$(MAKE) delete-dootronic
+	$(MAKE) delete-dootrip
+	$(MAKE) delete-gallery
+	$(MAKE) delete-page
+	$(MAKE) delete-story
 
 .PHONY: confirm
 confirm: ## ❓ Ask for confirmation to continue.
