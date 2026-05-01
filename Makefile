@@ -106,7 +106,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-page" "🗑️  Delete all basic page nodes."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-story" "🗑️  Delete all labdoo story nodes."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-teams" "🗑️  Delete all team related nodes."
-	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-all" "🗑️  Delete all migrated entities (except wiki and teams)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-all" "🗑️  Delete all migrated entities (except wiki)."
 	@echo ""
 	@echo "$(GREEN)[ Queue ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-process" "⚙️  Process the migration queue (labdoo_migrate_migration)."
@@ -705,8 +705,8 @@ delete-teams-no-confirm:
 	$(DRUSH_COMMAND) sql-query "DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'"
 
 .PHONY: delete-all
-delete-all: confirm ## 🗑️ Delete all migrated entities (except wiki and teams).
-	@echo "$(YELLOW)⚠️ Deleting all migrated entities except wiki and teams...$(RESET)"
+delete-all: confirm ## 🗑️ Delete all migrated entities.
+	@echo "$(YELLOW)⚠️ Deleting all migrated entities...$(RESET)"
 	$(MAKE) delete-action-no-confirm
 	$(MAKE) delete-user-no-confirm
 	$(MAKE) delete-hub-no-confirm
@@ -715,6 +715,7 @@ delete-all: confirm ## 🗑️ Delete all migrated entities (except wiki and tea
 	$(MAKE) delete-dootrip-no-confirm
 	$(MAKE) delete-gallery-no-confirm
 	$(MAKE) delete-story-no-confirm
+	$(MAKE) delete-teams-no-confirm
 
 .PHONY: confirm
 confirm: ## ❓ Ask for confirmation to continue.
