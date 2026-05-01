@@ -1,10 +1,10 @@
 status: 1
 pattern: ''
 escape: false
-preserve_titles: false
+preserve_titles: true
 save: false
 chunk: 50
 dependencies:
   config:
     - node.type.edoovillage
-new_content_behavior: 0
+new_content_behavior: 1
