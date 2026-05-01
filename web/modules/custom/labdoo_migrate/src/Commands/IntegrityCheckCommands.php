@@ -263,11 +263,15 @@ class IntegrityCheckCommands extends DrushCommands {
         return FALSE;
       }
       foreach ($val1 as $k => $v) {
-        if (!$this->isEqual($v, $val2[$k])) {
+        if (!array_key_exists($k, $val2) || !$this->isEqual($v, $val2[$k])) {
           return FALSE;
         }
       }
       return TRUE;
+    }
+
+    if (is_array($val1) || is_array($val2)) {
+      return FALSE;
     }
 
     // Handle numeric strings with different precision/trailing zeros.
