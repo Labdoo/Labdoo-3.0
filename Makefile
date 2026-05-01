@@ -196,13 +196,15 @@ backup: ## 💾 Generate a database backup.
 backup-slim: ## 📉 Generate a slim database backup (no cache/watchdog data).
 	@echo "$(CYAN)📉 Generating slim database backup...$(RESET)"
 	mkdir -p backups
-	@if $(DRUSH_COMMAND) sql-dump --gzip --structure-tables-key=common --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false" 2>/dev/null; then \
+	@EXCLUDES_LIST="cache_*,watchdog,history,sessions,search_%,webprofiler"; \
+	DRUSH_EXCLUDES=$$(echo $$EXCLUDES_LIST | sed 's/%/*/g'); \
+	if $(DRUSH_COMMAND) sql-dump --gzip --structure-tables-list="$$DRUSH_EXCLUDES" --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false" 2>/dev/null; then \
 		echo "$(GREEN)✅ Slim backup generated with Drush.$(RESET)"; \
 	else \
 		echo "$(YELLOW)⚠️ Drush failed, trying native mysqldump with exclusions...$(RESET)"; \
 		BACKUP_FILE="backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql.gz"; \
-		EXCLUDES="--ignore-table=$(DB_NAME).cache_% --ignore-table=$(DB_NAME).watchdog --ignore-table=$(DB_NAME).history --ignore-table=$(DB_NAME).sessions --ignore-table=$(DB_NAME).search_% --ignore-table=$(DB_NAME).webprofiler"; \
-		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p$(DB_PASSWORD) $(DB_NAME) --single-transaction=false $$EXCLUDES | gzip > $$BACKUP_FILE; \
+		MYSQL_EXCLUDES=$$(echo $$EXCLUDES_LIST | sed 's/,/ --ignore-table=$(DB_NAME)./g' | sed 's/^/--ignore-table=$(DB_NAME)./'); \
+		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p$(DB_PASSWORD) $(DB_NAME) --single-transaction=false $$MYSQL_EXCLUDES | gzip > $$BACKUP_FILE; \
 		if [ $$? -eq 0 ]; then \
 			echo "$(GREEN)✅ Slim backup generated successfully (native). File: $$BACKUP_FILE$(RESET)"; \
 		else \
