@@ -88,21 +88,24 @@ class IntegrityCheckCommands extends DrushCommands {
    *
    * @option limit
    *   The number of random nodes to check.
+   * @option destination-type
+   *   The destination content type (bundle) in Drupal 10.
    *
    * @command labdoo:migrate-check-integrity
    * @aliases lm-ci
    * @usage drush lm-ci story --limit=10
    */
-  public function checkIntegrity(string $contentType, array $options = ['limit' => 5]): void {
+  public function checkIntegrity(string $contentType, array $options = ['limit' => 5, 'destination-type' => NULL]): void {
     $limit = (int) $options['limit'];
-    $this->io()->title(sprintf('Checking integrity for %d random migrated nodes of type %s', $limit, $contentType));
+    $destinationType = $options['destination-type'] ?? $contentType;
+    $this->io()->title(sprintf('Checking integrity for %d random migrated nodes of type %s (D7) -> %s (D10)', $limit, $contentType, $destinationType));
 
     try {
       $config = $this->configurationManager->getContentConfiguration($contentType);
       $entityType = $config->getEntityType();
       $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
 
-      $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $contentType);
+      $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $destinationType);
 
       if (empty($allIds)) {
         $this->io()->warning('No migrated nodes found for this content type.');

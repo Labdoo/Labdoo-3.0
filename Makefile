@@ -570,7 +570,7 @@ migrate-check-integrity: ## 🔍 Compare N random nodes from D7 with D10 (e.g., 
 		exit 1; \
 	fi
 	@echo "$(CYAN)🔍 Checking integrity for $(type) nodes...$(RESET)"
-	$(DRUSH_COMMAND) labdoo:migrate-check-integrity $(type) --limit=$(or $(limit),5)
+	$(DRUSH_COMMAND) labdoo:migrate-check-integrity $(type) --limit=$(or $(limit),5) --destination-type=$(or $(destination_type),$(type))
 
 .PHONY: queue-process
 queue-process: ## ⚙️ Process all migration queues.
