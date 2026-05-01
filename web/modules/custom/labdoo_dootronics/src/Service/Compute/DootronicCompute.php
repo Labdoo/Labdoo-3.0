@@ -153,12 +153,7 @@ class DootronicCompute implements DootronicComputeInterface {
   public function setDootronicTitle(EntityInterface $entity): void {
     // If we are migrating nodes, we do not want an automatic ID to be generated.
     if (isset($entity->original_entity_id)) {
-      // But we want to make sure that we are setting this value to the series.
-      $sequenceNumber = (int) $entity->label();
-      $title = $this->dootronicRepository->updateId($sequenceNumber);
-      $entity->set('title', $title);
       $entity->set('field_tagged', TRUE);
-
       return;
     }
 

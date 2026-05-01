@@ -490,7 +490,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
         $destinationEntity
       );
 
-      $result = $result && $this->updateEntity(
+    $currentDestinationEntity->original_entity_id = (int) $destinationEntity->{self::SOURCE_ID_FIELD}->value;
+    $result = $result && $this->updateEntity(
           $values,
           $currentDestinationEntity,
           $sourceEntity['metadata']['main_langcode']
@@ -618,8 +619,21 @@ class DestinationRepository implements DestinationRepositoryInterface {
     }
 
     foreach ($accumulatedValues as $fieldName => $value) {
+      if ($fieldName === 'uid' && $destinationEntity instanceof \Drupal\user\EntityOwnerInterface) {
+        continue;
+      }
       $destinationEntity->set($fieldName, NULL);
       $destinationEntity->set($fieldName, $value);
+    }
+
+    if (($destinationEntity instanceof \Drupal\user\EntityOwnerInterface || $destinationEntity instanceof \Drupal\Core\Session\AccountInterface) && isset($accumulatedValues['uid'])) {
+      $uid = is_array($accumulatedValues['uid']) ? ($accumulatedValues['uid'][0]['target_id'] ?? $accumulatedValues['uid'][0]) : $accumulatedValues['uid'];
+      if (method_exists($destinationEntity, 'setOwnerId')) {
+        $destinationEntity->setOwnerId($uid);
+      }
+      elseif ($destinationEntity->hasField('uid')) {
+        $destinationEntity->set('uid', $uid);
+      }
     }
 
     if ($destinationEntity instanceof EntityChangedInterface && isset($accumulatedValues['changed'])) {

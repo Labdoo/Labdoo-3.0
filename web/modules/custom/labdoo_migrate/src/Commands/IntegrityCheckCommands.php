@@ -196,6 +196,14 @@ class IntegrityCheckCommands extends DrushCommands {
 
       $destValue = $this->getDestinationValue($destNode, $destField);
 
+      // Special handling for file/image fields: compare URIs.
+      if ($destField === 'field_picture' && is_numeric($destValue) && is_string($sourceValue) && strpos($sourceValue, '://') !== FALSE) {
+        $file = $this->entityTypeManager->getStorage('file')->load($destValue);
+        if ($file instanceof \Drupal\file\FileInterface) {
+          $destValue = $file->getFileUri();
+        }
+      }
+
       if (!$this->isEqual($sourceValue, $destValue)) {
         $errors[] = sprintf(
           "Field %s mismatch. Source: %s, Dest: %s",

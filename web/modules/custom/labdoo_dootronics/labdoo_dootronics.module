@@ -83,7 +83,7 @@ function labdoo_dootronics_entity_presave(EntityInterface $entity) {
   }
 
   // If this is a new dootronic node, set its title using the sequence manager
-  if ($entity->isNew()) {
+  if ($entity->isNew() && !isset($entity->original_entity_id)) {
     /** @var \Drupal\labdoo_dootronics\Service\SequenceManagerInterface $sequenceManager */
     $sequenceManager = \Drupal::service('labdoo_dootronics.sequence_manager');
     $sequenceId = $sequenceManager->get();
