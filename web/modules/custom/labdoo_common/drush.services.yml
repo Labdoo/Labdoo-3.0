@@ -4,3 +4,8 @@ services:
     arguments: ['@entity_type.manager', '@entity_field.manager', '@labdoo_common.geocode_cache_manager']
     tags:
       - { name: drush.command }
+  labdoo_common.statistics_commands:
+    class: \Drupal\labdoo_common\Commands\StatisticsCommands
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: drush.command }

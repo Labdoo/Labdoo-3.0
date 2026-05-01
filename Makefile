@@ -83,6 +83,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-edoovillage" "🔄 Migrate edoovillage (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-gallery" "🔄 Migrate gallery (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-hub" "🔄 Migrate hub (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-queue" "📥 Enqueue entities (e.g., make migrate-queue type=hub limit=100)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-page" "🔄 Migrate page (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-story" "🔄 Migrate story (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team" "🔄 Migrate team (foreground)."
@@ -440,6 +441,17 @@ migrate-hub: ## 🔄 Migrate hub (foreground).
 migrate-hub-bg: ## 🌙 Migrate hub in background (nohup + log).
 	@echo "$(CYAN)🌙 Running hub migration in background (migration-hub.log)...$(RESET)"
 	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync hub && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-hub.log 2>&1 &
+
+.PHONY: migrate-queue
+migrate-queue: ## 📥 Enqueue entities for migration (e.g., make migrate-queue type=hub limit=100).
+	@if [ -z "$(type)" ]; then \
+		echo "$(RED)❌ Error: You must specify a type (e.g., make migrate-queue type=hub limit=100).$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)📥 Enqueueing $(type) nodes...$(RESET)"
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush labdoo-sync $(type) --queue --limit=$(or $(limit),-1)
+	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
 
 .PHONY: migrate-page
 migrate-page: ## 🔄 Migrate page (foreground).

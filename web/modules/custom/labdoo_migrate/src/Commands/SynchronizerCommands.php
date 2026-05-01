@@ -6,6 +6,7 @@ use Drupal\labdoo_migrate\Model\ContentConfigurationModel;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Mapper\MapperInterface;
+use Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drupal\queue_manager\Model\QueueDataModel;
 use Drupal\queue_manager\Service\QueueHelper;
