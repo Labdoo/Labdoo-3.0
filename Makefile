@@ -588,7 +588,9 @@ delete-user: confirm ## 🗑️ Delete all users (except admin).
 .PHONY: delete-user-no-confirm
 delete-user-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting users...$(RESET)"
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y
 	$(DRUSH_COMMAND) entity:delete user
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y
 
 .PHONY: delete-hub
 delete-hub: confirm ## 🗑️ Delete all hub nodes.
@@ -597,7 +599,9 @@ delete-hub: confirm ## 🗑️ Delete all hub nodes.
 .PHONY: delete-hub-no-confirm
 delete-hub-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting hub nodes...$(RESET)"
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y
 	$(DRUSH_COMMAND) entity:delete node --bundle=hub
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y
 
 .PHONY: delete-edoovillage
 delete-edoovillage: confirm ## 🗑️ Delete all edoovillage nodes.
@@ -606,7 +610,9 @@ delete-edoovillage: confirm ## 🗑️ Delete all edoovillage nodes.
 .PHONY: delete-edoovillage-no-confirm
 delete-edoovillage-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting edoovillage nodes...$(RESET)"
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y
 	$(DRUSH_COMMAND) entity:delete node --bundle=edoovillage
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y
 
 .PHONY: delete-dootronic
 delete-dootronic: confirm ## 🗑️ Delete all dootronic nodes.
