@@ -43,6 +43,7 @@ class StatisticsCommands extends DrushCommands {
         'gallery',
         'team',
         'team_post',
+        'team_task',
         'team_comment',
         'hub',
         'edoovillage',
