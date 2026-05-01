@@ -1,0 +1,93 @@
+{
+  "source_type": "comment",
+  "destination_types": [
+    "comment"
+  ],
+  "entity_type": "comment",
+  "fields_mapping": [
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "comment",
+            "key": "cid",
+            "field": "cid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "cid"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "comment",
+            "key": "cid",
+            "field": "subject"
+          }
+        ]
+      },
+      "destination": {
+        "field": "title"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_comment_body",
+            "key": "entity_id",
+            "field": "comment_body_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "comment_body"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "comment",
+            "key": "cid",
+            "field": "created"
+          }
+        ]
+      },
+      "destination": {
+        "field": "created"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "comment",
+            "key": "cid",
+            "field": "changed"
+          }
+        ]
+      },
+      "destination": {
+        "field": "changed"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "comment",
+            "key": "cid",
+            "field": "uid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "uid"
+      }
+    }
+  ]
+}
