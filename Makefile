@@ -109,6 +109,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@echo ""
 	@echo "$(GREEN)[ Queue ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-process" "⚙️  Process the migration queue (labdoo_migrate_migration)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-process-bg" "⚙️  Process the migration queue in background (labdoo_migrate_migration)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-stats" "📊 Show statistics of the migration queue."
 	@echo ""
 
@@ -566,6 +567,17 @@ queue-process: ## ⚙️ Process all migration queues.
 	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_laptop
 	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_dootrip
 
+.PHONY: queue-process-bg
+queue-process-bg: ## ⚙️ Process all migration queues in background.
+	@echo "$(CYAN)⚙️ Processing migration queues in background...$(RESET)"
+	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_action > queue-action.log 2>&1 &
+	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_user > queue-user.log 2>&1 &
+	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_hub > queue-hub.log 2>&1 &
+	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_edoovillage > queue-edoovillage.log 2>&1 &
+	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_laptop > queue-laptop.log 2>&1 &
+	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_dootrip > queue-dootrip.log 2>&1 &
+	@echo "$(GREEN)✅ Queues are being processed in background. Check queue-*.log for details.$(RESET)"
+
 .PHONY: queue-stats
 queue-stats: ## 📊 Show statistics of the migration queues.
 	@echo "$(CYAN)📊 Migration queues statistics:$(RESET)"
@@ -681,7 +693,6 @@ delete-all: confirm ## 🗑️ Delete all migrated entities (except wiki and tea
 	$(MAKE) delete-dootronic-no-confirm
 	$(MAKE) delete-dootrip-no-confirm
 	$(MAKE) delete-gallery-no-confirm
-	$(MAKE) delete-page-no-confirm
 	$(MAKE) delete-story-no-confirm
 
 .PHONY: confirm
