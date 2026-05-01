@@ -76,6 +76,10 @@ class NotificationManager {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function sendLaptopEventEmail(EntityInterface $node): void {
+    if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
+      return;
+    }
+
     if ($node->getEntityTypeId() !== 'node' || $node->bundle() !== 'laptop') {
       return;
     }
@@ -195,6 +199,10 @@ class NotificationManager {
    *   The event type (insert, update, etc.).
    */
   public function sendDootripEventEmail(EntityInterface $node, string $eventType): void {
+    if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
+      return;
+    }
+
     if ($node->getEntityTypeId() !== 'node' || $node->bundle() !== 'dootrip') {
       return;
     }
@@ -235,8 +243,8 @@ class NotificationManager {
     $dootripUrl = Url::fromRoute('entity.node.canonical', ['node' => $dootripId], ['absolute' => TRUE])->toString();
 
     // Get origin and destination
-    $origin = $node->hasField('field_origin') && $node->get('field_origin')->first() ? $node->get('field_origin')->value : '';
-    $destination = $node->hasField('field_destination') && $node->get('field_destination')->first() ? $node->get('field_destination')->value : '';
+    $origin = $node->hasField('field_origin') && $node->get('field_origin')->first() ? $node->get('field_origin')->first()->value : '';
+    $destination = $node->hasField('field_destination') && $node->get('field_destination')->first() ? $node->get('field_destination')->first()->value : '';
 
     // Get recipient email addresses
     $mailConfig = $this->configFactory->get('system.site')->get('mail');
@@ -298,6 +306,10 @@ class NotificationManager {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function sendTeamEventEmail(EntityInterface $node, $comment = NULL): void {
+    if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
+      return;
+    }
+
     $langCode = $this->getUserPreferredLanguage();
     $emailParams = ['type' => 'TEAM_ACTIVITY'];
 

@@ -218,7 +218,7 @@ class SpecialFieldTypeDynamicParagraph implements SpecialFieldTypeInterface {
       ->getStorage('paragraph')
       ->create([
         'type' => $config['destination_paragraph'],
-        'langcode' => $this->entity->language()->getId(),
+        'langcode' => $this->entity->language() ? $this->entity->language()->getId() : 'en',
       ]);
 
     foreach ($values as $fieldName => $value) {

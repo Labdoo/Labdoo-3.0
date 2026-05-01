@@ -78,11 +78,13 @@ class AbstractSpecialFieldTypeRelatedEntity implements SpecialFieldTypeInterface
     $isSourceMultiple = $this->isSourceMultiple($metadata);
     $isDestinationMultiple = $this->isDestinationMultiple($metadata);
 
+    $langCode = $entity->language() ? $entity->language()->getId() : $mainLangCode;
+
     if ($isSourceMultiple) {
       $result = $this->processSourceMultiple(
         $value,
         $metadata,
-        $entity->language()->getId(),
+        $langCode,
         $mainLangCode
       );
     }
@@ -90,7 +92,7 @@ class AbstractSpecialFieldTypeRelatedEntity implements SpecialFieldTypeInterface
       $result = $this->processSourceSingle(
         $value,
         $metadata,
-        $entity->language()->getId(),
+        $langCode,
         $mainLangCode
       );
       $result = $isDestinationMultiple ? [$result] : $result;
