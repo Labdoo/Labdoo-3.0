@@ -13,7 +13,7 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
    * {@inheritDoc}
    */
   public function setEdooVillageTitle(EntityInterface $entity): void {
-    if ($entity->bundle() !== 'edoovillage') {
+    if ($entity->bundle() !== 'edoovillage' || isset($entity->original_entity_id)) {
       return;
     }
 
