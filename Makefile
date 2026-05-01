@@ -574,51 +574,91 @@ queue-stats: ## 📊 Show statistics of the migration queues.
 
 .PHONY: delete-action
 delete-action: confirm ## 🗑️ Delete all action nodes.
+	@$(MAKE) delete-action-no-confirm
+
+.PHONY: delete-action-no-confirm
+delete-action-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting action nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle action
 
 .PHONY: delete-user
 delete-user: confirm ## 🗑️ Delete all users (except admin).
+	@$(MAKE) delete-user-no-confirm
+
+.PHONY: delete-user-no-confirm
+delete-user-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting users...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete user
 
 .PHONY: delete-hub
 delete-hub: confirm ## 🗑️ Delete all hub nodes.
+	@$(MAKE) delete-hub-no-confirm
+
+.PHONY: delete-hub-no-confirm
+delete-hub-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting hub nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle=hub
 
 .PHONY: delete-edoovillage
 delete-edoovillage: confirm ## 🗑️ Delete all edoovillage nodes.
+	@$(MAKE) delete-edoovillage-no-confirm
+
+.PHONY: delete-edoovillage-no-confirm
+delete-edoovillage-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting edoovillage nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle=edoovillage
 
 .PHONY: delete-dootronic
 delete-dootronic: confirm ## 🗑️ Delete all dootronic nodes.
+	@$(MAKE) delete-dootronic-no-confirm
+
+.PHONY: delete-dootronic-no-confirm
+delete-dootronic-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting dootronic nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle=dootronic
 
 .PHONY: delete-dootrip
 delete-dootrip: confirm ## 🗑️ Delete all dootrip nodes.
+	@$(MAKE) delete-dootrip-no-confirm
+
+.PHONY: delete-dootrip-no-confirm
+delete-dootrip-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting dootrip nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle=dootrip
 
 .PHONY: delete-gallery
 delete-gallery: confirm ## 🗑️ Delete all gallery nodes.
+	@$(MAKE) delete-gallery-no-confirm
+
+.PHONY: delete-gallery-no-confirm
+delete-gallery-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting gallery nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle=gallery
 
 .PHONY: delete-page
 delete-page: confirm ## 🗑️ Delete all basic page nodes.
+	@$(MAKE) delete-page-no-confirm
+
+.PHONY: delete-page-no-confirm
+delete-page-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting basic page nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle=basic_page
 
 .PHONY: delete-story
 delete-story: confirm ## 🗑️ Delete all labdoo story nodes.
+	@$(MAKE) delete-story-no-confirm
+
+.PHONY: delete-story-no-confirm
+delete-story-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting story nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle=labdoo_story
 
 .PHONY: delete-teams
 delete-teams: confirm ## 🗑️ Delete all team related nodes.
+	@$(MAKE) delete-teams-no-confirm
+
+.PHONY: delete-teams-no-confirm
+delete-teams-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting team nodes...$(RESET)"
 	$(DRUSH_COMMAND) entity:delete node --bundle=team_comment
 	$(DRUSH_COMMAND) entity:delete node --bundle=team_post
@@ -626,17 +666,17 @@ delete-teams: confirm ## 🗑️ Delete all team related nodes.
 	$(DRUSH_COMMAND) sql-query "DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'"
 
 .PHONY: delete-all
-delete-all: ## 🗑️ Delete all migrated entities (except wiki and teams).
+delete-all: confirm ## 🗑️ Delete all migrated entities (except wiki and teams).
 	@echo "$(YELLOW)⚠️ Deleting all migrated entities except wiki and teams...$(RESET)"
-	$(MAKE) delete-action
-	$(MAKE) delete-user
-	$(MAKE) delete-hub
-	$(MAKE) delete-edoovillage
-	$(MAKE) delete-dootronic
-	$(MAKE) delete-dootrip
-	$(MAKE) delete-gallery
-	$(MAKE) delete-page
-	$(MAKE) delete-story
+	$(MAKE) delete-action-no-confirm
+	$(MAKE) delete-user-no-confirm
+	$(MAKE) delete-hub-no-confirm
+	$(MAKE) delete-edoovillage-no-confirm
+	$(MAKE) delete-dootronic-no-confirm
+	$(MAKE) delete-dootrip-no-confirm
+	$(MAKE) delete-gallery-no-confirm
+	$(MAKE) delete-page-no-confirm
+	$(MAKE) delete-story-no-confirm
 
 .PHONY: confirm
 confirm: ## ❓ Ask for confirmation to continue.
