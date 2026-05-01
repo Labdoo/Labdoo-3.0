@@ -88,9 +88,9 @@ class NotificationManager {
     $emailParams = ['type' => 'LAPTOP_EVENT'];
 
     // Determine the event type based on the laptop status.
-    $status = $node->get('field_status')->value;
+    $status = $node->hasField('field_status') ? $node->get('field_status')->value : NULL;
     $isNew = $node->isNew();
-    $isUpdated = !$isNew && $node->hasField('field_status') && $node->original && $node->get('field_status')->value != $node->original->get('field_status')->value;
+    $isUpdated = !$isNew && $node->hasField('field_status') && !empty($node->original) && $node->get('field_status')->value != $node->original->get('field_status')->value;
 
     if ($isNew && $status == 'Tagged') {
       // New laptop tagged
@@ -243,8 +243,21 @@ class NotificationManager {
     $dootripUrl = Url::fromRoute('entity.node.canonical', ['node' => $dootripId], ['absolute' => TRUE])->toString();
 
     // Get origin and destination
-    $origin = $node->hasField('field_origin') && $node->get('field_origin')->first() ? $node->get('field_origin')->first()->value : '';
-    $destination = $node->hasField('field_destination') && $node->get('field_destination')->first() ? $node->get('field_destination')->first()->value : '';
+    $origin = '';
+    if ($node->hasField('field_origin_of_the_trip') && !$node->get('field_origin_of_the_trip')->isEmpty()) {
+      $origin = $node->get('field_origin_of_the_trip')->first()->value;
+    }
+    elseif ($node->hasField('field_origin') && !$node->get('field_origin')->isEmpty()) {
+      $origin = $node->get('field_origin')->first()->value;
+    }
+
+    $destination = '';
+    if ($node->hasField('field_destination_of_the_trip') && !$node->get('field_destination_of_the_trip')->isEmpty()) {
+      $destination = $node->get('field_destination_of_the_trip')->first()->value;
+    }
+    elseif ($node->hasField('field_destination') && !$node->get('field_destination')->isEmpty()) {
+      $destination = $node->get('field_destination')->first()->value;
+    }
 
     // Get recipient email addresses
     $mailConfig = $this->configFactory->get('system.site')->get('mail');
@@ -362,7 +375,7 @@ class NotificationManager {
     // Get team information
     $teamName = '';
     $teamId = 0;
-    if ($node->hasField('field_team')) {
+    if ($node->hasField('field_team') && !$node->get('field_team')->isEmpty()) {
       $teamId = $node->get('field_team')->target_id;
       $team = $this->entityTypeManager->getStorage('node')->load($teamId);
       if ($team) {
