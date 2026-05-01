@@ -82,8 +82,8 @@
       "source": {
         "fields": [
           {
-            "table": "node",
-            "key": "nid",
+            "table": "users",
+            "key": "uid",
             "field": "created"
           }
         ]
@@ -96,9 +96,9 @@
       "source": {
         "fields": [
           {
-            "table": "node",
-            "key": "nid",
-            "field": "changed"
+            "table": "users",
+            "key": "uid",
+            "field": "login"
           }
         ]
       },
