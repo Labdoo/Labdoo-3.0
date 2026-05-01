@@ -95,18 +95,16 @@ class IntegrityCheckCommands extends DrushCommands {
    */
   public function checkIntegrity(string $contentType, array $options = ['limit' => 5]): void {
     $limit = (int) $options['limit'];
-    $this->io()->title(sprintf('Checking integrity for %d random nodes of type %s', $limit, $contentType));
+    $this->io()->title(sprintf('Checking integrity for %d random migrated nodes of type %s', $limit, $contentType));
 
     try {
       $config = $this->configurationManager->getContentConfiguration($contentType);
       $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
 
-      $this->externalConnectionManager->setConnection();
-      $allNodeIds = $this->sourceRepository->getNodesByType($contentType, $mapping);
-      $this->externalConnectionManager->restoreConnection();
+      $allNodeIds = $this->migrationTracker->getMigratedSourceIds('node', $contentType);
 
       if (empty($allNodeIds)) {
-        $this->io()->warning('No nodes found in source for this content type.');
+        $this->io()->warning('No migrated nodes found for this content type.');
         return;
       }
 
