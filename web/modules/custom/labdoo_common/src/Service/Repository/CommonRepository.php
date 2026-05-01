@@ -238,7 +238,7 @@ class CommonRepository {
       $query->condition('n.uid', $userId);
     }
 
-    return $query->countQuery()->execute()->fetchField();
+    return (int) $query->countQuery()->execute()->fetchField();
   }
 
   /**
@@ -253,7 +253,7 @@ class CommonRepository {
     $query->condition('s.bundle', 'edoovillage');
 
     try {
-      return $query->execute()->fetchField();
+      return (int) $query->execute()->fetchField();
     }
     catch (\Exception $e) {
       $errorMessage = sprintf(
@@ -284,7 +284,7 @@ class CommonRepository {
       $query->condition('n.uid', $userId);
     }
 
-    return $query->countQuery()->execute()->fetchField();
+    return (int) $query->countQuery()->execute()->fetchField();
   }
 
   /**
@@ -305,7 +305,7 @@ class CommonRepository {
       $query->condition('n.uid', $userId);
     }
 
-    return $query->countQuery()->execute()->fetchField();
+    return (int) $query->countQuery()->execute()->fetchField();
   }
 
   /**
