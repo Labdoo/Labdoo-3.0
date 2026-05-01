@@ -4,6 +4,7 @@ namespace Drupal\labdoo_migrate\Services\DestinationContent;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -364,6 +365,10 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
         $value,
         $destination->getSpecialType()
       );
+    }
+
+    if ($destinationEntity instanceof EntityChangedInterface && isset($sourceEntity['changed'])) {
+      $destinationEntity->setChangedTime($sourceEntity['changed']);
     }
 
     return $this->dryRun || $this->saveEntity($destinationEntity);
