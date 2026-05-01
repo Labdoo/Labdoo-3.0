@@ -141,6 +141,10 @@ class DootripCompute implements DootripComputeInterface {
     $totalWeight = 0;
 
     foreach ($dootronics as $dootronic) {
+      if (!$dootronic->entity) {
+        continue;
+      }
+
       $weight = $dootronic->entity->get('field_weight')->value;
       if (!$weight) {
         $suffix = t('More than ');
@@ -213,11 +217,14 @@ class DootripCompute implements DootripComputeInterface {
   public function computeRelatedDootronics(EntityInterface &$dootrip): void {
     foreach ($dootrip->get('field_laptops') as $dootronic) {
       $dootronic = $dootronic->entity;
+      if (!$dootronic) {
+        continue;
+      }
+
       $found = FALSE;
 
       foreach ($dootronic->get('field_dootrips') as $dootripAssigned) {
-        $dootripAssigned = $dootripAssigned->entity;
-        if ($dootripAssigned->id() === $dootrip->id()) {
+        if ($dootripAssigned && $dootripAssigned->id() === $dootrip->id()) {
           $found = TRUE;
         }
       }
