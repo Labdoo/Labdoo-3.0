@@ -7,6 +7,7 @@ use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\MediaManagerInterface;
 use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
+use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -89,7 +90,8 @@ class TeamSynchronizerCommands extends DrushCommands {
     protected ConnectionManagerInterface $externalConnectionManager,
     protected FileManagerInterface $fileManager,
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected MediaManagerInterface $mediaManager
+    protected MediaManagerInterface $mediaManager,
+    protected MigrationTrackerInterface $migrationTracker
   ) {
     parent::__construct();
   }
@@ -419,7 +421,11 @@ class TeamSynchronizerCommands extends DrushCommands {
       $destinationEntity->set('uid', $sourceGroup['uid']);
       $destinationEntity->set('status', $sourceGroup['status']);
       $destinationEntity->set('created', $sourceGroup['created']);
-      $destinationEntity->set('changed', $sourceGroup['changed']);
+      $destinationEntity->setChangedTime($sourceGroup['changed']);
+
+      if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
+        $destinationEntity->setNewRevision(FALSE);
+      }
 
       // Set description field
       if (!empty($sourceGroup['body'])) {
@@ -455,6 +461,12 @@ class TeamSynchronizerCommands extends DrushCommands {
       // Save the entity if not in dry-run mode
       if (!$this->dryRun) {
         $destinationEntity->save();
+        $this->migrationTracker->track(
+          'node',
+          self::TEAM_CONTENT_TYPE,
+          $sourceGroup['nid'],
+          (int) $destinationEntity->id()
+        );
       }
 
       // Advance progress bar
@@ -731,7 +743,11 @@ class TeamSynchronizerCommands extends DrushCommands {
       $destinationEntity->set('uid', $sourcePost['uid']);
       $destinationEntity->set('status', $sourcePost['status']);
       $destinationEntity->set('created', $sourcePost['created']);
-      $destinationEntity->set('changed', $sourcePost['changed']);
+      $destinationEntity->setChangedTime($sourcePost['changed']);
+
+      if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
+        $destinationEntity->setNewRevision(FALSE);
+      }
 
       // Set description field
       if (!empty($sourcePost['body'])) {
@@ -783,6 +799,14 @@ class TeamSynchronizerCommands extends DrushCommands {
                 'mail' => $sourceComment['mail'],
               ]);
             $comment->save();
+
+            // Track the comment
+            $this->migrationTracker->track(
+              'comment',
+              'comment',
+              $sourceComment['cid'],
+              (int) $comment->id()
+            );
           }
         }
       }
@@ -862,6 +886,12 @@ class TeamSynchronizerCommands extends DrushCommands {
       // Save the entity if not in dry-run mode
       if (!$this->dryRun) {
         $destinationEntity->save();
+        $this->migrationTracker->track(
+          'node',
+          self::TEAM_POST_CONTENT_TYPE,
+          $sourcePost['nid'],
+          (int) $destinationEntity->id()
+        );
       }
 
       // Advance progress bar
