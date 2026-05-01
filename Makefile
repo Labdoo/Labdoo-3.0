@@ -112,6 +112,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-process" "⚙️  Process the migration queue (labdoo_migrate_migration)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-process-bg" "⚙️  Process the migration queue in background (labdoo_migrate_migration)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-stats" "📊 Show statistics of the migration queue."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "entity-stats" "📊 Show statistics of entities."
 	@echo ""
 
 .PHONY: pull
@@ -594,6 +595,12 @@ queue-process-bg: ## ⚙️ Process all migration queues in background.
 queue-stats: ## 📊 Show statistics of the migration queues.
 	@echo "$(CYAN)📊 Migration queues statistics:$(RESET)"
 	$(DRUSH_COMMAND) queue:list | grep labdoo_migrate_migration
+	@echo ""
+
+.PHONY: entity-stats
+entity-stats: ## 📊 Show statistics of entities.
+	@echo "$(CYAN)📊 Entity statistics:$(RESET)"
+	$(DRUSH_COMMAND) labdoo:entity-stats
 	@echo ""
 
 .PHONY: delete-action
