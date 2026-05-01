@@ -8,12 +8,14 @@ use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\labdoo_migrate\Model\SpecialTypeModel;
 use Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeFactory;
 use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
+use Drupal\user\EntityOwnerInterface;
 use Psr\Log\LoggerAwareTrait;
 
 /**
@@ -619,14 +621,23 @@ class DestinationRepository implements DestinationRepositoryInterface {
     }
 
     foreach ($accumulatedValues as $fieldName => $value) {
-      if ($fieldName === 'uid' && $destinationEntity instanceof \Drupal\user\EntityOwnerInterface) {
+      if ($fieldName === 'uid' && $destinationEntity instanceof EntityOwnerInterface) {
         continue;
       }
-      $destinationEntity->set($fieldName, NULL);
+
+      // If the field is multi-valued, clear it properly by setting an empty array.
+      $fieldDefinition = $destinationEntity->getFieldDefinition($fieldName);
+      if ($fieldDefinition->getFieldStorageDefinition()->isMultiple()) {
+        $destinationEntity->set($fieldName, []);
+      }
+      else {
+        $destinationEntity->set($fieldName, NULL);
+      }
+
       $destinationEntity->set($fieldName, $value);
     }
 
-    if (($destinationEntity instanceof \Drupal\user\EntityOwnerInterface || $destinationEntity instanceof \Drupal\Core\Session\AccountInterface) && isset($accumulatedValues['uid'])) {
+    if (($destinationEntity instanceof EntityOwnerInterface || $destinationEntity instanceof \Drupal\Core\Session\AccountInterface) && isset($accumulatedValues['uid'])) {
       $uid = is_array($accumulatedValues['uid']) ? ($accumulatedValues['uid'][0]['target_id'] ?? $accumulatedValues['uid'][0]) : $accumulatedValues['uid'];
       if (method_exists($destinationEntity, 'setOwnerId')) {
         $destinationEntity->setOwnerId($uid);
@@ -757,7 +768,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
     }
 
     try {
-      if ($entity instanceof \Drupal\Core\Entity\RevisionableInterface) {
+      if ($entity instanceof RevisionableInterface) {
         $entity->setNewRevision(FALSE);
       }
       return $entity->save();
@@ -857,6 +868,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
       return $entity;
     }
 
+    // Always purge orphaned field data before creating a new node with a fixed ID.
+    $this->purgeOrphanedNodeFieldData($entityId);
+
     return $this->entityTypeManager
       ->getStorage('node')
       ->create([
@@ -888,12 +902,18 @@ class DestinationRepository implements DestinationRepositoryInterface {
 
       foreach ($fieldDefinitions as $definition) {
         if ($tableMapping->requiresDedicatedTableStorage($definition)) {
-          $database->delete($tableMapping->getDedicatedDataTableName($definition))
-            ->condition('entity_id', $entityId)
-            ->execute();
-          $database->delete($tableMapping->getDedicatedRevisionTableName($definition))
-            ->condition('entity_id', $entityId)
-            ->execute();
+          $dataTable = $tableMapping->getDedicatedDataTableName($definition);
+          if ($database->schema()->tableExists($dataTable)) {
+            $database->delete($dataTable)
+              ->condition('entity_id', $entityId)
+              ->execute();
+          }
+          $revisionTable = $tableMapping->getDedicatedRevisionTableName($definition);
+          if ($database->schema()->tableExists($revisionTable)) {
+            $database->delete($revisionTable)
+              ->condition('entity_id', $entityId)
+              ->execute();
+          }
         }
       }
       $this->logger->debug(sprintf(
