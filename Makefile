@@ -92,6 +92,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all-incremental-bg" "🌙 Run incremental migration for all entities in background."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-bg" "🌙 Run migration in background with nohup and migration-[entity].log."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-incremental-bg" "🌙 Run incremental migration in background."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-check-integrity" "🔍 Compare N random nodes from D7 with D10."
 	@echo ""
 	@echo "$(GREEN)[ Deletion ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-action" "🗑️  Delete all action nodes."
@@ -545,6 +546,15 @@ migrate-dootrip-incremental-bg: ## 🌙 Run incremental dootrip migration in bac
 migrate-team-incremental-bg: ## 🌙 Run incremental team migration in background.
 	@echo "$(CYAN)🌙 Running incremental team migration in background (migration-team-incremental.log)...$(RESET)"
 	nohup sh -c "vendor/bin/drush labdoo-sync-teams --incremental" > migration-team-incremental.log 2>&1 &
+
+.PHONY: migrate-check-integrity
+migrate-check-integrity: ## 🔍 Compare N random nodes from D7 with D10 (e.g., make migrate-check-integrity type=story limit=10).
+	@if [ -z "$(type)" ]; then \
+		echo "$(RED)❌ Error: You must specify a content type (e.g., make migrate-check-integrity type=story).$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🔍 Checking integrity for $(type) nodes...$(RESET)"
+	$(DRUSH_COMMAND) labdoo:migrate-check-integrity $(type) --limit=$(or $(limit),5)
 
 .PHONY: queue-process
 queue-process: ## ⚙️ Process all migration queues.

@@ -299,4 +299,18 @@ class MigrationTracker implements MigrationTrackerInterface {
     return $sourceId ? (int) $sourceId : NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDestinationIdBySourceId(string $entityType, int $sourceId): ?int {
+    $destinationId = $this->database->select(self::TRACKING_TABLE, 't')
+      ->fields('t', ['destination_id'])
+      ->condition('t.entity_type', $entityType)
+      ->condition('t.source_id', $sourceId)
+      ->execute()
+      ->fetchField();
+
+    return $destinationId ? (int) $destinationId : NULL;
+  }
+
 }
