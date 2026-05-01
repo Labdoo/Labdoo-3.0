@@ -99,51 +99,63 @@ class IntegrityCheckCommands extends DrushCommands {
 
     try {
       $config = $this->configurationManager->getContentConfiguration($contentType);
+      $entityType = $config->getEntityType();
       $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
 
-      $allNodeIds = $this->migrationTracker->getMigratedSourceIds('node', $contentType);
+      $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $contentType);
 
-      if (empty($allNodeIds)) {
+      if (empty($allIds)) {
         $this->io()->warning('No migrated nodes found for this content type.');
         return;
       }
 
-      shuffle($allNodeIds);
-      $selectedIds = array_slice($allNodeIds, 0, $limit);
+      shuffle($allIds);
+      $selectedIds = array_slice($allIds, 0, $limit);
 
       $results = [];
-      foreach ($selectedIds as $nid) {
-        $this->io()->text("Checking Source Node ID: $nid");
+      foreach ($selectedIds as $sid) {
+        $this->io()->text("Checking Source ID: $sid");
 
-        $destId = $this->migrationTracker->getDestinationIdBySourceId('node', $nid);
+        $destId = $this->migrationTracker->getDestinationIdBySourceId($entityType, $sid);
         if (!$destId) {
-          $results[] = [$nid, 'N/A', 'ERROR', 'Not found in D10'];
+          $results[] = [$sid, 'N/A', 'ERROR', 'Not found in D10'];
           continue;
         }
 
         // Get source data.
+        $sourceRepositoryService = sprintf(
+          'labdoo_migrate.source_content.repository.%s',
+          $entityType
+        );
+        /** @var \Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface $sourceRepo */
+        $sourceRepo = \Drupal::service($sourceRepositoryService);
+
         $this->externalConnectionManager->setConnection();
-        $sourceDataRaw = $this->sourceRepository->getEntity($contentType, $mapping, $nid);
+        $sourceDataRaw = $sourceRepo->getEntity($contentType, $mapping, $sid);
         $this->externalConnectionManager->restoreConnection();
 
-        $mainLang = $sourceDataRaw['metadata']['main_langcode'] ?? 'en';
-        $sourceData = $sourceDataRaw[$mainLang] ?? [];
+        if ($entityType === 'user') {
+          $sourceData = $sourceDataRaw;
+        }
+        else {
+          $mainLang = $sourceDataRaw['metadata']['main_langcode'] ?? 'en';
+          $sourceData = $sourceDataRaw[$mainLang] ?? [];
+        }
 
-        // Get destination node.
-        /** @var \Drupal\node\NodeInterface $destNode */
-        $destNode = $this->entityTypeManager->getStorage('node')->load($destId);
-        if (!$destNode) {
-          $results[] = [$nid, $destId, 'ERROR', 'D10 node could not be loaded'];
+        // Get destination entity.
+        $destEntity = $this->entityTypeManager->getStorage($entityType)->load($destId);
+        if (!$destEntity) {
+          $results[] = [$sid, $destId, 'ERROR', 'D10 entity could not be loaded'];
           continue;
         }
 
-        $nodeErrors = $this->compareData($sourceData, $destNode, $mapping);
-        if (empty($nodeErrors)) {
-          $results[] = [$nid, $destId, 'OK', 'All fields match'];
+        $entityErrors = $this->compareData($sourceData, $destEntity, $mapping);
+        if (empty($entityErrors)) {
+          $results[] = [$sid, $destId, 'OK', 'All fields match'];
         }
         else {
-          foreach ($nodeErrors as $error) {
-            $results[] = [$nid, $destId, 'ERROR', $error];
+          foreach ($entityErrors as $error) {
+            $results[] = [$sid, $destId, 'ERROR', $error];
           }
         }
       }
@@ -166,7 +178,7 @@ class IntegrityCheckCommands extends DrushCommands {
       $destField = $map->getDestinationField()->getFieldName();
 
       // Some fields might be internal metadata or ignored.
-      if (in_array($destField, ['nid', 'vid', 'type', 'uuid', 'langcode'])) {
+      if (in_array($destField, ['nid', 'vid', 'type', 'uuid', 'langcode', 'pass', 'preferred_langcode'])) {
         continue;
       }
 
