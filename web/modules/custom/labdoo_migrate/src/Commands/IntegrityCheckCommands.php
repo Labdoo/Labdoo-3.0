@@ -204,19 +204,27 @@ class IntegrityCheckCommands extends DrushCommands {
     }
 
     $values = $field->getValue();
-    if (count($values) === 1) {
-      $val = $values[0];
-      // common keys: value, target_id, uri, etc.
-      if (isset($val['value'])) {
-        return $val['value'];
+    $processedValues = [];
+    foreach ($values as $val) {
+      if (isset($val['latlon'])) {
+        $processedValues[] = $val['latlon'];
       }
-      if (isset($val['target_id'])) {
-        return $val['target_id'];
+      elseif (isset($val['target_id'])) {
+        $processedValues[] = $val['target_id'];
       }
-      return $val;
+      elseif (isset($val['value'])) {
+        $processedValues[] = $val['value'];
+      }
+      else {
+        $processedValues[] = $val;
+      }
     }
 
-    return $values;
+    if (count($processedValues) === 1) {
+      return $processedValues[0];
+    }
+
+    return $processedValues;
   }
 
   /**
@@ -226,9 +234,34 @@ class IntegrityCheckCommands extends DrushCommands {
     if (is_null($val1) && is_null($val2)) {
       return TRUE;
     }
+
     if (is_array($val1) && is_array($val2)) {
-      return $val1 == $val2;
+      if (count($val1) !== count($val2)) {
+        return FALSE;
+      }
+      foreach ($val1 as $k => $v) {
+        if (!$this->isEqual($v, $val2[$k])) {
+          return FALSE;
+        }
+      }
+      return TRUE;
     }
+
+    // Handle numeric strings with different precision/trailing zeros.
+    if (is_string($val1) && is_string($val2) && strpos($val1, ',') !== FALSE && strpos($val2, ',') !== FALSE) {
+      $parts1 = explode(',', $val1);
+      $parts2 = explode(',', $val2);
+      if (count($parts1) === 2 && count($parts2) === 2) {
+        if (is_numeric($parts1[0]) && is_numeric($parts1[1]) && is_numeric($parts2[0]) && is_numeric($parts2[1])) {
+          return abs((float)$parts1[0] - (float)$parts2[0]) < 0.000001 && abs((float)$parts1[1] - (float)$parts2[1]) < 0.000001;
+        }
+      }
+    }
+
+    if (is_numeric($val1) && is_numeric($val2)) {
+      return (float)$val1 == (float)$val2;
+    }
+
     // Drupal 7 often has strings, Drupal 10 might have integers or strings.
     return (string) $val1 === (string) $val2;
   }
