@@ -51,3 +51,55 @@ function labdoo_common_update_9001(): void {
 
   $schema->dropTable('labdoo_common_geocode_cache');
 }
+
+/**
+ * Add performance indexes for slow queries.
+ */
+function labdoo_common_update_9002(): void {
+  $database = \Drupal::database();
+  $schema = $database->schema();
+
+  // Index for labdoo_scraper_results (discovered_url).
+  if ($schema->tableExists('labdoo_scraper_results')) {
+    if (!$schema->indexExists('labdoo_scraper_results', 'labdoo_scraper_results__discovered_url')) {
+      $schema->addIndex('labdoo_scraper_results', 'labdoo_scraper_results__discovered_url', ['discovered_url'], [
+        'fields' => [
+          'discovered_url' => ['type' => 'varchar', 'length' => 191],
+        ],
+      ]);
+    }
+  }
+
+  // Index for node__field_stream_it (field_stream_it_value).
+  if ($schema->tableExists('node__field_stream_it')) {
+    if (!$schema->indexExists('node__field_stream_it', 'node__field_stream_it__value')) {
+      $schema->addIndex('node__field_stream_it', 'node__field_stream_it__value', ['field_stream_it_value'], [
+        'fields' => [
+          'field_stream_it_value' => ['type' => 'int', 'size' => 'tiny'],
+        ],
+      ]);
+    }
+  }
+
+  // Composite index for node_field_data (status, type, created).
+  if ($schema->tableExists('node_field_data')) {
+    if (!$schema->indexExists('node_field_data', 'node_field_data__status_type_created')) {
+      $schema->addIndex('node_field_data', 'node_field_data__status_type_created', ['status', 'type', 'created'], [
+        'fields' => [
+          'status' => ['type' => 'int', 'size' => 'tiny'],
+          'type' => ['type' => 'varchar', 'length' => 32],
+          'created' => ['type' => 'int'],
+        ],
+      ]);
+    }
+    // Composite index for node_field_data (type, title).
+    if (!$schema->indexExists('node_field_data', 'node_field_data__type_title')) {
+      $schema->addIndex('node_field_data', 'node_field_data__type_title', [['title', 191], 'type'], [
+        'fields' => [
+          'title' => ['type' => 'varchar', 'length' => 255],
+          'type' => ['type' => 'varchar', 'length' => 32],
+        ],
+      ]);
+    }
+  }
+}
