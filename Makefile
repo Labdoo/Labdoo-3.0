@@ -99,17 +99,28 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-check-integrity" "🔍 Compare N random nodes from D7 with D10."
 	@echo ""
 	@echo "$(GREEN)[ Deletion ]$(RESET)"
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-bundle-fast" "🗑️  Delete nodes of a bundle (FAST SQL). Usage: make delete-bundle-fast bundle=TYPE"
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-action-fast" "🗑️  Delete all action nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-action" "🗑️  Delete all action nodes."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-user" "🗑️  Delete all users (except admin)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-hub-fast" "🗑️  Delete all hub nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-hub" "🗑️  Delete all hub nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-edoovillage-fast" "🗑️  Delete all edoovillage nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-edoovillage" "🗑️  Delete all edoovillage nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-dootronic-fast" "🗑️  Delete all dootronic nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-dootronic" "🗑️  Delete all dootronic nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-dootrip-fast" "🗑️  Delete all dootrip nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-dootrip" "🗑️  Delete all dootrip nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-gallery-fast" "🗑️  Delete all gallery nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-gallery" "🗑️  Delete all gallery nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-page-fast" "🗑️  Delete all basic page nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-page" "🗑️  Delete all basic page nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-story-fast" "🗑️  Delete all labdoo story nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-story" "🗑️  Delete all labdoo story nodes."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-teams-fast" "🗑️  Delete all team nodes (FAST SQL)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-teams" "🗑️  Delete all team related nodes."
-	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-all" "🗑️  Delete all migrated entities (except wiki)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-all-fast" "🗑️  Delete all migrated entities (FAST SQL)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-all" "🗑️  Delete all migrated entities."
 	@echo ""
 	@echo "$(GREEN)[ Queue ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "queue-process" "⚙️  Process the migration queue (labdoo_migrate_migration)."
@@ -623,14 +634,39 @@ entity-stats: ## 📊 Show statistics of entities.
 	$(DRUSH_COMMAND) labdoo:entity-stats
 	@echo ""
 
+.PHONY: delete-bundle-fast
+delete-bundle-fast: ## 🗑️ Delete nodes of a specific bundle (FAST SQL). Usage: make delete-bundle-fast bundle=action
+	@if [ -z "$(bundle)" ]; then \
+		echo "$(RED)❌ Error: You must specify a bundle (e.g., make delete-bundle-fast bundle=action).$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🗑️ Deleting $(bundle) nodes (fast)...$(RESET)"
+	$(DRUSH_COMMAND) labdoo_migrate:purge-bundle node $(bundle)
+
+.PHONY: delete-bundle-fast-no-confirm
+delete-bundle-fast-no-confirm:
+	@if [ -z "$(bundle)" ]; then \
+		echo "$(RED)❌ Error: You must specify a bundle (e.g., make delete-bundle-fast-no-confirm bundle=action).$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🗑️ Deleting $(bundle) nodes (fast, no confirm)...$(RESET)"
+	$(DRUSH_COMMAND) labdoo_migrate:purge-bundle node $(bundle) -y
+
 .PHONY: delete-action
 delete-action: confirm ## 🗑️ Delete all action nodes.
-	@$(MAKE) delete-action-no-confirm
+	@$(MAKE) delete-action-fast
 
 .PHONY: delete-action-no-confirm
 delete-action-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting action nodes...$(RESET)"
-	$(DRUSH_COMMAND) entity:delete node --bundle action
+	@$(MAKE) delete-action-fast-no-confirm
+
+.PHONY: delete-action-fast
+delete-action-fast: ## 🗑️ Delete all action nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast bundle=action
+
+.PHONY: delete-action-fast-no-confirm
+delete-action-fast-no-confirm:
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=action
 
 .PHONY: delete-user
 delete-user: confirm ## 🗑️ Delete all users (except admin).
@@ -645,86 +681,146 @@ delete-user-no-confirm:
 
 .PHONY: delete-hub
 delete-hub: confirm ## 🗑️ Delete all hub nodes.
-	@$(MAKE) delete-hub-no-confirm
+	@$(MAKE) delete-hub-fast
 
 .PHONY: delete-hub-no-confirm
 delete-hub-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting hub nodes...$(RESET)"
-	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y
-	$(DRUSH_COMMAND) entity:delete node --bundle=hub
-	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y
+	@$(MAKE) delete-hub-fast-no-confirm
+
+.PHONY: delete-hub-fast
+delete-hub-fast: ## 🗑️ Delete all hub nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast bundle=hub
+
+.PHONY: delete-hub-fast-no-confirm
+delete-hub-fast-no-confirm:
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=hub
 
 .PHONY: delete-edoovillage
 delete-edoovillage: confirm ## 🗑️ Delete all edoovillage nodes.
-	@$(MAKE) delete-edoovillage-no-confirm
+	@$(MAKE) delete-edoovillage-fast
 
 .PHONY: delete-edoovillage-no-confirm
 delete-edoovillage-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting edoovillage nodes...$(RESET)"
-	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y
-	$(DRUSH_COMMAND) entity:delete node --bundle=edoovillage
-	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y
+	@$(MAKE) delete-edoovillage-fast-no-confirm
+
+.PHONY: delete-edoovillage-fast
+delete-edoovillage-fast: ## 🗑️ Delete all edoovillage nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast bundle=edoovillage
+
+.PHONY: delete-edoovillage-fast-no-confirm
+delete-edoovillage-fast-no-confirm:
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=edoovillage
 
 .PHONY: delete-dootronic
 delete-dootronic: confirm ## 🗑️ Delete all dootronic nodes.
-	@$(MAKE) delete-dootronic-no-confirm
+	@$(MAKE) delete-dootronic-fast
 
 .PHONY: delete-dootronic-no-confirm
 delete-dootronic-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting dootronic nodes...$(RESET)"
-	$(DRUSH_COMMAND) entity:delete node --bundle=dootronic
+	@$(MAKE) delete-dootronic-fast-no-confirm
+
+.PHONY: delete-dootronic-fast
+delete-dootronic-fast: ## 🗑️ Delete all dootronic nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast bundle=dootronic
+
+.PHONY: delete-dootronic-fast-no-confirm
+delete-dootronic-fast-no-confirm:
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=dootronic
 
 .PHONY: delete-dootrip
 delete-dootrip: confirm ## 🗑️ Delete all dootrip nodes.
-	@$(MAKE) delete-dootrip-no-confirm
+	@$(MAKE) delete-dootrip-fast
 
 .PHONY: delete-dootrip-no-confirm
 delete-dootrip-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting dootrip nodes...$(RESET)"
-	$(DRUSH_COMMAND) entity:delete node --bundle=dootrip
+	@$(MAKE) delete-dootrip-fast-no-confirm
+
+.PHONY: delete-dootrip-fast
+delete-dootrip-fast: ## 🗑️ Delete all dootrip nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast bundle=dootrip
+
+.PHONY: delete-dootrip-fast-no-confirm
+delete-dootrip-fast-no-confirm:
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=dootrip
 
 .PHONY: delete-gallery
 delete-gallery: confirm ## 🗑️ Delete all gallery nodes.
-	@$(MAKE) delete-gallery-no-confirm
+	@$(MAKE) delete-gallery-fast
 
 .PHONY: delete-gallery-no-confirm
 delete-gallery-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting gallery nodes...$(RESET)"
-	$(DRUSH_COMMAND) entity:delete node --bundle=gallery
+	@$(MAKE) delete-gallery-fast-no-confirm
+
+.PHONY: delete-gallery-fast
+delete-gallery-fast: ## 🗑️ Delete all gallery nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast bundle=gallery
+
+.PHONY: delete-gallery-fast-no-confirm
+delete-gallery-fast-no-confirm:
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=gallery
 
 .PHONY: delete-page
 delete-page: confirm ## 🗑️ Delete all basic page nodes.
-	@$(MAKE) delete-page-no-confirm
+	@$(MAKE) delete-page-fast
 
 .PHONY: delete-page-no-confirm
 delete-page-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting basic page nodes...$(RESET)"
-	$(DRUSH_COMMAND) entity:delete node --bundle=basic_page
+	@$(MAKE) delete-page-fast-no-confirm
+
+.PHONY: delete-page-fast
+delete-page-fast: ## 🗑️ Delete all basic page nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast bundle=basic_page
+
+.PHONY: delete-page-fast-no-confirm
+delete-page-fast-no-confirm:
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=basic_page
 
 .PHONY: delete-story
 delete-story: confirm ## 🗑️ Delete all labdoo story nodes.
-	@$(MAKE) delete-story-no-confirm
+	@$(MAKE) delete-story-fast
 
 .PHONY: delete-story-no-confirm
 delete-story-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting story nodes...$(RESET)"
-	$(DRUSH_COMMAND) entity:delete node --bundle=labdoo_story
+	@$(MAKE) delete-story-fast-no-confirm
+
+.PHONY: delete-story-fast
+delete-story-fast: ## 🗑️ Delete all labdoo story nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast bundle=labdoo_story
+
+.PHONY: delete-story-fast-no-confirm
+delete-story-fast-no-confirm:
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=labdoo_story
 
 .PHONY: delete-teams
 delete-teams: confirm ## 🗑️ Delete all team related nodes.
-	@$(MAKE) delete-teams-no-confirm
+	@$(MAKE) delete-teams-fast
 
 .PHONY: delete-teams-no-confirm
 delete-teams-no-confirm:
-	@echo "$(CYAN)🗑️ Deleting team nodes...$(RESET)"
-	$(DRUSH_COMMAND) entity:delete node --bundle=team_comment
-	$(DRUSH_COMMAND) entity:delete node --bundle=team_post
-	$(DRUSH_COMMAND) entity:delete node --bundle=team
+	@$(MAKE) delete-teams-fast-no-confirm
+
+.PHONY: delete-teams-fast
+delete-teams-fast: ## 🗑️ Delete all team nodes (FAST SQL).
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=team_comment
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=team_post
+	@$(MAKE) delete-bundle-fast-no-confirm bundle=team
 	$(DRUSH_COMMAND) sql-query "DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'"
+
+.PHONY: delete-teams-fast-no-confirm
+delete-teams-fast-no-confirm:
+	@$(MAKE) delete-teams-fast
 
 .PHONY: delete-all
 delete-all: confirm ## 🗑️ Delete all migrated entities.
-	@echo "$(YELLOW)⚠️ Deleting all migrated entities...$(RESET)"
+	@$(MAKE) delete-all-fast-no-confirm
+
+.PHONY: delete-all-fast
+delete-all-fast: confirm ## 🗑️ Delete all migrated entities (FAST SQL).
+	@$(MAKE) delete-all-fast-no-confirm
+
+.PHONY: delete-all-fast-no-confirm
+delete-all-fast-no-confirm:
+	@echo "$(YELLOW)⚠️ Deleting all migrated entities (FAST)...$(RESET)"
 	$(MAKE) delete-action-no-confirm
 	$(MAKE) delete-user-no-confirm
 	$(MAKE) delete-hub-no-confirm
@@ -733,6 +829,7 @@ delete-all: confirm ## 🗑️ Delete all migrated entities.
 	$(MAKE) delete-dootrip-no-confirm
 	$(MAKE) delete-gallery-no-confirm
 	$(MAKE) delete-story-no-confirm
+	$(MAKE) delete-page-no-confirm
 	$(MAKE) delete-teams-no-confirm
 
 .PHONY: confirm

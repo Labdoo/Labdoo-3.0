@@ -88,3 +88,12 @@ services:
       - '@language_manager'
     tags:
       - { name: drush.command }
+
+  labdoo_migrate.purge_commands:
+    class: \Drupal\labdoo_migrate\Commands\PurgeCommands
+    arguments:
+      - '@database'
+      - '@entity_type.manager'
+      - '@cache_tags.invalidator'
+    tags:
+      - { name: drush.command }
