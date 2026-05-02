@@ -398,9 +398,15 @@ class BasicPageSynchronizerCommands extends DrushCommands {
     $entity->set('status', $values['status']);
     $entity->set('created', $values['created']);
     $entity->set('changed', $values['changed']);
+    if (method_exists($entity, 'setChangedTime')) {
+      $entity->setChangedTime($values['changed']);
+    }
     $entity->set('body', $body);
 
     if (!$this->dryRun) {
+      if (method_exists($entity, 'setSyncing')) {
+        $entity->setSyncing(TRUE);
+      }
       $entity->save();
     }
   }

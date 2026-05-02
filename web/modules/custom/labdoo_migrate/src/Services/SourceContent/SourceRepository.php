@@ -132,6 +132,9 @@ class SourceRepository implements SourceRepositoryInterface {
 
     $entity = [];
     $mainEntityLangCode = $this->translationRepository->getLangCode($entityId);
+    if ($mainEntityLangCode === '' || $mainEntityLangCode === 'und') {
+      $mainEntityLangCode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+    }
     $entity['metadata']['main_langcode'] = $mainEntityLangCode;
     $entity[$mainEntityLangCode] = $this->getFieldValues(
       $entityId,
@@ -430,10 +433,24 @@ class SourceRepository implements SourceRepositoryInterface {
     );
 
     try {
-      $dbResults = $this->getQueryResults($field, $search, TRUE, $langCode);
+      $dbResults = $this->getQueryResults(
+        $field,
+        $search,
+        TRUE,
+        $langCode,
+        NULL,
+        $field->getTableName() === 'node'
+      );
     }
     catch (\Throwable $e) {
-      $dbResults = $this->getQueryResults($field, $search, FALSE, $langCode);
+      $dbResults = $this->getQueryResults(
+        $field,
+        $search,
+        FALSE,
+        $langCode,
+        NULL,
+        $field->getTableName() === 'node'
+      );
     }
 
     $value = [];
@@ -464,6 +481,10 @@ class SourceRepository implements SourceRepositoryInterface {
    *   If TRUE, a condition will be added to search by criteria.
    * @param string|null $langCode
    *   Optional language code.
+   * @param string|null $specialCondition
+   *   Optional special condition.
+   * @param bool $ignoreBundle
+   *   If TRUE, ignores the bundle (type) filter.
    *
    * @return array
    *   Returns the results of the query.
@@ -473,7 +494,8 @@ class SourceRepository implements SourceRepositoryInterface {
     $search = NULL,
     bool $bundle = TRUE,
     ?string $langCode = NULL,
-    ?string $specialCondition = NULL
+    ?string $specialCondition = NULL,
+    bool $ignoreBundle = FALSE
   ): array {
 
     $query = $this->externalConnectionManager
@@ -497,7 +519,7 @@ class SourceRepository implements SourceRepositoryInterface {
       $query->condition($field->getKeyName(), $search, $field->getOperator());
     }
 
-    if ($bundle) {
+    if ($bundle && !$ignoreBundle) {
       $query->condition('type', $this->contentType);
     }
 

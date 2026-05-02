@@ -5,6 +5,7 @@ namespace Drupal\labdoo_migrate\Commands;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
+use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
 use Drupal\Core\Database\Query\Condition;
@@ -72,7 +73,8 @@ class StorySynchronizerCommands extends DrushCommands {
   public function __construct(
     protected ConnectionManagerInterface $externalConnectionManager,
     protected FileManagerInterface $fileManager,
-    protected EntityTypeManagerInterface $entityTypeManager
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected MigrationTrackerInterface $migrationTracker
   ) {
     parent::__construct();
   }
@@ -320,6 +322,7 @@ class StorySynchronizerCommands extends DrushCommands {
         $fid = NULL;
         if (
           !empty($section['picture'])
+          && is_object($section['picture'])
           && empty($section['picture']->uri)
           && empty($section['picture']->name)
           && empty($section['picture']->content)
@@ -333,8 +336,8 @@ class StorySynchronizerCommands extends DrushCommands {
         }
 
         $textValue = [
-          'value' => $section['text']->field_story_text_value,
-          'format' => $this->mapFormat($section['text']->field_story_text_format),
+          'value' => (is_object($section['text'])) ? $section['text']->field_story_text_value : '',
+          'format' => $this->mapFormat((is_object($section['text'])) ? $section['text']->field_story_text_format : NULL),
         ];
         $newParagraph = $this->entityTypeManager
           ->getStorage('paragraph')
@@ -344,7 +347,7 @@ class StorySynchronizerCommands extends DrushCommands {
             'field_story_text' => $textValue,
             'field_story_picture' => $fid,
           ]);
-        if ($fid !== NULL) {
+        if ($fid !== NULL && is_object($section['picture'])) {
           $newParagraph->set(
             'field_story_picture',
             [
@@ -367,12 +370,23 @@ class StorySynchronizerCommands extends DrushCommands {
       $destinationEntity->set('uid', $sourceEntity['uid']);
       $destinationEntity->set('status', $sourceEntity['status']);
       $destinationEntity->set('created', $sourceEntity['created']);
-      $destinationEntity->set('changed', $sourceEntity['changed']);
       $destinationEntity->set('field_parent', $sourceEntity['edoovillage']);
       $destinationEntity->set('field_story_section', $paragraphs);
+      $destinationEntity->set('changed', $sourceEntity['changed']);
+      $destinationEntity->setChangedTime($sourceEntity['changed']);
 
       if (!$this->dryRun) {
+        if (method_exists($destinationEntity, 'setSyncing')) {
+          $destinationEntity->setSyncing(TRUE);
+        }
         $destinationEntity->save();
+        $this->migrationTracker->track(
+          'node',
+          self::CONTENT_TYPE,
+          $sourceEntity['nid'],
+          $destinationEntity->id(),
+          (int) ((microtime(TRUE) - $this->startTime) * 1000)
+        );
       }
 
       // Advance progress bar

@@ -110,9 +110,25 @@ class IntegrityCheckCommands extends DrushCommands {
   public function checkIntegrity(string $contentType, array $options = ['limit' => 5, 'destination-type' => NULL, 'nids' => NULL]): void {
     $limit = (int) $options['limit'];
     $destinationType = $options['destination-type'] ?? $contentType;
+    if (($contentType === 'story' || $destinationType === 'story') && $options['destination-type'] === NULL) {
+      $destinationType = 'labdoo_story';
+    }
+    if ($destinationType === 'story') {
+      $destinationType = 'labdoo_story';
+    }
+    if ($contentType === 'team_task' && $options['destination-type'] === NULL) {
+      $destinationType = 'task_team';
+    }
     $nids = $options['nids'] ? explode(',', $options['nids']) : [];
 
-    $this->io()->title(sprintf('Checking integrity for %d random migrated nodes of type %s (D7) -> %s (D10)', $limit, $contentType, $destinationType));
+    // Bundle mapping for D7 vs D10.
+    $bundleMapping = [
+      'story' => 'labdoo_story',
+      'team_task' => 'team_task',
+    ];
+    $sourceContentType = $bundleMapping[$contentType] ?? $contentType;
+
+    $this->io()->title(sprintf('Checking integrity for %d random migrated nodes of type %s (D7) -> %s (D10)', $limit, $sourceContentType, $destinationType));
 
     try {
       $config = $this->configurationManager->getContentConfiguration($contentType);
@@ -153,7 +169,7 @@ class IntegrityCheckCommands extends DrushCommands {
         $sourceRepo = \Drupal::getContainer()->get($sourceRepositoryService);
 
         $this->externalConnectionManager->setConnection();
-        $sourceDataRaw = $sourceRepo->getEntity($contentType, $mapping, $sid);
+        $sourceDataRaw = $sourceRepo->getEntity($sourceContentType, $mapping, $sid);
         $this->externalConnectionManager->restoreConnection();
 
         $defaultLang = $this->languageManager->getDefaultLanguage()->getId();

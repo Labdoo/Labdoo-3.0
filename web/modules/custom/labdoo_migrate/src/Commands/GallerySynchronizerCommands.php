@@ -494,6 +494,9 @@ class GallerySynchronizerCommands extends DrushCommands {
       $destinationEntity->set('status', $sourceGallery['status']);
       $destinationEntity->set('created', $sourceGallery['created']);
       $destinationEntity->set('changed', $sourceGallery['changed']);
+      if (method_exists($destinationEntity, 'setChangedTime')) {
+        $destinationEntity->setChangedTime($sourceGallery['changed']);
+      }
 
       // Set description field
       if (!empty($sourceGallery['body'])) {
@@ -519,6 +522,9 @@ class GallerySynchronizerCommands extends DrushCommands {
 
       // Save the entity
       if (!$this->dryRun) {
+        if (method_exists($destinationEntity, 'setSyncing')) {
+          $destinationEntity->setSyncing(TRUE);
+        }
         $destinationEntity->save();
         $this->advanceProgressBar();
         $success = TRUE;
@@ -677,9 +683,15 @@ class GallerySynchronizerCommands extends DrushCommands {
                     'created' => $mediaData['created'],
                     'changed' => $mediaData['changed'],
                   ]);
+                if (method_exists($mediaEntity, 'setChangedTime')) {
+                  $mediaEntity->setChangedTime($mediaData['changed']);
+                }
                 ++$created;
               }
               else {
+                if (method_exists($mediaEntity, 'setChangedTime')) {
+                  $mediaEntity->setChangedTime($mediaData['changed']);
+                }
                 ++$updated;
               }
 
@@ -691,6 +703,9 @@ class GallerySynchronizerCommands extends DrushCommands {
               ]);
 
               // Save the media entity
+              if (method_exists($mediaEntity, 'setSyncing')) {
+                $mediaEntity->setSyncing(TRUE);
+              }
               $mediaEntity->save();
 
               // Store the media entity ID for later use

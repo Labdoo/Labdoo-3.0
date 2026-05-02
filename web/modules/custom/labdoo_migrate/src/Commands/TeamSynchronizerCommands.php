@@ -545,6 +545,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       $destinationEntity->set('status', $sourceGroup['status']);
       $destinationEntity->set('created', $sourceGroup['created']);
       $destinationEntity->set('changed', $sourceGroup['changed']);
+      $destinationEntity->setChangedTime($sourceGroup['changed']);
 
       if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
         $destinationEntity->setNewRevision(FALSE);
@@ -945,6 +946,7 @@ class TeamSynchronizerCommands extends DrushCommands {
 
       // We set the changed time AFTER setting syncing to TRUE to ensure it's preserved
       $destinationEntity->set('changed', $sourceTask['changed']);
+      $destinationEntity->setChangedTime($sourceTask['changed']);
 
       // Set description field
       if (!empty($sourceTask['body'])) {
@@ -1325,6 +1327,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       $destinationEntity->set('status', $sourcePost['status']);
       $destinationEntity->set('created', $sourcePost['created']);
       $destinationEntity->set('changed', $sourcePost['changed']);
+      $destinationEntity->setChangedTime($sourcePost['changed']);
 
       if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
         $destinationEntity->setNewRevision(FALSE);
