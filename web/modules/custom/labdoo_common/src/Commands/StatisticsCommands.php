@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_common\Commands;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\labdoo_migrate\Services\Database\ExternalConnectionManager;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -18,14 +19,24 @@ class StatisticsCommands extends DrushCommands {
   protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
+   * The external connection manager.
+   *
+   * @var \Drupal\labdoo_migrate\Services\Database\ExternalConnectionManager
+   */
+  protected ExternalConnectionManager $externalConnectionManager;
+
+  /**
    * StatisticsCommands constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
+   * @param \Drupal\labdoo_migrate\Services\Database\ExternalConnectionManager $externalConnectionManager
+   *   The external connection manager.
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, ExternalConnectionManager $externalConnectionManager) {
     parent::__construct();
     $this->entityTypeManager = $entityTypeManager;
+    $this->externalConnectionManager = $externalConnectionManager;
   }
 
   /**
@@ -43,24 +54,36 @@ class StatisticsCommands extends DrushCommands {
         'gallery',
         'team',
         'team_post',
-        'team_task',
-        'team_comment',
+        'task_team',
         'hub',
         'edoovillage',
         'dootrip',
         'action',
         'labdoo_story',
-        'basic_page',
+        'page',
       ],
       'user' => [
         'user',
+      ],
+      'comment' => [
+        'comment',
       ],
       'mini_wiki_page' => [
         'mini_wiki_page',
       ],
     ];
 
+    $d7_bundle_mapping = [
+      'dootronic' => 'laptop',
+      'gallery' => 'node_gallery_gallery',
+      'team_post' => 'team_page',
+      'task_team' => 'team_task',
+      'mini_wiki_page' => 'book',
+    ];
+
     $rows = [];
+    $external_connection = $this->externalConnectionManager->setConnection();
+
     foreach ($entity_types as $entity_type_id => $bundles) {
       try {
         $storage = $this->entityTypeManager->getStorage($entity_type_id);
@@ -74,10 +97,41 @@ class StatisticsCommands extends DrushCommands {
           }
           $count = $query->count()->execute();
 
+          $count_d7 = 0;
+          $bundle_d7 = $d7_bundle_mapping[$bundle] ?? $bundle;
+
+          try {
+            if ($entity_type_id === 'node' || $entity_type_id === 'mini_wiki_page') {
+              $count_d7 = $external_connection->select('node', 'n')
+                ->condition('type', $bundle_d7)
+                ->countQuery()
+                ->execute()
+                ->fetchField();
+            }
+            elseif ($entity_type_id === 'user') {
+              $count_d7 = $external_connection->select('users', 'u')
+                ->condition('uid', 0, '>')
+                ->countQuery()
+                ->execute()
+                ->fetchField();
+            }
+            elseif ($entity_type_id === 'comment') {
+              $count_d7 = $external_connection->select('comment', 'c')
+                ->countQuery()
+                ->execute()
+                ->fetchField();
+            }
+          }
+          catch (\Exception $e) {
+            // If the table doesn't exist in D7 or any other error occurs.
+            $count_d7 = 'N/A';
+          }
+
           $rows[] = [
             'Type' => $entity_type_id,
             'Bundle' => $bundle,
-            'Total' => $count,
+            'D10 Total' => $count,
+            'D7 Total' => $count_d7,
           ];
         }
       }
@@ -89,7 +143,9 @@ class StatisticsCommands extends DrushCommands {
       }
     }
 
-    $this->io()->table(['Entity Type', 'Bundle', 'Total'], $rows);
+    $this->externalConnectionManager->restoreConnection();
+
+    $this->io()->table(['Entity Type', 'Bundle', 'D10 Total', 'D7 Total'], $rows);
   }
 
 }

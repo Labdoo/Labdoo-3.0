@@ -6,6 +6,6 @@ services:
       - { name: drush.command }
   labdoo_common.statistics_commands:
     class: \Drupal\labdoo_common\Commands\StatisticsCommands
-    arguments: ['@entity_type.manager']
+    arguments: ['@entity_type.manager', '@labdoo_migrate.database.external_connection_manager']
     tags:
       - { name: drush.command }
