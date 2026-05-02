@@ -764,12 +764,12 @@ class TeamSynchronizerCommands extends DrushCommands {
         $this->logger->warning('Could not retrieve team reference for task ' . $task->nid . ': ' . $e->getMessage());
       }
 
-      // Get specific task fields
-      $priority = $this->getExternalField('field_data_field_task_priority', 'field_task_priority_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
-      $status = $this->getExternalField('field_data_field_task_status', 'field_task_status_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
-      $type = $this->getExternalField('field_data_field_task_type', 'field_task_type_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
-      $assignedTo = $this->getExternalField('field_data_field_task_assigned_to', 'field_task_assigned_to_target_id', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
-      $dueDate = $this->getExternalField('field_data_field_task_due_date', 'field_task_due_date_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+    // Get specific task fields
+    $priority = $this->getExternalField('field_data_field_task_priority', 'field_task_priority_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+    $status = $this->getExternalField('field_data_field_task_status', 'field_task_status_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+    $type = $this->getExternalField('field_data_field_task_type', 'field_task_type_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+    $assignedTo = $this->getExternalMultipleField('field_data_field_task_assigned_to', 'field_task_assigned_to_target_id', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+    $dueDate = $this->getExternalField('field_data_field_task_due_date', 'field_task_due_date_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
 
       // Get task attachment if available
       $attachment = NULL;
@@ -864,6 +864,27 @@ class TeamSynchronizerCommands extends DrushCommands {
   }
 
   /**
+   * Helper to get an external multi-value field.
+   */
+  protected function getExternalMultipleField(string $table, string $column, int $entity_id, string $bundle): array {
+    try {
+      return $this->externalConnectionManager
+        ->setConnection()
+        ->select($table, 't')
+        ->fields('t', [$column])
+        ->condition('entity_type', 'node')
+        ->condition('bundle', $bundle)
+        ->condition('entity_id', $entity_id)
+        ->orderBy('delta', 'ASC')
+        ->execute()
+        ->fetchCol();
+    }
+    catch (\Exception $e) {
+      return [];
+    }
+  }
+
+  /**
    * Updates the destination team task entities with the source values.
    *
    * @param array $sourceTasks
@@ -945,7 +966,11 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->set('field_task_type', $sourceTask['task_type']);
       }
       if ($sourceTask['assigned_to']) {
-        $destinationEntity->set('field_assigned_to', $sourceTask['assigned_to']);
+        $assignedToValues = [];
+        foreach ($sourceTask['assigned_to'] as $uid) {
+          $assignedToValues[] = ['target_id' => $uid];
+        }
+        $destinationEntity->set('field_assigned_to', $assignedToValues);
       }
       if ($sourceTask['due_date']) {
         // D7 is datetime, D10 field_due_date is datetime type
