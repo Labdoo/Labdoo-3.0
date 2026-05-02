@@ -87,6 +87,9 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-page" "🔄 Migrate page (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-story" "🔄 Migrate story (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team" "🔄 Migrate team (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team-only" "🔄 Migrate teams only (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team-posts" "🔄 Migrate team posts and comments (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team-tasks" "🔄 Migrate team tasks and comments (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-user" "🔄 Migrate user (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all-queue" "📥 Enqueue all entities for migration."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-incremental" "🔄 Run incremental migration for all entities."
@@ -486,6 +489,21 @@ migrate-team: ## 🔄 Migrate team (foreground).
 	vendor/bin/drush entity:delete node --bundle=team
 	vendor/bin/drush sql-query "DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'"
 	vendor/bin/drush labdoo-sync-teams
+
+.PHONY: migrate-team-only
+migrate-team-only: ## 🔄 Migrate teams only (foreground).
+	@echo "$(CYAN)🔄 Running teams only migration...$(RESET)"
+	vendor/bin/drush labdoo-sync-teams-only
+
+.PHONY: migrate-team-posts
+migrate-team-posts: ## 🔄 Migrate team posts and comments (foreground).
+	@echo "$(CYAN)🔄 Running team posts migration...$(RESET)"
+	vendor/bin/drush labdoo-sync-team-posts
+
+.PHONY: migrate-team-tasks
+migrate-team-tasks: ## 🔄 Migrate team tasks and comments (foreground).
+	@echo "$(CYAN)🔄 Running team tasks migration...$(RESET)"
+	vendor/bin/drush labdoo-sync-team-tasks
 
 .PHONY: migrate-team-bg
 migrate-team-bg: ## 🌙 Migrate team in background (nohup + log).

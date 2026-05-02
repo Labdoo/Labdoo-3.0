@@ -40,8 +40,10 @@ class TeamSynchronizerCommands extends DrushCommands {
   use TextFormatMapperTrait;
 
   private const TEAM_CONTENT_TYPE = 'team';
-  private const TEAM_POST_CONTENT_TYPE = 'team_post';
-  private const TEAM_TASK_CONTENT_TYPE = 'task_team';
+  private const TEAM_POST_DESTINATION_TYPE = 'team_post';
+  private const TEAM_POST_SOURCE_TYPE = 'team_page';
+  private const TEAM_TASK_DESTINATION_TYPE = 'task_team';
+  private const TEAM_TASK_SOURCE_TYPE = 'team_task';
 
   /**
    * The start time.
@@ -106,7 +108,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-teams [nids=123,456,789] [limit=9] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"]
+   * @command labdoo-synchronize-teams
    * @aliases labdoo-sync-teams
    * @usage labdoo-synchronize-teams
    *   Synchronizes the Organic Groups from Drupal 7 to Drupal 10 team structure.
@@ -126,6 +128,10 @@ class TeamSynchronizerCommands extends DrushCommands {
   ): void {
     try {
       $this->setEnvironment($options);
+
+      $this->logger->notice('Starting full team synchronization (Teams, Posts, Tasks)...');
+
+      // Migrate Teams
       $sourceGroups = $this->getSourceGroups();
       $this->externalConnectionManager->restoreConnection();
       $result = $this->updateDestinationEntities($sourceGroups);
@@ -135,9 +141,122 @@ class TeamSynchronizerCommands extends DrushCommands {
       $this->externalConnectionManager->restoreConnection();
       $postResult = $this->updateDestinationTeamPosts($sourcePosts);
 
-      $totalCreated = $result['created'] + $postResult['created'];
-      $totalUpdated = $result['updated'] + $postResult['updated'];
+      // Migrate team tasks
+      $sourceTasks = $this->getSourceTeamTasks();
+      $this->externalConnectionManager->restoreConnection();
+      $taskResult = $this->updateDestinationTeamTasks($sourceTasks);
+
+      $totalCreated = $result['created'] + $postResult['created'] + $taskResult['created'];
+      $totalUpdated = $result['updated'] + $postResult['updated'] + $taskResult['updated'];
       $this->tearDown($totalCreated, $totalUpdated);
+    }
+    catch (\Exception $e) {
+      $this->logger->error($e->getMessage());
+    }
+  }
+
+  /**
+   * Synchronizes only Labdoo Teams (Organic Groups nodes) from Drupal 7.
+   *
+   * @param array $options
+   *   Command options.
+   *
+   * @command labdoo-synchronize-teams-only
+   * @aliases labdoo-sync-teams-only
+   * @usage labdoo-synchronize-teams-only
+   *   Synchronizes only the Teams (Organic Groups) nodes.
+   *
+   * @option nids List of Drupal 7 group IDs to synchronize.
+   * @option limit Limits the execution to the given elements.
+   * @option dry-run Whether to run this command in dry-run mode.
+   * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   */
+  public function syncTeams(
+    array $options = [
+      'nids' => NULL,
+      'limit' => -1,
+      'dry-run' => FALSE,
+      'from-date' => NULL,
+    ]
+  ): void {
+    try {
+      $this->setEnvironment($options);
+      $sourceGroups = $this->getSourceGroups();
+      $this->externalConnectionManager->restoreConnection();
+      $result = $this->updateDestinationEntities($sourceGroups);
+      $this->tearDown($result['created'], $result['updated']);
+    }
+    catch (\Exception $e) {
+      $this->logger->error($e->getMessage());
+    }
+  }
+
+  /**
+   * Synchronizes Labdoo Team Posts and their comments from Drupal 7.
+   *
+   * @param array $options
+   *   Command options.
+   *
+   * @command labdoo-synchronize-team-posts
+   * @aliases labdoo-sync-team-posts
+   * @usage labdoo-synchronize-team-posts
+   *   Synchronizes the Team Posts and their comments.
+   *
+   * @option nids List of Drupal 7 team_page IDs to synchronize.
+   * @option limit Limits the execution to the given elements.
+   * @option dry-run Whether to run this command in dry-run mode.
+   * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   */
+  public function syncTeamPosts(
+    array $options = [
+      'nids' => NULL,
+      'limit' => -1,
+      'dry-run' => FALSE,
+      'from-date' => NULL,
+    ]
+  ): void {
+    try {
+      $this->setEnvironment($options);
+      $sourcePosts = $this->getSourceTeamPosts();
+      $this->externalConnectionManager->restoreConnection();
+      $result = $this->updateDestinationTeamPosts($sourcePosts);
+      $this->tearDown($result['created'], $result['updated']);
+    }
+    catch (\Exception $e) {
+      $this->logger->error($e->getMessage());
+    }
+  }
+
+  /**
+   * Synchronizes Labdoo Team Tasks and their comments from Drupal 7.
+   *
+   * @param array $options
+   *   Command options.
+   *
+   * @command labdoo-synchronize-team-tasks
+   * @aliases labdoo-sync-team-tasks
+   * @usage labdoo-synchronize-team-tasks
+   *   Synchronizes the Team Tasks and their comments.
+   *
+   * @option nids List of Drupal 7 team_task IDs to synchronize.
+   * @option limit Limits the execution to the given elements.
+   * @option dry-run Whether to run this command in dry-run mode.
+   * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   */
+  public function syncTeamTasks(
+    array $options = [
+      'nids' => NULL,
+      'limit' => -1,
+      'dry-run' => FALSE,
+      'from-date' => NULL,
+    ]
+  ): void {
+    try {
+      $this->setEnvironment($options);
+      $sourceTasks = $this->getSourceTeamTasks();
+      $this->externalConnectionManager->restoreConnection();
+      $result = $this->updateDestinationTeamTasks($sourceTasks);
+      $this->tearDown($result['created'], $result['updated']);
     }
     catch (\Exception $e) {
       $this->logger->error($e->getMessage());
@@ -543,6 +662,433 @@ class TeamSynchronizerCommands extends DrushCommands {
 
 
   /**
+   * Retrieves the source team tasks from Drupal 7.
+   *
+   * @return array
+   *   Returns an array of source team tasks.
+   *
+   * @throws \Exception
+   */
+  protected function getSourceTeamTasks(): array {
+    $this->logger->notice('Retrieving the source team tasks...');
+
+    $tasksResult = [];
+    $tasksQuery = $this->externalConnectionManager
+      ->setConnection()
+      ->select('node', 'n')
+      ->fields('n', ['nid', 'title', 'uid', 'status', 'created', 'changed'])
+      ->condition('type', self::TEAM_TASK_SOURCE_TYPE);
+    if ($this->nids !== NULL) {
+      $tasksQuery->condition('nid', $this->nids, 'IN');
+    }
+    if ($this->limit > -1) {
+      $tasksQuery->range(0, $this->limit);
+    }
+    if ($this->fromTimestamp !== NULL) {
+      $or = $tasksQuery->orConditionGroup()
+        ->condition('created', $this->fromTimestamp, '>=')
+        ->condition('changed', $this->fromTimestamp, '>=');
+      $tasksQuery->condition($or);
+    }
+    $tasks = $tasksQuery->execute()->fetchAll();
+
+    foreach ($tasks as $task) {
+      // Get the task description (body field)
+      $body = $this->externalConnectionManager
+        ->setConnection()
+        ->select('field_data_body', 'fdb')
+        ->fields('fdb', ['body_value', 'body_summary', 'body_format'])
+        ->condition('entity_type', 'node')
+        ->condition('bundle', self::TEAM_TASK_SOURCE_TYPE)
+        ->condition('entity_id', $task->nid)
+        ->execute()
+        ->fetchObject();
+
+      // Get comments
+      $comments = [];
+      try {
+        $commentsQuery = $this->externalConnectionManager
+          ->setConnection()
+          ->select('comment', 'c')
+          ->fields('c', ['cid', 'uid', 'subject', 'hostname', 'created', 'changed', 'status', 'thread', 'name', 'mail', 'homepage', 'language'])
+          ->condition('nid', $task->nid)
+          ->orderBy('cid', 'ASC');
+        $commentsData = $commentsQuery->execute()->fetchAll();
+
+        foreach ($commentsData as $comment) {
+          $commentBody = $this->externalConnectionManager
+            ->setConnection()
+            ->select('field_data_comment_body', 'fdcb')
+            ->fields('fdcb', ['comment_body_value', 'comment_body_format'])
+            ->condition('entity_id', $comment->cid)
+            ->condition('entity_type', 'comment')
+            ->execute()
+            ->fetchObject();
+
+          $comments[] = [
+            'cid' => $comment->cid,
+            'uid' => $comment->uid,
+            'subject' => $comment->subject,
+            'created' => $comment->created,
+            'changed' => $comment->changed,
+            'status' => $comment->status,
+            'name' => $comment->name,
+            'mail' => $comment->mail,
+            'body' => $commentBody ? [
+              'value' => $commentBody->comment_body_value,
+              'format' => $this->mapFormat($commentBody->comment_body_format),
+            ] : NULL,
+          ];
+        }
+      }
+      catch (\Exception $e) {
+        $this->logger->warning('Could not retrieve comments for task ' . $task->nid . ': ' . $e->getMessage());
+      }
+
+      // Get the team reference from og_membership table
+      $teamReference = NULL;
+      try {
+        $teamReferenceQuery = $this->externalConnectionManager
+          ->setConnection()
+          ->select('og_membership', 'ogm')
+          ->fields('ogm', ['gid'])
+          ->condition('entity_type', 'node')
+          ->condition('etid', $task->nid)
+          ->condition('group_type', 'node');
+        $teamReferenceResult = $teamReferenceQuery->execute()->fetchObject();
+        if ($teamReferenceResult) {
+          $teamReference = $teamReferenceResult->gid;
+        }
+      }
+      catch (\Exception $e) {
+        $this->logger->warning('Could not retrieve team reference for task ' . $task->nid . ': ' . $e->getMessage());
+      }
+
+      // Get specific task fields
+      $priority = $this->getExternalField('field_data_field_task_priority', 'field_task_priority_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      $status = $this->getExternalField('field_data_field_task_status', 'field_task_status_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      $type = $this->getExternalField('field_data_field_task_type', 'field_task_type_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      $assignedTo = $this->getExternalField('field_data_field_task_assigned_to', 'field_task_assigned_to_target_id', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      $dueDate = $this->getExternalField('field_data_field_task_due_date', 'field_task_due_date_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+
+      // Get task attachment if available
+      $attachment = NULL;
+      $attachmentQuery = $this->externalConnectionManager
+        ->setConnection()
+        ->select('field_data_field_task_attachment', 'fta')
+        ->fields('fta', ['field_task_attachment_fid', 'field_task_attachment_description'])
+        ->condition('entity_type', 'node')
+        ->condition('bundle', self::TEAM_TASK_SOURCE_TYPE)
+        ->condition('entity_id', $task->nid);
+      $attachmentData = $attachmentQuery->execute()->fetchObject();
+
+      if ($attachmentData) {
+        $file = $this->externalConnectionManager
+          ->setConnection()
+          ->select('file_managed', 'fm')
+          ->fields('fm')
+          ->condition('fid', $attachmentData->field_task_attachment_fid)
+          ->execute()
+          ->fetchObject();
+
+        if ($file) {
+          $attachment = [
+            'fid' => $file->fid,
+            'filename' => $file->filename,
+            'uri' => $file->uri,
+            'filemime' => $file->filemime,
+            'filesize' => $file->filesize,
+            'status' => $file->status,
+            'timestamp' => $file->timestamp,
+            'description' => $attachmentData->field_task_attachment_description,
+          ];
+
+          // Get file contents from D7 site
+          try {
+            $attachment['content'] = $this->fileManager->getFileContents($file->uri, FALSE, TRUE);
+            if (empty($attachment['content'])) {
+              $this->logger->warning('Empty content for file: ' . $file->uri);
+            }
+          }
+          catch (\Exception $e) {
+            $this->logger->warning('Error getting file contents for ' . $file->uri . ': ' . $e->getMessage());
+            $attachment['content'] = NULL;
+          }
+        }
+      }
+
+      $tasksResult[] = [
+        'nid' => $task->nid,
+        'title' => $task->title,
+        'uid' => $task->uid,
+        'status' => $task->status,
+        'created' => $task->created,
+        'changed' => $task->changed,
+        'body' => $body ? [
+          'value' => $body->body_value,
+          'summary' => $body->body_summary,
+          'format' => $body->body_format,
+        ] : NULL,
+        'comments' => $comments,
+        'team_reference' => $teamReference,
+        'priority' => $priority,
+        'task_status' => $status,
+        'task_type' => $type,
+        'assigned_to' => $assignedTo,
+        'due_date' => $dueDate,
+        'attachment' => $attachment,
+      ];
+    }
+
+    return $tasksResult;
+  }
+
+  /**
+   * Helper to get an external field value.
+   */
+  protected function getExternalField(string $table, string $column, int $entity_id, string $bundle): ?string {
+    try {
+      return $this->externalConnectionManager
+        ->setConnection()
+        ->select($table, 't')
+        ->fields('t', [$column])
+        ->condition('entity_type', 'node')
+        ->condition('bundle', $bundle)
+        ->condition('entity_id', $entity_id)
+        ->execute()
+        ->fetchField();
+    }
+    catch (\Exception $e) {
+      return NULL;
+    }
+  }
+
+  /**
+   * Updates the destination team task entities with the source values.
+   *
+   * @param array $sourceTasks
+   *   The source team tasks.
+   *
+   * @return array
+   *   Returns the number of created/updated entities.
+   *
+   * @throws \Exception
+   */
+  protected function updateDestinationTeamTasks(array $sourceTasks): array {
+    $this->logger->notice('Creating/Updating the destination team task entities...');
+
+    $created = 0;
+    $updated = 0;
+
+    // Initialize progress bar
+    $this->initProgressBar(count($sourceTasks), 'Processing team tasks');
+
+    foreach ($sourceTasks as $sourceTask) {
+      // Check if the team task already exists by NID
+      $destinationEntity = $this->entityTypeManager
+        ->getStorage('node')
+        ->load($sourceTask['nid']);
+
+      if (empty($destinationEntity)) {
+        // Clean up any orphaned field data for this NID
+        $this->cleanOrphanedFieldData($sourceTask['nid']);
+
+        // Create a new team task with the original node ID
+        $destinationEntity = $this->entityTypeManager
+          ->getStorage('node')
+          ->create([
+            'type' => self::TEAM_TASK_DESTINATION_TYPE,
+            'nid' => $sourceTask['nid'],
+          ]);
+        ++$created;
+      }
+      else {
+        // Update existing team task
+        ++$updated;
+      }
+
+      // Set basic fields
+      $destinationEntity->set('title', $sourceTask['title']);
+      $destinationEntity->set('uid', $sourceTask['uid']);
+      $destinationEntity->set('status', $sourceTask['status']);
+      $destinationEntity->set('created', $sourceTask['created']);
+
+      if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
+        $destinationEntity->setNewRevision(FALSE);
+      }
+
+      // Evita que Drupal sobrescriba la fecha de modificación al guardar.
+      if (method_exists($destinationEntity, 'setSyncing')) {
+        $destinationEntity->setSyncing(TRUE);
+      }
+
+      // We set the changed time AFTER setting syncing to TRUE to ensure it's preserved
+      $destinationEntity->set('changed', $sourceTask['changed']);
+
+      // Set description field
+      if (!empty($sourceTask['body'])) {
+        $destinationEntity->set('body', [
+          'value' => $sourceTask['body']['value'],
+          'summary' => $sourceTask['body']['summary'] ?? '',
+          'format' => $this->mapFormat($sourceTask['body']['format']),
+        ]);
+      }
+
+      // Set specific task fields
+      if ($sourceTask['priority']) {
+        $destinationEntity->set('field_task_priority', $sourceTask['priority']);
+      }
+      if ($sourceTask['task_status']) {
+        $destinationEntity->set('field_task_status', $sourceTask['task_status']);
+      }
+      if ($sourceTask['task_type']) {
+        $destinationEntity->set('field_task_type', $sourceTask['task_type']);
+      }
+      if ($sourceTask['assigned_to']) {
+        $destinationEntity->set('field_assigned_to', $sourceTask['assigned_to']);
+      }
+      if ($sourceTask['due_date']) {
+        // D7 is datetime, D10 field_due_date is datetime type
+        try {
+          $date = new \DateTime($sourceTask['due_date']);
+          // Drupal 10 datetime field expects Y-m-d\TH:i:s format (UTC)
+          $destinationEntity->set('field_due_date', $date->format('Y-m-d\TH:i:s'));
+        }
+        catch (\Exception $e) {
+          $this->logger->warning('Invalid due date for task ' . $sourceTask['nid'] . ': ' . $sourceTask['due_date']);
+        }
+      }
+
+      // Set team reference
+      if (!empty($sourceTask['team_reference'])) {
+        $destinationEntity->set('field_team', $sourceTask['team_reference']);
+      }
+
+      // Set attachment
+      if (!empty($sourceTask['attachment']) && !empty($sourceTask['attachment']['content'])) {
+        // Determine the file type based on the file extension
+        $fileExtension = pathinfo($sourceTask['attachment']['filename'], PATHINFO_EXTENSION);
+        $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']);
+
+        // Set the appropriate media bundle and destination field based on the file type
+        $bundle = $isImage ? 'image' : 'document';
+        $destinationField = $isImage ? 'field_media_image' : 'field_media_document';
+        $metadata = [
+          'bundle' => $bundle,
+          'destination_field' => $destinationField,
+        ];
+
+        try {
+          // Check if media entity already exists
+          $mediaEntity = $this->fileManager->mediaEntityExists($bundle, $sourceTask['attachment']['filename']);
+
+          if ($mediaEntity === NULL) {
+            // Create a new media entity if it doesn't exist
+            $media = $this->mediaManager->createMedia(
+              $sourceTask['attachment']['uri'],
+              $sourceTask['attachment']['filename'],
+              $sourceTask['attachment']['content'],
+              $metadata,
+              'en' // Use default language code or system default
+            );
+          }
+          else {
+            // Use existing media entity
+            $media = $mediaEntity;
+          }
+
+          if ($media) {
+            $destinationEntity->set('field_attachment', [
+              'target_id' => $media->id(),
+            ]);
+          }
+        }
+        catch (\Exception $e) {
+          $this->logger->warning('Could not migrate attachment for task ' . $sourceTask['nid'] . ': ' . $e->getMessage());
+        }
+      }
+
+      // Ensure the node exists in storage before creating comments
+      if (!$this->dryRun) {
+        $destinationEntity->set('changed', $sourceTask['changed']);
+        $destinationEntity->save();
+      }
+
+      // Set comments
+      if (!$this->dryRun && !empty($sourceTask['comments'])) {
+        foreach ($sourceTask['comments'] as $sourceComment) {
+          // Check if comment already exists
+          $existingComments = $this->entityTypeManager
+            ->getStorage('comment')
+            ->loadByProperties([
+              'entity_id' => $destinationEntity->id(),
+              'entity_type' => 'node',
+              'field_name' => 'field_team_comments',
+              'subject' => $sourceComment['subject'],
+              'created' => $sourceComment['created'],
+            ]);
+
+          if (empty($existingComments)) {
+            $commentData = [
+              'comment_type' => 'comment',
+              'entity_id' => $destinationEntity->id(),
+              'entity_type' => 'node',
+              'field_name' => 'field_team_comments',
+              'uid' => $sourceComment['uid'],
+              'subject' => $sourceComment['subject'],
+              'comment_body' => [
+                'value' => $sourceComment['body']['value'] ?? '',
+                'format' => $this->mapFormat($sourceComment['body']['format'] ?? 'basic_html'),
+              ],
+              'status' => $sourceComment['status'],
+              'created' => $sourceComment['created'],
+              'changed' => $sourceComment['changed'],
+              'name' => $sourceComment['name'],
+              'mail' => $sourceComment['mail'],
+            ];
+
+            $comment = $this->commentDestinationRepository->create($commentData, $sourceComment['cid']);
+            $comment->save();
+
+            $this->migrationTracker->track(
+              'comment',
+              'comment',
+              $sourceComment['cid'],
+              (int) $comment->id()
+            );
+          }
+        }
+      }
+
+      // Update changed time after comments creation to avoid being overwritten
+      if (!$this->dryRun) {
+        $this->database->update('node_field_data')
+          ->fields(['changed' => $sourceTask['changed']])
+          ->condition('nid', $destinationEntity->id())
+          ->execute();
+
+        $this->migrationTracker->track(
+          'node',
+          self::TEAM_TASK_DESTINATION_TYPE,
+          $sourceTask['nid'],
+          (int) $destinationEntity->id()
+        );
+      }
+
+      // Advance progress bar
+      $this->progressBar->advance();
+    }
+
+    $this->progressBar->finish();
+    $this->logger->notice('');
+
+    return [
+      'created' => $created,
+      'updated' => $updated,
+    ];
+  }
+
+  /**
    * Retrieves the source team posts from Drupal 7.
    *
    * @return array
@@ -558,7 +1104,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       ->setConnection()
       ->select('node', 'n')
       ->fields('n', ['nid', 'title', 'uid', 'status', 'created', 'changed'])
-      ->condition('type', 'team_page');
+      ->condition('type', self::TEAM_POST_SOURCE_TYPE);
     if ($this->nids !== NULL) {
       $postsQuery->condition('nid', $this->nids, 'IN');
     }
@@ -580,7 +1126,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->select('field_data_body', 'fdb')
         ->fields('fdb', ['body_value', 'body_summary', 'body_format'])
         ->condition('entity_type', 'node')
-        ->condition('bundle', 'team_page')
+        ->condition('bundle', self::TEAM_POST_SOURCE_TYPE)
         ->condition('entity_id', $post->nid)
         ->execute()
         ->fetchObject();
@@ -653,7 +1199,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->select('field_data_field_conversation_attachment', 'fca')
         ->fields('fca', ['field_conversation_attachment_fid', 'field_conversation_attachment_description'])
         ->condition('entity_type', 'node')
-        ->condition('bundle', 'team_page')
+        ->condition('bundle', self::TEAM_POST_SOURCE_TYPE)
         ->condition('entity_id', $post->nid);
       $attachmentData = $attachmentQuery->execute()->fetchObject();
 
@@ -738,7 +1284,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity = $this->entityTypeManager
           ->getStorage('node')
           ->create([
-            'type' => self::TEAM_POST_CONTENT_TYPE,
+            'type' => self::TEAM_POST_DESTINATION_TYPE,
             'nid' => $sourcePost['nid'],
           ]);
         ++$created;
@@ -920,7 +1466,7 @@ class TeamSynchronizerCommands extends DrushCommands {
 
         $this->migrationTracker->track(
           'node',
-          self::TEAM_POST_CONTENT_TYPE,
+          self::TEAM_POST_DESTINATION_TYPE,
           $sourcePost['nid'],
           (int) $destinationEntity->id()
         );
