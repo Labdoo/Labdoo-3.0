@@ -308,6 +308,16 @@ class IntegrityCheckCommands extends DrushCommands {
       return (float)$val1 == (float)$val2;
     }
 
+    // Special case for ISO 8601 dates (Drupal 10) vs Y-m-d H:i:s (Drupal 7).
+    if (is_string($val1) && is_string($val2)) {
+      if (strpos($val2, 'T') !== FALSE) {
+        $normalized_val2 = str_replace('T', ' ', $val2);
+        if ($val1 === $normalized_val2) {
+          return TRUE;
+        }
+      }
+    }
+
     // Drupal 7 often has strings, Drupal 10 might have integers or strings.
     return (string) $val1 === (string) $val2;
   }
