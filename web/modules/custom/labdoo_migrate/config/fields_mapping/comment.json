@@ -1,7 +1,7 @@
 {
   "source_type": "comment",
   "destination_types": [
-    "comment"
+    "team_comment"
   ],
   "entity_type": "comment",
   "fields_mapping": [

@@ -137,7 +137,7 @@ class IntegrityCheckCommands extends DrushCommands {
         $sourceDataRaw = $sourceRepo->getEntity($contentType, $mapping, $sid);
         $this->externalConnectionManager->restoreConnection();
 
-        if ($entityType === 'user') {
+        if ($entityType === 'user' || $entityType === 'comment') {
           $sourceData = $sourceDataRaw;
         }
         else {

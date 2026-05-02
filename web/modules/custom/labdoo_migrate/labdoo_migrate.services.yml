@@ -28,6 +28,12 @@ services:
   labdoo_migrate.source_content.repository.user:
     class: Drupal\labdoo_migrate\Services\SourceContent\UserSourceRepository
     arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.dynamic_content.paragraph_repository']
+  labdoo_migrate.source_content.repository.comment:
+    class: Drupal\labdoo_migrate\Services\SourceContent\CommentSourceRepository
+    arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.dynamic_content.paragraph_repository']
+  labdoo_migrate.destination_content.repository.comment:
+    class: Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepository
+    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.destination_content.translation_repository', '@labdoo_migrate.tracking.migration_tracker']
   labdoo_migrate.dynamic_content.paragraph_repository:
     class: Drupal\labdoo_migrate\Services\DynamicContent\DynamicParagraphRepository
     arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.media.file_manager']
