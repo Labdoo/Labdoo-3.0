@@ -421,10 +421,15 @@ class TeamSynchronizerCommands extends DrushCommands {
       $destinationEntity->set('uid', $sourceGroup['uid']);
       $destinationEntity->set('status', $sourceGroup['status']);
       $destinationEntity->set('created', $sourceGroup['created']);
-      $destinationEntity->setChangedTime($sourceGroup['changed']);
+      $destinationEntity->set('changed', $sourceGroup['changed']);
 
       if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
         $destinationEntity->setNewRevision(FALSE);
+      }
+
+      // Evita que Drupal sobrescriba la fecha de modificación al guardar.
+      if (method_exists($destinationEntity, 'setSyncing')) {
+        $destinationEntity->setSyncing(TRUE);
       }
 
       // Set description field
@@ -460,6 +465,7 @@ class TeamSynchronizerCommands extends DrushCommands {
 
       // Save the entity if not in dry-run mode
       if (!$this->dryRun) {
+        $destinationEntity->set('changed', $sourceGroup['changed']);
         $destinationEntity->save();
         $this->migrationTracker->track(
           'node',
@@ -743,10 +749,15 @@ class TeamSynchronizerCommands extends DrushCommands {
       $destinationEntity->set('uid', $sourcePost['uid']);
       $destinationEntity->set('status', $sourcePost['status']);
       $destinationEntity->set('created', $sourcePost['created']);
-      $destinationEntity->setChangedTime($sourcePost['changed']);
+      $destinationEntity->set('changed', $sourcePost['changed']);
 
       if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
         $destinationEntity->setNewRevision(FALSE);
+      }
+
+      // Evita que Drupal sobrescriba la fecha de modificación al guardar.
+      if (method_exists($destinationEntity, 'setSyncing')) {
+        $destinationEntity->setSyncing(TRUE);
       }
 
       // Set description field
@@ -761,6 +772,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       // Ensure the node exists in storage before creating comments to avoid
       // double inserts into comment_entity_statistics.
       if (!$this->dryRun) {
+        $destinationEntity->set('changed', $sourcePost['changed']);
         $destinationEntity->save();
       }
 
@@ -885,7 +897,23 @@ class TeamSynchronizerCommands extends DrushCommands {
 
       // Save the entity if not in dry-run mode
       if (!$this->dryRun) {
+        $destinationEntity->set('changed', $sourcePost['changed']);
         $destinationEntity->save();
+
+        // Force the original changed timestamp directly in the database.
+        // The node is saved twice (once before comments, once after), and
+        // comment saves can trigger hooks that update node.changed in the DB.
+        // A direct update guarantees the source value is preserved.
+        $database = \Drupal::database();
+        $database->update('node_field_data')
+          ->fields(['changed' => $sourcePost['changed']])
+          ->condition('nid', $destinationEntity->id())
+          ->execute();
+        $database->update('node_field_revision')
+          ->fields(['changed' => $sourcePost['changed']])
+          ->condition('nid', $destinationEntity->id())
+          ->execute();
+
         $this->migrationTracker->track(
           'node',
           self::TEAM_POST_CONTENT_TYPE,
