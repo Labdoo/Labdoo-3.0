@@ -30,7 +30,7 @@
         ]
       },
       "destination": {
-        "field": "title"
+        "field": "subject"
       }
     },
     {
@@ -73,6 +73,20 @@
       },
       "destination": {
         "field": "changed"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "comment",
+            "key": "cid",
+            "field": "nid"
+          }
+        ]
+      },
+      "destination": {
+        "field": "entity_id"
       }
     },
     {

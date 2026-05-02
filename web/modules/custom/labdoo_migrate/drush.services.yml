@@ -33,6 +33,7 @@ services:
       - '@entity_type.manager'
       - '@labdoo_migrate.media.media_manager'
       - '@labdoo_migrate.tracking.migration_tracker'
+      - '@database'
     tags:
       - { name: drush.command }
 
@@ -42,6 +43,7 @@ services:
       - '@labdoo_migrate.database.external_connection_manager'
       - '@labdoo_migrate.media.file_manager'
       - '@entity_type.manager'
+      - '@database'
     tags:
       - { name: drush.command }
 
@@ -60,6 +62,7 @@ services:
       - '@entity_type.manager'
       - '@labdoo_migrate.source_content.translation_repository'
       - '@labdoo_migrate.destination_content.translation_repository'
+      - '@language_manager'
     tags:
       - { name: drush.command }
 
@@ -80,5 +83,6 @@ services:
       - '@entity_type.manager'
       - '@labdoo_migrate.tracking.migration_tracker'
       - '@labdoo_migrate.database.external_connection_manager'
+      - '@language_manager'
     tags:
       - { name: drush.command }

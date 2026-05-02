@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
@@ -91,7 +92,8 @@ class TeamSynchronizerCommands extends DrushCommands {
     protected FileManagerInterface $fileManager,
     protected EntityTypeManagerInterface $entityTypeManager,
     protected MediaManagerInterface $mediaManager,
-    protected MigrationTrackerInterface $migrationTracker
+    protected MigrationTrackerInterface $migrationTracker,
+    protected Connection $database
   ) {
     parent::__construct();
   }
@@ -904,12 +906,11 @@ class TeamSynchronizerCommands extends DrushCommands {
         // The node is saved twice (once before comments, once after), and
         // comment saves can trigger hooks that update node.changed in the DB.
         // A direct update guarantees the source value is preserved.
-        $database = \Drupal::database();
-        $database->update('node_field_data')
+        $this->database->update('node_field_data')
           ->fields(['changed' => $sourcePost['changed']])
           ->condition('nid', $destinationEntity->id())
           ->execute();
-        $database->update('node_field_revision')
+        $this->database->update('node_field_revision')
           ->fields(['changed' => $sourcePost['changed']])
           ->condition('nid', $destinationEntity->id())
           ->execute();
@@ -939,7 +940,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    *   The node ID.
    */
   protected function cleanOrphanedFieldData(int $nid): void {
-    $database = \Drupal::database();
+    $database = $this->database;
     $tables = [
       'node__field_description',
       'node_revision__field_description',

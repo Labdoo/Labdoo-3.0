@@ -15,10 +15,10 @@ services:
     arguments: ['@entity_type.manager', '@labdoo_migrate.media.file_manager']
   labdoo_migrate.destination_content.repository.node:
     class: Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepository
-    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.destination_content.translation_repository', '@labdoo_migrate.tracking.migration_tracker']
+    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.destination_content.translation_repository', '@labdoo_migrate.tracking.migration_tracker', '@entity_field.manager', '@database', '@state']
   labdoo_migrate.destination_content.repository.user:
     class: Drupal\labdoo_migrate\Services\DestinationContent\UserDestinationRepository
-    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.tracking.migration_tracker']
+    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.tracking.migration_tracker', '@state']
   labdoo_migrate.destination_content.translation_repository:
     class: Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepository
     arguments: ['@entity.repository', '@logger.factory', '@labdoo_migrate.config.configuration_manager']
@@ -30,10 +30,10 @@ services:
     arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.dynamic_content.paragraph_repository']
   labdoo_migrate.source_content.repository.comment:
     class: Drupal\labdoo_migrate\Services\SourceContent\CommentSourceRepository
-    arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.dynamic_content.paragraph_repository']
+    arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.dynamic_content.paragraph_repository', '@language_manager']
   labdoo_migrate.destination_content.repository.comment:
-    class: Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepository
-    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.destination_content.translation_repository', '@labdoo_migrate.tracking.migration_tracker']
+    class: Drupal\labdoo_migrate\Services\DestinationContent\CommentDestinationRepository
+    arguments: ['@entity_type.manager', '@logger.factory', '@labdoo_migrate.destination_content.translation_repository', '@labdoo_migrate.tracking.migration_tracker', '@entity_field.manager', '@database', '@state']
   labdoo_migrate.dynamic_content.paragraph_repository:
     class: Drupal\labdoo_migrate\Services\DynamicContent\DynamicParagraphRepository
     arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.media.file_manager']
@@ -77,7 +77,7 @@ services:
     arguments: ['@labdoo_migrate.database.external_connection_manager']
   labdoo_migrate.special_field_types.dynamic_paragraph:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeDynamicParagraph
-    arguments: ['@entity_type.manager', '@labdoo_migrate.config.configuration_manager']
+    arguments: ['@entity_type.manager', '@labdoo_migrate.config.configuration_manager', '@language_manager']
   labdoo_migrate.special_field_types.date:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeDate
   labdoo_migrate.special_field_types.metatags:

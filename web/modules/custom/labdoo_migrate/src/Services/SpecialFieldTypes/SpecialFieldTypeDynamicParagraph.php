@@ -4,6 +4,7 @@ namespace Drupal\labdoo_migrate\Services\SpecialFieldTypes;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 
 /**
@@ -49,7 +50,8 @@ class SpecialFieldTypeDynamicParagraph implements SpecialFieldTypeInterface {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    ConfigurationManagerInterface $configurationManager
+    ConfigurationManagerInterface $configurationManager,
+    protected LanguageManagerInterface $languageManager
   ) {
 
     $this->entityTypeManager = $entityTypeManager;
@@ -218,7 +220,7 @@ class SpecialFieldTypeDynamicParagraph implements SpecialFieldTypeInterface {
       ->getStorage('paragraph')
       ->create([
         'type' => $config['destination_paragraph'],
-        'langcode' => $this->entity->language() ? $this->entity->language()->getId() : 'en',
+        'langcode' => $this->entity->language() ? $this->entity->language()->getId() : $this->languageManager->getDefaultLanguage()->getId(),
       ]);
 
     foreach ($values as $fieldName => $value) {

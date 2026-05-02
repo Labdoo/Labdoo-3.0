@@ -62,28 +62,28 @@ class DestinationRepository implements DestinationRepositoryInterface {
    *
    * @var bool
    */
-  private bool $indexingEnabled = TRUE;
+  protected bool $indexingEnabled = TRUE;
 
   /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  private EntityTypeManagerInterface $entityTypeManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The translation repository.
    *
    * @var \Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface
    */
-  private TranslationRepositoryInterface $translationRepository;
+  protected TranslationRepositoryInterface $translationRepository;
 
   /**
    * The migration tracker.
    *
    * @var \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface
    */
-  private MigrationTrackerInterface $migrationTracker;
+  protected MigrationTrackerInterface $migrationTracker;
 
   /**
    * The mapping array.
@@ -135,6 +135,34 @@ class DestinationRepository implements DestinationRepositoryInterface {
   private bool $overrideMode;
 
   /**
+   * The field definitions cache.
+   *
+   * @var array
+   */
+  protected array $fieldDefinitionsCache = [];
+
+  /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
+
+  /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * DestinationRepository constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -145,18 +173,30 @@ class DestinationRepository implements DestinationRepositoryInterface {
    *   The translation repository.
    * @param \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface $migrationTracker
    *   The migration tracker.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
+   *   The entity field manager.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database connection.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     TranslationRepositoryInterface $translationRepository,
-    MigrationTrackerInterface $migrationTracker
+    MigrationTrackerInterface $migrationTracker,
+    $entityFieldManager,
+    $database,
+    $state
   ) {
 
     $this->entityTypeManager = $entityTypeManager;
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
     $this->translationRepository = $translationRepository;
     $this->migrationTracker = $migrationTracker;
+    $this->entityFieldManager = $entityFieldManager;
+    $this->database = $database;
+    $this->state = $state;
     $this->overrideMode = FALSE;
   }
 
@@ -896,9 +936,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
         return;
       }
       $tableMapping = $storage->getTableMapping();
-      $fieldDefinitions = \Drupal::service('entity_field.manager')
+      $fieldDefinitions = $this->entityFieldManager
         ->getFieldStorageDefinitions('node');
-      $database = \Drupal::database();
+      $database = $this->database;
 
       foreach ($fieldDefinitions as $definition) {
         if ($tableMapping->requiresDedicatedTableStorage($definition)) {
@@ -945,7 +985,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
    */
   public function setIndexingMode(bool $indexingEnabled): void {
     $this->indexingEnabled = $indexingEnabled;
-    \Drupal::state()->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
+    $this->state->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
   }
 
 }

@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Services\SourceContent;
 
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\labdoo_migrate\Model\FieldModel;
 use Drupal\labdoo_migrate\Model\MappingModel;
@@ -15,6 +16,13 @@ use Psr\Log\LoggerAwareTrait;
 class CommentSourceRepository implements SourceRepositoryInterface {
 
   use LoggerAwareTrait;
+
+  /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  private LanguageManagerInterface $languageManager;
 
   /**
    * The external connection manager.
@@ -49,7 +57,7 @@ class CommentSourceRepository implements SourceRepositoryInterface {
    *
    * @var int|null
    */
-  private ?int $fromTimestamp;
+  private ?int $fromTimestamp = NULL;
 
   /**
    * CommentSourceRepository constructor.
@@ -64,11 +72,13 @@ class CommentSourceRepository implements SourceRepositoryInterface {
   public function __construct(
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ExternalConnectionManager $externalConnectionManager,
-    DynamicContentRepositoryInterface $dynamicContentRepository
+    DynamicContentRepositoryInterface $dynamicContentRepository,
+    LanguageManagerInterface $languageManager
   ) {
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
     $this->externalConnectionManager = $externalConnectionManager;
     $this->dynamicContentRepository = $dynamicContentRepository;
+    $this->languageManager = $languageManager;
   }
 
   /**
@@ -111,7 +121,12 @@ class CommentSourceRepository implements SourceRepositoryInterface {
     $this->mapping = $mapping;
     $this->fromTimestamp = $fromTimestamp;
 
-    return $this->getFieldValues($entityId);
+    $defaultLangcode = $this->languageManager->getDefaultLanguage()->getId();
+    $entity = [];
+    $entity['metadata']['main_langcode'] = $defaultLangcode;
+    $entity[$defaultLangcode] = $this->getFieldValues($entityId);
+
+    return $entity;
   }
 
   /**
@@ -175,7 +190,7 @@ class CommentSourceRepository implements SourceRepositoryInterface {
       );
     }
 
-    return $this->filterValues($entity);
+    return $entity;
   }
 
   /**
@@ -188,7 +203,6 @@ class CommentSourceRepository implements SourceRepositoryInterface {
    *   Returns the filtered values.
    */
   protected function filterValues(array $entity): array {
-    $entity = $this->filterEmptyFields($entity);
     return $this->filterOverriddenFields($entity);
   }
 
@@ -202,11 +216,6 @@ class CommentSourceRepository implements SourceRepositoryInterface {
    *   Returns the filtered values.
    */
   protected function filterEmptyFields(array $entity): array {
-    foreach ($entity as $key => $value) {
-      if (!$this->hasFieldValue($value)) {
-        $entity[$key] = NULL;
-      }
-    }
     return $entity;
   }
 
@@ -290,6 +299,7 @@ class CommentSourceRepository implements SourceRepositoryInterface {
       $values[$field->getFieldName()] = $this->getSingleMappingValue($entityId, $field);
     }
 
+    $sourceIdentifier = $mapping->getSourceIdentifier();
     if (count($values) === 1) {
       return reset($values);
     }

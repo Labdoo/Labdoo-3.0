@@ -21,7 +21,7 @@ function labdoo_migrate_entity_presave(EntityInterface $entity): void {
     // or just rely on the search_api_skip_tracking property being set.
     
     // If the global state 'labdoo_migrate.disable_indexing' is set, we skip tracking.
-    if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
+    if (\Drupal::getContainer()->get('state')->get('labdoo_migrate.disable_indexing', FALSE)) {
       $entity->search_api_skip_tracking = TRUE;
     }
   }

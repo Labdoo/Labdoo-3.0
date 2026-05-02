@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_migrate\Commands;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
@@ -97,7 +98,8 @@ class BasicPageSynchronizerCommands extends DrushCommands {
     protected FileManagerInterface $fileManager,
     protected EntityTypeManagerInterface $entityTypeManager,
     SourceTranslationRepositoryInterface $sourceTranslationRepository,
-    TranslationRepositoryInterface $destinationTranslationRepository
+    TranslationRepositoryInterface $destinationTranslationRepository,
+    protected LanguageManagerInterface $languageManager
   ) {
     parent::__construct();
     $this->sourceTranslationRepository = $sourceTranslationRepository;
@@ -157,7 +159,8 @@ class BasicPageSynchronizerCommands extends DrushCommands {
       $this->initProgressBar($total, 'Processing pages');
 
       foreach ($pages as $page) {
-        $mainLangCode = $page->language ?: 'en';
+        $defaultLangcode = $this->languageManager->getDefaultLanguage()->getId();
+        $mainLangCode = $page->language ?: $defaultLangcode;
         $entityId = $page->nid;
 
         // Initialize the entity structure for a single page
@@ -289,7 +292,8 @@ class BasicPageSynchronizerCommands extends DrushCommands {
 
     foreach ($sourceEntities as $entityId => $sourceEntity) {
       $metadata = $sourceEntity['metadata'] ?? [];
-      $mainLangCode = $metadata['main_langcode'] ?? 'en';
+      $defaultLangcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+      $mainLangCode = $metadata['main_langcode'] ?? $defaultLangcode;
       $mainEntityValues = $sourceEntity[$mainLangCode] ?? null;
 
       if (!$mainEntityValues) {

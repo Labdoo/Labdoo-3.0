@@ -103,6 +103,13 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   protected bool $indexingEnabled = TRUE;
 
   /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * DestinationRepository constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -111,16 +118,20 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    *   The logger channel factory.
    * @param \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface $migrationTracker
    *   The migration tracker.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    MigrationTrackerInterface $migrationTracker
+    MigrationTrackerInterface $migrationTracker,
+    $state
   ) {
 
     $this->entityTypeManager = $entityTypeManager;
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
     $this->migrationTracker = $migrationTracker;
+    $this->state = $state;
     $this->overrideMode = FALSE;
   }
 
@@ -599,7 +610,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    */
   public function setIndexingMode(bool $indexingEnabled): void {
     $this->indexingEnabled = $indexingEnabled;
-    \Drupal::state()->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
+    $this->state->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
   }
 
 }

@@ -65,9 +65,10 @@ function labdoo_migrate_schema(): array {
  * Add migration duration to tracking table.
  */
 function labdoo_migrate_update_9001(): void {
+  $database = \Drupal::getContainer()->get('database');
   $table = 'labdoo_migrate_tracking';
-  if (!\Drupal::database()->schema()->fieldExists($table, 'duration_ms')) {
-    \Drupal::database()->schema()->addField($table, 'duration_ms', [
+  if (!$database->schema()->fieldExists($table, 'duration_ms')) {
+    $database->schema()->addField($table, 'duration_ms', [
       'description' => 'Duration in milliseconds of the latest migration for the entity.',
       'type' => 'int',
       'unsigned' => TRUE,

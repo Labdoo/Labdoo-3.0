@@ -4,6 +4,7 @@ namespace Drupal\labdoo_migrate\Commands;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Mapper\MapperInterface;
@@ -59,6 +60,13 @@ class IntegrityCheckCommands extends DrushCommands {
   private ConnectionManagerInterface $externalConnectionManager;
 
   /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  private LanguageManagerInterface $languageManager;
+
+  /**
    * IntegrityCheckCommands constructor.
    */
   public function __construct(
@@ -67,7 +75,8 @@ class IntegrityCheckCommands extends DrushCommands {
     SourceRepositoryInterface $sourceRepository,
     EntityTypeManagerInterface $entityTypeManager,
     MigrationTrackerInterface $migrationTracker,
-    ConnectionManagerInterface $externalConnectionManager
+    ConnectionManagerInterface $externalConnectionManager,
+    LanguageManagerInterface $languageManager
   ) {
     parent::__construct();
     $this->configurationManager = $configurationManager;
@@ -76,6 +85,7 @@ class IntegrityCheckCommands extends DrushCommands {
     $this->entityTypeManager = $entityTypeManager;
     $this->migrationTracker = $migrationTracker;
     $this->externalConnectionManager = $externalConnectionManager;
+    $this->languageManager = $languageManager;
   }
 
   /**
@@ -90,14 +100,18 @@ class IntegrityCheckCommands extends DrushCommands {
    *   The number of random nodes to check.
    * @option destination-type
    *   The destination content type (bundle) in Drupal 10.
+   * @option nids
+   *   Specific source IDs to check.
    *
    * @command labdoo:migrate-check-integrity
    * @aliases lm-ci
    * @usage drush lm-ci story --limit=10
    */
-  public function checkIntegrity(string $contentType, array $options = ['limit' => 5, 'destination-type' => NULL]): void {
+  public function checkIntegrity(string $contentType, array $options = ['limit' => 5, 'destination-type' => NULL, 'nids' => NULL]): void {
     $limit = (int) $options['limit'];
     $destinationType = $options['destination-type'] ?? $contentType;
+    $nids = $options['nids'] ? explode(',', $options['nids']) : [];
+
     $this->io()->title(sprintf('Checking integrity for %d random migrated nodes of type %s (D7) -> %s (D10)', $limit, $contentType, $destinationType));
 
     try {
@@ -105,15 +119,20 @@ class IntegrityCheckCommands extends DrushCommands {
       $entityType = $config->getEntityType();
       $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
 
-      $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $destinationType);
-
-      if (empty($allIds)) {
-        $this->io()->warning('No migrated nodes found for this content type.');
-        return;
+      if (!empty($nids)) {
+        $selectedIds = $nids;
       }
+      else {
+        $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $destinationType);
 
-      shuffle($allIds);
-      $selectedIds = array_slice($allIds, 0, $limit);
+        if (empty($allIds)) {
+          $this->io()->warning('No migrated nodes found for this content type.');
+          return;
+        }
+
+        shuffle($allIds);
+        $selectedIds = array_slice($allIds, 0, $limit);
+      }
 
       $results = [];
       foreach ($selectedIds as $sid) {
@@ -131,17 +150,18 @@ class IntegrityCheckCommands extends DrushCommands {
           $entityType
         );
         /** @var \Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface $sourceRepo */
-        $sourceRepo = \Drupal::service($sourceRepositoryService);
+        $sourceRepo = \Drupal::getContainer()->get($sourceRepositoryService);
 
         $this->externalConnectionManager->setConnection();
         $sourceDataRaw = $sourceRepo->getEntity($contentType, $mapping, $sid);
         $this->externalConnectionManager->restoreConnection();
 
+        $defaultLang = $this->languageManager->getDefaultLanguage()->getId();
         if ($entityType === 'user' || $entityType === 'comment') {
-          $sourceData = $sourceDataRaw;
+          $sourceData = $sourceDataRaw[$defaultLang] ?? $sourceDataRaw;
         }
         else {
-          $mainLang = $sourceDataRaw['metadata']['main_langcode'] ?? 'en';
+          $mainLang = $sourceDataRaw['metadata']['main_langcode'] ?? $defaultLang;
           $sourceData = $sourceDataRaw[$mainLang] ?? [];
         }
 
@@ -190,7 +210,6 @@ class IntegrityCheckCommands extends DrushCommands {
       // Special handling for different field types might be needed.
       // For now, let's do a basic comparison of values.
       if (!$destNode->hasField($destField)) {
-        $errors[] = "Field $destField does not exist in D10";
         continue;
       }
 

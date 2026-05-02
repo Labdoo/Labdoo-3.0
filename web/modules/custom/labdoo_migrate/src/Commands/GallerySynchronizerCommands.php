@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
@@ -84,7 +85,8 @@ class GallerySynchronizerCommands extends DrushCommands {
   public function __construct(
     protected ConnectionManagerInterface $externalConnectionManager,
     protected FileManagerInterface $fileManager,
-    protected EntityTypeManagerInterface $entityTypeManager
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected Connection $database
   ) {
     parent::__construct();
   }
@@ -658,7 +660,7 @@ class GallerySynchronizerCommands extends DrushCommands {
       if ($batchCount >= $batchSize || $processedItems >= count($sourceGalleryItems)) {
         if (!$this->dryRun && !empty($currentBatch)) {
           // Use a transaction for batch saving
-          $transaction = \Drupal::database()->startTransaction();
+          $transaction = $this->database->startTransaction();
           try {
             foreach ($currentBatch as $mediaData) {
               // Check if media entity already exists
@@ -776,7 +778,7 @@ class GallerySynchronizerCommands extends DrushCommands {
           // Save batch if we've reached batch size or this is the last gallery
           if ($galleryCount >= $galleryBatchSize || $processedGalleries >= count($mediaEntities)) {
             // Use a transaction for batch saving
-            $transaction = \Drupal::database()->startTransaction();
+            $transaction = $this->database->startTransaction();
             try {
               foreach ($galleryBatch as $galleryEntity) {
                 $galleryEntity->save();

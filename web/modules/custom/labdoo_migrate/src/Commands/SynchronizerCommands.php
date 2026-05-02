@@ -517,12 +517,12 @@ class SynchronizerCommands extends DrushCommands {
       'labdoo_migrate.source_content.repository.%s',
       $this->configData->getEntityType()
     );
-    $this->sourceRepository = \Drupal::service($sourceRepository);
+    $this->sourceRepository = \Drupal::getContainer()->get($sourceRepository);
     $destinationRepository = sprintf(
       'labdoo_migrate.destination_content.repository.%s',
       $this->configData->getEntityType()
     );
-    $this->destinationRepository = \Drupal::service($destinationRepository);
+    $this->destinationRepository = \Drupal::getContainer()->get($destinationRepository);
 
     if (
       !empty($options['mode'])
