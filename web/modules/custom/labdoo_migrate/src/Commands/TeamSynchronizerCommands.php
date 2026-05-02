@@ -8,6 +8,7 @@ use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\MediaManagerInterface;
 use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
+use Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -93,7 +94,8 @@ class TeamSynchronizerCommands extends DrushCommands {
     protected EntityTypeManagerInterface $entityTypeManager,
     protected MediaManagerInterface $mediaManager,
     protected MigrationTrackerInterface $migrationTracker,
-    protected Connection $database
+    protected Connection $database,
+    protected DestinationRepositoryInterface $commentDestinationRepository
   ) {
     parent::__construct();
   }
@@ -793,25 +795,26 @@ class TeamSynchronizerCommands extends DrushCommands {
             ]);
 
           if (empty($existingComments)) {
-            $comment = $this->entityTypeManager
-              ->getStorage('comment')
-              ->create([
-                'comment_type' => 'comment',
-                'entity_id' => $destinationEntity->id(),
-                'entity_type' => 'node',
-                'field_name' => 'field_team_comments',
-                'uid' => $sourceComment['uid'],
-                'subject' => $sourceComment['subject'],
-                'comment_body' => [
-                  'value' => $sourceComment['body']['value'] ?? '',
-                  'format' => $this->mapFormat($sourceComment['body']['format'] ?? 'basic_html'),
-                ],
-                'status' => $sourceComment['status'],
-                'created' => $sourceComment['created'],
-                'changed' => $sourceComment['changed'],
-                'name' => $sourceComment['name'],
-                'mail' => $sourceComment['mail'],
-              ]);
+            $commentData = [
+              'comment_type' => 'comment',
+              'entity_id' => $destinationEntity->id(),
+              'entity_type' => 'node',
+              'field_name' => 'field_team_comments',
+              'uid' => $sourceComment['uid'],
+              'subject' => $sourceComment['subject'],
+              'comment_body' => [
+                'value' => $sourceComment['body']['value'] ?? '',
+                'format' => $this->mapFormat($sourceComment['body']['format'] ?? 'basic_html'),
+              ],
+              'status' => $sourceComment['status'],
+              'created' => $sourceComment['created'],
+              'changed' => $sourceComment['changed'],
+              'name' => $sourceComment['name'],
+              'mail' => $sourceComment['mail'],
+            ];
+
+            // Use the comment destination repository to preserve the original cid.
+            $comment = $this->commentDestinationRepository->create($commentData, $sourceComment['cid']);
             $comment->save();
 
             // Track the comment

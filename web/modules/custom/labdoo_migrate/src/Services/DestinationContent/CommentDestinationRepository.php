@@ -65,6 +65,27 @@ class CommentDestinationRepository extends DestinationRepository {
   }
 
   /**
+   * Creates a comment entity with a fixed ID.
+   *
+   * @param array $values
+   *   The entity values.
+   * @param int $entityId
+   *   The entity ID.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface
+   *   The created entity.
+   */
+  public function create(array $values, int $entityId): EntityInterface {
+    // Always purge orphaned field data before creating a new comment with a fixed ID.
+    $this->purgeOrphanedCommentFieldData($entityId);
+
+    $values['cid'] = $entityId;
+    return $this->entityTypeManager
+      ->getStorage('comment')
+      ->create($values);
+  }
+
+  /**
    * Prepares an entity for creation.
    *
    * @param int $entityId
