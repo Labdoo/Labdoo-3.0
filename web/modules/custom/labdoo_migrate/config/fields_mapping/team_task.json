@@ -1,7 +1,7 @@
 {
-  "source_type": "task_team",
+  "source_type": "team_task",
   "destination_types": [
-    "team_task"
+    "task_team"
   ],
   "entity_type": "node",
   "fields_mapping": [
@@ -101,6 +101,76 @@
       },
       "destination": {
         "field": "body"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_task_priority",
+            "key": "entity_id",
+            "field": "field_task_priority_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_task_priority"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_task_status",
+            "key": "entity_id",
+            "field": "field_task_status_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_task_status"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_task_type",
+            "key": "entity_id",
+            "field": "field_task_type_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_task_type"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_task_assigned_to",
+            "key": "entity_id",
+            "field": "field_task_assigned_to_target_id"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_assigned_to"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_task_due_date",
+            "key": "entity_id",
+            "field": "field_task_due_date_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_due_date"
       }
     }
   ]
