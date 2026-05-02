@@ -94,10 +94,43 @@ function labdoo_common_update_9002(): void {
     }
     // Composite index for node_field_data (type, title).
     if (!$schema->indexExists('node_field_data', 'node_field_data__type_title')) {
-      $schema->addIndex('node_field_data', 'node_field_data__type_title', [['title', 191], 'type'], [
+      $schema->addIndex('node_field_data', 'node_field_data__type_title', ['type', ['title', 191]], [
         'fields' => [
           'title' => ['type' => 'varchar', 'length' => 255],
           'type' => ['type' => 'varchar', 'length' => 32],
+        ],
+      ]);
+    }
+  }
+}
+
+/**
+ * Add more performance indexes for path_alias and node__field_location.
+ */
+function labdoo_common_update_9003(): void {
+  $database = \Drupal::database();
+  $schema = $database->schema();
+
+  // Index for path_alias (status, langcode, id DESC) to optimize alias lookups and sorting.
+  if ($schema->tableExists('path_alias')) {
+    if (!$schema->indexExists('path_alias', 'path_alias__status_langcode_id')) {
+      $schema->addIndex('path_alias', 'path_alias__status_langcode_id', ['status', 'langcode', 'id'], [
+        'fields' => [
+          'status' => ['type' => 'int', 'size' => 'tiny'],
+          'langcode' => ['type' => 'varchar', 'length' => 12],
+          'id' => ['type' => 'int', 'unsigned' => TRUE],
+        ],
+      ]);
+    }
+  }
+
+  // Index for node__field_location to optimize filtering by field_location_value.
+  if ($schema->tableExists('node__field_location')) {
+    if (!$schema->indexExists('node__field_location', 'node__field_location__entity_id_value')) {
+      $schema->addIndex('node__field_location', 'node__field_location__entity_id_value', ['entity_id', ['field_location_value', 1]], [
+        'fields' => [
+          'entity_id' => ['type' => 'int', 'unsigned' => TRUE],
+          'field_location_value' => ['type' => 'blob'],
         ],
       ]);
     }
