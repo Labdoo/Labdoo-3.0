@@ -96,78 +96,53 @@ class PurgeCommands extends DrushCommands {
     $total_deleted = 0;
     $start_time_total = microtime(TRUE);
 
-    // Get all UIDs at once or in a single large fetch since we are deleting one by one.
-    // For very large datasets, we could still batch the fetch, but delete individually.
-    $all_uids = $this->database->select('users', 'u')
-      ->fields('u', ['uid'])
-      ->condition('uid', [0, 1], 'NOT IN')
-      ->execute()
-      ->fetchCol();
+    $transaction = $this->database->startTransaction();
+    try {
+      // Get UIDs to delete for alias cleanup.
+      $uids_to_delete = $this->database->select('users', 'u')
+        ->fields('u', ['uid'])
+        ->condition('uid', [0, 1], 'NOT IN')
+        ->execute()
+        ->fetchCol();
 
-    $progress = new ProgressBar($this->output(), count($all_uids));
-    $progress->start();
+      foreach ($tables as $table) {
+        $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'uid';
+        $query = $this->database->delete($table);
+        if ($table === 'users' || $table === 'users_field_data' || $table === 'users_data') {
+          $query->condition('uid', [0, 1], 'NOT IN');
+        }
+        else {
+          $query->condition($column, [0, 1], 'NOT IN');
+        }
+        $query->execute();
+      }
 
-    foreach ($all_uids as $uid) {
-      $iteration_start_time = microtime(TRUE);
-
-      $max_retries = 3;
-      $retry_count = 0;
-      $success = FALSE;
-
-      while ($retry_count < $max_retries && !$success) {
-        $transaction = $this->database->startTransaction();
-        try {
-          foreach ($tables as $table) {
-            $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'uid';
-            $this->database->delete($table)
-              ->condition($column, $uid)
-              ->execute();
-          }
-
-          // Handle path aliases.
-          if ($this->database->schema()->tableExists('path_alias')) {
-            $this->database->delete('path_alias')
-              ->condition('path', '/user/' . $uid)
-              ->execute();
-          }
-
-          $success = TRUE;
-          $total_deleted++;
-          $progress->advance();
-
-          $iteration_time = microtime(TRUE) - $iteration_start_time;
-          $total_elapsed = microtime(TRUE) - $start_time_total;
-
-          $progress->setMessage(sprintf(
-            ' Last: %d ms | Total: %s',
-            round($iteration_time * 1000),
-            $this->formatDuration($total_elapsed)
-          ));
-
-        } catch (\Exception $e) {
-          if (isset($transaction)) {
-            $transaction->rollBack();
-          }
-          if (strpos($e->getMessage(), '1205 Lock wait timeout exceeded') !== FALSE) {
-            $retry_count++;
-            sleep(1);
-          } else {
-            $this->logger()->error(sprintf('Error deleting user %d: %s', $uid, $e->getMessage()));
-            break 2;
-          }
+      // Handle path aliases in bulk.
+      if (!empty($uids_to_delete) && $this->database->schema()->tableExists('path_alias')) {
+        $paths = array_map(function($uid) {
+          return '/user/' . $uid;
+        }, $uids_to_delete);
+        
+        // Chunk path alias deletion if there are many.
+        foreach (array_chunk($paths, 1000) as $path_chunk) {
+          $this->database->delete('path_alias')
+            ->condition('path', $path_chunk, 'IN')
+            ->execute();
         }
       }
 
-      if (!$success) {
-        $this->logger()->error(sprintf('Failed to delete user %d after max retries.', $uid));
-        break;
+      $total_deleted = $count;
+    }
+    catch (\Exception $e) {
+      if (isset($transaction)) {
+        $transaction->rollBack();
       }
+      $this->logger()->error(sprintf('Error during bulk user purge: %s', $e->getMessage()));
+      return;
     }
 
-    $progress->finish();
-    $this->output()->writeln('');
-
-    $this->output()->writeln("<info>Purge completed. $total_deleted users deleted.</info>");
+    $total_elapsed = microtime(TRUE) - $start_time_total;
+    $this->output()->writeln(sprintf("<info>Purge completed in %s. %d users deleted.</info>", $this->formatDuration($total_elapsed), $total_deleted));
 
     $this->output()->writeln("<info>Invalidating cache tags for user_list...</info>");
     $this->cacheTagsInvalidator->invalidateTags(['user_list']);
@@ -243,93 +218,84 @@ class PurgeCommands extends DrushCommands {
     $total_deleted = 0;
     $start_time_total = microtime(TRUE);
 
-    // Fetch all NIDs for this bundle.
-    $all_nids = $this->database->select('node_field_data', 'nfd')
-      ->fields('nfd', ['nid'])
-      ->condition('type', $bundle)
-      ->execute()
-      ->fetchCol();
-
-    $progress = new ProgressBar($this->output(), count($all_nids));
-    $progress->start();
-
-    foreach ($all_nids as $nid) {
-      $iteration_start_time = microtime(TRUE);
-
-      // Get vids for this nid to handle revisions.
-      $vids = $this->database->select('node_revision', 'nr')
-        ->fields('nr', ['vid'])
-        ->condition('nid', $nid)
+    $transaction = $this->database->startTransaction();
+    try {
+      // Fetch all NIDs for this bundle to handle path_alias cleanup.
+      $nids_to_delete = $this->database->select('node_field_data', 'nfd')
+        ->fields('nfd', ['nid'])
+        ->condition('type', $bundle)
         ->execute()
         ->fetchCol();
 
-      $max_retries = 3;
-      $retry_count = 0;
-      $success = FALSE;
+      if (empty($nids_to_delete)) {
+        $this->logger()->notice(sprintf('No nodes found for bundle "%s".', $bundle));
+        return;
+      }
 
-      while ($retry_count < $max_retries && !$success) {
-        $transaction = $this->database->startTransaction();
-        try {
-          foreach ($tables as $table) {
-            if (strpos($table, 'revision') !== FALSE) {
-              if (!empty($vids)) {
-                $column = $this->database->schema()->fieldExists($table, 'revision_id') ? 'revision_id' : 'vid';
-                $this->database->delete($table)
-                  ->condition($column, $vids, 'IN')
-                  ->execute();
-              }
-            } else {
-              $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
-              $this->database->delete($table)
-                ->condition($column, $nid)
-                ->execute();
-            }
-          }
+      // Identify VIDs for revisions.
+      $vids_to_delete = $this->database->select('node_revision', 'nr')
+        ->fields('nr', ['vid'])
+        ->condition('nid', $nids_to_delete, 'IN')
+        ->execute()
+        ->fetchCol();
 
-          // Handle path aliases.
-          if ($this->database->schema()->tableExists('path_alias')) {
-            $this->database->delete('path_alias')
-              ->condition('path', '/node/' . $nid)
+      foreach ($tables as $table) {
+        if (strpos($table, 'revision') !== FALSE) {
+          if (!empty($vids_to_delete)) {
+            $column = $this->database->schema()->fieldExists($table, 'revision_id') ? 'revision_id' : 'vid';
+            $this->database->delete($table)
+              ->condition($column, $vids_to_delete, 'IN')
               ->execute();
           }
-
-          $success = TRUE;
-          $total_deleted++;
-          $progress->advance();
-
-          $iteration_time = microtime(TRUE) - $iteration_start_time;
-          $total_elapsed = microtime(TRUE) - $start_time_total;
-
-          $progress->setMessage(sprintf(
-            ' Last: %d ms | Total: %s',
-            round($iteration_time * 1000),
-            $this->formatDuration($total_elapsed)
-          ));
-
-        } catch (\Exception $e) {
-          if (isset($transaction)) {
-            $transaction->rollBack();
+        }
+        else {
+          $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
+          
+          // For base tables, we can filter by bundle directly if the column exists.
+          if ($table === 'node_field_data' || $table === 'node_field_revision') {
+            $this->database->delete($table)
+              ->condition('type', $bundle)
+              ->execute();
           }
-          if (strpos($e->getMessage(), '1205 Lock wait timeout exceeded') !== FALSE) {
-            $retry_count++;
-            sleep(1);
-          } else {
-            $this->logger()->error(sprintf('Error deleting node %d: %s', $nid, $e->getMessage()));
-            break 2;
+          elseif ($table === 'node' || $table === 'node_access') {
+             $this->database->delete($table)
+               ->condition('nid', $nids_to_delete, 'IN')
+               ->execute();
+          }
+          else {
+            // Field tables.
+            $this->database->delete($table)
+              ->condition($column, $nids_to_delete, 'IN')
+              ->execute();
           }
         }
       }
 
-      if (!$success) {
-        $this->logger()->error(sprintf('Failed to delete node %d after max retries.', $nid));
-        break;
+      // Handle path aliases in bulk.
+      if ($this->database->schema()->tableExists('path_alias')) {
+        $paths = array_map(function($nid) {
+          return '/node/' . $nid;
+        }, $nids_to_delete);
+        
+        foreach (array_chunk($paths, 1000) as $path_chunk) {
+          $this->database->delete('path_alias')
+            ->condition('path', $path_chunk, 'IN')
+            ->execute();
+        }
       }
+
+      $total_deleted = count($nids_to_delete);
+    }
+    catch (\Exception $e) {
+      if (isset($transaction)) {
+        $transaction->rollBack();
+      }
+      $this->logger()->error(sprintf('Error during bulk bundle purge (%s): %s', $bundle, $e->getMessage()));
+      return;
     }
 
-    $progress->finish();
-    $this->output()->writeln('');
-
-    $this->output()->writeln("<info>Purge completed. $total_deleted nodes deleted.</info>");
+    $total_elapsed = microtime(TRUE) - $start_time_total;
+    $this->output()->writeln(sprintf("<info>Purge completed in %s. %d nodes deleted.</info>", $this->formatDuration($total_elapsed), $total_deleted));
 
     $this->output()->writeln("<info>Invalidating cache tags for node_list and node_list:$bundle...</info>");
     $this->cacheTagsInvalidator->invalidateTags(['node_list', 'node_list:' . $bundle]);
