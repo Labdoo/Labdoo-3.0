@@ -382,6 +382,7 @@ class SynchronizerCommands extends DrushCommands {
         'mode' => $mode,
         'override' => $this->overrideMode,
         'destination_content_type' => $destinationContentType,
+        'total_count' => $this->total,
       ];
 
       if ($mode === 'update' && isset($destinationEntities[$sourceId])) {

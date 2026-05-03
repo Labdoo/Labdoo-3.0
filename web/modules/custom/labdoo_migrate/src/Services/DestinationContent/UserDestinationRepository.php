@@ -180,7 +180,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
 
     $this->mapping = $mapping;
     $this->dryRun = $dryRun;
-    if ($this->totalSourceEntitiesCount === 0) {
+    if ($this->totalSourceEntitiesCount === 0 || $this->totalSourceEntitiesCount < count($sourceEntities)) {
       $this->totalSourceEntitiesCount = count($sourceEntities);
     }
 
@@ -264,7 +264,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
 
     $this->mapping = $mapping;
     $this->dryRun = $dryRun;
-    if ($this->totalSourceEntitiesCount === 0) {
+    if ($this->totalSourceEntitiesCount === 0 || $this->totalSourceEntitiesCount < count($sourceEntities)) {
       $this->totalSourceEntitiesCount = count($sourceEntities);
     }
 
@@ -600,6 +600,9 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    * {@inheritDoc}
    */
   public function setTotalCount(int $total): void {
+    if ($this->totalSourceEntitiesCount === $total) {
+      return;
+    }
     $this->totalSourceEntitiesCount = $total;
     $this->mainEntitiesCount = 0;
     $this->failingIds = [];

@@ -123,6 +123,10 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
         $destinationRepository->setOverrideMode($itemData['override']);
       }
 
+      if (isset($itemData['total_count'])) {
+        $destinationRepository->setTotalCount($itemData['total_count']);
+      }
+
       if ($mode === 'create') {
         $sourceEntity = $sourceRepository->getEntity($contentType, $mapping, $entityId);
         if (empty($sourceEntity)) {
