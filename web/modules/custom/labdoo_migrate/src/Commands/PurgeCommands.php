@@ -56,7 +56,7 @@ class PurgeCommands extends DrushCommands {
    * @option dry-run Show what would be done without actually doing it.
    * @aliases lm-pu,purge-users
    */
-  public function purgeUsers(array $options = ['chunk' => 5000, 'dry-run' => FALSE]) {
+  public function purgeUsers(array $options = ['chunk' => 1000, 'dry-run' => FALSE]) {
     $chunk_size = (int) $options['chunk'];
     $dry_run = $options['dry-run'];
 
@@ -114,42 +114,60 @@ class PurgeCommands extends DrushCommands {
         break;
       }
 
-      $transaction = $this->database->startTransaction();
-      try {
-        foreach ($tables as $table) {
-          $query = $this->database->delete($table);
-          // Users don't have revisions in core standard way like nodes do in these tables.
-          $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'uid';
-          $query->condition($column, $uids, 'IN');
-          $query->execute();
+      $max_retries = 3;
+      $retry_count = 0;
+      $success = FALSE;
+
+      while ($retry_count < $max_retries && !$success) {
+        $transaction = $this->database->startTransaction();
+        try {
+          foreach ($tables as $table) {
+            $query = $this->database->delete($table);
+            // Users don't have revisions in core standard way like nodes do in these tables.
+            $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'uid';
+            $query->condition($column, $uids, 'IN');
+            $query->execute();
+          }
+
+          // Handle path aliases.
+          if ($this->database->schema()->tableExists('path_alias')) {
+            $paths = array_map(function($uid) {
+              return '/user/' . $uid;
+            }, $uids);
+            $this->database->delete('path_alias')
+              ->condition('path', $paths, 'IN')
+              ->execute();
+          }
+
+          $success = TRUE;
+          $deleted_in_batch = count($uids);
+          $total_deleted += $deleted_in_batch;
+          $progress->advance($deleted_in_batch);
+
+          $batch_time = microtime(TRUE) - $batch_start_time;
+          $total_elapsed = microtime(TRUE) - $start_time_total;
+
+          $progress->setMessage(sprintf(
+            ' Batch: %d ms | Total: %s',
+            round($batch_time * 1000),
+            $this->formatDuration($total_elapsed)
+          ));
+
+        } catch (\Exception $e) {
+          $transaction->rollBack();
+          if (strpos($e->getMessage(), '1205 Lock wait timeout exceeded') !== FALSE) {
+            $retry_count++;
+            $this->logger()->warning(sprintf('Lock wait timeout exceeded. Retrying batch (%d/%d)...', $retry_count, $max_retries));
+            sleep(1);
+          } else {
+            $this->logger()->error('Error during batch deletion: ' . $e->getMessage());
+            break 2;
+          }
         }
+      }
 
-        // Handle path aliases.
-        if ($this->database->schema()->tableExists('path_alias')) {
-          $paths = array_map(function($uid) {
-            return '/user/' . $uid;
-          }, $uids);
-          $this->database->delete('path_alias')
-            ->condition('path', $paths, 'IN')
-            ->execute();
-        }
-
-        $deleted_in_batch = count($uids);
-        $total_deleted += $deleted_in_batch;
-        $progress->advance($deleted_in_batch);
-
-        $batch_time = microtime(TRUE) - $batch_start_time;
-        $total_elapsed = microtime(TRUE) - $start_time_total;
-
-        $progress->setMessage(sprintf(
-          ' Batch: %d ms | Total: %s',
-          round($batch_time * 1000),
-          $this->formatDuration($total_elapsed)
-        ));
-
-      } catch (\Exception $e) {
-        $transaction->rollBack();
-        $this->logger()->error('Error during batch deletion: ' . $e->getMessage());
+      if (!$success) {
+        $this->logger()->error('Failed to complete batch after max retries.');
         break;
       }
     }
@@ -183,7 +201,7 @@ class PurgeCommands extends DrushCommands {
    * @option dry-run Show what would be done without actually doing it.
    * @aliases lm-pb,purge-bundle
    */
-  public function purgeBundle(string $entity_type, string $bundle, array $options = ['chunk' => 5000, 'dry-run' => FALSE]) {
+  public function purgeBundle(string $entity_type, string $bundle, array $options = ['chunk' => 1000, 'dry-run' => FALSE]) {
     if ($entity_type !== 'node') {
       throw new \InvalidArgumentException('Currently only "node" entity type is supported.');
     }
@@ -258,41 +276,69 @@ class PurgeCommands extends DrushCommands {
         ->execute()
         ->fetchCol();
 
-      $transaction = $this->database->startTransaction();
-      try {
-        foreach ($tables as $table) {
-          $query = $this->database->delete($table);
-          if (strpos($table, 'revision') !== FALSE) {
-            if (!empty($vids)) {
-              // revision_id or vid?
-              $column = $this->database->schema()->fieldExists($table, 'revision_id') ? 'revision_id' : 'vid';
-              $query->condition($column, $vids, 'IN');
+      $max_retries = 3;
+      $retry_count = 0;
+      $success = FALSE;
+
+      while ($retry_count < $max_retries && !$success) {
+        $transaction = $this->database->startTransaction();
+        try {
+          foreach ($tables as $table) {
+            $query = $this->database->delete($table);
+            if (strpos($table, 'revision') !== FALSE) {
+              if (!empty($vids)) {
+                // revision_id or vid?
+                $column = $this->database->schema()->fieldExists($table, 'revision_id') ? 'revision_id' : 'vid';
+                $query->condition($column, $vids, 'IN');
+                $query->execute();
+              }
+            } else {
+              // entity_id or nid?
+              $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
+              $query->condition($column, $nids, 'IN');
               $query->execute();
             }
+          }
+
+          // Handle path aliases.
+          if ($this->database->schema()->tableExists('path_alias')) {
+            $paths = array_map(function($nid) {
+              return '/node/' . $nid;
+            }, $nids);
+            $this->database->delete('path_alias')
+              ->condition('path', $paths, 'IN')
+              ->execute();
+          }
+
+          $success = TRUE;
+          $deleted_in_batch = count($nids);
+          $total_deleted += $deleted_in_batch;
+          $progress->advance($deleted_in_batch);
+
+          $batch_time = microtime(TRUE) - $batch_start_time;
+          $total_elapsed = microtime(TRUE) - $start_time_total;
+
+          $progress->setMessage(sprintf(
+            ' Batch: %d ms | Total: %s',
+            round($batch_time * 1000),
+            $this->formatDuration($total_elapsed)
+          ));
+
+        } catch (\Exception $e) {
+          $transaction->rollBack();
+          if (strpos($e->getMessage(), '1205 Lock wait timeout exceeded') !== FALSE) {
+            $retry_count++;
+            $this->logger()->warning(sprintf('Lock wait timeout exceeded. Retrying batch (%d/%d)...', $retry_count, $max_retries));
+            sleep(1); // Wait a bit before retrying.
           } else {
-            // entity_id or nid?
-            $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
-            $query->condition($column, $nids, 'IN');
-            $query->execute();
+            $this->logger()->error('Error during batch deletion: ' . $e->getMessage());
+            break 2; // Break both while loops.
           }
         }
-        
-        $deleted_in_batch = count($nids);
-        $total_deleted += $deleted_in_batch;
-        $progress->advance($deleted_in_batch);
-        
-        $batch_time = microtime(TRUE) - $batch_start_time;
-        $total_elapsed = microtime(TRUE) - $start_time_total;
-        
-        $progress->setMessage(sprintf(
-          ' Batch: %d ms | Total: %s',
-          round($batch_time * 1000),
-          $this->formatDuration($total_elapsed)
-        ));
+      }
 
-      } catch (\Exception $e) {
-        $transaction->rollBack();
-        $this->logger()->error('Error during batch deletion: ' . $e->getMessage());
+      if (!$success) {
+        $this->logger()->error('Failed to complete batch after max retries.');
         break;
       }
     }
@@ -301,9 +347,9 @@ class PurgeCommands extends DrushCommands {
     $this->output()->writeln('');
 
     $this->output()->writeln("<info>Purge completed. $total_deleted nodes deleted.</info>");
-    
-    $this->output()->writeln("<info>Invalidating cache tags for node_list...</info>");
-    $this->cacheTagsInvalidator->invalidateTags(['node_list']);
+
+    $this->output()->writeln("<info>Invalidating cache tags for node_list and node_list:$bundle...</info>");
+    $this->cacheTagsInvalidator->invalidateTags(['node_list', 'node_list:' . $bundle]);
 
     if ($this->io()->confirm('Would you like to run "drush cr" now?', TRUE)) {
       \Drush\Drush::drush(\Drush\Drush::aliasManager()->getSelf(), 'cache-rebuild')->run();
