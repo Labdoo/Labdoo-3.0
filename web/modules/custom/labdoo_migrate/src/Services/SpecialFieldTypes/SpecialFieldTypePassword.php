@@ -26,8 +26,8 @@ class SpecialFieldTypePassword implements SpecialFieldTypeInterface {
   ) {
 
     if ($entity instanceof UserInterface && $value) {
-      $entity->setExistingPassword($value);
-      $entity->pass->skip_rehash = TRUE;
+      $entity->pass->value = $value;
+      $entity->pass->pre_hashed = TRUE;
     }
 
     // We return NULL because the password has already been set via
