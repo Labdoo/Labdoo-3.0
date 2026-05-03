@@ -96,23 +96,19 @@ class PurgeCommands extends DrushCommands {
     $total_deleted = 0;
     $start_time_total = microtime(TRUE);
 
-    $progress = new ProgressBar($this->output(), $count);
+    // Get all UIDs at once or in a single large fetch since we are deleting one by one.
+    // For very large datasets, we could still batch the fetch, but delete individually.
+    $all_uids = $this->database->select('users', 'u')
+      ->fields('u', ['uid'])
+      ->condition('uid', [0, 1], 'NOT IN')
+      ->execute()
+      ->fetchCol();
+
+    $progress = new ProgressBar($this->output(), count($all_uids));
     $progress->start();
 
-    while ($total_deleted < $count) {
-      $batch_start_time = microtime(TRUE);
-
-      // Get next batch of uids.
-      $uids = $this->database->select('users', 'u')
-        ->fields('u', ['uid'])
-        ->condition('uid', [0, 1], 'NOT IN')
-        ->range(0, $chunk_size)
-        ->execute()
-        ->fetchCol();
-
-      if (empty($uids)) {
-        break;
-      }
+    foreach ($all_uids as $uid) {
+      $iteration_start_time = microtime(TRUE);
 
       $max_retries = 3;
       $retry_count = 0;
@@ -122,52 +118,48 @@ class PurgeCommands extends DrushCommands {
         $transaction = $this->database->startTransaction();
         try {
           foreach ($tables as $table) {
-            $query = $this->database->delete($table);
-            // Users don't have revisions in core standard way like nodes do in these tables.
             $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'uid';
-            $query->condition($column, $uids, 'IN');
-            $query->execute();
+            $this->database->delete($table)
+              ->condition($column, $uid)
+              ->execute();
           }
 
           // Handle path aliases.
           if ($this->database->schema()->tableExists('path_alias')) {
-            $paths = array_map(function($uid) {
-              return '/user/' . $uid;
-            }, $uids);
             $this->database->delete('path_alias')
-              ->condition('path', $paths, 'IN')
+              ->condition('path', '/user/' . $uid)
               ->execute();
           }
 
           $success = TRUE;
-          $deleted_in_batch = count($uids);
-          $total_deleted += $deleted_in_batch;
-          $progress->advance($deleted_in_batch);
+          $total_deleted++;
+          $progress->advance();
 
-          $batch_time = microtime(TRUE) - $batch_start_time;
+          $iteration_time = microtime(TRUE) - $iteration_start_time;
           $total_elapsed = microtime(TRUE) - $start_time_total;
 
           $progress->setMessage(sprintf(
-            ' Batch: %d ms | Total: %s',
-            round($batch_time * 1000),
+            ' Last: %d ms | Total: %s',
+            round($iteration_time * 1000),
             $this->formatDuration($total_elapsed)
           ));
 
         } catch (\Exception $e) {
-          $transaction->rollBack();
+          if (isset($transaction)) {
+            $transaction->rollBack();
+          }
           if (strpos($e->getMessage(), '1205 Lock wait timeout exceeded') !== FALSE) {
             $retry_count++;
-            $this->logger()->warning(sprintf('Lock wait timeout exceeded. Retrying batch (%d/%d)...', $retry_count, $max_retries));
             sleep(1);
           } else {
-            $this->logger()->error('Error during batch deletion: ' . $e->getMessage());
+            $this->logger()->error(sprintf('Error deleting user %d: %s', $uid, $e->getMessage()));
             break 2;
           }
         }
       }
 
       if (!$success) {
-        $this->logger()->error('Failed to complete batch after max retries.');
+        $this->logger()->error(sprintf('Failed to delete user %d after max retries.', $uid));
         break;
       }
     }
@@ -251,28 +243,23 @@ class PurgeCommands extends DrushCommands {
     $total_deleted = 0;
     $start_time_total = microtime(TRUE);
 
-    $progress = new ProgressBar($this->output(), $count);
+    // Fetch all NIDs for this bundle.
+    $all_nids = $this->database->select('node_field_data', 'nfd')
+      ->fields('nfd', ['nid'])
+      ->condition('type', $bundle)
+      ->execute()
+      ->fetchCol();
+
+    $progress = new ProgressBar($this->output(), count($all_nids));
     $progress->start();
 
-    while ($total_deleted < $count) {
-      $batch_start_time = microtime(TRUE);
-      
-      // Get next batch of nids.
-      $nids = $this->database->select('node_field_data', 'nfd')
-        ->fields('nfd', ['nid'])
-        ->condition('type', $bundle)
-        ->range(0, $chunk_size)
-        ->execute()
-        ->fetchCol();
+    foreach ($all_nids as $nid) {
+      $iteration_start_time = microtime(TRUE);
 
-      if (empty($nids)) {
-        break;
-      }
-
-      // Get vids for these nids to handle revisions.
+      // Get vids for this nid to handle revisions.
       $vids = $this->database->select('node_revision', 'nr')
         ->fields('nr', ['vid'])
-        ->condition('nid', $nids, 'IN')
+        ->condition('nid', $nid)
         ->execute()
         ->fetchCol();
 
@@ -284,61 +271,57 @@ class PurgeCommands extends DrushCommands {
         $transaction = $this->database->startTransaction();
         try {
           foreach ($tables as $table) {
-            $query = $this->database->delete($table);
             if (strpos($table, 'revision') !== FALSE) {
               if (!empty($vids)) {
-                // revision_id or vid?
                 $column = $this->database->schema()->fieldExists($table, 'revision_id') ? 'revision_id' : 'vid';
-                $query->condition($column, $vids, 'IN');
-                $query->execute();
+                $this->database->delete($table)
+                  ->condition($column, $vids, 'IN')
+                  ->execute();
               }
             } else {
-              // entity_id or nid?
               $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
-              $query->condition($column, $nids, 'IN');
-              $query->execute();
+              $this->database->delete($table)
+                ->condition($column, $nid)
+                ->execute();
             }
           }
 
           // Handle path aliases.
           if ($this->database->schema()->tableExists('path_alias')) {
-            $paths = array_map(function($nid) {
-              return '/node/' . $nid;
-            }, $nids);
             $this->database->delete('path_alias')
-              ->condition('path', $paths, 'IN')
+              ->condition('path', '/node/' . $nid)
               ->execute();
           }
 
           $success = TRUE;
-          $deleted_in_batch = count($nids);
-          $total_deleted += $deleted_in_batch;
-          $progress->advance($deleted_in_batch);
+          $total_deleted++;
+          $progress->advance();
 
-          $batch_time = microtime(TRUE) - $batch_start_time;
+          $iteration_time = microtime(TRUE) - $iteration_start_time;
           $total_elapsed = microtime(TRUE) - $start_time_total;
 
           $progress->setMessage(sprintf(
-            ' Batch: %d ms | Total: %s',
-            round($batch_time * 1000),
+            ' Last: %d ms | Total: %s',
+            round($iteration_time * 1000),
             $this->formatDuration($total_elapsed)
           ));
 
         } catch (\Exception $e) {
-          $transaction->rollBack();
+          if (isset($transaction)) {
+            $transaction->rollBack();
+          }
           if (strpos($e->getMessage(), '1205 Lock wait timeout exceeded') !== FALSE) {
             $retry_count++;
-            $this->logger()->warning(sprintf('Lock wait timeout exceeded. Retrying batch (%d/%d)...', $retry_count, $max_retries));
-            sleep(1); // Wait a bit before retrying.
+            sleep(1);
           } else {
-            $this->logger()->error('Error during batch deletion: ' . $e->getMessage());
-            break 2; // Break both while loops.
+            $this->logger()->error(sprintf('Error deleting node %d: %s', $nid, $e->getMessage()));
+            break 2;
           }
         }
       }
 
       if (!$success) {
-        $this->logger()->error('Failed to complete batch after max retries.');
+        $this->logger()->error(sprintf('Failed to delete node %d after max retries.', $nid));
         break;
       }
     }
