@@ -676,7 +676,7 @@ delete-user: confirm ## 🗑️ Delete all users (except admin).
 delete-user-no-confirm:
 	@echo "$(CYAN)🗑️ Deleting users...$(RESET)"
 	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y
-	$(DRUSH_COMMAND) entity:delete user
+	$(DRUSH_COMMAND) labdoo_migrate:purge-users -y
 	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y
 
 .PHONY: delete-hub
