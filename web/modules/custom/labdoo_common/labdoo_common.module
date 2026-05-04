@@ -13,7 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\UserInterface;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\file\FileInterface;
-use Drupal\image\Entity\ImageStyle;
+use Drupal\Core\Field\FieldItemListInterface;
 
 /**
  * Implements hook_webform_element_alter().
@@ -271,7 +271,7 @@ function labdoo_common_module_implements_alter(array &$implementations, string $
 /**
  * Implements hook_reverse_geocode_entity_field_coordinates_alter().
  */
-function labdoo_common_reverse_geocode_entity_field_coordinates_alter(string &$latitude, string &$longitude, array $context) {
+function labdoo_common_reverse_geocode_entity_field_coordinates_alter(string &$latitude, string &$longitude, FieldItemListInterface $field) {
   // Prevent geocoding absurd coordinates (near 0,0).
   $lat = (float) $latitude;
   $lon = (float) $longitude;
@@ -286,7 +286,7 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(string &$l
 /**
  * Implements hook_geocode_entity_field_address_string_alter().
  */
-function labdoo_common_geocode_entity_field_address_string_alter(string &$address_string, array $context) {
+function labdoo_common_geocode_entity_field_address_string_alter(string &$address_string, FieldItemListInterface $field) {
   // Prevent geocoding empty or absurdly short address strings.
   if (strlen(trim($address_string)) < 2) {
     $address_string = '';
