@@ -19,107 +19,88 @@
       // Maximum number of pages to rotate (1-indexed, página 10)
       const MAX_PAGE = 10;
 
-          if ($block.length) {
-            let rotationTimer;
+      if ($block.length) {
+        let rotationTimer;
 
-            // Function to get the current page number from the pager
-            const getCurrentPage = function() {
-              // Try to find the active/current page in the pager
-              const $currentItem = $block.find('.pager__item.is-active');
-              if ($currentItem.length) {
-                const pageText = $currentItem.text().trim();
-                const pageNum = parseInt(pageText);
-                if (!isNaN(pageNum)) {
-                  return pageNum;
-                }
+        // Custom AJAX command to override scrolling specifically for this block.
+        // We only want to prevent scrolling when the rotation is happening automatically.
+        let isRotatingAutomatically = false;
+
+        if (Drupal.AjaxCommands && !Drupal.AjaxCommands.prototype.oldScrollTopForMiniMissions) {
+          Drupal.AjaxCommands.prototype.oldScrollTopForMiniMissions = Drupal.AjaxCommands.prototype.scrollTop;
+          Drupal.AjaxCommands.prototype.scrollTop = function (ajax, response, status) {
+            // If it's our block and we are rotating automatically, do nothing.
+            if (isRotatingAutomatically && ajax.element && $(ajax.element).closest(blockSelector).length) {
+              return;
+            }
+            return Drupal.AjaxCommands.prototype.oldScrollTopForMiniMissions.apply(this, arguments);
+          };
+
+          // Also override viewsScrollTop if it exists (for backward compatibility in some Drupal versions)
+          if (Drupal.AjaxCommands.prototype.viewsScrollTop) {
+            Drupal.AjaxCommands.prototype.oldViewsScrollTopForMiniMissions = Drupal.AjaxCommands.prototype.viewsScrollTop;
+            Drupal.AjaxCommands.prototype.viewsScrollTop = function (ajax, response, status) {
+              if (isRotatingAutomatically && ajax.element && $(ajax.element).closest(blockSelector).length) {
+                return;
               }
-              
-              // If no active item, check the URL of next link to deduce current page
-              const $nextLink = $block.find('.pager__item--next a');
-              if ($nextLink.length) {
-                const href = $nextLink.attr('href');
-                const pageMatch = href.match(/page=(\d+)/);
-                if (pageMatch) {
-                  // The next link points to page N, so we're on page N-1
-                  // But remember page parameter is 0-indexed, so page=5 is actually page 6
-                  return parseInt(pageMatch[1]);
-                }
-              }
-              
-              // Default to page 1 if we can't determine
-              return 1;
-            };
+              return Drupal.AjaxCommands.prototype.oldViewsScrollTopForMiniMissions.apply(this, arguments);
+            }
+          }
+        }
 
-            // Function to trigger AJAX pagination without scrolling.
-            const rotateToNext = function() {
-              const currentPage = getCurrentPage();
-              const $nextLink = $block.find('.pager__item--next a');
+        // Function to get the current page number from the pager
+        const getCurrentPage = function() {
+          // Try to find the active/current page in the pager
+          const $currentItem = $block.find('.pager__item.is-active');
+          if ($currentItem.length) {
+            const pageText = $currentItem.text().trim();
+            const pageNum = parseInt(pageText);
+            if (!isNaN(pageNum)) {
+              return pageNum;
+            }
+          }
+          
+          // If no active item, check the URL of next link to deduce current page
+          const $nextLink = $block.find('.pager__item--next a');
+          if ($nextLink.length) {
+            const href = $nextLink.attr('href');
+            const pageMatch = href.match(/page=(\d+)/);
+            if (pageMatch) {
+              // The next link points to page N, so we're on page N-1
+              // But remember page parameter is 0-indexed, so page=5 is actually page 6
+              return parseInt(pageMatch[1]);
+            }
+          }
+          
+          // Default to page 1 if we can't determine
+          return 1;
+        };
 
-              if ($nextLink.length && currentPage < MAX_PAGE) {
-                // Save current scroll position
-                const scrollX = window.scrollX;
-                const scrollY = window.scrollY;
+        // Function to trigger AJAX pagination without scrolling.
+        const rotateToNext = function() {
+          const currentPage = getCurrentPage();
+          const $nextLink = $block.find('.pager__item--next a');
 
-                // Override all scroll methods BEFORE clicking
-                const originalScrollTo = window.scrollTo;
-                const originalScrollIntoView = Element.prototype.scrollIntoView;
-                const originalScroll = window.scroll;
-                const originalScrollBy = window.scrollBy;
+          if ($nextLink.length && currentPage < MAX_PAGE) {
+            // Set flag to inform our AJAX command override
+            isRotatingAutomatically = true;
 
-                window.scrollTo = function() { return; };
-                window.scroll = function() { return; };
-                window.scrollBy = function() { return; };
-                Element.prototype.scrollIntoView = function() { return; };
+            // Click the link
+            $nextLink[0].click();
 
-                // Prevent any scroll attempts - capture phase to intercept early
-                const preventScroll = function(e) {
-                  e.preventDefault();
-                  e.stopImmediatePropagation();
-                  originalScrollTo.call(window, scrollX, scrollY);
-                };
+            // Reset flag after a delay to allow manual clicks to still scroll if desired
+            // (though normally manual clicks on pager should probably scroll, so we reset quickly)
+            setTimeout(function() {
+              isRotatingAutomatically = false;
+            }, 1000);
 
-                // Block scroll events in capture phase
-                window.addEventListener('scroll', preventScroll, { passive: false, capture: true });
-                document.addEventListener('scroll', preventScroll, { passive: false, capture: true });
-
-                // Use requestAnimationFrame to continuously force position
-                let rafId;
-                let running = true;
-                const forcePosition = function() {
-                  if (running) {
-                    if (window.scrollX !== scrollX || window.scrollY !== scrollY) {
-                      originalScrollTo.call(window, scrollX, scrollY);
-                    }
-                    rafId = requestAnimationFrame(forcePosition);
-                  }
-                };
-                forcePosition();
-
-                // Click the link
-                $nextLink[0].click();
-
-                // Restore everything after AJAX completes
-                setTimeout(function() {
-                  running = false;
-                  if (rafId) {
-                    cancelAnimationFrame(rafId);
-                  }
-                  window.scrollTo = originalScrollTo;
-                  window.scroll = originalScroll;
-                  window.scrollBy = originalScrollBy;
-                  Element.prototype.scrollIntoView = originalScrollIntoView;
-                  window.removeEventListener('scroll', preventScroll, { capture: true });
-                  document.removeEventListener('scroll', preventScroll, { capture: true });
-                  originalScrollTo.call(window, scrollX, scrollY);
-                }, 1000);
-
-                // Set timer for next rotation.
-                rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
-              } else {
-                // We've reached the last page (page 10), stop rotation
-                clearTimeout(rotationTimer);
-              }
-            };
+            // Set timer for next rotation.
+            rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
+          } else {
+            // We've reached the last page (page 10), stop rotation
+            clearTimeout(rotationTimer);
+          }
+        };
 
             // Start the rotation.
             rotationTimer = setTimeout(rotateToNext, ROTATION_INTERVAL);
