@@ -273,8 +273,8 @@ function labdoo_common_module_implements_alter(array &$implementations, string $
  */
 function labdoo_common_reverse_geocode_coordinates_alter(&$latitude, &$longitude) {
   if (\Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
-    $latitude = '';
-    $longitude = '';
+    $latitude = NULL;
+    $longitude = NULL;
     return;
   }
 
@@ -284,8 +284,8 @@ function labdoo_common_reverse_geocode_coordinates_alter(&$latitude, &$longitude
 
   // Prevent geocoding absurd coordinates (near 0,0).
   if (abs($lat) < 0.1 && abs($lon) < 0.1) {
-    $latitude = '';
-    $longitude = '';
+    $latitude = NULL;
+    $longitude = NULL;
     return;
   }
 
@@ -301,8 +301,8 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude
   // Prevent geocoding during migration or if explicitly disabled for this entity.
   $entity = $field->getEntity();
   if (isset($entity->labdoo_skip_geocoding) || \Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
-    $latitude = '';
-    $longitude = '';
+    $latitude = NULL;
+    $longitude = NULL;
     return;
   }
 
@@ -312,9 +312,9 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude
 
   // Prevent geocoding absurd coordinates (near 0,0).
   if (abs($lat) < 0.1 && abs($lon) < 0.1) {
-    // Setting them to empty strings will make Geocoder skip the operation.
-    $latitude = '';
-    $longitude = '';
+    // Setting them to NULL will make Geocoder skip the operation safely.
+    $latitude = NULL;
+    $longitude = NULL;
     return;
   }
 
