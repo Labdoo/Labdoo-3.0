@@ -112,6 +112,7 @@ function labdoo_dootronics_entity_insert(EntityInterface $entity) {
     /** @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface $dootronicCompute */
     $dootronicCompute = \Drupal::service('labdoo_dootronics.compute');
     $dootronicCompute->computeRelatedDootrips($entity);
+    __labdoo_dootronics_enqueue_geocoding($entity);
   }
 }
 
@@ -125,6 +126,7 @@ function labdoo_dootronics_entity_update(EntityInterface $entity) {
     /** @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface $dootronicCompute */
     $dootronicCompute = \Drupal::service('labdoo_dootronics.compute');
     $dootronicCompute->computeRelatedDootrips($entity);
+    __labdoo_dootronics_enqueue_geocoding($entity);
   }
 }
 
@@ -145,6 +147,38 @@ function __labdoo_dootronics_recalculate(EntityInterface $entity): void {
   $dootronicCompute->computeEdooVillageData($entity);
   $dootronicCompute->computeHubData($entity);
   __labdoo_dootronics_clear_cachetag($entity);
+}
+
+/**
+ * Enqueue geocoding task if needed.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ */
+function __labdoo_dootronics_enqueue_geocoding(EntityInterface $entity): void {
+  if ($entity->bundle() !== 'dootronic') {
+    return;
+  }
+
+  $countryCode = !$entity->get('field_country')->isEmpty() ? $entity->get('field_country')->value : '';
+
+  // If country is missing and we have coordinates, enqueue.
+  if (empty($countryCode)) {
+    if ($entity->hasField('field_locations') && !$entity->get('field_locations')->isEmpty()) {
+      $locationData = $entity->get('field_locations')->first()->getValue();
+      if (isset($locationData['lat']) && isset($locationData['lon'])) {
+        // Validation check for absurd coordinates.
+        if (abs((float)$locationData['lat']) < 0.1 && abs((float)$locationData['lon']) < 0.1) {
+          return;
+        }
+
+        /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
+        $queueFactory = \Drupal::service('queue');
+        $queue = $queueFactory->get('labdoo_dootronic_geocoding');
+        $queue->createItem(['nid' => $entity->id()]);
+      }
+    }
+  }
 }
 
 /**

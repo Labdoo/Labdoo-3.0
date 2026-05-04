@@ -59,20 +59,31 @@ class ComputeCommands extends DrushCommands {
   protected int $total;
 
   /**
+   * The queue factory.
+   *
+   * @var \Drupal\Core\Queue\QueueFactory
+   */
+  protected \Drupal\Core\Queue\QueueFactory $queueFactory;
+
+  /**
    * ComputeCommands constructor.
    *
    * @param \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository
    *   The Dootronic repository.
    * @param \Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface $queueFeeder
    *   The queue feeder.
+   * @param \Drupal\Core\Queue\QueueFactory $queueFactory
+   *   The queue factory.
    */
   public function __construct(
     DootronicRepositoryInterface $dootronicRepository,
-    QueueFeederInterface $queueFeeder
+    QueueFeederInterface $queueFeeder,
+    \Drupal\Core\Queue\QueueFactory $queueFactory
   ) {
     parent::__construct();
     $this->dootronicRepository = $dootronicRepository;
     $this->queueFeeder = $queueFeeder;
+    $this->queueFactory = $queueFactory;
   }
 
   /**
@@ -216,6 +227,59 @@ class ComputeCommands extends DrushCommands {
       $this->total
     );
     $this->logger->notice($infoMessage);
+  }
+
+  /**
+   * Enqueues dootronics for reverse geocoding.
+   *
+   * @param array $options
+   *   Command options.
+   *
+   * @command labdoo:dootronic-geocode-enqueue
+   * @aliases ld-ge
+   * @usage labdoo:dootronic-geocode-enqueue
+   *   Enqueues all dootronics that don't have a country set but have coordinates.
+   */
+  public function enqueueGeocoding(array $options = ['dry-run' => FALSE]): void {
+    $this->startTime = microtime(TRUE);
+    $this->dryRun = $options['dry-run'];
+
+    $this->logger->notice('Searching for dootronics without country and with coordinates...');
+
+    $query = \Drupal::entityQuery('node')
+      ->condition('type', 'dootronic')
+      ->condition('field_country', NULL, 'IS NULL')
+      ->exists('field_locations__lat')
+      ->exists('field_locations__lon')
+      ->accessCheck(FALSE);
+
+    $nids = $query->execute();
+    $this->total = count($nids);
+
+    $this->logger->notice(sprintf('%d dootronics found.', $this->total));
+
+    if ($this->total === 0) {
+      return;
+    }
+
+    $queue = $this->queueFactory->get('labdoo_dootronic_geocoding');
+    $i = 0;
+    $enqueued = 0;
+
+    foreach ($nids as $nid) {
+      $i++;
+      if ($this->dryRun) {
+        $this->logger->notice(sprintf('[%d/%d] Dry-run: would enqueue dootronic %d', $i, $this->total, $nid));
+        $enqueued++;
+        continue;
+      }
+
+      $queue->createItem(['nid' => $nid]);
+      $this->logger->notice(sprintf('[%d/%d] Enqueued dootronic %d', $i, $this->total, $nid));
+      $enqueued++;
+    }
+
+    $this->tearDown($enqueued);
   }
 
 }
