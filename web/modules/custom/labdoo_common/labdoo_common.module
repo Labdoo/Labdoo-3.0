@@ -220,7 +220,7 @@ function labdoo_common_block_view_alter(array &$build, BlockPluginInterface $blo
  * Implements hook_entity_insert().
  */
 function labdoo_common_entity_insert(EntityInterface $entity) {
-  if ($entity instanceof FieldableEntityInterface) {
+  if ($entity instanceof FieldableEntityInterface && !isset($entity->labdoo_skip_geocoding)) {
     \Drupal::service('labdoo_common.geocode_cache_manager')->storeEntityCoordinates($entity);
   }
 
@@ -238,7 +238,7 @@ function labdoo_common_entity_insert(EntityInterface $entity) {
  * Implements hook_entity_update().
  */
 function labdoo_common_entity_update(EntityInterface $entity) {
-  if ($entity instanceof FieldableEntityInterface) {
+  if ($entity instanceof FieldableEntityInterface && !isset($entity->labdoo_skip_geocoding)) {
     \Drupal::service('labdoo_common.geocode_cache_manager')->storeEntityCoordinates($entity);
   }
 }
@@ -247,7 +247,7 @@ function labdoo_common_entity_update(EntityInterface $entity) {
  * Implements hook_entity_presave().
  */
 function labdoo_common_entity_presave(EntityInterface $entity) {
-  if ($entity instanceof FieldableEntityInterface) {
+  if ($entity instanceof FieldableEntityInterface && !isset($entity->labdoo_skip_geocoding) && !\Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
     \Drupal::service('labdoo_common.geocode_cache_manager')->applyCacheToEntity($entity);
   }
 }
@@ -272,6 +272,14 @@ function labdoo_common_module_implements_alter(array &$implementations, string $
  * Implements hook_reverse_geocode_entity_field_coordinates_alter().
  */
 function labdoo_common_reverse_geocode_entity_field_coordinates_alter(string &$latitude, string &$longitude, FieldItemListInterface $field) {
+  // Prevent geocoding during migration or if explicitly disabled for this entity.
+  $entity = $field->getEntity();
+  if (isset($entity->labdoo_skip_geocoding) || \Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
+    $latitude = '';
+    $longitude = '';
+    return;
+  }
+
   // Prevent geocoding absurd coordinates (near 0,0).
   $lat = (float) $latitude;
   $lon = (float) $longitude;
@@ -287,6 +295,13 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(string &$l
  * Implements hook_geocode_entity_field_address_string_alter().
  */
 function labdoo_common_geocode_entity_field_address_string_alter(string &$address_string, FieldItemListInterface $field) {
+  // Prevent geocoding during migration or if explicitly disabled for this entity.
+  $entity = $field->getEntity();
+  if (isset($entity->labdoo_skip_geocoding) || \Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
+    $address_string = '';
+    return;
+  }
+
   // Prevent geocoding empty or absurdly short address strings.
   if (strlen(trim($address_string)) < 2) {
     $address_string = '';

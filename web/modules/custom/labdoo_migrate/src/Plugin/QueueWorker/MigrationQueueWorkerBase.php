@@ -134,6 +134,9 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
           return;
         }
 
+        // Set a flag to skip heavy geocoding during migration.
+        \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
+
         $destinationRepository->createEntities(
           [$entityId => $sourceEntity],
           $mapping,
@@ -160,6 +163,9 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
           $this->logger->warning(sprintf('Destination entity %s of type %s not found for update.', $destinationEntityId, $destinationContentType));
           return;
         }
+
+        // Set a flag to skip heavy geocoding during migration.
+        \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
 
         $destinationRepository->updateEntities(
           [$entityId => $sourceEntity],
