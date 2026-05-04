@@ -190,6 +190,9 @@
             "drupal/gin": {
               "Fix chosen select height issue": "patches/gin-chosen-height-fix.patch",
               "Fix sidebar JS errors when trigger is missing": "patches/gin-fix-sidebar-null-errors.patch"
+            },
+            "drupal/geocoder": {
+                "Fix TypeError in reverse() method for PHP 8+": "patches/geocoder-fix-type-error-reverse.patch"
             }
         }
     }

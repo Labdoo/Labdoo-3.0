@@ -1,0 +1,21 @@
+--- a/src/Geocoder.php
++++ b/src/Geocoder.php
+@@ -103,7 +103,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function reverse(string $latitude, string $longitude, array $providers): ?AddressCollection {
++  public function reverse($latitude, $longitude, array $providers): ?AddressCollection {
+     // Allow other modules to adjust the coordinates.
+     $this->moduleHandler->alter('reverse_geocode_coordinates', $latitude, $longitude);
+ 
+--- a/src/GeocoderInterface.php
++++ b/src/GeocoderInterface.php
+@@ -35,6 +35,6 @@
+    *
+    * @return \Geocoder\Model\AddressCollection|null
+    */
+-  public function reverse(string $latitude, string $longitude, array $providers): ?AddressCollection;
++  public function reverse($latitude, $longitude, array $providers): ?AddressCollection;
+ 
+ }
