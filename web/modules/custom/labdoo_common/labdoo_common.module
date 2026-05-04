@@ -269,9 +269,35 @@ function labdoo_common_module_implements_alter(array &$implementations, string $
 }
 
 /**
+ * Implements hook_reverse_geocode_coordinates_alter().
+ */
+function labdoo_common_reverse_geocode_coordinates_alter(&$latitude, &$longitude) {
+  if (\Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
+    $latitude = '';
+    $longitude = '';
+    return;
+  }
+
+  // Ensure they are floats for the geocoder.
+  $lat = (float) $latitude;
+  $lon = (float) $longitude;
+
+  // Prevent geocoding absurd coordinates (near 0,0).
+  if (abs($lat) < 0.1 && abs($lon) < 0.1) {
+    $latitude = '';
+    $longitude = '';
+    return;
+  }
+
+  // Pass back as floats.
+  $latitude = $lat;
+  $longitude = $lon;
+}
+
+/**
  * Implements hook_reverse_geocode_entity_field_coordinates_alter().
  */
-function labdoo_common_reverse_geocode_entity_field_coordinates_alter(string &$latitude, string &$longitude, FieldItemListInterface $field) {
+function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude, &$longitude, FieldItemListInterface $field) {
   // Prevent geocoding during migration or if explicitly disabled for this entity.
   $entity = $field->getEntity();
   if (isset($entity->labdoo_skip_geocoding) || \Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
@@ -280,14 +306,35 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(string &$l
     return;
   }
 
-  // Prevent geocoding absurd coordinates (near 0,0).
+  // Ensure they are floats for the geocoder.
   $lat = (float) $latitude;
   $lon = (float) $longitude;
 
+  // Prevent geocoding absurd coordinates (near 0,0).
   if (abs($lat) < 0.1 && abs($lon) < 0.1) {
     // Setting them to empty strings will make Geocoder skip the operation.
     $latitude = '';
     $longitude = '';
+    return;
+  }
+
+  // Pass back as floats to avoid type errors in Geocoder\StatefulGeocoder::reverse().
+  $latitude = $lat;
+  $longitude = $lon;
+}
+
+/**
+ * Implements hook_geocode_address_string_alter().
+ */
+function labdoo_common_geocode_address_string_alter(string &$address_string) {
+  if (\Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
+    $address_string = '';
+    return;
+  }
+
+  // Prevent geocoding empty or absurdly short address strings.
+  if (strlen(trim($address_string)) < 2) {
+    $address_string = '';
   }
 }
 
