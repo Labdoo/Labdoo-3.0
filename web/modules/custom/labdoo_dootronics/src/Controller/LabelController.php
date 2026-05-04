@@ -8,6 +8,7 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\labdoo_dootronics\Model\DootronicLabelModel;
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Controller that prints labels.
@@ -87,6 +88,10 @@ class LabelController extends ControllerBase {
         $dootronic = $this->dootronicRepository->loadByLabel($startingDootronicId);
       }
 
+      if (!$dootronic) {
+        throw new NotFoundHttpException();
+      }
+
       $dootronicLabelModel = new DootronicLabelModel(
         $dootronic->label(),
         $this->dootronicRepository->generateQrCode($dootronic),
@@ -114,9 +119,15 @@ class LabelController extends ControllerBase {
     // Fallback to label.
     if (!$dootronic) {
       $startingDootronic = $this->dootronicRepository->loadByLabel($startingDootronicId);
+      if (!$startingDootronic) {
+        throw new NotFoundHttpException();
+      }
       $startingDootronicId = $startingDootronic->id();
 
       $endingDootronic = $this->dootronicRepository->loadByLabel($endingDootronicId);
+      if (!$endingDootronic) {
+        throw new NotFoundHttpException();
+      }
       $endingDootronicId = $endingDootronic->id();
     }
 
