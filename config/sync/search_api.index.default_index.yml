@@ -198,6 +198,6 @@ tracker_settings:
   default: {  }
 options:
   cron_limit: 50
-  index_directly: true
+  index_directly: false
   track_changes_in_references: true
 server: default_server
