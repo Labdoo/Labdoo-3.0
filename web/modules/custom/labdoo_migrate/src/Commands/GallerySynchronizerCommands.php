@@ -200,6 +200,7 @@ class GallerySynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
+    \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
     $this->fromTimestamp = NULL;
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
@@ -837,6 +838,7 @@ class GallerySynchronizerCommands extends DrushCommands {
    *   The number of skipped entities.
    */
   protected function tearDown(int $created, int $updated, int $skipped = 0): void {
+    \Drupal::state()->delete('labdoo_migrate_is_running');
     // Finish the progress bar if it exists
     if ($this->progressBar) {
       $this->progressBar->finish();

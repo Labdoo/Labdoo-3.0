@@ -361,6 +361,7 @@ theme-watch: ## 👁️  Start theme watch mode using gulp.
 migrate-all: ## 🔄 Run full migration sequence (foreground).
 	@echo "$(CYAN)🔄 Running full migration sequence...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush entity:delete node --bundle action
 	vendor/bin/drush entity:delete user
 	vendor/bin/drush labdoo-sync user
@@ -378,16 +379,18 @@ migrate-all: ## 🔄 Run full migration sequence (foreground).
 	vendor/bin/drush sql-query "DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'"
 	vendor/bin/drush labdoo-sync-teams
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-all-bg
 migrate-all-bg: ## 🌙 Run full migration sequence in background (nohup + log).
 	@echo "$(CYAN)🌙 Running full migration sequence in background (migration-all.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush entity:delete node --bundle action && vendor/bin/drush entity:delete user && vendor/bin/drush labdoo-sync user && vendor/bin/drush entity:delete node --bundle=hub && vendor/bin/drush labdoo-sync hub && vendor/bin/drush entity:delete node --bundle=edoovillage && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush entity:delete node --bundle=dootronic && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush entity:delete node --bundle=dootrip && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush entity:delete node --bundle=team_comment && vendor/bin/drush entity:delete node --bundle=team_post && vendor/bin/drush entity:delete node --bundle=team && vendor/bin/drush sql-query \"DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'\" && vendor/bin/drush labdoo-sync-teams && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-all.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush entity:delete node --bundle action && vendor/bin/drush entity:delete user && vendor/bin/drush labdoo-sync user && vendor/bin/drush entity:delete node --bundle=hub && vendor/bin/drush labdoo-sync hub && vendor/bin/drush entity:delete node --bundle=edoovillage && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush entity:delete node --bundle=dootronic && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush entity:delete node --bundle=dootrip && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush entity:delete node --bundle=team_comment && vendor/bin/drush entity:delete node --bundle=team_post && vendor/bin/drush entity:delete node --bundle=team && vendor/bin/drush sql-query \"DELETE FROM comment_entity_statistics WHERE entity_type='node' AND field_name='field_team_comments'\" && vendor/bin/drush labdoo-sync-teams && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-all.log 2>&1 &
 
 .PHONY: migrate-all-resume-bg
 migrate-all-resume-bg: ## 🌙 Resume full migration in background without deleting existing entities.
 	@echo "$(CYAN)🌙 Resuming full migration in background (migration-all-resume.log) without deletions...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user && vendor/bin/drush labdoo-sync hub && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush labdoo-sync-teams && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-all-resume.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync user && vendor/bin/drush labdoo-sync hub && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush labdoo-sync-teams && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-all-resume.log 2>&1 &
 
 .PHONY: migrate-action
 migrate-action: ## 🔄 Migrate action (foreground).
@@ -403,38 +406,47 @@ migrate-action-bg: ## 🌙 Migrate action in background (nohup + log).
 migrate-dootrip: ## 🔄 Migrate dootrip (foreground).
 	@echo "$(CYAN)🔄 Running dootrip migration...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush labdoo-sync dootrip
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-dootrip-bg
 migrate-dootrip-bg: ## 🌙 Migrate dootrip in background (nohup + log).
 	@echo "$(CYAN)🌙 Running dootrip migration in background (migration-dootrip.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-dootrip.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync dootrip && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-dootrip.log 2>&1 &
 
 .PHONY: migrate-dootronic
 migrate-dootronic: ## 🔄 Migrate dootronic (foreground).
 	@echo "$(CYAN)🔄 Running dootronic migration...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush labdoo-sync laptop
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-dootronic-bg
 migrate-dootronic-bg: ## 🌙 Migrate dootronic in background (nohup + log).
 	@echo "$(CYAN)🌙 Running dootronic migration in background (migration-dootronic.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-dootronic.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync laptop && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-dootronic.log 2>&1 &
 
 .PHONY: migrate-edoovillage
 migrate-edoovillage: ## 🔄 Migrate edoovillage (foreground).
 	@echo "$(CYAN)🔄 Running edoovillage migration...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush entity:delete node --bundle=edoovillage
 	vendor/bin/drush labdoo-sync edoovillage
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-edoovillage-bg
 migrate-edoovillage-bg: ## 🌙 Migrate edoovillage in background (nohup + log).
 	@echo "$(CYAN)🌙 Running edoovillage migration in background (migration-edoovillage.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush entity:delete node --bundle=edoovillage && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-edoovillage.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush entity:delete node --bundle=edoovillage && vendor/bin/drush labdoo-sync edoovillage && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-edoovillage.log 2>&1 &
 
 .PHONY: migrate-gallery
 migrate-gallery: ## 🔄 Migrate gallery (foreground).
@@ -451,13 +463,16 @@ migrate-gallery-bg: ## 🌙 Migrate gallery in background (nohup + log).
 migrate-hub: ## 🔄 Migrate hub (foreground).
 	@echo "$(CYAN)🔄 Running hub migration...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush labdoo-sync hub
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-hub-bg
 migrate-hub-bg: ## 🌙 Migrate hub in background (nohup + log).
 	@echo "$(CYAN)🌙 Running hub migration in background (migration-hub.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync hub && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-hub.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync hub && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-hub.log 2>&1 &
 
 .PHONY: migrate-queue
 migrate-queue: ## 📥 Enqueue entities for migration (e.g., make migrate-queue type=hub limit=100).
@@ -467,8 +482,11 @@ migrate-queue: ## 📥 Enqueue entities for migration (e.g., make migrate-queue 
 	fi
 	@echo "$(CYAN)📥 Enqueueing $(type) nodes...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush labdoo-sync $(type) --queue --limit=$(or $(limit),-1)
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-page
 migrate-page: ## 🔄 Migrate page (foreground).
@@ -525,13 +543,17 @@ migrate-team-bg: ## 🌙 Migrate team in background (nohup + log).
 migrate-user: ## 🔄 Migrate user (foreground).
 	@echo "$(CYAN)🔄 Running user migration...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush labdoo-sync user
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-all-queue
 migrate-all-queue: ## 📥 Enqueue all entities for migration.
 	@echo "$(CYAN)📥 Enqueueing all entities for migration...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush labdoo-sync user --queue
 	vendor/bin/drush labdoo-sync hub --queue
 	vendor/bin/drush labdoo-sync edoovillage --queue
@@ -539,16 +561,19 @@ migrate-all-queue: ## 📥 Enqueue all entities for migration.
 	vendor/bin/drush labdoo-sync dootrip --queue
 	vendor/bin/drush labdoo-sync-teams --queue
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-user-bg
 migrate-user-bg: ## 🌙 Migrate user in background (nohup + log).
 	@echo "$(CYAN)🌙 Running user migration in background (migration-user.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-user.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync user && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-user.log 2>&1 &
 
 .PHONY: migrate-incremental
 migrate-incremental: ## 🔄 Run incremental migration for all entities.
 	@echo "$(CYAN)🔄 Running incremental migration...$(RESET)"
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y
 	vendor/bin/drush labdoo-sync user --incremental
 	vendor/bin/drush labdoo-sync hub --incremental
 	vendor/bin/drush labdoo-sync edoovillage --incremental
@@ -556,36 +581,38 @@ migrate-incremental: ## 🔄 Run incremental migration for all entities.
 	vendor/bin/drush labdoo-sync dootrip --incremental
 	vendor/bin/drush labdoo-sync-teams --incremental
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
+	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
+	vendor/bin/drush search-api:index
 
 .PHONY: migrate-all-incremental-bg
 migrate-all-incremental-bg: ## 🌙 Run incremental migration for all entities in background.
 	@echo "$(CYAN)🌙 Running incremental migration for all entities in background (migration-incremental.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user --incremental && vendor/bin/drush labdoo-sync hub --incremental && vendor/bin/drush labdoo-sync edoovillage --incremental && vendor/bin/drush labdoo-sync laptop --incremental && vendor/bin/drush labdoo-sync dootrip --incremental && vendor/bin/drush labdoo-sync-teams --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-incremental.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync user --incremental && vendor/bin/drush labdoo-sync hub --incremental && vendor/bin/drush labdoo-sync edoovillage --incremental && vendor/bin/drush labdoo-sync laptop --incremental && vendor/bin/drush labdoo-sync dootrip --incremental && vendor/bin/drush labdoo-sync-teams --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-incremental.log 2>&1 &
 
 .PHONY: migrate-user-incremental-bg
 migrate-user-incremental-bg: ## 🌙 Run incremental user migration in background.
 	@echo "$(CYAN)🌙 Running incremental user migration in background (migration-user-incremental.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync user --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-user-incremental.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync user --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-user-incremental.log 2>&1 &
 
 .PHONY: migrate-hub-incremental-bg
 migrate-hub-incremental-bg: ## 🌙 Run incremental hub migration in background.
 	@echo "$(CYAN)🌙 Running incremental hub migration in background (migration-hub-incremental.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync hub --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-hub-incremental.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync hub --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-hub-incremental.log 2>&1 &
 
 .PHONY: migrate-edoovillage-incremental-bg
 migrate-edoovillage-incremental-bg: ## 🌙 Run incremental edoovillage migration in background.
 	@echo "$(CYAN)🌙 Running incremental edoovillage migration in background (migration-edoovillage-incremental.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync edoovillage --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-edoovillage-incremental.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync edoovillage --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-edoovillage-incremental.log 2>&1 &
 
 .PHONY: migrate-dootronic-incremental-bg
 migrate-dootronic-incremental-bg: ## 🌙 Run incremental dootronic migration in background.
 	@echo "$(CYAN)🌙 Running incremental dootronic migration in background (migration-dootronic-incremental.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync laptop --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-dootronic-incremental.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync laptop --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-dootronic-incremental.log 2>&1 &
 
 .PHONY: migrate-dootrip-incremental-bg
 migrate-dootrip-incremental-bg: ## 🌙 Run incremental dootrip migration in background.
 	@echo "$(CYAN)🌙 Running incremental dootrip migration in background (migration-dootrip-incremental.log)...$(RESET)"
-	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush labdoo-sync dootrip --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y" > migration-dootrip-incremental.log 2>&1 &
+	nohup sh -c "vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 1 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 0 -y && vendor/bin/drush labdoo-sync dootrip --incremental && vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y && vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y && vendor/bin/drush search-api:index" > migration-dootrip-incremental.log 2>&1 &
 
 .PHONY: migrate-team-incremental-bg
 migrate-team-incremental-bg: ## 🌙 Run incremental team migration in background.
@@ -604,23 +631,41 @@ migrate-check-integrity: ## 🔍 Compare N random nodes from D7 with D10 (e.g., 
 .PHONY: queue-process
 queue-process: ## ⚙️ Process all migration queues.
 	@echo "$(CYAN)⚙️ Processing migration queues...$(RESET)"
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y
+	$(DRUSH_COMMAND) cset search_api.index.default_index options.index_directly 0 -y
 	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_action
 	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_user
 	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_hub
 	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_edoovillage
 	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_laptop
 	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_dootrip
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y; \
+	$(DRUSH_COMMAND) cset search_api.index.default_index options.index_directly 1 -y; \
+	$(DRUSH_COMMAND) search-api:index
+
+.PHONY: queue-process-parallel
+queue-process-parallel: ## 🚀 Process all migration queues in parallel.
+	@echo "$(CYAN)🚀 Processing migration queues in parallel...$(RESET)"
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y
+	$(DRUSH_COMMAND) cset search_api.index.default_index options.index_directly 0 -y
+	$(DRUSH_COMMAND) state-set labdoo_migrate_is_running 1 --input-format=integer
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_action & \
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_user & \
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_hub & \
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_edoovillage & \
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_laptop & \
+	$(DRUSH_COMMAND) queue:run labdoo_migrate_migration_dootrip & \
+	wait
+	$(DRUSH_COMMAND) state-delete labdoo_migrate_is_running
+	$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y; \
+	$(DRUSH_COMMAND) cset search_api.index.default_index options.index_directly 1 -y; \
+	$(DRUSH_COMMAND) search-api:index
 
 .PHONY: queue-process-bg
 queue-process-bg: ## ⚙️ Process all migration queues in background.
 	@echo "$(CYAN)⚙️ Processing migration queues in background...$(RESET)"
-	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_action > queue-action.log 2>&1 &
-	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_user > queue-user.log 2>&1 &
-	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_hub > queue-hub.log 2>&1 &
-	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_edoovillage > queue-edoovillage.log 2>&1 &
-	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_laptop > queue-laptop.log 2>&1 &
-	nohup $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_dootrip > queue-dootrip.log 2>&1 &
-	@echo "$(GREEN)✅ Queues are being processed in background. Check queue-*.log for details.$(RESET)"
+	nohup sh -c "$(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 1 -y && $(DRUSH_COMMAND) cset search_api.index.default_index options.index_directly 0 -y && $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_action && $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_user && $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_hub && $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_edoovillage && $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_laptop && $(DRUSH_COMMAND) queue:run labdoo_migrate_migration_dootrip; $(DRUSH_COMMAND) cset geocoder.settings geocoder_presave_disabled 0 -y; $(DRUSH_COMMAND) cset search_api.index.default_index options.index_directly 1 -y; $(DRUSH_COMMAND) search-api:index" > queue-process.log 2>&1 &
+	@echo "$(GREEN)✅ Queues are being processed in background. Check queue-process.log for details.$(RESET)"
 
 .PHONY: queue-stats
 queue-stats: ## 📊 Show statistics of the migration queues.

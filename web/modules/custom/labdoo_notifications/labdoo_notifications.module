@@ -49,7 +49,7 @@ function labdoo_notifications_mail($key, &$message, $email_params) {
  * Implements hook_node_presave().
  */
 function labdoo_notifications_node_presave(EntityInterface $node) {
-  if (!$node instanceof NodeInterface) {
+  if (!$node instanceof NodeInterface || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
     return;
   }
 
@@ -72,7 +72,7 @@ function labdoo_notifications_node_presave(EntityInterface $node) {
  * Implements hook_node_insert().
  */
 function labdoo_notifications_node_insert(EntityInterface $node) {
-  if (!$node instanceof NodeInterface) {
+  if (!$node instanceof NodeInterface || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
     return;
   }
 
@@ -109,6 +109,9 @@ function labdoo_notifications_comment_insert(CommentInterface $comment) {
  * Implements hook_user_insert().
  */
 function labdoo_notifications_user_insert(EntityInterface $account) {
+  if (\Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
+    return;
+  }
   $processor = \Drupal::service('labdoo_notifications.entity_processor.user');
   $processor->process($account, 'insert', NULL);
 }

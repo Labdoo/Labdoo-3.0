@@ -126,6 +126,7 @@ class StorySynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
+    \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
     $this->fromTimestamp = NULL;
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
@@ -408,6 +409,7 @@ class StorySynchronizerCommands extends DrushCommands {
    *   The number of updated entities.
    */
   protected function tearDown(int $created, int $updated): void {
+    \Drupal::state()->delete('labdoo_migrate_is_running');
     // Finish the progress bar if it exists
     if ($this->progressBar) {
       $this->progressBar->finish();

@@ -36,7 +36,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
   /**
    * Cache clear interval for long-running migrations.
    */
-  private const CACHE_CLEAR_INTERVAL = 10;
+  private const CACHE_CLEAR_INTERVAL = 100;
 
   /**
    * Memory threshold in bytes for aggressive cleanup (e.g., 400MB if limit is 512MB).
@@ -63,6 +63,13 @@ class DestinationRepository implements DestinationRepositoryInterface {
    * @var bool
    */
   protected bool $indexingEnabled = TRUE;
+
+  /**
+   * The batch size.
+   *
+   * @var int
+   */
+  protected int $batchSize = 200;
 
   /**
    * The entity type manager.
@@ -988,7 +995,14 @@ class DestinationRepository implements DestinationRepositoryInterface {
    */
   public function setIndexingMode(bool $indexingEnabled): void {
     $this->indexingEnabled = $indexingEnabled;
-    $this->state->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
+    \Drupal::state()->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBatchSize(int $batchSize): void {
+    $this->batchSize = $batchSize;
   }
 
 }

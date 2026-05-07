@@ -115,4 +115,14 @@ interface DestinationRepositoryInterface {
    */
   public function setIndexingMode(bool $indexingEnabled): void;
 
+  /**
+   * Sets the batch size.
+   *
+   * @param int $batchSize
+   *   The batch size.
+   *
+   * @return void
+   */
+  public function setBatchSize(int $batchSize): void;
+
 }

@@ -538,6 +538,9 @@ class SynchronizerCommands extends DrushCommands {
     }
     $this->create = $options['mode'] === 'create';
 
+    // Set a global state to inform other modules that the migration is running.
+    \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
+
     $headerMessage = sprintf(
       "=====================\n"
       . "Entity type: %s\n"
@@ -603,6 +606,7 @@ class SynchronizerCommands extends DrushCommands {
    *   The process summary.
    */
   protected function tearDown(int $updated, array $summary): void {
+    \Drupal::state()->delete('labdoo_migrate_is_running');
     $this->destinationRepository->setIndexingMode(TRUE);
 
     $mainEntitiesCount = $summary['main'] ?? 0;
