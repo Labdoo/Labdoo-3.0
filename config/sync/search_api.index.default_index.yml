@@ -50,8 +50,19 @@ field_settings:
         - anonymous
       view_mode:
         'entity:node':
+          action: teaser
           article: search_index
+          book: teaser
+          dootrip: default
+          dootronic: teaser
+          edoovillage: teaser
+          gallery: teaser
+          hub: teaser
+          labdoo_story: teaser
           page: search_index
+          task_team: teaser
+          team: teaser
+          team_post: teaser
   status:
     label: 'Publishing status'
     datasource_id: 'entity:node'
