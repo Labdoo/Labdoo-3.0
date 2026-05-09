@@ -17,4 +17,12 @@ interface EdooVillageComputeInterface {
    */
   public function setEdooVillageTitle(EntityInterface $entity): void;
 
+  /**
+   * Enqueues a recompute task for the edoovillage.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The edoovillage entity.
+   */
+  public function enqueueRecompute(EntityInterface $entity): void;
+
 }

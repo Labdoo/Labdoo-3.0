@@ -7,12 +7,14 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
+use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface;
 use Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface;
 use Drupal\queue_manager\Exception\EmptyQueueItemException;
 use Drupal\queue_manager\Model\QueueDataModel;
 use Drupal\queue_manager\Model\QueueDataModelInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Queue worker that processes the dootrip capacity.
@@ -51,6 +53,13 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
   protected DootripRepositoryInterface $dootripRepository;
 
   /**
+   * The event dispatcher.
+   *
+   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   */
+  protected EventDispatcherInterface $eventDispatcher;
+
+  /**
    * {@inheritDoc}
    */
   public function __construct(
@@ -59,12 +68,14 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
     $plugin_definition,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     DootripComputeInterface $dootripCompute,
-    DootripRepositoryInterface $dootripRepository
+    DootripRepositoryInterface $dootripRepository,
+    EventDispatcherInterface $eventDispatcher
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('bb_valentina');
     $this->dootripCompute = $dootripCompute;
     $this->dootripRepository = $dootripRepository;
+    $this->eventDispatcher = $eventDispatcher;
   }
 
   /**
@@ -82,6 +93,8 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
     $dootripCompute = $container->get('labdoo_dootrip.compute');
     /** @var \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface $dootripRepository */
     $dootripRepository = $container->get('labdoo_dootrip.repository');
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
+    $eventDispatcher = $container->get('event_dispatcher');
 
     return new static(
       $configuration,
@@ -89,7 +102,8 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
       $plugin_definition,
       $loggerChannelFactory,
       $dootripCompute,
-      $dootripRepository
+      $dootripRepository,
+      $eventDispatcher
     );
   }
 
@@ -99,12 +113,20 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
   public function processItem($data): void {
     try {
       $data = $this->checkData($data);
-      $dootripId = $data->getData();
-      if (is_array($dootripId)) {
-        $dootripId = reset($dootripId);
+      $queueData = $data->getData();
+      $dootripId = NULL;
+      $uid = NULL;
+
+      if (is_array($queueData)) {
+        $dootripId = $queueData['id'] ?? (reset($queueData) ?: NULL);
+        $uid = $queueData['uid'] ?? NULL;
       }
+      else {
+        $dootripId = $queueData;
+      }
+
       if ($dootripId === NULL) {
-        throw new \Exception('Invalid dootrip');
+        throw new \Exception('Invalid dootrip ID');
       }
       if ($dootripId instanceof EntityInterface) {
         $dootripId = $dootripId->id();
@@ -112,11 +134,15 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
 
       $dootrip = $this->dootripRepository->load($dootripId);
       if ($dootrip === NULL) {
-        throw new \Exception('Invalid dootrip');
+        // If entity is deleted, we still clear the cache.
+        $this->clearCachetagById((int) $dootripId, (int) $uid);
+        return;
       }
 
       $this->dootripCompute->computeDootripCapacity($dootrip);
+      $this->dootripCompute->computeRelatedDootronics($dootrip);
       $this->dootripRepository->saveEntity($dootrip);
+      $this->clearCachetag($dootrip);
     }
     catch (EmptyQueueItemException $exception) {
       $this->logger->warning($exception->getMessage());
@@ -130,6 +156,40 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
 
       throw $exception;
     }
+  }
+
+  /**
+   * Invalidate the node type cache tag.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   */
+  protected function clearCachetag(EntityInterface $entity): void {
+    $this->clearCachetagById((int) $entity->id(), (int) $entity->getOwnerId());
+  }
+
+  /**
+   * Invalidate the node type cache tag by ID and UID.
+   *
+   * @param int $id
+   *   The entity ID.
+   * @param int|null $uid
+   *   The owner ID.
+   */
+  protected function clearCachetagById(int $id, ?int $uid = NULL): void {
+    $tags = [
+      'dootrip_chart',
+      'node:dootrip',
+    ];
+
+    if ($uid !== NULL) {
+      $tags[] = sprintf('dootrip:%d:%d', $id, $uid);
+    }
+
+    $event = new InvalidateCacheTagsEvent();
+    $event->setCacheTags($tags);
+
+    $this->eventDispatcher->dispatch($event, InvalidateCacheTagsEvent::EVENT_NAME);
   }
 
   /**

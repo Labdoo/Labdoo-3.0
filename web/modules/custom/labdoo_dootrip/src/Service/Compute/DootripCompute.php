@@ -41,6 +41,13 @@ class DootripCompute implements DootripComputeInterface {
   protected QueueFeederInterface $totalCo2SavingsQueueFeeder;
 
   /**
+   * The dootrip capacity queue feeder.
+   *
+   * @var \Drupal\labdoo_dootrip\Service\Queue\Feeder\QueueFeederInterface
+   */
+  protected QueueFeederInterface $dootripCapacityQueueFeeder;
+
+  /**
    * DootripCompute repository.
    *
    * @param \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface $dootripRepository
@@ -49,15 +56,19 @@ class DootripCompute implements DootripComputeInterface {
    *   The cache backend.
    * @param \Drupal\labdoo_dootrip\Service\Queue\Feeder\QueueFeederInterface $totalCo2SavingsQueueFeeder
    *   The total CO2 savings queue feeder.
+   * @param \Drupal\labdoo_dootrip\Service\Queue\Feeder\QueueFeederInterface $dootripCapacityQueueFeeder
+   *   The dootrip capacity queue feeder.
    */
   public function __construct(
     DootripRepositoryInterface $dootripRepository,
     CacheBackendInterface $cacheBackend,
-    QueueFeederInterface $totalCo2SavingsQueueFeeder
+    QueueFeederInterface $totalCo2SavingsQueueFeeder,
+    QueueFeederInterface $dootripCapacityQueueFeeder
   ) {
     $this->dootripRepository = $dootripRepository;
     $this->cacheBackend = $cacheBackend;
     $this->totalCo2SavingsQueueFeeder = $totalCo2SavingsQueueFeeder;
+    $this->dootripCapacityQueueFeeder = $dootripCapacityQueueFeeder;
   }
 
   /**
@@ -256,6 +267,13 @@ class DootripCompute implements DootripComputeInterface {
         }
       }
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function enqueueCapacityRecompute(EntityInterface $entity): void {
+    $this->dootripCapacityQueueFeeder->feedQueue($entity);
   }
 
   /**

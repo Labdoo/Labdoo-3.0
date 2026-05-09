@@ -3,11 +3,29 @@
 namespace Drupal\labdoo_edoovillage\Service\Compute;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\labdoo_edoovillage\Service\Queue\Feeder\QueueFeederInterface;
 
 /**
  * Service to compute EdooVillage data.
  */
 class EdooVillageCompute implements EdooVillageComputeInterface {
+
+  /**
+   * The recompute feeder.
+   *
+   * @var \Drupal\labdoo_edoovillage\Service\Queue\Feeder\QueueFeederInterface
+   */
+  protected QueueFeederInterface $recomputeFeeder;
+
+  /**
+   * EdooVillageCompute constructor.
+   *
+   * @param \Drupal\labdoo_edoovillage\Service\Queue\Feeder\QueueFeederInterface $recomputeFeeder
+   *   The recompute feeder.
+   */
+  public function __construct(QueueFeederInterface $recomputeFeeder) {
+    $this->recomputeFeeder = $recomputeFeeder;
+  }
 
   /**
    * {@inheritDoc}
@@ -171,6 +189,17 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
       return $entity->get('field_project_summary')->value;
     }
     return '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function enqueueRecompute(EntityInterface $entity): void {
+    if ($entity->bundle() !== 'edoovillage') {
+      return;
+    }
+
+    $this->recomputeFeeder->feedQueue($entity);
   }
 
 }

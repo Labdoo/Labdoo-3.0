@@ -9,7 +9,6 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
 
@@ -59,12 +58,10 @@ function labdoo_dootrip_form_alter(&$form, FormStateInterface $form_state, $form
  * Implements hook_entity_insert().
  */
 function labdoo_dootrip_entity_insert(EntityInterface $entity) {
-  __labdoo_dootrip_clear_cachetag($entity);
-
   if ($entity->bundle() === 'dootrip') {
     /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
     $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
-    $dootripCompute->computeRelatedDootronics($entity);
+    $dootripCompute->enqueueCapacityRecompute($entity);
   }
 }
 
@@ -72,13 +69,11 @@ function labdoo_dootrip_entity_insert(EntityInterface $entity) {
  * Implements hook_entity_update().
  */
 function labdoo_dootrip_entity_update(EntityInterface $entity) {
-  __labdoo_dootrip_clear_cachetag($entity);
-
   if ($entity->bundle() === 'dootrip') {
     /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
     $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
     $dootripCompute->computeDootronicsAssigned($entity);
-    $dootripCompute->computeRelatedDootronics($entity);
+    $dootripCompute->enqueueCapacityRecompute($entity);
   }
 }
 
@@ -86,31 +81,13 @@ function labdoo_dootrip_entity_update(EntityInterface $entity) {
  * Implements hook_entity_delete().
  */
 function labdoo_dootrip_entity_delete(EntityInterface $entity) {
-  __labdoo_dootrip_clear_cachetag($entity);
+  if ($entity->bundle() === 'dootrip') {
+    /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
+    $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
+    $dootripCompute->enqueueCapacityRecompute($entity);
+  }
 }
 
-/**
- * Invalidate the node type cache tag.
- *
- * @return void
- */
-function __labdoo_dootrip_clear_cachetag(EntityInterface $entity) {
-  $dootronicTag = sprintf(
-    'dootrip:%d:%d',
-    $entity->id(),
-    \Drupal::currentUser()->id()
-  );
-  $tags = [
-    'dootrip_chart',
-    $dootronicTag,
-  ];
-  $event = new InvalidateCacheTagsEvent();
-  $event->setCacheTags($tags);
-
-  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
-  $eventDispatcher = \Drupal::service('event_dispatcher');
-  $eventDispatcher->dispatch($event, InvalidateCacheTagsEvent::EVENT_NAME);
-}
 
 /**
  * Implements hook_entity_presave().

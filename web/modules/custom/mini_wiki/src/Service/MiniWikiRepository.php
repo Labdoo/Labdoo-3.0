@@ -34,14 +34,14 @@ class MiniWikiRepository {
    * @param int $id
    *   The ID of the entity to load.
    *
-   * @return \Drupal\mini_wiki\Entity\MiniWikiPage
-   *   The loaded entity.
+   * @return \Drupal\mini_wiki\Entity\MiniWikiPage|null
+   *   The loaded entity or NULL.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function load(int $id): MiniWikiPage {
-    /** @var \Drupal\mini_wiki\Entity\MiniWikiPage $entity */
+  public function load(int $id): ?MiniWikiPage {
+    /** @var \Drupal\mini_wiki\Entity\MiniWikiPage|null $entity */
     $entity = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE_ID)
       ->load($id);

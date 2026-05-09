@@ -31,7 +31,10 @@ class DootripCapacityQueueFeeder extends AbstractQueueFeeder implements QueueFee
    * {@inheritDoc}
    */
   public function feedQueue(EntityInterface $dootrip): void {
-    $this->enqueueItem([$dootrip->id()]);
+    $this->enqueueItem([
+      'id' => (int) $dootrip->id(),
+      'uid' => (int) $dootrip->getOwnerId(),
+    ]);
   }
 
   /**

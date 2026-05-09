@@ -14,3 +14,8 @@ services:
     class: Drupal\mini_wiki\Routing\RouteSubscriber
     tags:
       - { name: event_subscriber }
+
+  mini_wiki.recompute_feeder:
+    class: Drupal\mini_wiki\Service\Queue\Feeder\MiniWikiRecomputeQueueFeeder
+    arguments:
+      - '@queue'

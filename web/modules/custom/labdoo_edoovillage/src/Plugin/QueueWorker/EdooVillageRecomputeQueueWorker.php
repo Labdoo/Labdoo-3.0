@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\labdoo_dootronics\Plugin\QueueWorker;
+namespace Drupal\labdoo_edoovillage\Plugin\QueueWorker;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -8,8 +8,8 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
-use Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface;
-use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
+use Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface;
+use Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface;
 use Drupal\queue_manager\Exception\EmptyQueueItemException;
 use Drupal\queue_manager\Model\QueueDataModel;
 use Drupal\queue_manager\Model\QueueDataModelInterface;
@@ -17,19 +17,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Queue worker that processes dootronic heavy recomputations.
- *
- * Developed by Natiboo <info@natiboo.es>
- *
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
- * @link http://natiboo.es
+ * Queue worker that processes the edoovillage recompute.
  *
  * @QueueWorker(
- *   id = "labdoo_dootronics_recompute",
- *   title = @Translation("Recompute heavy dootronics fields"),
+ *   id = "labdoo_edoovillage_recompute",
+ *   title = @Translation("Recompute the edoovillage data"),
  * )
  */
-class DootronicRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class EdooVillageRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
    * The logger.
@@ -39,18 +34,18 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
   protected LoggerChannelInterface $logger;
 
   /**
-   * The dootronic compute service.
+   * The edoovillage compute service.
    *
-   * @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface
+   * @var \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface
    */
-  protected DootronicComputeInterface $dootronicCompute;
+  protected EdooVillageComputeInterface $edoovillageCompute;
 
   /**
-   * The dootronic repository.
+   * The edoovillage repository.
    *
-   * @var \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface
+   * @var \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface
    */
-  protected DootronicRepositoryInterface $dootronicRepository;
+  protected EdooVillageRepositoryInterface $edoovillageRepository;
 
   /**
    * The event dispatcher.
@@ -67,14 +62,14 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
     $plugin_id,
     $plugin_definition,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    DootronicComputeInterface $dootronicCompute,
-    DootronicRepositoryInterface $dootronicRepository,
+    EdooVillageComputeInterface $edoovillageCompute,
+    EdooVillageRepositoryInterface $edoovillageRepository,
     EventDispatcherInterface $eventDispatcher
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->logger = $loggerChannelFactory->get('labdoo_dootronics');
-    $this->dootronicCompute = $dootronicCompute;
-    $this->dootronicRepository = $dootronicRepository;
+    $this->logger = $loggerChannelFactory->get('bb_valentina');
+    $this->edoovillageCompute = $edoovillageCompute;
+    $this->edoovillageRepository = $edoovillageRepository;
     $this->eventDispatcher = $eventDispatcher;
   }
 
@@ -89,10 +84,10 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
   ) {
     /** @var \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory */
     $loggerChannelFactory = $container->get('logger.factory');
-    /** @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface $dootronicCompute */
-    $dootronicCompute = $container->get('labdoo_dootronics.compute');
-    /** @var \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository */
-    $dootronicRepository = $container->get('labdoo_dootronics.repository');
+    /** @var \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface $edoovillageCompute */
+    $edoovillageCompute = $container->get('labdoo_edoovillage.compute');
+    /** @var \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface $edoovillageRepository */
+    $edoovillageRepository = $container->get('labdoo_edoovillage.repository');
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
     $eventDispatcher = $container->get('event_dispatcher');
 
@@ -101,8 +96,8 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
       $plugin_id,
       $plugin_definition,
       $loggerChannelFactory,
-      $dootronicCompute,
-      $dootronicRepository,
+      $edoovillageCompute,
+      $edoovillageRepository,
       $eventDispatcher
     );
   }
@@ -114,43 +109,36 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
     try {
       $data = $this->checkData($data);
       $queueData = $data->getData();
-      $dootronicId = NULL;
+      $edoovillageId = NULL;
       $uid = NULL;
 
       if (is_array($queueData)) {
-        $dootronicId = $queueData['id'] ?? (reset($queueData) ?: NULL);
+        $edoovillageId = $queueData['id'] ?? (reset($queueData) ?: NULL);
         $uid = $queueData['uid'] ?? NULL;
       }
       else {
-        $dootronicId = $queueData;
+        $edoovillageId = $queueData;
       }
 
-      if ($dootronicId === NULL) {
-        throw new \Exception('Invalid dootronic ID');
-      }
-      if ($dootronicId instanceof EntityInterface) {
-        $dootronicId = $dootronicId->id();
+      if ($edoovillageId === NULL) {
+        throw new \Exception('Invalid edoovillage ID');
       }
 
-      $dootronic = $this->dootronicRepository->load((int) $dootronicId);
-      if ($dootronic === NULL) {
-        // If entity is deleted, we still clear the cache.
-        $this->clearCachetagById((int) $dootronicId, (int) $uid);
+      $edoovillage = $this->edoovillageRepository->load((int) $edoovillageId);
+      if ($edoovillage === NULL) {
+        $this->clearCachetagById((int) $edoovillageId, (int) $uid);
         return;
       }
 
-      $this->dootronicCompute->computeEdooVillageData($dootronic);
-      $this->dootronicCompute->computeHubData($dootronic);
-      $this->dootronicCompute->computeRelatedDootrips($dootronic);
-      $this->dootronicRepository->saveEntity($dootronic);
-      $this->clearCachetag($dootronic);
+      // Recompute logic (currently none for EdooVillage, but we clear tags).
+      $this->clearCachetag($edoovillage);
     }
     catch (EmptyQueueItemException $exception) {
       $this->logger->warning($exception->getMessage());
     }
     catch (\Exception $exception) {
       $errorMessage = sprintf(
-        'Error processing dootronic: %s',
+        'Error processing edoovillage: %s',
         $exception->getMessage()
       );
       $this->logger->error($errorMessage);
@@ -179,12 +167,12 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
    */
   protected function clearCachetagById(int $id, ?int $uid = NULL): void {
     $tags = [
-      'dootronics_chart',
-      'node:dootronic',
+      'edoovillages_chart',
+      'node:edoovillage',
     ];
 
     if ($uid !== NULL) {
-      $tags[] = sprintf('dootronic:%d:%d', $id, $uid);
+      $tags[] = sprintf('edoovillage:%d:%d', $id, $uid);
     }
 
     $event = new InvalidateCacheTagsEvent();

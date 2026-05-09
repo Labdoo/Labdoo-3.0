@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Drupal\labdoo_dootronics\Exception\LockException;
+use Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface;
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
 
 /**
@@ -20,6 +21,7 @@ use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
  * @property \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository
  * @property \Drupal\Core\Logger\LoggerChannelInterface $logger
  * @property \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository
+ * @property \Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface $recomputeQueueFeeder
  */
 class DootronicCompute implements DootronicComputeInterface {
 
@@ -28,16 +30,22 @@ class DootronicCompute implements DootronicComputeInterface {
    *
    * @param \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository
    *   The common repository instance.
+   * @param \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository
+   *   The dootronic repository instance.
+   * @param \Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface $recomputeQueueFeeder
+   *   The recompute queue feeder instance.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
    *   The logger channel factory instance.
    */
   public function __construct(
     CommonRepository $commonRepository,
     DootronicRepositoryInterface $dootronicRepository,
+    QueueFeederInterface $recomputeQueueFeeder,
     LoggerChannelFactoryInterface $loggerChannelFactory
   ) {
     $this->commonRepository = $commonRepository;
     $this->dootronicRepository = $dootronicRepository;
+    $this->recomputeQueueFeeder = $recomputeQueueFeeder;
     $this->logger = $loggerChannelFactory->get('labdoo_dootronics');
   }
 
@@ -244,6 +252,13 @@ class DootronicCompute implements DootronicComputeInterface {
         }
       }
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function enqueueRecompute(EntityInterface $entity): void {
+    $this->recomputeQueueFeeder->feedQueue($entity);
   }
 
 }

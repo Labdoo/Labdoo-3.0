@@ -109,9 +109,6 @@ function labdoo_dootronics_entity_insert(EntityInterface $entity) {
   __labdoo_dootronics_recalculate($entity);
 
   if ($entity->bundle() === 'dootronic') {
-    /** @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface $dootronicCompute */
-    $dootronicCompute = \Drupal::service('labdoo_dootronics.compute');
-    $dootronicCompute->computeRelatedDootrips($entity);
     __labdoo_dootronics_enqueue_geocoding($entity);
   }
 }
@@ -123,9 +120,6 @@ function labdoo_dootronics_entity_update(EntityInterface $entity) {
   __labdoo_dootronics_recalculate($entity);
 
   if ($entity->bundle() === 'dootronic') {
-    /** @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface $dootronicCompute */
-    $dootronicCompute = \Drupal::service('labdoo_dootronics.compute');
-    $dootronicCompute->computeRelatedDootrips($entity);
     __labdoo_dootronics_enqueue_geocoding($entity);
   }
 }
@@ -144,9 +138,7 @@ function __labdoo_dootronics_recalculate(EntityInterface $entity): void {
 
   /** @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface $dootronicCompute */
   $dootronicCompute = \Drupal::service('labdoo_dootronics.compute');
-  $dootronicCompute->computeEdooVillageData($entity);
-  $dootronicCompute->computeHubData($entity);
-  __labdoo_dootronics_clear_cachetag($entity);
+  $dootronicCompute->enqueueRecompute($entity);
 }
 
 /**
@@ -196,27 +188,4 @@ function labdoo_dootronics_views_query_alter(ViewExecutable $view, QueryPluginBa
       $query->addWhere('AND', 'node_field_data.uid', \Drupal::currentUser()->id(), '=');
     }
   }
-}
-
-/**
- * Invalidate the node type cache tag.
- *
- * @return void
- */
-function __labdoo_dootronics_clear_cachetag(EntityInterface $entity) {
-  $dootronicTag = sprintf(
-    'dootronic:%d:%d',
-    $entity->id(),
-    \Drupal::currentUser()->id()
-  );
-  $tags = [
-    'dootronics_chart',
-    $dootronicTag,
-  ];
-  $event = new InvalidateCacheTagsEvent();
-  $event->setCacheTags($tags);
-
-  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
-  $eventDispatcher = \Drupal::service('event_dispatcher');
-  $eventDispatcher->dispatch($event, InvalidateCacheTagsEvent::EVENT_NAME);
 }

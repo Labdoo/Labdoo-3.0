@@ -18,7 +18,7 @@ services:
       - '@logger.factory'
   labdoo_common.event_subscriber.cache_event:
     class: Drupal\labdoo_common\EventSubscriber\CacheEventSubscriber
-    arguments: ['@labdoo_common.cache_manager']
+    arguments: ['@queue']
     tags:
       - { name: 'event_subscriber' }
   labdoo_common.repository.user:

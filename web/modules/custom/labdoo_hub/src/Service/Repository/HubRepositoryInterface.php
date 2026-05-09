@@ -18,4 +18,23 @@ interface HubRepositoryInterface {
    */
   public function getStats(?int $userId = NULL): array;
 
+  /**
+   * Loads a hub.
+   *
+   * @param int $id
+   *   The entity ID.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   The entity or null.
+   */
+  public function load(int $id): ?\Drupal\Core\Entity\EntityInterface;
+
+  /**
+   * Saves a hub.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   */
+  public function saveEntity(\Drupal\Core\Entity\EntityInterface $entity): void;
+
 }

@@ -11,7 +11,6 @@ use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Drupal\node\NodeInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
@@ -82,9 +81,11 @@ function labdoo_hub_preprocess_node(&$variables) {
  * Implements hook_entity_insert().
  */
 function labdoo_hub_entity_insert(EntityInterface $entity) {
-  __labdoo_hub_clear_cachetag($entity);
-
   if ($entity->bundle() === 'hub') {
+    /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
+    $hubCompute = \Drupal::service('labdoo_hub.compute');
+    $hubCompute->enqueueRecompute($entity);
+
     labdoo_gallery_create_or_update($entity);
   }
 }
@@ -93,9 +94,11 @@ function labdoo_hub_entity_insert(EntityInterface $entity) {
  * Implements hook_entity_update().
  */
 function labdoo_hub_entity_update(EntityInterface $entity) {
-  __labdoo_hub_clear_cachetag($entity);
-
   if ($entity->bundle() === 'hub') {
+    /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
+    $hubCompute = \Drupal::service('labdoo_hub.compute');
+    $hubCompute->enqueueRecompute($entity);
+
     labdoo_gallery_create_or_update($entity);
   }
 }
@@ -104,7 +107,11 @@ function labdoo_hub_entity_update(EntityInterface $entity) {
  * Implements hook_entity_delete().
  */
 function labdoo_hub_entity_delete(EntityInterface $entity) {
-  __labdoo_hub_clear_cachetag($entity);
+  if ($entity->bundle() === 'hub') {
+    /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
+    $hubCompute = \Drupal::service('labdoo_hub.compute');
+    $hubCompute->enqueueRecompute($entity);
+  }
 }
 
 /**
@@ -145,29 +152,6 @@ function labdoo_hub_views_query_alter(ViewExecutable $view, QueryPluginBase $que
   }
 }
 
-/**
- * Invalidate the node type cache tag.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- *   The entity to invalidate the cache tag for.
- */
-function __labdoo_hub_clear_cachetag(EntityInterface $entity): void {
-  $dootronicTag = sprintf(
-    'hub:%d:%d',
-    $entity->id(),
-    \Drupal::currentUser()->id()
-  );
-  $tags = [
-    'hub_chart',
-    $dootronicTag,
-  ];
-  $event = new InvalidateCacheTagsEvent();
-  $event->setCacheTags($tags);
-
-  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
-  $eventDispatcher = \Drupal::service('event_dispatcher');
-  $eventDispatcher->dispatch($event, InvalidateCacheTagsEvent::EVENT_NAME);
-}
 
 /**
  * Retrieves the branches list of a given hub.

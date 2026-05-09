@@ -58,4 +58,12 @@ interface DootronicComputeInterface {
    */
   public function computeRelatedDootrips(EntityInterface &$dootronic): void;
 
+  /**
+   * Enqueues the recompute of heavy fields.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   */
+  public function enqueueRecompute(EntityInterface $entity): void;
+
 }

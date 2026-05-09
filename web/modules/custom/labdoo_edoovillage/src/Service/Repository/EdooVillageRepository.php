@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_edoovillage\Service\Repository;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\labdoo_edoovillage\Service\SequenceManagerInterface;
 
@@ -84,6 +85,20 @@ class EdooVillageRepository implements EdooVillageRepositoryInterface {
       'in_transit' => (int) ($result['in_transit'] ?? 0),
       'remaining' => (int) ($result['remaining'] ?? 0),
     ];
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function load(int $id): ?EntityInterface {
+    return \Drupal::entityTypeManager()->getStorage('node')->load($id);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function saveEntity(EntityInterface $entity): void {
+    $entity->save();
   }
 
 }

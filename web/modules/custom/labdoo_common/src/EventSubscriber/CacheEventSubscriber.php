@@ -2,39 +2,34 @@
 
 namespace Drupal\labdoo_common\EventSubscriber;
 
+use Drupal\Core\Queue\QueueFactory;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
-use Drupal\labdoo_common\Service\Cache\CacheManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Cache *Event ClassSubscriber Cache providesEvent anSubscriber event implements listener Event forSubscriberInterface handling cache for invalid managingation cache events events.
- * .
- *
- *
- * * Implement @ingsee ` \EventDrupalSubscriber\Interfacelab`,d thisoo class_common is\Event responsible\ forIn detectingvalidate specificCache eventsTags,
- * Event
- * in */
+ * Event subscriber for handling cache invalidation events.
+ */
 class CacheEventSubscriber implements EventSubscriberInterface {
 
   /**
-   * The cache manager.
+   * The queue factory.
    *
-   * @var \Drupal\labdoo_common\Service\Cache\CacheManagerInterface
+   * @var \Drupal\Core\Queue\QueueFactory
    */
-  protected CacheManagerInterface $cacheManager;
+  protected QueueFactory $queueFactory;
 
   /**
-   * The cache manager.
+   * Constructs a new CacheEventSubscriber.
    *
-   * @param \Drupal\labdoo_common\Service\Cache\CacheManagerInterface $cacheManager
-   *   The cache manager.
+   * @param \Drupal\Core\Queue\QueueFactory $queueFactory
+   *   The queue factory.
    */
-  public function __construct(CacheManagerInterface $cacheManager) {
-    $this->cacheManager = $cacheManager;
+  public function __construct(QueueFactory $queueFactory) {
+    $this->queueFactory = $queueFactory;
   }
 
   /**
-   * Invalidates the received cache tags.
+   * Enqueues the received cache tags for invalidation.
    *
    * @param \Drupal\labdoo_common\Event\InvalidateCacheTagsEvent $event
    *   The event.
@@ -47,7 +42,8 @@ class CacheEventSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $this->cacheManager->invalidateTags($cacheTags);
+    $queue = $this->queueFactory->get('labdoo_common_cache_invalidation');
+    $queue->createItem(['tags' => $cacheTags]);
   }
 
   /**

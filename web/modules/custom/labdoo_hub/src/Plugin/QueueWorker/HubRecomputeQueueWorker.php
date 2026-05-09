@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\labdoo_dootronics\Plugin\QueueWorker;
+namespace Drupal\labdoo_hub\Plugin\QueueWorker;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -8,8 +8,8 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
-use Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface;
-use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
+use Drupal\labdoo_hub\Service\Compute\HubComputeInterface;
+use Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface;
 use Drupal\queue_manager\Exception\EmptyQueueItemException;
 use Drupal\queue_manager\Model\QueueDataModel;
 use Drupal\queue_manager\Model\QueueDataModelInterface;
@@ -17,19 +17,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Queue worker that processes dootronic heavy recomputations.
- *
- * Developed by Natiboo <info@natiboo.es>
- *
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
- * @link http://natiboo.es
+ * Queue worker that processes the hub recompute.
  *
  * @QueueWorker(
- *   id = "labdoo_dootronics_recompute",
- *   title = @Translation("Recompute heavy dootronics fields"),
+ *   id = "labdoo_hub_recompute",
+ *   title = @Translation("Recompute the hub data"),
  * )
  */
-class DootronicRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
    * The logger.
@@ -39,18 +34,18 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
   protected LoggerChannelInterface $logger;
 
   /**
-   * The dootronic compute service.
+   * The hub compute service.
    *
-   * @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface
+   * @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface
    */
-  protected DootronicComputeInterface $dootronicCompute;
+  protected HubComputeInterface $hubCompute;
 
   /**
-   * The dootronic repository.
+   * The hub repository.
    *
-   * @var \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface
+   * @var \Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface
    */
-  protected DootronicRepositoryInterface $dootronicRepository;
+  protected HubRepositoryInterface $hubRepository;
 
   /**
    * The event dispatcher.
@@ -67,14 +62,14 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
     $plugin_id,
     $plugin_definition,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    DootronicComputeInterface $dootronicCompute,
-    DootronicRepositoryInterface $dootronicRepository,
+    HubComputeInterface $hubCompute,
+    HubRepositoryInterface $hubRepository,
     EventDispatcherInterface $eventDispatcher
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->logger = $loggerChannelFactory->get('labdoo_dootronics');
-    $this->dootronicCompute = $dootronicCompute;
-    $this->dootronicRepository = $dootronicRepository;
+    $this->logger = $loggerChannelFactory->get('bb_valentina');
+    $this->hubCompute = $hubCompute;
+    $this->hubRepository = $hubRepository;
     $this->eventDispatcher = $eventDispatcher;
   }
 
@@ -89,10 +84,10 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
   ) {
     /** @var \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory */
     $loggerChannelFactory = $container->get('logger.factory');
-    /** @var \Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface $dootronicCompute */
-    $dootronicCompute = $container->get('labdoo_dootronics.compute');
-    /** @var \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository */
-    $dootronicRepository = $container->get('labdoo_dootronics.repository');
+    /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
+    $hubCompute = $container->get('labdoo_hub.compute');
+    /** @var \Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface $hubRepository */
+    $hubRepository = $container->get('labdoo_hub.repository');
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher */
     $eventDispatcher = $container->get('event_dispatcher');
 
@@ -101,8 +96,8 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
       $plugin_id,
       $plugin_definition,
       $loggerChannelFactory,
-      $dootronicCompute,
-      $dootronicRepository,
+      $hubCompute,
+      $hubRepository,
       $eventDispatcher
     );
   }
@@ -114,43 +109,36 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
     try {
       $data = $this->checkData($data);
       $queueData = $data->getData();
-      $dootronicId = NULL;
+      $hubId = NULL;
       $uid = NULL;
 
       if (is_array($queueData)) {
-        $dootronicId = $queueData['id'] ?? (reset($queueData) ?: NULL);
+        $hubId = $queueData['id'] ?? (reset($queueData) ?: NULL);
         $uid = $queueData['uid'] ?? NULL;
       }
       else {
-        $dootronicId = $queueData;
+        $hubId = $queueData;
       }
 
-      if ($dootronicId === NULL) {
-        throw new \Exception('Invalid dootronic ID');
-      }
-      if ($dootronicId instanceof EntityInterface) {
-        $dootronicId = $dootronicId->id();
+      if ($hubId === NULL) {
+        throw new \Exception('Invalid hub ID');
       }
 
-      $dootronic = $this->dootronicRepository->load((int) $dootronicId);
-      if ($dootronic === NULL) {
-        // If entity is deleted, we still clear the cache.
-        $this->clearCachetagById((int) $dootronicId, (int) $uid);
+      $hub = $this->hubRepository->load((int) $hubId);
+      if ($hub === NULL) {
+        $this->clearCachetagById((int) $hubId, (int) $uid);
         return;
       }
 
-      $this->dootronicCompute->computeEdooVillageData($dootronic);
-      $this->dootronicCompute->computeHubData($dootronic);
-      $this->dootronicCompute->computeRelatedDootrips($dootronic);
-      $this->dootronicRepository->saveEntity($dootronic);
-      $this->clearCachetag($dootronic);
+      // Recompute logic (currently none for Hub, but we clear tags).
+      $this->clearCachetag($hub);
     }
     catch (EmptyQueueItemException $exception) {
       $this->logger->warning($exception->getMessage());
     }
     catch (\Exception $exception) {
       $errorMessage = sprintf(
-        'Error processing dootronic: %s',
+        'Error processing hub: %s',
         $exception->getMessage()
       );
       $this->logger->error($errorMessage);
@@ -179,12 +167,12 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
    */
   protected function clearCachetagById(int $id, ?int $uid = NULL): void {
     $tags = [
-      'dootronics_chart',
-      'node:dootronic',
+      'hub_chart',
+      'node:hub',
     ];
 
     if ($uid !== NULL) {
-      $tags[] = sprintf('dootronic:%d:%d', $id, $uid);
+      $tags[] = sprintf('hub:%d:%d', $id, $uid);
     }
 
     $event = new InvalidateCacheTagsEvent();

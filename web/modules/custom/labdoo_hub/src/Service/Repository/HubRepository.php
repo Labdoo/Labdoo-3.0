@@ -58,4 +58,18 @@ class HubRepository implements HubRepositoryInterface {
     ];
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public function load(int $id): ?\Drupal\Core\Entity\EntityInterface {
+    return \Drupal::entityTypeManager()->getStorage('node')->load($id);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function saveEntity(\Drupal\Core\Entity\EntityInterface $entity): void {
+    $entity->save();
+  }
+
 }

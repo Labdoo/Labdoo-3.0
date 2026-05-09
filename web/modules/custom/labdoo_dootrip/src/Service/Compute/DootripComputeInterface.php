@@ -78,4 +78,12 @@ interface DootripComputeInterface {
    */
   public function computeRelatedDootronics(EntityInterface &$dootrip): void;
 
+  /**
+   * Enqueues the recompute of the dootrip capacity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   */
+  public function enqueueCapacityRecompute(EntityInterface $entity): void;
+
 }

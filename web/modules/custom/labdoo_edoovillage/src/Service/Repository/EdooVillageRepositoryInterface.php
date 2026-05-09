@@ -33,4 +33,23 @@ interface EdooVillageRepositoryInterface {
    */
   public function getStats(?int $userId = NULL): array;
 
+  /**
+   * Loads an edoovillage.
+   *
+   * @param int $id
+   *   The entity ID.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   The entity or null.
+   */
+  public function load(int $id): ?EntityInterface;
+
+  /**
+   * Saves an edoovillage.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   */
+  public function saveEntity(EntityInterface $entity): void;
+
 }

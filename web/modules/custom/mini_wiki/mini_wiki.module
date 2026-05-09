@@ -14,7 +14,6 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 
 /**
@@ -155,30 +154,21 @@ function mini_wiki_preprocess_field(&$variables, $hook) {
  * Implements hook_entity_presave().
  */
 function mini_wiki_entity_presave(EntityInterface $entity) {
-  __mini_wiki_clear_cachetag($entity);
+  if ($entity->getEntityTypeId() === 'mini_wiki_page') {
+    /** @var \Drupal\mini_wiki\Service\Queue\Feeder\QueueFeederInterface $feeder */
+    $feeder = \Drupal::service('mini_wiki.recompute_feeder');
+    $feeder->feedQueue($entity);
+  }
 }
 
 /**
  * Implements hook_entity_delete().
  */
 function mini_wiki_entity_delete(EntityInterface $entity) {
-  __mini_wiki_clear_cachetag($entity);
+  if ($entity->getEntityTypeId() === 'mini_wiki_page') {
+    /** @var \Drupal\mini_wiki\Service\Queue\Feeder\QueueFeederInterface $feeder */
+    $feeder = \Drupal::service('mini_wiki.recompute_feeder');
+    $feeder->feedQueue($entity);
+  }
 }
 
-/**
- * Invalidate the entity cache tag.
- *
- * @return void
- */
-function __mini_wiki_clear_cachetag(EntityInterface $entity) {
-  $entityTag = sprintf(
-    'wiki-page:%d',
-    $entity->id()
-  );
-  $cacheTags = [
-    $entityTag,
-    'wiki-page:list-date',
-  ];
-
-  \Drupal::service('cache_tags.invalidator')->invalidateTags($cacheTags);
-}
