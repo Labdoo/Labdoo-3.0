@@ -97,6 +97,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-bg" "🌙 Run migration in background with nohup and migration-[entity].log."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-incremental-bg" "🌙 Run incremental migration in background."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-check-integrity" "🔍 Compare N random nodes from D7 with D10."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "sync-geography" "🌍 Synchronize geographic information from D7."
 	@echo ""
 	@echo "$(GREEN)[ Deletion ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-bundle-fast" "🗑️  Delete nodes of a bundle (FAST SQL). Usage: make delete-bundle-fast bundle=TYPE"
@@ -627,6 +628,17 @@ migrate-check-integrity: ## 🔍 Compare N random nodes from D7 with D10 (e.g., 
 	fi
 	@echo "$(CYAN)🔍 Checking integrity for $(type) nodes...$(RESET)"
 	$(DRUSH_COMMAND) labdoo:migrate-check-integrity $(type) --limit=$(or $(limit),5) --destination-type=$(or $(destination_type),$(type))
+
+.PHONY: sync-geography
+sync-geography: ## 🌍 Synchronize geographic information from D7 for all main types.
+	@echo "$(CYAN)🌍 Synchronizing geographic information for all types...$(RESET)"
+	$(DRUSH_COMMAND) labdoo-sync-geography user
+	$(DRUSH_COMMAND) labdoo-sync-geography hub
+	$(DRUSH_COMMAND) labdoo-sync-geography edoovillage
+	$(DRUSH_COMMAND) labdoo-sync-geography laptop
+	$(DRUSH_COMMAND) labdoo-sync-geography dootrip
+	$(DRUSH_COMMAND) labdoo-sync-geography action
+	@echo "$(GREEN)✅ Geographic synchronization finished!$(RESET)"
 
 .PHONY: queue-process
 queue-process: ## ⚙️ Process all migration queues.
