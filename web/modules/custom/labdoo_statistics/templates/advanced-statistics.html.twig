@@ -1,0 +1,258 @@
+{#
+/**
+ * @file
+ * Default theme implementation for advanced statistics.
+ *
+ * Available variables:
+ * - evolution_data: Historical registration data.
+ * - status_data: Distribution by status.
+ * - country_data: Students by country.
+ * - edoovillage_evolution: Schools registration evolution.
+ * - hub_status_data: Hubs by status.
+ * - dootrip_km_data: Dootrips kilometers and evolution.
+ * - wiki_stats: Summary of wiki and posts.
+ * - platform_uptime: Platform activity time.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="advanced-statistics-wrapper">
+  <h2>{{ 'Advanced Insights & Analytics'|t }}</h2>
+  <p>{{ 'Explore deeper metrics about Labdoo\'s global impact and operational efficiency.'|t }}</p>
+
+  <div class="platform-uptime-banner" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
+    <h3 style="margin: 0;">{{ 'Platform Activity'|t }}</h3>
+    <p style="font-size: 1.1em; margin: 5px 0 0;">
+      {{ 'Labdoo has been active for'|t }} 
+      <strong>{{ platform_uptime.years }} {{ 'years'|t }}</strong>, 
+      <strong>{{ platform_uptime.months }} {{ 'months'|t }}</strong> {{ 'and'|t }} 
+      <strong>{{ platform_uptime.days }} {{ 'days'|t }}</strong>.
+      <br>
+      <small style="color: #666;">({{ 'Total of'|t }} {{ platform_uptime.total_days }} {{ 'days of global impact'|t }})</small>
+    </p>
+  </div>
+
+  <div class="stats-grid">
+    {# SECTION 1: DOOTRONICS #}
+    <div class="chart-container section-separator" style="grid-column: span 3; background: #e0f2f1; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; min-height: auto;">
+        <h2 style="margin: 0; color: #00695c;">{{ 'Dootronics & Contributions'|t }}</h2>
+        <p style="margin: 5px 0 0; font-size: 0.9em; color: #00796b;">{{ 'Tracking the life cycle of donated laptops and the amazing people behind these contributions.'|t }}</p>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 2;">
+      <h3>{{ 'Dootronics Registration (Last 12 Months)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="evolutionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Dootronics Status Distribution'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="statusChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Device Type Distribution'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="dootronicDeviceChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Processor (CPU) Distribution'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="dootronicCpuChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Top 5 Dootronic Contributors'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="dootronicContributorsChart"></canvas>
+      </div>
+    </div>
+
+    {# SECTION 2: EDOOVILLAGES #}
+    <div class="chart-container section-separator" style="grid-column: span 3; background: #f3e5f5; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; min-height: auto;">
+        <h2 style="margin: 0; color: #6a1b9a;">{{ 'Schools & Impact'|t }}</h2>
+        <p style="margin: 5px 0 0; font-size: 0.9em; color: #7b1fa2;">{{ 'Visualizing our global reach through registered schools and the students we empower.'|t }}</p>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 2;">
+      <h3>{{ 'Schools Registration Evolution (Last 12 Months)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="edoovillageEvolutionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 1;">
+      <h3>{{ 'Top 10 Countries by Students Reached'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="countryChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Laptops per School (Top 10)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="laptopsPerEdoovillageChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Laptops per Student Ratio (Top 10 Schools)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="laptopsPerStudentChart"></canvas>
+      </div>
+    </div>
+
+    {# SECTION 3: HUBS #}
+    <div class="chart-container section-separator" style="grid-column: span 3; background: #fffde7; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; min-height: auto;">
+        <h2 style="margin: 0; color: #f57f17;">{{ 'Hubs Network'|t }}</h2>
+        <p style="margin: 5px 0 0; font-size: 0.9em; color: #bc5100;">{{ 'Status distribution of Labdoo Hubs, the local operational units of our mission.'|t }}</p>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 2;">
+      <h3>{{ 'Top 4 Most Active Hubs'|t }}</h3>
+      <p style="font-size: 0.8em; color: #666;">{{ '(By processed dootronics)'|t }}</p>
+      <div style="height: 300px;">
+        <canvas id="hubActivityChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Hubs Distribution by Status'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="hubStatusChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 3;">
+      <h3>{{ 'Hubs Registration Evolution'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="hubEvolutionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Hubs by Country (Top 10)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="hubCountryChart"></canvas>
+      </div>
+    </div>
+
+    {# SECTION 4: DOOTRIPS #}
+    <div class="chart-container section-separator" style="grid-column: span 3; background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; min-height: auto;">
+        <h2 style="margin: 0; color: #1565c0;">{{ 'Dootrips & Logistics'|t }}</h2>
+        <p style="margin: 5px 0 0; font-size: 0.9em; color: #1976d2;">{{ 'Measuring the total distance travelled by our volunteers to deliver aid worldwide.'|t }}</p>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 2;">
+      <h3>{{ 'Dootrip Kilometers (Last 5 Years)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="dootripKmEvolutionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container summary-box" style="background: #e3f2fd; border-radius: 8px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+        <h4 style="margin: 0;">{{ 'Total Dootrip Distance'|t }}</h4>
+        <span style="font-size: 2.5em; font-weight: bold; color: #1976d2;">{{ dootrip_km_data.total_km }} km</span>
+        <p style="margin-top: 10px; color: #555;">{{ 'Travelled by Labdooers around the world'|t }}</p>
+    </div>
+
+    {# SECTION 5: TASKS & TEAMS #}
+    <div class="chart-container section-separator" style="grid-column: span 3; background: #f1f8e9; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; min-height: auto;">
+        <h2 style="margin: 0; color: #33691e;">{{ 'Collaboration & Teams'|t }}</h2>
+        <p style="margin: 5px 0 0; font-size: 0.9em; color: #558b2f;">{{ 'Metrics about tasks management, team activity and collaborative contributions.'|t }}</p>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Tasks Distribution by Team'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="tasksByTeamChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Most Active Teams'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="teamActivityChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Contribution by Task Type'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="taskTypeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Task Priority Distribution'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="priorityChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Current Task Status'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="taskStatusChart"></canvas>
+      </div>
+    </div>
+
+    {# SECTION 6: COMMUNITY & WIKI #}
+    <div class="chart-container section-separator" style="grid-column: span 3; background: #fff3e0; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; min-height: auto;">
+        <h2 style="margin: 0; color: #e65100;">{{ 'Community & Knowledge Base'|t }}</h2>
+        <p style="margin: 5px 0 0; font-size: 0.9em; color: #ef6c00;">{{ 'Analysis of community engagement through comments and the growth of our knowledge base.'|t }}</p>
+    </div>
+
+    <div class="chart-container community-summary" style="grid-column: span 3; background: #e9ecef; border-radius: 8px; padding: 20px; display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
+        <div class="stat-item">
+            <h4 style="margin: 0;">{{ 'Wiki Pages'|t }}</h4>
+            <span style="font-size: 2em; font-weight: bold;">{{ wiki_stats.wiki_pages }}</span>
+        </div>
+        <div class="stat-item">
+            <h4 style="margin: 0;">{{ 'Team Posts'|t }}</h4>
+            <span style="font-size: 2em; font-weight: bold;">{{ wiki_stats.team_posts }}</span>
+        </div>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 2;">
+      <h3>{{ 'Community Activity (Comments - Last 12 Months)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="commentEvolutionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Top 5 Most Active Commenters'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="commentersChart"></canvas>
+      </div>
+    </div>
+
+    {# SECTION 7: GLOBAL PLATFORM #}
+    <div class="chart-container section-separator" style="grid-column: span 3; background: #fafafa; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; min-height: auto;">
+        <h2 style="margin: 0; color: #333;">{{ 'Global Platform Overview'|t }}</h2>
+        <p style="margin: 5px 0 0; font-size: 0.9em; color: #666;">{{ 'A high-level view of content growth and the overall composition of the Labdoo platform.'|t }}</p>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 2;">
+      <h3>{{ 'Overall Content Growth (Last 12 Months)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="nodeEvolutionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Platform Composition'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="contentTypeChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>

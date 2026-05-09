@@ -1,0 +1,7 @@
+labdoo_statistics.advanced_statistics:
+  path: '/statistics/advanced'
+  defaults:
+    _controller: '\Drupal\labdoo_statistics\Controller\AdvancedStatisticsController::build'
+    _title: 'Advanced Statistics'
+  requirements:
+    _permission: 'access content'
