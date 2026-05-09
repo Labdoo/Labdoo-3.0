@@ -10,6 +10,7 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\image\Entity\ImageStyle;
 use Drupal\user\UserInterface;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\file\FileInterface;
