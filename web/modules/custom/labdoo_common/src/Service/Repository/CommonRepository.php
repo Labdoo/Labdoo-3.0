@@ -8,6 +8,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 
@@ -56,6 +57,13 @@ class CommonRepository {
   protected LoggerChannelInterface $logger;
 
   /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected LanguageManagerInterface $languageManager;
+
+  /**
    * CommonRepository constructor.
    *
    * @param \Drupal\Core\Database\Connection $database
@@ -66,17 +74,21 @@ class CommonRepository {
    *   The cache backend.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
    *   The logger channel factory.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   *   The language manager.
    */
   public function __construct(
     Connection $database,
     EntityTypeManagerInterface $entityTypeManager,
     CacheBackendInterface $cacheBackend,
-    LoggerChannelFactoryInterface $loggerChannelFactory
+    LoggerChannelFactoryInterface $loggerChannelFactory,
+    LanguageManagerInterface $languageManager
   ) {
     $this->database = $database;
     $this->entityTypeManager = $entityTypeManager;
     $this->cacheBackend = $cacheBackend;
     $this->logger = $loggerChannelFactory->get('labdoo_common');
+    $this->languageManager = $languageManager;
   }
 
   /**
@@ -680,8 +692,14 @@ class CommonRepository {
    *   The formatted number.
    */
   public function formatNumber($number, int $decimals = 0): string {
-    $decimalSeparator = $this->t('.', [], ['context' => 'decimal separator']);
-    $thousandsSeparator = $this->t(',', [], ['context' => 'thousands separator']);
+    $languageId = $this->languageManager->getCurrentLanguage()->getId();
+    // Map Drupal language ID to a locale that NumberFormatter understands.
+    // For many cases, the 2-letter code works, but sometimes we need more.
+    // However, NumberFormatter often accepts just 'es' or 'en'.
+    $formatter = new \NumberFormatter($languageId, \NumberFormatter::DECIMAL);
+
+    $decimalSeparator = $formatter->getSymbol(\NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+    $thousandsSeparator = $formatter->getSymbol(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL);
 
     return number_format((float) $number, $decimals, (string) $decimalSeparator, (string) $thousandsSeparator);
   }

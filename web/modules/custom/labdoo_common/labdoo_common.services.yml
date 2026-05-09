@@ -1,7 +1,7 @@
 services:
   labdoo_common.repository.common:
     class: Drupal\labdoo_common\Service\Repository\CommonRepository
-    arguments: ['@database', '@entity_type.manager', '@cache.default', '@logger.factory']
+    arguments: ['@database', '@entity_type.manager', '@cache.default', '@logger.factory', '@language_manager']
   labdoo_common.repository.view:
     class: Drupal\labdoo_common\Service\Repository\ViewRepository
     arguments: ['@request_stack']
