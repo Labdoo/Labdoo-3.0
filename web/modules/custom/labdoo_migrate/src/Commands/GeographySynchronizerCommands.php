@@ -75,8 +75,8 @@ class GeographySynchronizerCommands extends DrushCommands {
       $this->logger->notice(sprintf('Starting geographic synchronization for type "%s"...', $sourceType));
 
       // 1. Get the mapping
-      $config = $this->configurationManager->getSourceTypeConfiguration($sourceType);
-      $mapping = $this->fieldsMapper->buildMapping($config['fields_mapping']);
+      $config = $this->configurationManager->getContentConfiguration($sourceType);
+      $mapping = $this->fieldsMapper->buildMapping($config->getFieldsMapping());
       
       // 2. Filter mapping to keep only geographic fields
       $geoMapping = array_filter($mapping, function ($mappingModel) {
@@ -105,7 +105,7 @@ class GeographySynchronizerCommands extends DrushCommands {
       }
 
       // 4. Get destination entities (already migrated nodes)
-      $destinationContentTypes = $config['destination_types'];
+      $destinationContentTypes = $config->getDestinationTypes();
       $destinationEntities = $this->destinationRepository->getEntities($destinationContentTypes, $sourceEntityIds);
 
       $this->logger->notice(sprintf('Found %d entities to synchronize.', count($destinationEntities)));
