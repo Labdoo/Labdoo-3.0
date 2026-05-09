@@ -630,14 +630,14 @@ migrate-check-integrity: ## 🔍 Compare N random nodes from D7 with D10 (e.g., 
 	$(DRUSH_COMMAND) labdoo:migrate-check-integrity $(type) --limit=$(or $(limit),5) --destination-type=$(or $(destination_type),$(type))
 
 .PHONY: sync-geography
-sync-geography: ## 🌍 Synchronize geographic information from D7 for all main types.
+sync-geography: ## 🌍 Synchronize geographic information from D7 for all main types. Usage: make sync-geography [force=1]
 	@echo "$(CYAN)🌍 Synchronizing geographic information for all types...$(RESET)"
-	$(DRUSH_COMMAND) labdoo-sync-geography user
-	$(DRUSH_COMMAND) labdoo-sync-geography hub
-	$(DRUSH_COMMAND) labdoo-sync-geography edoovillage
-	$(DRUSH_COMMAND) labdoo-sync-geography laptop
-	$(DRUSH_COMMAND) labdoo-sync-geography dootrip
-	$(DRUSH_COMMAND) labdoo-sync-geography action
+	$(DRUSH_COMMAND) labdoo-sync-geography user $(if $(force),--force,)
+	$(DRUSH_COMMAND) labdoo-sync-geography hub $(if $(force),--force,)
+	$(DRUSH_COMMAND) labdoo-sync-geography edoovillage $(if $(force),--force,)
+	$(DRUSH_COMMAND) labdoo-sync-geography laptop $(if $(force),--force,)
+	$(DRUSH_COMMAND) labdoo-sync-geography dootrip $(if $(force),--force,)
+	$(DRUSH_COMMAND) labdoo-sync-geography action $(if $(force),--force,)
 	@echo "$(GREEN)✅ Geographic synchronization finished!$(RESET)"
 
 .PHONY: queue-process

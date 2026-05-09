@@ -62,12 +62,14 @@ class GeographySynchronizerCommands extends DrushCommands {
    *
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode.
+   * @option force Force synchronization even if fields are already filled.
    */
   public function syncGeography(
     string $sourceType,
     array $options = [
       'limit' => -1,
       'dry-run' => FALSE,
+      'force' => FALSE,
     ]
   ): void {
     try {
@@ -117,9 +119,14 @@ class GeographySynchronizerCommands extends DrushCommands {
       // 5. Filter geoMapping to keep only fields that exist in the destination entities
       // We check the first entity as they should all be of the same bundle(s)
       $firstEntity = reset($destinationEntities);
-      $geoMapping = array_filter($geoMapping, function ($mappingModel) use ($firstEntity) {
+      $geoMappingNames = [];
+      $geoMapping = array_filter($geoMapping, function ($mappingModel) use ($firstEntity, &$geoMappingNames) {
         $fieldName = $mappingModel->getDestinationField()->getFieldName();
-        return $firstEntity->hasField($fieldName);
+        $exists = $firstEntity->hasField($fieldName);
+        if ($exists) {
+          $geoMappingNames[] = $fieldName;
+        }
+        return $exists;
       });
 
       if (empty($geoMapping)) {
@@ -127,7 +134,26 @@ class GeographySynchronizerCommands extends DrushCommands {
         return;
       }
 
-      $this->logger->notice(sprintf('Actual fields to sync: %s', implode(', ', array_map(fn($m) => $m->getDestinationField()->getFieldName(), $geoMapping))));
+      $this->logger->notice(sprintf('Actual fields to sync: %s', implode(', ', $geoMappingNames)));
+
+      // 5b. Filter destination entities if they already have all geographic fields filled
+      if (!$options['force']) {
+        $destinationEntities = array_filter($destinationEntities, function ($entity) use ($geoMappingNames) {
+          foreach ($geoMappingNames as $fieldName) {
+            if ($entity->get($fieldName)->isEmpty()) {
+              return TRUE; // At least one field is empty, keep for sync
+            }
+          }
+          return FALSE; // All fields are filled, skip
+        });
+
+        $this->logger->notice(sprintf('Filtered entities to synchronize: %d (those with empty fields).', count($destinationEntities)));
+
+        if (empty($destinationEntities)) {
+          $this->logger->notice('All entities already have their geographic information filled.');
+          return;
+        }
+      }
 
       // 6. Perform the update
       $this->destinationRepository->setOverrideMode(TRUE); // Allow updating existing fields
