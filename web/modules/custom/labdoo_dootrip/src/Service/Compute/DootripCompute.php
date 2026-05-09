@@ -224,7 +224,7 @@ class DootripCompute implements DootripComputeInterface {
       $found = FALSE;
 
       foreach ($dootronic->get('field_dootrips') as $dootripAssigned) {
-        if ($dootripAssigned && $dootripAssigned->id() === $dootrip->id()) {
+        if ($dootripAssigned && $dootripAssigned->target_id === $dootrip->id()) {
           $found = TRUE;
         }
       }
