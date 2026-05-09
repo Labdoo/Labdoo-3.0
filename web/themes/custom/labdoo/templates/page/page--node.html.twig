@@ -75,11 +75,13 @@
 
   <div class="layout-container main-wrapper">
     {{ page.pre_content }}
-    <div class="region region-sidebar">
-      <div class="sidebar-wrapper">
-        {{ page.sidebar }}
+    {% if page.sidebar|render|striptags|trim %}
+      <div class="region region-sidebar">
+        <div class="sidebar-wrapper">
+          {{ page.sidebar }}
+        </div>
       </div>
-    </div>
+    {% endif %}
     <main class="page-content clearfix" role="main">
       <div class="visually-hidden"><a id="main-content" tabindex="-1"></a></div>
       {{ page.highlighted }}

@@ -43,6 +43,39 @@
                     }
                 });
             });
+
+            // Sidebar visibility logic
+            const sidebarElements = once('sidebar-visibility', '.region-sidebar', context);
+            sidebarElements.forEach((el) => {
+                const $sidebar = $(el);
+                const checkVisibility = () => {
+                    // Check if there are any visible blocks inside the sidebar
+                    const hasVisibleContent = $sidebar.find('.block').filter(function() {
+                        return $(this).css('display') !== 'none' && !$(this).hasClass('hidden');
+                    }).length > 0;
+
+                    if (hasVisibleContent) {
+                        $sidebar.show();
+                    } else {
+                        $sidebar.hide();
+                    }
+                };
+
+                // Run initially
+                checkVisibility();
+
+                // Observe changes in the sidebar to handle dynamic updates (like AJAX facets)
+                const observer = new MutationObserver((mutations) => {
+                    checkVisibility();
+                });
+
+                observer.observe(el, {
+                    attributes: true,
+                    childList: true,
+                    subtree: true,
+                    attributeFilter: ['class', 'style']
+                });
+            });
         }
     }
 })(jQuery, Drupal, drupalSettings, once);
