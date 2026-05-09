@@ -91,23 +91,24 @@ class CommonRepository {
   public function getActiveCountries(?string $bundle = NULL): array {
     try {
       $query = $this->database->select('node__field_country', 'nfc');
+      $query->distinct();
       $query->fields('nfc', ['field_country_value']);
       if ($bundle !== NULL) {
         $query->condition('nfc.bundle', $bundle);
       }
-      $results = $query->execute()->fetchAllAssoc('field_country_value');
+      $results = $query->execute()->fetchCol();
     }
     catch (\Exception $e) {
       if ($bundle !== NULL) {
         $errorMessage = sprintf(
-          'Error retrieving the active countries: %s',
+          'Error retrieving the active countries for bundle %s: %s',
+          $bundle,
           $e->getMessage()
         );
       }
       else {
         $errorMessage = sprintf(
-          'Error retrieving the active countries for bundle %s: %s',
-          $bundle,
+          'Error retrieving the active countries: %s',
           $e->getMessage()
         );
       }
@@ -119,7 +120,7 @@ class CommonRepository {
       return [];
     }
 
-    return array_keys($results);
+    return $results;
   }
 
   /**
