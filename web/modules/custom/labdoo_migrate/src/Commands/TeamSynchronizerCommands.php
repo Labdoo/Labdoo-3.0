@@ -338,7 +338,7 @@ class TeamSynchronizerCommands extends DrushCommands {
 
     if ($this->incremental) {
       $existingNids = $this->entityTypeManager->getStorage('node')->getQuery()
-        ->condition('type', self::TEAM_DESTINATION_TYPE)
+        ->condition('type', self::TEAM_CONTENT_TYPE)
         ->accessCheck(FALSE)
         ->execute();
       if (!empty($existingNids)) {
