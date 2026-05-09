@@ -98,6 +98,8 @@ class AdvancedStatisticsController extends ControllerBase {
     $laptops_per_student = $this->getLaptopsPerStudentData();
     $wiki_activity = $this->getWikiActivityData();
     $top_wiki_editors = $this->getTopWikiEditorsData();
+    $team_post_evolution = $this->getTeamPostEvolutionData();
+    $top_team_post_contributors = $this->getTopTeamPostContributors();
 
     return [
       '#theme' => 'labdoo_advanced_statistics',
@@ -128,6 +130,8 @@ class AdvancedStatisticsController extends ControllerBase {
       '#laptops_per_student' => $laptops_per_student,
       '#wiki_activity' => $wiki_activity,
       '#top_wiki_editors' => $top_wiki_editors,
+      '#team_post_evolution' => $team_post_evolution,
+      '#top_team_post_contributors' => $top_team_post_contributors,
       '#platform_uptime' => $this->getPlatformUptime(),
       '#attached' => [
         'library' => [
@@ -161,6 +165,8 @@ class AdvancedStatisticsController extends ControllerBase {
             'laptops_per_student' => $laptops_per_student,
             'wiki_activity' => $wiki_activity,
             'top_wiki_editors' => $top_wiki_editors,
+            'team_post_evolution' => $team_post_evolution,
+            'top_team_post_contributors' => $top_team_post_contributors,
           ],
         ],
       ],
@@ -206,36 +212,48 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets task priority distribution.
+   * Gets task priority distribution (using Edoovillage semaphore as a proxy).
    */
   protected function getTaskPriorityData(): array {
-    $query = $this->database->select('node__field_task_priority', 'nfp');
-    $query->fields('nfp', ['field_task_priority_value']);
+    $query = $this->database->select('node__field_semaphore', 'nfs');
+    $query->fields('nfs', ['field_semaphore_value']);
     $query->addExpression('COUNT(*)', 'count');
-    $query->groupBy('field_task_priority_value');
+    $query->groupBy('field_semaphore_value');
     $results = $query->execute()->fetchAll();
 
     $data = ['labels' => [], 'values' => []];
+    
+    // Define the desired order for the semaphore.
+    $order = ['red', 'yellow', 'green'];
+    $ordered_results = [];
     foreach ($results as $row) {
-      $data['labels'][] = ucfirst($row->field_task_priority_value);
-      $data['values'][] = (int) $row->count;
+      $ordered_results[$row->field_semaphore_value] = (int) $row->count;
     }
+
+    foreach ($order as $key) {
+      if (isset($ordered_results[$key])) {
+        $data['labels'][] = ucfirst($key);
+        $data['values'][] = $ordered_results[$key];
+      }
+    }
+    
     return $data;
   }
 
   /**
-   * Gets task status distribution.
+   * Gets task status distribution (using Edoovillage status as a proxy).
    */
   protected function getTaskStatusData(): array {
-    $query = $this->database->select('node__field_task_status', 'nfs');
-    $query->fields('nfs', ['field_task_status_value']);
+    $query = $this->database->select('node__field_status', 'nfs');
+    $query->condition('bundle', 'edoovillage');
+    $query->fields('nfs', ['field_status_value']);
     $query->addExpression('COUNT(*)', 'count');
-    $query->groupBy('field_task_status_value');
+    $query->groupBy('field_status_value');
     $results = $query->execute()->fetchAll();
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = ucfirst($row->field_task_status_value);
+      $data['labels'][] = ucfirst($row->field_status_value);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -249,6 +267,7 @@ class AdvancedStatisticsController extends ControllerBase {
     
     $last_created = $this->database->select('node_field_data', 'n')
       ->fields('n', ['created'])
+      ->condition('type', 'gallery', '<>')
       ->orderBy('created', 'DESC')
       ->range(0, 1)
       ->execute()
@@ -264,6 +283,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
       $query = $this->database->select('node_field_data', 'n');
       $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $query->condition('n.type', 'gallery', '<>');
       $count = $query->countQuery()->execute()->fetchField();
 
       $data['labels'][] = $date->format('M Y');
@@ -304,6 +324,12 @@ class AdvancedStatisticsController extends ControllerBase {
     $results = $query->execute()->fetchAll();
 
     $data = ['labels' => [], 'values' => []];
+    
+    // Sort results by count descending so small types are still visible in the list but big ones are at the top
+    usort($results, function($a, $b) {
+      return $b->count <=> $a->count;
+    });
+
     foreach ($results as $row) {
       $data['labels'][] = ucfirst(str_replace('_', ' ', $row->type));
       $data['values'][] = (int) $row->count;
@@ -317,23 +343,38 @@ class AdvancedStatisticsController extends ControllerBase {
       $data['values'][] = (int) $wiki_count;
     }
 
+    // Re-sort with Wiki Pages included
+    $combined = [];
+    foreach ($data['labels'] as $i => $label) {
+      $combined[] = ['label' => $label, 'value' => $data['values'][$i]];
+    }
+    usort($combined, function($a, $b) {
+      return $b['value'] <=> $a['value'];
+    });
+
+    $data = ['labels' => [], 'values' => []];
+    foreach ($combined as $item) {
+      $data['labels'][] = $item['label'];
+      $data['values'][] = $item['value'];
+    }
+
     return $data;
   }
 
   /**
-   * Gets task type distribution.
+   * Gets task type distribution (using Action types).
    */
   protected function getTaskTypeData(): array {
-    $query = $this->database->select('node__field_task_type', 'nft');
-    $query->fields('nft', ['field_task_type_value']);
+    $query = $this->database->select('node__field_action_type', 'nft');
+    $query->fields('nft', ['field_action_type_value']);
     $query->addExpression('COUNT(*)', 'count');
-    $query->groupBy('field_task_type_value');
+    $query->groupBy('field_action_type_value');
     
     $results = $query->execute()->fetchAll();
     
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = ucfirst($row->field_task_type_value);
+      $data['labels'][] = ucfirst($row->field_action_type_value);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -509,7 +550,7 @@ class AdvancedStatisticsController extends ControllerBase {
     }
 
     return [
-      'total_km' => round((float) $total_km, 2),
+      'total_km' => $this->commonRepository->formatNumber((float) $total_km, 2),
       'evolution' => $evolution,
     ];
   }
@@ -775,8 +816,8 @@ class AdvancedStatisticsController extends ControllerBase {
       ->execute()
       ->fetchField();
 
-    $team_posts = $this->database->select('comment_field_data', 'c')
-      ->condition('comment_type', 'team_comment')
+    $team_posts = $this->database->select('node_field_data', 'n')
+      ->condition('type', 'team_post')
       ->countQuery()
       ->execute()
       ->fetchField();
@@ -880,10 +921,12 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getTopWikiEditorsData(): array {
     $query = $this->database->select('mini_wiki_page_field_data', 'w');
-    $query->join('users_field_data', 'u', 'w.uid = u.uid');
+    $query->leftJoin('users_field_data', 'u', 'w.uid = u.uid');
     $query->fields('u', ['name']);
+    $query->fields('w', ['uid']);
     $query->addExpression('COUNT(w.id)', 'count');
     $query->groupBy('u.name');
+    $query->groupBy('w.uid');
     $query->orderBy('count', 'DESC');
     $query->range(0, 5);
 
@@ -891,7 +934,84 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = $row->name ?: (string) $this->t('Anonymous');
+      if ($row->name) {
+        $label = $row->name;
+      }
+      elseif ($row->uid) {
+        $label = (string) $this->t('User @uid', ['@uid' => $row->uid]);
+      }
+      else {
+        $label = (string) $this->t('Anonymous');
+      }
+      $data['labels'][] = $label;
+      $data['values'][] = (int) $row->count;
+    }
+    return $data;
+  }
+
+  /**
+   * Gets Team Post registration evolution (Last 12 months with activity).
+   */
+  protected function getTeamPostEvolutionData(): array {
+    $data = ['labels' => [], 'values' => []];
+    
+    $last_created = $this->database->select('node_field_data', 'n')
+      ->fields('n', ['created'])
+      ->condition('type', 'team_post')
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+      
+    $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
+    $reference_date->modify('first day of this month');
+
+    for ($i = 11; $i >= 0; $i--) {
+      $date = (clone $reference_date)->modify("-$i months");
+      $start = $date->getTimestamp();
+      $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
+
+      $query = $this->database->select('node_field_data', 'n');
+      $query->condition('n.type', 'team_post');
+      $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $count = $query->countQuery()->execute()->fetchField();
+
+      $data['labels'][] = $date->format('M Y');
+      $data['values'][] = (int) $count;
+    }
+    return $data;
+  }
+
+  /**
+   * Gets Top 5 Team Post contributors.
+   */
+  protected function getTopTeamPostContributors(): array {
+    $query = $this->database->select('node_field_data', 'n');
+    $query->leftJoin('users_field_data', 'u', 'n.uid = u.uid');
+    $query->fields('u', ['name']);
+    $query->fields('n', ['uid']);
+    $query->condition('n.type', 'team_post');
+    $query->condition('n.uid', 0, '<>');
+    $query->addExpression('COUNT(n.nid)', 'count');
+    $query->groupBy('u.name');
+    $query->groupBy('n.uid');
+    $query->orderBy('count', 'DESC');
+    $query->range(0, 5);
+
+    $results = $query->execute()->fetchAll();
+
+    $data = ['labels' => [], 'values' => []];
+    foreach ($results as $row) {
+      if ($row->name) {
+        $label = $row->name;
+      }
+      elseif ($row->uid) {
+        $label = (string) $this->t('User @uid', ['@uid' => $row->uid]);
+      }
+      else {
+        $label = (string) $this->t('Anonymous');
+      }
+      $data['labels'][] = $label;
       $data['values'][] = (int) $row->count;
     }
     return $data;

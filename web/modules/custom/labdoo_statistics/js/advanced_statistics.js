@@ -287,40 +287,92 @@
         });
       }
 
-      // 10. Task Type
+    // 10. Actions by Type
       const ctxTaskType = once('labdoo-task-type', '#taskTypeChart', context);
       if (ctxTaskType.length) {
         new Chart(ctxTaskType[0], {
-          type: 'pie',
+          type: 'bar',
           data: {
             labels: stats.task_type_data.labels,
             datasets: [{
+              label: Drupal.t('Actions count'),
               data: stats.task_type_data.values,
-              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)'
+              ],
+              borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
             }]
           },
-          options: { responsive: true, maintainAspectRatio: false }
+          options: { 
+            indexAxis: 'y',
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                type: 'logarithmic',
+                title: {
+                  display: true,
+                  text: Drupal.t('Count (Log scale)')
+                }
+              }
+            }
+          }
         });
       }
 
-      // 11. Task Priority
+      // 11. Edoovillage Priority (Semaphore)
       const ctxPriority = once('labdoo-priority', '#priorityChart', context);
       if (ctxPriority.length) {
+        const priorityColors = {
+          'Red': '#FF6384',    // Soft Red
+          'Yellow': '#FFCE56', // Soft Yellow
+          'Green': '#4BC0C0'   // Soft Green
+        };
+        
+        const backgroundColors = stats.priority_data.labels.map(label => priorityColors[label] || '#C9CBCF');
+
         new Chart(ctxPriority[0], {
           type: 'bar',
           data: {
             labels: stats.priority_data.labels,
             datasets: [{
-              label: Drupal.t('Tasks count'),
+              label: Drupal.t('Schools count'),
               data: stats.priority_data.values,
-              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+              backgroundColor: backgroundColors,
+              borderColor: backgroundColors.map(color => color),
+              borderWidth: 1
             }]
           },
-          options: { responsive: true, maintainAspectRatio: false }
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false // Hide legend for single dataset bar chart to avoid confusion
+              }
+            }
+          }
         });
       }
 
-      // 12. Task Status
+      // 12. Edoovillage Project Status
       const ctxTaskStatus = once('labdoo-task-status', '#taskStatusChart', context);
       if (ctxTaskStatus.length) {
         new Chart(ctxTaskStatus[0], {
@@ -443,17 +495,59 @@
       const ctxContentType = once('labdoo-content-type', '#contentTypeChart', context);
       if (ctxContentType.length) {
         new Chart(ctxContentType[0], {
-          type: 'polarArea',
+          type: 'bar',
           data: {
             labels: stats.content_type_data.labels,
             datasets: [{
+              label: Drupal.t('Count'),
               data: stats.content_type_data.values,
               backgroundColor: [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#C9CBCF'
-              ]
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)',
+                'rgba(201, 203, 207, 0.5)',
+                'rgba(255, 159, 64, 0.5)',
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)'
+              ],
+              borderColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 206, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)',
+                'rgb(201, 203, 207)',
+                'rgb(255, 159, 64)',
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 206, 86)'
+              ],
+              borderWidth: 1
             }]
           },
-          options: { responsive: true, maintainAspectRatio: false }
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                type: 'logarithmic',
+                title: {
+                  display: true,
+                  text: Drupal.t('Count (Log scale)')
+                }
+              }
+            }
+          }
         });
       }
 
@@ -489,6 +583,44 @@
               data: stats.top_wiki_editors.values,
               backgroundColor: 'rgba(75, 192, 192, 0.5)',
               borderColor: 'rgb(75, 192, 192)',
+              borderWidth: 1
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
+      // 21. Team Post Evolution
+      const ctxTeamPostEvolution = once('labdoo-teampost-evolution', '#teamPostEvolutionChart', context);
+      if (ctxTeamPostEvolution.length) {
+        new Chart(ctxTeamPostEvolution[0], {
+          type: 'line',
+          data: {
+            labels: stats.team_post_evolution.labels,
+            datasets: [{
+              label: Drupal.t('Team posts'),
+              data: stats.team_post_evolution.values,
+              borderColor: 'rgb(54, 162, 235)',
+              tension: 0.1,
+              fill: false
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
+      // 22. Top Team Post Contributors
+      const ctxTeamPostContributors = once('labdoo-teampost-contributors', '#teamPostContributorsChart', context);
+      if (ctxTeamPostContributors.length) {
+        new Chart(ctxTeamPostContributors[0], {
+          type: 'bar',
+          data: {
+            labels: stats.top_team_post_contributors.labels,
+            datasets: [{
+              label: Drupal.t('Posts'),
+              data: stats.top_team_post_contributors.values,
+              backgroundColor: 'rgba(255, 159, 64, 0.5)',
+              borderColor: 'rgb(255, 159, 64)',
               borderWidth: 1
             }]
           },

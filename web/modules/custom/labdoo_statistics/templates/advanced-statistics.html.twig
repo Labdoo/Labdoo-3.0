@@ -190,21 +190,21 @@
     </div>
 
     <div class="chart-container">
-      <h3>{{ 'Contribution by Task Type'|t }}</h3>
+      <h3>{{ 'Actions by Type'|t }}</h3>
       <div style="height: 300px;">
         <canvas id="taskTypeChart"></canvas>
       </div>
     </div>
 
     <div class="chart-container">
-      <h3>{{ 'Task Priority Distribution'|t }}</h3>
+      <h3>{{ 'Edoovillage Priority (Semaphore)'|t }}</h3>
       <div style="height: 300px;">
         <canvas id="priorityChart"></canvas>
       </div>
     </div>
 
     <div class="chart-container">
-      <h3>{{ 'Current Task Status'|t }}</h3>
+      <h3>{{ 'Edoovillage Project Status'|t }}</h3>
       <div style="height: 300px;">
         <canvas id="taskStatusChart"></canvas>
       </div>
@@ -225,6 +225,20 @@
             <h4 style="margin: 0; font-size: 1em;">{{ 'Team Posts'|t }}</h4>
             <span style="font-size: 1.5em; font-weight: bold;">{{ wiki_stats.team_posts }}</span>
         </div>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 2;">
+      <h3>{{ 'Team Posts Evolution (Last 12 Months)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="teamPostEvolutionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Top 5 Team Post Contributors'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="teamPostContributorsChart"></canvas>
+      </div>
     </div>
 
     <div class="chart-container" style="grid-column: span 2;">
@@ -263,6 +277,9 @@
 
     <div class="chart-container" style="grid-column: span 2;">
       <h3>{{ 'Overall Content Growth (Last 12 Months)'|t }}</h3>
+      <p style="font-size: 0.8em; color: #666; margin-top: -10px; margin-bottom: 10px;">
+        {{ 'Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages.'|t }}
+      </p>
       <div style="height: 300px;">
         <canvas id="nodeEvolutionChart"></canvas>
       </div>
