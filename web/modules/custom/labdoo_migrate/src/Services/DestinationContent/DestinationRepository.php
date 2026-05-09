@@ -539,7 +539,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
         $destinationEntity
       );
 
-    $currentDestinationEntity->original_entity_id = (int) $destinationEntity->{self::SOURCE_ID_FIELD}->value;
+    $sourceIdField = $destinationEntity->hasField(self::SOURCE_ID_FIELD) ? $destinationEntity->get(self::SOURCE_ID_FIELD) : NULL;
+    $currentDestinationEntity->original_entity_id = $sourceIdField ? (int) $sourceIdField->value : 0;
     $result = $result && $this->updateEntity(
           $values,
           $currentDestinationEntity,
@@ -547,7 +548,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
         );
 
       if ($result) {
-        $sourceId = (int) $destinationEntity->{self::SOURCE_ID_FIELD}->value;
+        $sourceId = $sourceIdField ? (int) $sourceIdField->value : 0;
         if ($sourceId > 0 && !$this->dryRun) {
           $durationMs = (int) round((microtime(TRUE) - $startedAt) * 1000);
           $this->migrationTracker->track('node', $destinationEntity->bundle(), $sourceId, (int) $destinationEntity->id(), $durationMs);

@@ -110,7 +110,26 @@ class GeographySynchronizerCommands extends DrushCommands {
 
       $this->logger->notice(sprintf('Found %d entities to synchronize.', count($destinationEntities)));
 
-      // 5. Perform the update
+      if (empty($destinationEntities)) {
+        return;
+      }
+
+      // 5. Filter geoMapping to keep only fields that exist in the destination entities
+      // We check the first entity as they should all be of the same bundle(s)
+      $firstEntity = reset($destinationEntities);
+      $geoMapping = array_filter($geoMapping, function ($mappingModel) use ($firstEntity) {
+        $fieldName = $mappingModel->getDestinationField()->getFieldName();
+        return $firstEntity->hasField($fieldName);
+      });
+
+      if (empty($geoMapping)) {
+        $this->logger->warning(sprintf('None of the geographic fields exist on the destination entities for type "%s".', $sourceType));
+        return;
+      }
+
+      $this->logger->notice(sprintf('Actual fields to sync: %s', implode(', ', array_map(fn($m) => $m->getDestinationField()->getFieldName(), $geoMapping))));
+
+      // 6. Perform the update
       $this->destinationRepository->setOverrideMode(TRUE); // Allow updating existing fields
       $updatedCount = $this->destinationRepository->updateEntities(
         $this->sourceRepository->getEntities($sourceType, $geoMapping, array_keys($destinationEntities)),
