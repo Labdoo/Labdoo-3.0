@@ -81,6 +81,13 @@ class TeamSynchronizerCommands extends DrushCommands {
   private ?int $fromTimestamp = NULL;
 
   /**
+   * The incremental mode.
+   *
+   * @var bool
+   */
+  private bool $incremental = FALSE;
+
+  /**
    * The progress bar.
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
@@ -117,6 +124,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
    * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   * @option incremental Migrates only those entities that are in Drupal 7 but not in Drupal 10.
    */
   public function startSync(
     array $options = [
@@ -124,6 +132,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       'limit' => -1,
       'dry-run' => FALSE,
       'from-date' => NULL,
+      'incremental' => FALSE,
     ]
   ): void {
     try {
@@ -170,6 +179,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode.
    * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   * @option incremental Migrates only those entities that are in Drupal 7 but not in Drupal 10.
    */
   public function syncTeams(
     array $options = [
@@ -177,6 +187,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       'limit' => -1,
       'dry-run' => FALSE,
       'from-date' => NULL,
+      'incremental' => FALSE,
     ]
   ): void {
     try {
@@ -206,6 +217,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode.
    * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   * @option incremental Migrates only those entities that are in Drupal 7 but not in Drupal 10.
    */
   public function syncTeamPosts(
     array $options = [
@@ -213,6 +225,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       'limit' => -1,
       'dry-run' => FALSE,
       'from-date' => NULL,
+      'incremental' => FALSE,
     ]
   ): void {
     try {
@@ -242,6 +255,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode.
    * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   * @option incremental Migrates only those entities that are in Drupal 7 but not in Drupal 10.
    */
   public function syncTeamTasks(
     array $options = [
@@ -249,6 +263,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       'limit' => -1,
       'dry-run' => FALSE,
       'from-date' => NULL,
+      'incremental' => FALSE,
     ]
   ): void {
     try {
@@ -280,6 +295,7 @@ class TeamSynchronizerCommands extends DrushCommands {
     }
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
+    $this->incremental = $options['incremental'] ?? FALSE;
     if (!empty($options['from-date'])) {
       $ts = strtotime($options['from-date']);
       if ($ts === FALSE) {
@@ -319,6 +335,17 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->condition('changed', $this->fromTimestamp, '>=');
       $groupsQuery->condition($or);
     }
+
+    if ($this->incremental) {
+      $existingNids = $this->entityTypeManager->getStorage('node')->getQuery()
+        ->condition('type', self::TEAM_DESTINATION_TYPE)
+        ->accessCheck(FALSE)
+        ->execute();
+      if (!empty($existingNids)) {
+        $groupsQuery->condition('nid', $existingNids, 'NOT IN');
+      }
+    }
+
     $groups = $groupsQuery->execute()->fetchAll();
 
     foreach ($groups as $group) {
@@ -691,6 +718,17 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->condition('changed', $this->fromTimestamp, '>=');
       $tasksQuery->condition($or);
     }
+
+    if ($this->incremental) {
+      $existingNids = $this->entityTypeManager->getStorage('node')->getQuery()
+        ->condition('type', self::TEAM_TASK_DESTINATION_TYPE)
+        ->accessCheck(FALSE)
+        ->execute();
+      if (!empty($existingNids)) {
+        $tasksQuery->condition('nid', $existingNids, 'NOT IN');
+      }
+    }
+
     $tasks = $tasksQuery->execute()->fetchAll();
 
     foreach ($tasks as $task) {
@@ -1144,6 +1182,17 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->condition('changed', $this->fromTimestamp, '>=');
       $postsQuery->condition($or);
     }
+
+    if ($this->incremental) {
+      $existingNids = $this->entityTypeManager->getStorage('node')->getQuery()
+        ->condition('type', self::TEAM_POST_DESTINATION_TYPE)
+        ->accessCheck(FALSE)
+        ->execute();
+      if (!empty($existingNids)) {
+        $postsQuery->condition('nid', $existingNids, 'NOT IN');
+      }
+    }
+
     $posts = $postsQuery->execute()->fetchAll();
 
     foreach ($posts as $post) {
