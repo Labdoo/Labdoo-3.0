@@ -11,12 +11,16 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+
 /**
  * CommonRepository provides common functionalities and services for various operations within the application.
  *
  * The class is designed to encapsulate database interactions, caching, logging, and other shared utilities across modules.
  */
 class CommonRepository {
+
+  use StringTranslationTrait;
 
   /**
    * The Dootrip CO2 savings cache ID.
@@ -661,6 +665,24 @@ class CommonRepository {
       ]);
       return 0;
     }
+  }
+
+  /**
+   * Formats a number according to the current language.
+   *
+   * @param float|int $number
+   *   The number to format.
+   * @param int $decimals
+   *   The number of decimals.
+   *
+   * @return string
+   *   The formatted number.
+   */
+  public function formatNumber($number, int $decimals = 0): string {
+    $decimalSeparator = $this->t('.', [], ['context' => 'decimal separator']);
+    $thousandsSeparator = $this->t(',', [], ['context' => 'thousands separator']);
+
+    return number_format((float) $number, $decimals, (string) $decimalSeparator, (string) $thousandsSeparator);
   }
 
 }
