@@ -1,6 +1,3 @@
-.advanced-statistics-wrapper {
-  padding: 20px;
-}
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -13,7 +10,6 @@
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  min-height: 350px;
 }
 .chart-container h3 {
   margin-top: 0;

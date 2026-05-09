@@ -40,7 +40,7 @@
     </div>
 
     <div class="chart-container" style="grid-column: span 2;">
-      <h3>{{ 'Dootronics Registration (Last 12 Months)'|t }}</h3>
+      <h3>{{ 'Dootronics Registration Evolution (Last 12 Months)'|t }}</h3>
       <div style="height: 300px;">
         <canvas id="evolutionChart"></canvas>
       </div>
@@ -80,14 +80,14 @@
         <p style="margin: 5px 0 0; font-size: 0.9em; color: #7b1fa2;">{{ 'Visualizing our global reach through registered schools and the students we empower.'|t }}</p>
     </div>
 
-    <div class="chart-container" style="grid-column: span 2;">
+    <div class="chart-container" style="grid-column: span 3;">
       <h3>{{ 'Schools Registration Evolution (Last 12 Months)'|t }}</h3>
       <div style="height: 300px;">
         <canvas id="edoovillageEvolutionChart"></canvas>
       </div>
     </div>
 
-    <div class="chart-container" style="grid-column: span 1;">
+    <div class="chart-container">
       <h3>{{ 'Top 10 Countries by Students Reached'|t }}</h3>
       <div style="height: 300px;">
         <canvas id="countryChart"></canvas>
@@ -114,7 +114,14 @@
         <p style="margin: 5px 0 0; font-size: 0.9em; color: #bc5100;">{{ 'Status distribution of Labdoo Hubs, the local operational units of our mission.'|t }}</p>
     </div>
 
-    <div class="chart-container" style="grid-column: span 2;">
+    <div class="chart-container" style="grid-column: span 3;">
+      <h3>{{ 'Hubs Registration Evolution (Last 12 Months)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="hubEvolutionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
       <h3>{{ 'Top 4 Most Active Hubs'|t }}</h3>
       <p style="font-size: 0.8em; color: #666;">{{ '(By processed dootronics)'|t }}</p>
       <div style="height: 300px;">
@@ -129,13 +136,6 @@
       </div>
     </div>
 
-    <div class="chart-container" style="grid-column: span 3;">
-      <h3>{{ 'Hubs Registration Evolution'|t }}</h3>
-      <div style="height: 300px;">
-        <canvas id="hubEvolutionChart"></canvas>
-      </div>
-    </div>
-
     <div class="chart-container">
       <h3>{{ 'Hubs by Country (Top 10)'|t }}</h3>
       <div style="height: 300px;">
@@ -147,6 +147,13 @@
     <div class="chart-container section-separator" style="grid-column: span 3; background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; min-height: auto;">
         <h2 style="margin: 0; color: #1565c0;">{{ 'Dootrips & Logistics'|t }}</h2>
         <p style="margin: 5px 0 0; font-size: 0.9em; color: #1976d2;">{{ 'Measuring the total distance travelled by our volunteers to deliver aid worldwide.'|t }}</p>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 3;">
+      <h3>{{ 'Dootrips Registration Evolution (Last 12 Months)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="dootripEvolutionChart"></canvas>
+      </div>
     </div>
 
     <div class="chart-container" style="grid-column: span 2;">
@@ -209,14 +216,14 @@
         <p style="margin: 5px 0 0; font-size: 0.9em; color: #ef6c00;">{{ 'Analysis of community engagement through comments and the growth of our knowledge base.'|t }}</p>
     </div>
 
-    <div class="chart-container community-summary" style="grid-column: span 3; background: #e9ecef; border-radius: 8px; padding: 20px; display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
-        <div class="stat-item">
-            <h4 style="margin: 0;">{{ 'Wiki Pages'|t }}</h4>
-            <span style="font-size: 2em; font-weight: bold;">{{ wiki_stats.wiki_pages }}</span>
+    <div class="chart-container community-summary" style="grid-column: span 3; background: #e9ecef; border-radius: 8px; padding: 10px; display: flex; justify-content: space-around; align-items: center; margin-bottom: 10px;">
+        <div class="stat-item" style="text-align: center;">
+            <h4 style="margin: 0; font-size: 1em;">{{ 'Wiki Pages'|t }}</h4>
+            <span style="font-size: 1.5em; font-weight: bold;">{{ wiki_stats.wiki_pages }}</span>
         </div>
-        <div class="stat-item">
-            <h4 style="margin: 0;">{{ 'Team Posts'|t }}</h4>
-            <span style="font-size: 2em; font-weight: bold;">{{ wiki_stats.team_posts }}</span>
+        <div class="stat-item" style="text-align: center;">
+            <h4 style="margin: 0; font-size: 1em;">{{ 'Team Posts'|t }}</h4>
+            <span style="font-size: 1.5em; font-weight: bold;">{{ wiki_stats.team_posts }}</span>
         </div>
     </div>
 
@@ -231,6 +238,20 @@
       <h3>{{ 'Top 5 Most Active Commenters'|t }}</h3>
       <div style="height: 300px;">
         <canvas id="commentersChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container" style="grid-column: span 2;">
+      <h3>{{ 'Wiki Activity (Last 12 Months)'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="wikiActivityChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>{{ 'Top 5 Most Active Wiki Editors'|t }}</h3>
+      <div style="height: 300px;">
+        <canvas id="topWikiEditorsChart"></canvas>
       </div>
     </div>
 

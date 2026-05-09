@@ -5,6 +5,7 @@ namespace Drupal\labdoo_statistics\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Locale\CountryManagerInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -29,16 +30,26 @@ class AdvancedStatisticsController extends ControllerBase {
   protected CommonRepository $commonRepository;
 
   /**
+   * The country manager.
+   *
+   * @var \Drupal\Core\Locale\CountryManagerInterface
+   */
+  protected CountryManagerInterface $countryManager;
+
+  /**
    * Constructs an AdvancedStatisticsController object.
    *
    * @param \Drupal\Core\Database\Connection $database
    *   The database connection.
    * @param \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository
    *   The common repository.
+   * @param \Drupal\Core\Locale\CountryManagerInterface $countryManager
+   *   The country manager.
    */
-  public function __construct(Connection $database, CommonRepository $commonRepository) {
+  public function __construct(Connection $database, CommonRepository $commonRepository, CountryManagerInterface $countryManager) {
     $this->database = $database;
     $this->commonRepository = $commonRepository;
+    $this->countryManager = $countryManager;
   }
 
   /**
@@ -47,7 +58,8 @@ class AdvancedStatisticsController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('database'),
-      $container->get('labdoo_common.repository.common')
+      $container->get('labdoo_common.repository.common'),
+      $container->get('country_manager')
     );
   }
 
@@ -78,10 +90,14 @@ class AdvancedStatisticsController extends ControllerBase {
     $top_commenters = $this->getTopCommenters();
     $tasks_by_team_data = $this->getTasksByTeamData();
     $wiki_stats = $this->getWikiStats();
+    $dootrip_km_data = $this->getDootripKmData();
+    $dootrip_evolution = $this->getDootripEvolutionData();
     $dootronic_device_data = $this->getDootronicsByDeviceTypeData();
     $dootronic_cpu_data = $this->getDootronicsByCpuData();
     $laptops_per_edoovillage = $this->getLaptopsPerEdoovillageData();
     $laptops_per_student = $this->getLaptopsPerStudentData();
+    $wiki_activity = $this->getWikiActivityData();
+    $top_wiki_editors = $this->getTopWikiEditorsData();
 
     return [
       '#theme' => 'labdoo_advanced_statistics',
@@ -94,6 +110,7 @@ class AdvancedStatisticsController extends ControllerBase {
       '#hubs_by_country' => $hubs_by_country,
       '#top_hubs_activity' => $top_hubs_activity,
       '#dootrip_km_data' => $dootrip_km_data,
+      '#dootrip_evolution' => $dootrip_evolution,
       '#task_type_data' => $task_type_data,
       '#priority_data' => $priority_data,
       '#task_status_data' => $task_status_data,
@@ -109,6 +126,8 @@ class AdvancedStatisticsController extends ControllerBase {
       '#dootronic_cpu_data' => $dootronic_cpu_data,
       '#laptops_per_edoovillage' => $laptops_per_edoovillage,
       '#laptops_per_student' => $laptops_per_student,
+      '#wiki_activity' => $wiki_activity,
+      '#top_wiki_editors' => $top_wiki_editors,
       '#platform_uptime' => $this->getPlatformUptime(),
       '#attached' => [
         'library' => [
@@ -125,6 +144,7 @@ class AdvancedStatisticsController extends ControllerBase {
             'hubs_by_country' => $hubs_by_country,
             'top_hubs_activity' => $top_hubs_activity,
             'dootrip_km_data' => $dootrip_km_data,
+            'dootrip_evolution' => $dootrip_evolution,
             'task_type_data' => $task_type_data,
             'priority_data' => $priority_data,
             'task_status_data' => $task_status_data,
@@ -139,6 +159,8 @@ class AdvancedStatisticsController extends ControllerBase {
             'dootronic_cpu_data' => $dootronic_cpu_data,
             'laptops_per_edoovillage' => $laptops_per_edoovillage,
             'laptops_per_student' => $laptops_per_student,
+            'wiki_activity' => $wiki_activity,
+            'top_wiki_editors' => $top_wiki_editors,
           ],
         ],
       ],
@@ -223,9 +245,20 @@ class AdvancedStatisticsController extends ControllerBase {
    * Gets general node creation evolution.
    */
   protected function getNodeEvolutionData(): array {
-    $data = [];
+    $data = ['labels' => [], 'values' => []];
+    
+    $last_created = $this->database->select('node_field_data', 'n')
+      ->fields('n', ['created'])
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+      
+    $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
+    $reference_date->modify('first day of this month');
+
     for ($i = 11; $i >= 0; $i--) {
-      $date = new \DateTime("first day of -$i months");
+      $date = (clone $reference_date)->modify("-$i months");
       $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
@@ -341,12 +374,26 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets Dootronics registration evolution for the last 12 months.
+   * Gets Dootronics registration evolution for the last 12 months with activity.
    */
   protected function getDootronicsEvolutionData(): array {
-    $data = [];
+    $data = ['labels' => [], 'values' => []];
+    
+    // Find last activity to make the chart relevant.
+    $last_created = $this->database->select('node_field_data', 'n')
+      ->fields('n', ['created'])
+      ->condition('type', 'dootronic')
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+    
+    $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
+    // Always show at least until the first day of that month.
+    $reference_date->modify('first day of this month');
+
     for ($i = 11; $i >= 0; $i--) {
-      $date = new \DateTime("first day of -$i months");
+      $date = (clone $reference_date)->modify("-$i months");
       $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
       
@@ -396,9 +443,11 @@ class AdvancedStatisticsController extends ControllerBase {
     
     $results = $query->execute()->fetchAll();
     
+    $countries = $this->countryManager->getList();
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = $row->field_country_value;
+      $country_code = strtoupper($row->field_country_value);
+      $data['labels'][] = isset($countries[$country_code]) ? (string) $countries[$country_code] : $country_code;
       $data['values'][] = (int) $row->total_students;
     }
     return $data;
@@ -408,9 +457,20 @@ class AdvancedStatisticsController extends ControllerBase {
    * Gets comment evolution for the last 12 months.
    */
   protected function getCommentEvolutionData(): array {
-    $data = [];
+    $data = ['labels' => [], 'values' => []];
+    
+    $last_created = $this->database->select('comment_field_data', 'c')
+      ->fields('c', ['created'])
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+      
+    $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
+    $reference_date->modify('first day of this month');
+
     for ($i = 11; $i >= 0; $i--) {
-      $date = new \DateTime("first day of -$i months");
+      $date = (clone $reference_date)->modify("-$i months");
       $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
@@ -477,8 +537,20 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getHubEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
+    
+    $last_created = $this->database->select('node_field_data', 'n')
+      ->fields('n', ['created'])
+      ->condition('type', 'hub')
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+      
+    $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
+    $reference_date->modify('first day of this month');
+
     for ($i = 11; $i >= 0; $i--) {
-      $date = new \DateTime("first day of -$i months");
+      $date = (clone $reference_date)->modify("-$i months");
       $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
@@ -494,7 +566,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets Hubs distribution by country (Top 10).
+   * Gets Hubs distribution by country (Top 5).
    */
   protected function getHubsByCountryData(): array {
     $query = $this->database->select('node__field_country', 'nfc');
@@ -503,13 +575,15 @@ class AdvancedStatisticsController extends ControllerBase {
     $query->condition('nfc.bundle', 'hub');
     $query->groupBy('nfc.field_country_value');
     $query->orderBy('count', 'DESC');
-    $query->range(0, 10);
+    $query->range(0, 5);
 
     $results = $query->execute()->fetchAll();
 
+    $countries = $this->countryManager->getList();
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = $row->field_country_value;
+      $country_code = strtoupper($row->field_country_value);
+      $data['labels'][] = isset($countries[$country_code]) ? (string) $countries[$country_code] : $country_code;
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -542,13 +616,58 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getEdoovillageEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
+    
+    $last_created = $this->database->select('node_field_data', 'n')
+      ->fields('n', ['created'])
+      ->condition('type', 'edoovillage')
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+      
+    $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
+    $reference_date->modify('first day of this month');
+
     for ($i = 11; $i >= 0; $i--) {
-      $date = new \DateTime("first day of -$i months");
+      $date = (clone $reference_date)->modify("-$i months");
       $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('node_field_data', 'n');
       $query->condition('n.type', 'edoovillage');
+      $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $count = $query->countQuery()->execute()->fetchField();
+
+      $data['labels'][] = $date->format('M Y');
+      $data['values'][] = (int) $count;
+    }
+    return $data;
+  }
+
+  /**
+   * Gets Dootrip registration evolution (last 12 months with activity).
+   */
+  protected function getDootripEvolutionData(): array {
+    $data = ['labels' => [], 'values' => []];
+    
+    $last_created = $this->database->select('node_field_data', 'n')
+      ->fields('n', ['created'])
+      ->condition('type', 'dootrip')
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+      
+    $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
+    $reference_date->modify('first day of this month');
+
+    for ($i = 11; $i >= 0; $i--) {
+      $date = (clone $reference_date)->modify("-$i months");
+      $start = $date->getTimestamp();
+      $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
+
+      $query = $this->database->select('node_field_data', 'n');
+      $query->condition('n.type', 'dootrip');
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
@@ -565,6 +684,7 @@ class AdvancedStatisticsController extends ControllerBase {
     $query = $this->database->select('node_field_data', 'n');
     $query->join('users_field_data', 'u', 'n.uid = u.uid');
     $query->condition('n.type', 'dootronic');
+    $query->condition('n.uid', 0, '<>');
     $query->fields('u', ['name']);
     $query->addExpression('COUNT(n.nid)', 'count');
     $query->groupBy('u.name');
@@ -574,7 +694,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = $row->name;
+      $data['labels'][] = $row->name ?: (string) $this->t('Anonymous');
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -682,7 +802,11 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = $row->title;
+      $title = $row->title;
+      if (str_contains($title, ':')) {
+        $title = explode(':', $title)[0];
+      }
+      $data['labels'][] = $title;
       $data['values'][] = (int) $row->laptop_count;
     }
     return $data;
@@ -710,8 +834,65 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = $row->title;
+      $title = $row->title;
+      if (str_contains($title, ':')) {
+        $title = explode(':', $title)[0];
+      }
+      $data['labels'][] = $title;
       $data['values'][] = round((float) $row->ratio, 4);
+    }
+    return $data;
+  }
+
+  /**
+   * Gets wiki activity (Last 12 months with activity).
+   */
+  protected function getWikiActivityData(): array {
+    $data = ['labels' => [], 'values' => []];
+    
+    $last_created = $this->database->select('mini_wiki_page_field_data', 'w')
+      ->fields('w', ['created'])
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+      
+    $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
+    $reference_date->modify('first day of this month');
+
+    for ($i = 11; $i >= 0; $i--) {
+      $date = (clone $reference_date)->modify("-$i months");
+      $start = $date->getTimestamp();
+      $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
+
+      $query = $this->database->select('mini_wiki_page_field_data', 'w');
+      $query->condition('created', [$start, $end], 'BETWEEN');
+      $count = $query->countQuery()->execute()->fetchField();
+
+      $data['labels'][] = $date->format('M Y');
+      $data['values'][] = (int) $count;
+    }
+    return $data;
+  }
+
+  /**
+   * Gets top 5 most active wiki editors.
+   */
+  protected function getTopWikiEditorsData(): array {
+    $query = $this->database->select('mini_wiki_page_field_data', 'w');
+    $query->join('users_field_data', 'u', 'w.uid = u.uid');
+    $query->fields('u', ['name']);
+    $query->addExpression('COUNT(w.id)', 'count');
+    $query->groupBy('u.name');
+    $query->orderBy('count', 'DESC');
+    $query->range(0, 5);
+
+    $results = $query->execute()->fetchAll();
+
+    $data = ['labels' => [], 'values' => []];
+    foreach ($results as $row) {
+      $data['labels'][] = $row->name ?: (string) $this->t('Anonymous');
+      $data['values'][] = (int) $row->count;
     }
     return $data;
   }

@@ -212,6 +212,25 @@
       }
 
       // 7. Dootrip Km Evolution
+      const ctxDootripEvolution = once('labdoo-dootrip-evolution', '#dootripEvolutionChart', context);
+      if (ctxDootripEvolution.length) {
+        new Chart(ctxDootripEvolution[0], {
+          type: 'line',
+          data: {
+            labels: stats.dootrip_evolution.labels,
+            datasets: [{
+              label: Drupal.t('Dootrips registered'),
+              data: stats.dootrip_evolution.values,
+              borderColor: 'rgb(54, 162, 235)',
+              tension: 0.1,
+              fill: true,
+              backgroundColor: 'rgba(54, 162, 235, 0.1)'
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
       const ctxDootripKm = once('labdoo-dootrip-km', '#dootripKmEvolutionChart', context);
       if (ctxDootripKm.length) {
         new Chart(ctxDootripKm[0], {
@@ -432,6 +451,45 @@
               backgroundColor: [
                 '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#C9CBCF'
               ]
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
+      // 19. Wiki Activity
+      const ctxWikiActivity = once('labdoo-wiki-activity', '#wikiActivityChart', context);
+      if (ctxWikiActivity.length) {
+        new Chart(ctxWikiActivity[0], {
+          type: 'line',
+          data: {
+            labels: stats.wiki_activity.labels,
+            datasets: [{
+              label: Drupal.t('Wiki pages created'),
+              data: stats.wiki_activity.values,
+              borderColor: 'rgb(255, 159, 64)',
+              tension: 0.1,
+              fill: true,
+              backgroundColor: 'rgba(255, 159, 64, 0.1)'
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
+      // 20. Top Wiki Editors
+      const ctxWikiEditors = once('labdoo-wiki-editors', '#topWikiEditorsChart', context);
+      if (ctxWikiEditors.length) {
+        new Chart(ctxWikiEditors[0], {
+          type: 'bar',
+          data: {
+            labels: stats.top_wiki_editors.labels,
+            datasets: [{
+              label: Drupal.t('Pages created'),
+              data: stats.top_wiki_editors.values,
+              backgroundColor: 'rgba(75, 192, 192, 0.5)',
+              borderColor: 'rgb(75, 192, 192)',
+              borderWidth: 1
             }]
           },
           options: { responsive: true, maintainAspectRatio: false }
