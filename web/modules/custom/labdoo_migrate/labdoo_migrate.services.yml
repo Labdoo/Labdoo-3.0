@@ -95,3 +95,8 @@ services:
     arguments: ['@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@labdoo_migrate.tracking.migration_tracker', '@queue_manager.helper']
     tags:
       - { name: drush.command }
+  labdoo_migrate.commands.geography_synchronizer:
+    class: Drupal\labdoo_migrate\Commands\GeographySynchronizerCommands
+    arguments: ['@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@labdoo_migrate.source_content.repository.node', '@labdoo_migrate.destination_content.repository.node', '@entity_type.manager']
+    tags:
+      - { name: drush.command }

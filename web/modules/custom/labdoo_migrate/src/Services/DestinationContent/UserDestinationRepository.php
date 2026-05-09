@@ -521,6 +521,8 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    */
   protected function saveEntity(EntityInterface $entity): bool {
 
+    $entity->labdoo_skip_geocoding = TRUE;
+
     try {
       return $entity->save();
     }
@@ -614,6 +616,13 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   public function setIndexingMode(bool $indexingEnabled): void {
     $this->indexingEnabled = $indexingEnabled;
     $this->state->set('labdoo_migrate.disable_indexing', !$indexingEnabled);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBatchSize(int $batchSize): void {
+    // Not implemented for users yet, but required by interface.
   }
 
 }

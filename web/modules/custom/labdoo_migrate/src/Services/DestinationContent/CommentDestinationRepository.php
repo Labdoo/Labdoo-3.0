@@ -25,6 +25,8 @@ class CommentDestinationRepository extends DestinationRepository {
       $entity->search_api_skip_tracking = TRUE;
     }
 
+    $entity->labdoo_skip_geocoding = TRUE;
+
     try {
       // Comments do not support revisions in Drupal 10 by default.
       if ($entity instanceof RevisionableInterface && $entity->getEntityType()->isRevisionable()) {

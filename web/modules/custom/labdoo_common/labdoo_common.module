@@ -300,7 +300,7 @@ function labdoo_common_reverse_geocode_coordinates_alter(&$latitude, &$longitude
 function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude, &$longitude, FieldItemListInterface $field) {
   // Prevent geocoding during migration or if explicitly disabled for this entity.
   $entity = $field->getEntity();
-  if (isset($entity->labdoo_skip_geocoding) || \Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
+  if (isset($entity->labdoo_skip_geocoding) || \Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv'] ?? []), 'labdoo_migrate_migration'))) {
     $latitude = NULL;
     $longitude = NULL;
     return;

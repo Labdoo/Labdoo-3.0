@@ -814,6 +814,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
       $entity->search_api_skip_tracking = TRUE;
     }
 
+    $entity->labdoo_skip_geocoding = TRUE;
+
     try {
       if ($entity instanceof RevisionableInterface) {
         $entity->setNewRevision(FALSE);
