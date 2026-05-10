@@ -57,9 +57,11 @@ class FixUidCommands extends DrushCommands {
    * @aliases lfnuid
    * @option limit Maximum number of nodes to process.
    * @option type Filter by node type.
+   * @option default-uid UID to assign if the original user is not found in Drupal 10.
+   * @option dry-run Only show what would be done, without making changes.
    * @usage drush labdoo:fix-node-uids --type=laptop --limit=100
    */
-  public function fixNodeUids(array $options = ['limit' => -1, 'type' => NULL]) {
+  public function fixNodeUids(array $options = ['limit' => -1, 'type' => NULL, 'default-uid' => NULL, 'dry-run' => FALSE]) {
     $query = $this->database->select('node_field_data', 'n')
       ->fields('n', ['nid', 'type'])
       ->condition('n.uid', 0);
@@ -90,7 +92,25 @@ class FixUidCommands extends DrushCommands {
     }
 
     $fixed = 0;
+    $alreadyAnonymous = 0;
+    $userNotFound = 0;
+    $nodeNotFoundInD7 = 0;
+    $defaultAssigned = 0;
+
     $progressBar = $this->io()->createProgressBar(count($nodes));
+
+    $defaultUid = $options['default-uid'];
+    if ($defaultUid) {
+      $userExists = $this->database->select('users', 'u')
+        ->fields('u', ['uid'])
+        ->condition('uid', $defaultUid)
+        ->execute()
+        ->fetchField();
+      if (!$userExists) {
+        $this->io()->error(sprintf('Default user UID %d does not exist in Drupal 10.', $defaultUid));
+        return;
+      }
+    }
 
     foreach ($nodes as $node) {
       // Get original uid from Drupal 7.
@@ -100,7 +120,13 @@ class FixUidCommands extends DrushCommands {
         ->execute()
         ->fetchField();
 
-      if ($originalUid && $originalUid != 0) {
+      if ($originalUid === FALSE) {
+        $nodeNotFoundInD7++;
+      }
+      elseif ($originalUid == 0) {
+        $alreadyAnonymous++;
+      }
+      else {
         // Check if the user exists in Drupal 10.
         $userExists = $this->database->select('users', 'u')
           ->fields('u', ['uid'])
@@ -109,18 +135,36 @@ class FixUidCommands extends DrushCommands {
           ->fetchField();
 
         if ($userExists) {
-          // Update the node.
-          $this->database->update('node_field_data')
-            ->fields(['uid' => $originalUid])
-            ->condition('nid', $node->nid)
-            ->execute();
-          
-          $this->database->update('node_revision')
-            ->fields(['revision_uid' => $originalUid])
-            ->condition('nid', $node->nid)
-            ->execute();
+          if (!$options['dry-run']) {
+            // Update the node.
+            $this->database->update('node_field_data')
+              ->fields(['uid' => $originalUid])
+              ->condition('nid', $node->nid)
+              ->execute();
 
+            $this->database->update('node_revision')
+              ->fields(['revision_uid' => $originalUid])
+              ->condition('nid', $node->nid)
+              ->execute();
+          }
           $fixed++;
+        }
+        elseif ($defaultUid) {
+          if (!$options['dry-run']) {
+            $this->database->update('node_field_data')
+              ->fields(['uid' => $defaultUid])
+              ->condition('nid', $node->nid)
+              ->execute();
+
+            $this->database->update('node_revision')
+              ->fields(['revision_uid' => $defaultUid])
+              ->condition('nid', $node->nid)
+              ->execute();
+          }
+          $defaultAssigned++;
+        }
+        else {
+          $userNotFound++;
         }
       }
       $progressBar->advance();
@@ -128,10 +172,32 @@ class FixUidCommands extends DrushCommands {
 
     $progressBar->finish();
     $this->io()->newLine();
-    $this->io()->success(sprintf('Fixed %d nodes.', $fixed));
-    
-    if ($fixed > 0) {
+
+    if ($options['dry-run']) {
+      $this->io()->note('DRY RUN: No changes were made.');
+    }
+
+    $this->io()->table(
+      ['Status', 'Count'],
+      [
+        ['Fixed (Original user found)', $fixed],
+        ['Assigned to default UID', $defaultAssigned],
+        ['Already anonymous in D7', $alreadyAnonymous],
+        ['User not found in D10 (and no default)', $userNotFound],
+        ['Node not found in D7', $nodeNotFoundInD7],
+      ]
+    );
+
+    if ($fixed + $defaultAssigned > 0) {
+      $this->io()->success(sprintf('Processed %d nodes.', $fixed + $defaultAssigned));
       $this->io()->note('Remember to rebuild the search index if necessary.');
+    }
+    else {
+      $this->io()->warning('No nodes were updated.');
+    }
+
+    if ($userNotFound > 0) {
+      $this->io()->info(sprintf('%d nodes could not be fixed because their original author does not exist in D10. Use --default-uid to assign them to a specific user.', $userNotFound));
     }
 
     $this->externalConnectionManager->restoreConnection();
