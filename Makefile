@@ -194,7 +194,7 @@ deploy-database: ## 🗄️ Sync database state (backup + deploy).
 backup: ## 💾 Generate a database backup.
 	@echo "$(CYAN)💾 Generating database backup...$(RESET)"
 	mkdir -p backups
-	@if $(DRUSH_COMMAND) sql-dump --gzip --result-file="$(shell pwd)/backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false --no-tablespaces" 2>/dev/null; then \
+	@if $(DRUSH_COMMAND) sql-dump --gzip --result-file="$(shell pwd)/backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false --no-tablespaces"; then \
 		echo "$(GREEN)✅ Backup generated with Drush.$(RESET)"; \
 	else \
 		echo "$(YELLOW)⚠️ Drush failed, trying native mysqldump...$(RESET)"; \
@@ -209,25 +209,15 @@ backup: ## 💾 Generate a database backup.
 	fi
 
 .PHONY: backup-slim
-backup-slim: ## 📉 Generate a slim database backup (no cache/watchdog data).
-	@echo "$(CYAN)📉 Generating slim database backup...$(RESET)"
-	mkdir -p backups
-	@EXCLUDES_LIST="cache_*,cachetags,key_value_expire,watchdog,history,sessions,search_%,webprofiler,queue,labdoo_scraper_results"; \
-	DRUSH_EXCLUDES=$$(echo $$EXCLUDES_LIST | sed 's/%/*/g'); \
-	if $(DRUSH_COMMAND) sql-dump --gzip --structure-tables-list="$$DRUSH_EXCLUDES" --result-file="$(shell pwd)/backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false --no-tablespaces" 2>/dev/null; then \
-		echo "$(GREEN)✅ Slim backup generated with Drush.$(RESET)"; \
-	else \
-		echo "$(YELLOW)⚠️ Drush failed, trying native mysqldump with exclusions...$(RESET)"; \
-		BACKUP_FILE="backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql.gz"; \
-		MYSQL_EXCLUDES=$$(echo $$EXCLUDES_LIST | sed 's/,/ --ignore-table=$(DB_NAME)./g' | sed 's/^/--ignore-table=$(DB_NAME)./'); \
-		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p'$(DB_PASSWORD)' $(DB_NAME) --single-transaction=false --no-tablespaces $$MYSQL_EXCLUDES | gzip > $$BACKUP_FILE; \
-		if [ $$? -eq 0 ]; then \
-			echo "$(GREEN)✅ Slim backup generated successfully (native). File: $$BACKUP_FILE$(RESET)"; \
-		else \
-			echo "$(RED)❌ Error generating slim backup (native).$(RESET)"; \
-			exit 1; \
-		fi \
-	fi
+backup-slim:
+	@echo "📉 Generating slim database backup..."
+	@mkdir -p backups
+	$(eval EXCLUDES_LIST := cache_*,cachetags,key_value_expire,watchdog,history,sessions,search_%,webprofiler,queue,labdoo_scraper_results)
+	@DRUSH_EXCLUDES=$(shell echo "$(EXCLUDES_LIST)" | sed 's/%/*/g'); \
+	vendor/bin/drush sql-dump --gzip \
+		--structure-tables-list="$$DRUSH_EXCLUDES" \
+		--result-file="/mnt/data/labdoo/backups/project_dev_slim_$$(date +%Y%m%d_%H%M).sql" \
+		--extra-dump="--single-transaction=false --no-tablespaces --column-statistics=0"
 
 .PHONY: backup-files
 backup-files: ## 📁 Generate a site files backup.
