@@ -98,6 +98,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-incremental-bg" "🌙 Run incremental migration in background."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-check-integrity" "🔍 Compare N random nodes from D7 with D10."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "sync-geography" "🌍 Synchronize geographic information from D7."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "fix-node-uids" "👤 Fix nodes with uid=0 checking original author in D7."
 	@echo ""
 	@echo "$(GREEN)[ Deletion ]$(RESET)"
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "delete-bundle-fast" "🗑️  Delete nodes of a bundle (FAST SQL). Usage: make delete-bundle-fast bundle=TYPE"
@@ -639,6 +640,11 @@ sync-geography: ## 🌍 Synchronize geographic information from D7 for all main 
 	$(DRUSH_COMMAND) labdoo-sync-geography dootrip $(if $(force),--force,)
 	$(DRUSH_COMMAND) labdoo-sync-geography action $(if $(force),--force,)
 	@echo "$(GREEN)✅ Geographic synchronization finished!$(RESET)"
+
+.PHONY: fix-node-uids
+fix-node-uids: ## 👤 Fix nodes with uid=0 checking original author in D7. Usage: make fix-node-uids [type=TYPE] [limit=N]
+	@echo "$(CYAN)👤 Fixing nodes with uid=0...$(RESET)"
+	$(DRUSH_COMMAND) labdoo:fix-node-uids $(if $(type),--type=$(type),) $(if $(limit),--limit=$(limit),)
 
 .PHONY: queue-process
 queue-process: ## ⚙️ Process all migration queues.
