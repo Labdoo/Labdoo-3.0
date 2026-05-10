@@ -17,4 +17,12 @@ interface HubComputeInterface {
    */
   public function enqueueRecompute(EntityInterface $entity): void;
 
+  /**
+   * Enqueues the geocoding of the hub.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   */
+  public function enqueueGeocoding(EntityInterface $entity): void;
+
 }

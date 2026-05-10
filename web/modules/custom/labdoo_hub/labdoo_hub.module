@@ -85,6 +85,7 @@ function labdoo_hub_entity_insert(EntityInterface $entity) {
     /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
     $hubCompute = \Drupal::service('labdoo_hub.compute');
     $hubCompute->enqueueRecompute($entity);
+    $hubCompute->enqueueGeocoding($entity);
 
     labdoo_gallery_create_or_update($entity);
   }
@@ -98,6 +99,7 @@ function labdoo_hub_entity_update(EntityInterface $entity) {
     /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
     $hubCompute = \Drupal::service('labdoo_hub.compute');
     $hubCompute->enqueueRecompute($entity);
+    $hubCompute->enqueueGeocoding($entity);
 
     labdoo_gallery_create_or_update($entity);
   }

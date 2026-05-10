@@ -38,4 +38,20 @@ class HubCompute implements HubComputeInterface {
     $this->recomputeFeeder->feedQueue($entity);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function enqueueGeocoding(EntityInterface $entity): void {
+    if ($entity->bundle() !== 'hub') {
+      return;
+    }
+    /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
+    $queueFactory = \Drupal::service('queue');
+    $queue = $queueFactory->get('labdoo_hub_geocoding');
+    $item = [
+      'nid' => $entity->id(),
+    ];
+    $queue->createItem($item);
+  }
+
 }
