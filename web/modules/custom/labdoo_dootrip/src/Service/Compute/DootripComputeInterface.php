@@ -86,4 +86,12 @@ interface DootripComputeInterface {
    */
   public function enqueueCapacityRecompute(EntityInterface $entity): void;
 
+  /**
+   * Enqueues the geocoding of the dootrip.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   */
+  public function enqueueGeocoding(EntityInterface $entity): void;
+
 }

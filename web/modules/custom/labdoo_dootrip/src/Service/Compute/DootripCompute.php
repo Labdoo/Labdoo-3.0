@@ -277,6 +277,22 @@ class DootripCompute implements DootripComputeInterface {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public function enqueueGeocoding(EntityInterface $entity): void {
+    if ($entity->bundle() !== 'dootrip') {
+      return;
+    }
+    /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
+    $queueFactory = \Drupal::service('queue');
+    $queue = $queueFactory->get('labdoo_dootrip_geocoding');
+    $item = [
+      'nid' => $entity->id(),
+    ];
+    $queue->createItem($item);
+  }
+
+  /**
    * Calculates the CO2 savings of a dootrip.
    *
    * @param \Drupal\Core\Entity\EntityInterface $dootrip

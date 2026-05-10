@@ -62,6 +62,7 @@ function labdoo_dootrip_entity_insert(EntityInterface $entity) {
     /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
     $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
     $dootripCompute->enqueueCapacityRecompute($entity);
+    $dootripCompute->enqueueGeocoding($entity);
   }
 }
 
@@ -74,6 +75,7 @@ function labdoo_dootrip_entity_update(EntityInterface $entity) {
     $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
     $dootripCompute->computeDootronicsAssigned($entity);
     $dootripCompute->enqueueCapacityRecompute($entity);
+    $dootripCompute->enqueueGeocoding($entity);
   }
 }
 
