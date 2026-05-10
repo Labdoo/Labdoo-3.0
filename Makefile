@@ -194,12 +194,12 @@ deploy-database: ## 🗄️ Sync database state (backup + deploy).
 backup: ## 💾 Generate a database backup.
 	@echo "$(CYAN)💾 Generating database backup...$(RESET)"
 	mkdir -p backups
-	@if $(DRUSH_COMMAND) sql-dump --gzip --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false" 2>/dev/null; then \
+	@if $(DRUSH_COMMAND) sql-dump --gzip --result-file="$(shell pwd)/backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false --no-tablespaces" 2>/dev/null; then \
 		echo "$(GREEN)✅ Backup generated with Drush.$(RESET)"; \
 	else \
 		echo "$(YELLOW)⚠️ Drush failed, trying native mysqldump...$(RESET)"; \
 		BACKUP_FILE="backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql.gz"; \
-		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p$(DB_PASSWORD) $(DB_NAME) --single-transaction=false | gzip > $$BACKUP_FILE; \
+		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p'$(DB_PASSWORD)' $(DB_NAME) --single-transaction=false --no-tablespaces | gzip > $$BACKUP_FILE; \
 		if [ $$? -eq 0 ]; then \
 			echo "$(GREEN)✅ Backup generated successfully (native). File: $$BACKUP_FILE$(RESET)"; \
 		else \
@@ -214,13 +214,13 @@ backup-slim: ## 📉 Generate a slim database backup (no cache/watchdog data).
 	mkdir -p backups
 	@EXCLUDES_LIST="cache_*,watchdog,history,sessions,search_%,webprofiler"; \
 	DRUSH_EXCLUDES=$$(echo $$EXCLUDES_LIST | sed 's/%/*/g'); \
-	if $(DRUSH_COMMAND) sql-dump --gzip --structure-tables-list="$$DRUSH_EXCLUDES" --result-file="../backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false" 2>/dev/null; then \
+	if $(DRUSH_COMMAND) sql-dump --gzip --structure-tables-list="$$DRUSH_EXCLUDES" --result-file="$(shell pwd)/backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false --no-tablespaces" 2>/dev/null; then \
 		echo "$(GREEN)✅ Slim backup generated with Drush.$(RESET)"; \
 	else \
 		echo "$(YELLOW)⚠️ Drush failed, trying native mysqldump with exclusions...$(RESET)"; \
 		BACKUP_FILE="backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql.gz"; \
 		MYSQL_EXCLUDES=$$(echo $$EXCLUDES_LIST | sed 's/,/ --ignore-table=$(DB_NAME)./g' | sed 's/^/--ignore-table=$(DB_NAME)./'); \
-		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p$(DB_PASSWORD) $(DB_NAME) --single-transaction=false $$MYSQL_EXCLUDES | gzip > $$BACKUP_FILE; \
+		mysqldump -h $(DB_HOST) -P $(DB_PORT) -u $(DB_USER) -p'$(DB_PASSWORD)' $(DB_NAME) --single-transaction=false --no-tablespaces $$MYSQL_EXCLUDES | gzip > $$BACKUP_FILE; \
 		if [ $$? -eq 0 ]; then \
 			echo "$(GREEN)✅ Slim backup generated successfully (native). File: $$BACKUP_FILE$(RESET)"; \
 		else \
