@@ -1,0 +1,20 @@
+uuid: 8476d162-1aea-4b4c-b75a-393c9256833c
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_dootrip
+title: 'Queue: Dootrip Geocoding'
+id: ultimate_cron_queue_labdoo_dootrip_geocoding
+weight: 10
+module: labdoo_dootrip
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_migrate
+title: 'Queue: Process dootrip migration entities'
+id: ultimate_cron_queue_labdoo_migrate_migration_dootrip
+weight: 10
+module: labdoo_migrate
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

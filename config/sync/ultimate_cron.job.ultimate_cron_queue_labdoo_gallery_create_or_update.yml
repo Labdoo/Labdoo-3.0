@@ -1,0 +1,20 @@
+uuid: dbcbf25a-a3d8-4452-a552-7fa4380ea545
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_gallery
+title: 'Queue: Labdoo Gallery Create or Update'
+id: ultimate_cron_queue_labdoo_gallery_create_or_update
+weight: 10
+module: labdoo_gallery
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

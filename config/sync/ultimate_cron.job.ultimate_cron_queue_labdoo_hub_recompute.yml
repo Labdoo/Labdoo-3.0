@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_hub
+title: 'Queue: Recompute the hub data'
+id: ultimate_cron_queue_labdoo_hub_recompute
+weight: 10
+module: labdoo_hub
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

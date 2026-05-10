@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_edoovillage
+title: 'Queue: Recompute the edoovillage data'
+id: ultimate_cron_queue_labdoo_edoovillage_recompute
+weight: 10
+module: labdoo_edoovillage
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

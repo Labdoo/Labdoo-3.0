@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_dootronics
+title: 'Queue: Recompute heavy dootronics fields'
+id: ultimate_cron_queue_labdoo_dootronics_recompute
+weight: 10
+module: labdoo_dootronics
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database

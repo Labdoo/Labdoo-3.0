@@ -1,0 +1,20 @@
+uuid: 46dcda1d-6d25-4820-aa51-e3012fbd497f
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_hub
+title: 'Queue: Hub Geocoding'
+id: ultimate_cron_queue_labdoo_hub_geocoding
+weight: 10
+module: labdoo_hub
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database
