@@ -194,7 +194,10 @@ deploy-database: ## 🗄️ Sync database state (backup + deploy).
 backup: ## 💾 Generate a database backup.
 	@echo "$(CYAN)💾 Generating database backup...$(RESET)"
 	mkdir -p backups
+	$(eval EXCLUDES_LIST := cache_*,cachetags,history,queue,search_*,sessions,watchdog,webprofiler)
+	@DRUSH_EXCLUDES=$(shell echo "$(EXCLUDES_LIST)" | sed 's/%/*/g'); \
 	$(DRUSH_COMMAND) sql-dump --gzip \
+		--structure-tables-list="$$DRUSH_EXCLUDES" \
 		--result-file="$(CURDIR)/backups/$(PROJECT_NAME)_$(ENVIRONMENT)_$$(date +%Y%m%d_%H%M).sql" \
 		--extra-dump="--no-tablespaces --column-statistics=0"
 
@@ -202,8 +205,10 @@ backup: ## 💾 Generate a database backup.
 backup-slim:
 	@echo "📉 Generating slim database backup..."
 	@mkdir -p backups
+	$(eval EXCLUDES_LIST := cache_*,cachetags,key_value_expire,watchdog,history,sessions,search_*,webprofiler,queue,labdoo_scraper_results)
+	@DRUSH_EXCLUDES=$(shell echo "$(EXCLUDES_LIST)" | sed 's/%/*/g'); \
 	vendor/bin/drush sql-dump --gzip \
-		--structure-tables-key=slim \
+		--structure-tables-list="$$DRUSH_EXCLUDES" \
 		--result-file="$(CURDIR)/backups/project_dev_slim_$$(date +%Y%m%d_%H%M).sql" \
 		--extra-dump="--no-tablespaces --column-statistics=0"
 
