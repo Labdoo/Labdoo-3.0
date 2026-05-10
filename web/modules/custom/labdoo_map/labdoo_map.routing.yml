@@ -4,3 +4,11 @@ labdoo_map.map_points:
     _controller: '\Drupal\labdoo_map\Controller\MapDataController::getMapPoints'
   requirements:
     _permission: 'access content'
+
+labdoo_map.suspicious_locations:
+  path: '/admin/reports/suspicious-locations'
+  defaults:
+    _controller: '\Drupal\labdoo_map\Controller\SuspiciousLocationsController::report'
+    _title: 'Suspicious Locations Report'
+  requirements:
+    _permission: 'access suspicious locations report'

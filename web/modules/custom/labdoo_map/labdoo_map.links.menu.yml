@@ -1,0 +1,7 @@
+labdoo_map.suspicious_locations:
+  title: 'Suspicious Locations'
+  description: 'Nodes with coordinates near poles or at (0,0).'
+  route_name: labdoo_map.suspicious_locations
+  parent: 'menu_link_content:b2dded05-a50b-4ae8-8ac6-bb2fc717b392'
+  menu_name: main
+  weight: 100

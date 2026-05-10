@@ -1,0 +1,4 @@
+access suspicious locations report:
+  title: 'Access suspicious locations report'
+  description: 'View the report of nodes with suspicious coordinates.'
+  restrict access: true
