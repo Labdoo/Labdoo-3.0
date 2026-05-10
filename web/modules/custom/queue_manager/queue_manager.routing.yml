@@ -1,0 +1,7 @@
+queue_manager.monitor:
+  path: '/admin/config/system/queues'
+  defaults:
+    _controller: '\Drupal\queue_manager\Controller\QueueMonitorController::listQueues'
+    _title: 'Queue Monitor'
+  requirements:
+    _permission: 'monitor queues'

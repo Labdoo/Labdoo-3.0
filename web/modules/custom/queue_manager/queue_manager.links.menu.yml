@@ -1,0 +1,6 @@
+queue_manager.monitor:
+  title: 'Queue Monitor'
+  description: 'Monitor Drupal queues.'
+  parent: system.admin_config_system
+  route_name: queue_manager.monitor
+  weight: 10

@@ -1,0 +1,4 @@
+monitor queues:
+  title: 'Monitor queues'
+  description: 'Allows monitoring queues from a visual panel.'
+  restrict access: true
