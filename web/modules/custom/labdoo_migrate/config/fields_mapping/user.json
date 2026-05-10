@@ -9,114 +9,6 @@
       "source": {
         "fields": [
           {
-            "table": "location",
-            "key": "users.uid",
-            "field": "country",
-            "ignore_langcode": "true",
-            "joins": [
-              {
-                "type": "INNER",
-                "table": "location_instance",
-                "condition": "location_instance.lid = location.lid"
-              },
-              {
-                "type": "INNER",
-                "table": "users",
-                "condition": "users.uid = location_instance.uid"
-              }
-            ]
-          }
-        ]
-      },
-      "destination": {
-        "field": "field_country"
-      }
-    },
-    {
-      "source": {
-        "fields": [
-          {
-            "table": "location",
-            "key": "users.uid",
-            "field": "city",
-            "ignore_langcode": "true",
-            "joins": [
-              {
-                "type": "INNER",
-                "table": "location_instance",
-                "condition": "location_instance.lid = location.lid"
-              },
-              {
-                "type": "INNER",
-                "table": "users",
-                "condition": "users.uid = location_instance.uid"
-              }
-            ]
-          }
-        ]
-      },
-      "destination": {
-        "field": "field_city"
-      }
-    },
-    {
-      "source": {
-        "fields": [
-          {
-            "table": "location",
-            "key": "users.uid",
-            "field": "postal_code",
-            "ignore_langcode": "true",
-            "joins": [
-              {
-                "type": "INNER",
-                "table": "location_instance",
-                "condition": "location_instance.lid = location.lid"
-              },
-              {
-                "type": "INNER",
-                "table": "users",
-                "condition": "users.uid = location_instance.uid"
-              }
-            ]
-          }
-        ]
-      },
-      "destination": {
-        "field": "field_postal_code"
-      }
-    },
-    {
-      "source": {
-        "fields": [
-          {
-            "table": "location",
-            "key": "users.uid",
-            "field": "street",
-            "ignore_langcode": "true",
-            "joins": [
-              {
-                "type": "INNER",
-                "table": "location_instance",
-                "condition": "location_instance.lid = location.lid"
-              },
-              {
-                "type": "INNER",
-                "table": "users",
-                "condition": "users.uid = location_instance.uid"
-              }
-            ]
-          }
-        ]
-      },
-      "destination": {
-        "field": "field_address"
-      }
-    },
-    {
-      "source": {
-        "fields": [
-          {
             "table": "users",
             "key": "uid",
             "field": "uid"
@@ -291,6 +183,20 @@
       },
       "destination": {
         "field": "field_user_name"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "field_data_field_user_name",
+            "key": "entity_id",
+            "field": "field_user_name_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_username"
       }
     },
     {
