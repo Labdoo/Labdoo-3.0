@@ -212,10 +212,8 @@ backup: ## 💾 Generate a database backup.
 backup-slim:
 	@echo "📉 Generating slim database backup..."
 	@mkdir -p backups
-	$(eval EXCLUDES_LIST := cache_*,cachetags,key_value_expire,watchdog,history,sessions,search_%,webprofiler,queue,labdoo_scraper_results)
-	@DRUSH_EXCLUDES=$(shell echo "$(EXCLUDES_LIST)" | sed 's/%/*/g'); \
 	vendor/bin/drush sql-dump --gzip \
-		--structure-tables-list="$$DRUSH_EXCLUDES" \
+		--structure-tables-key=slim \
 		--result-file="/mnt/data/labdoo/backups/project_dev_slim_$$(date +%Y%m%d_%H%M).sql" \
 		--extra-dump="--single-transaction=false --no-tablespaces --column-statistics=0"
 

@@ -21,4 +21,15 @@ options:
       - 'sessions'
       - 'watchdog'
       - 'webprofiler'
+    slim:
+      - 'cachetags'
+      - 'cache_*'
+      - 'history'
+      - 'queue'
+      - 'search_*'
+      - 'sessions'
+      - 'watchdog'
+      - 'webprofiler'
+      - 'key_value_expire'
+      - 'labdoo_scraper_results'
 
