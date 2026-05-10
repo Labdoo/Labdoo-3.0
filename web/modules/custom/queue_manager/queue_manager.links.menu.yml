@@ -4,3 +4,11 @@ queue_manager.monitor:
   parent: system.admin_config_system
   route_name: queue_manager.monitor
   weight: 10
+
+queue_manager.monitor.main:
+  title: 'Queue Monitor'
+  description: 'Monitor Drupal queues.'
+  route_name: queue_manager.monitor
+  menu_name: main
+  parent: 'menu_link_content:b2dded05-a50b-4ae8-8ac6-bb2fc717b392'
+  weight: 100

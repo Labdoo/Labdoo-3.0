@@ -57,6 +57,7 @@ permissions:
   - 'edit any labdoo_story content'
   - 'edit own hub content'
   - 'edit own labdoo_story content'
+  - 'monitor queues'
   - 'revert labdoo_story revisions'
   - 'view labdoo_story revisions'
   - 'view the administration theme'
