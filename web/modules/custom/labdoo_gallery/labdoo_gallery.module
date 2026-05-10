@@ -14,34 +14,13 @@ use Drupal\Core\Url;
 /**
  * Creates or updates a gallery entity.
  *
- * This function is a hook that allows altering the metadata
- * before submitting GitHub issues.
- *
  * @param \Drupal\Core\Entity\EntityInterface $entity
  *   The entity to attach the gallery to.
  */
 function labdoo_gallery_create_or_update(EntityInterface $entity): void {
-  /** @var \Drupal\labdoo_gallery\Services\LabdooGalleryRepositoryInterface $galleryRepository
-   */
-  $galleryRepository = \Drupal::service('labdoo_gallery.repository');
-  $gallery = $galleryRepository->loadByParentId((int) $entity->id());
-  $label = $entity->label();
-  $suffix = ' - Photo Album';
-  $title = $label . $suffix;
-  if (mb_strlen($title) > 255) {
-    $label = mb_substr($label, 0, 255 - mb_strlen($suffix) - 3) . '...';
-    $title = $label . $suffix;
-  }
-
-  $data = [
-    'title' => $title,
-  ];
-  if (empty($gallery)) {
-    $galleryRepository->create($data);
-  }
-  else {
-    $galleryRepository->update($gallery->id(), $data);
-  }
+  /** @var \Drupal\labdoo_gallery\Service\Compute\GalleryComputeInterface $galleryCompute */
+  $galleryCompute = \Drupal::service('labdoo_gallery.compute');
+  $galleryCompute->enqueueGalleryCreateOrUpdate($entity);
 }
 
 /**

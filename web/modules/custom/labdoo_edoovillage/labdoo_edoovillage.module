@@ -90,7 +90,10 @@ function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
     $edoovillageCompute = \Drupal::service('labdoo_edoovillage.compute');
     $edoovillageCompute->enqueueRecompute($entity);
 
-    labdoo_gallery_create_or_update($entity);
+    /** @var \Drupal\labdoo_gallery\Service\Compute\GalleryComputeInterface $galleryCompute */
+    $galleryCompute = \Drupal::service('labdoo_gallery.compute');
+    $galleryCompute->enqueueGalleryCreateOrUpdate($entity);
+
     __labdoo_edoovillage_enqueue_geocoding($entity);
   }
 }
@@ -104,7 +107,10 @@ function labdoo_edoovillage_entity_update(EntityInterface $entity) {
     $edoovillageCompute = \Drupal::service('labdoo_edoovillage.compute');
     $edoovillageCompute->enqueueRecompute($entity);
 
-    labdoo_gallery_create_or_update($entity);
+    /** @var \Drupal\labdoo_gallery\Service\Compute\GalleryComputeInterface $galleryCompute */
+    $galleryCompute = \Drupal::service('labdoo_gallery.compute');
+    $galleryCompute->enqueueGalleryCreateOrUpdate($entity);
+
     __labdoo_edoovillage_enqueue_geocoding($entity);
   }
 }
