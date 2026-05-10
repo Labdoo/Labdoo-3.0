@@ -115,8 +115,8 @@ class FixUidCommands extends DrushCommands {
             ->condition('nid', $node->nid)
             ->execute();
           
-          $this->database->update('node')
-            ->fields(['uid' => $originalUid])
+          $this->database->update('node_revision')
+            ->fields(['revision_uid' => $originalUid])
             ->condition('nid', $node->nid)
             ->execute();
 
