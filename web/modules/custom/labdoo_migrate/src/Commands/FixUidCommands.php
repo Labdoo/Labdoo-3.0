@@ -56,12 +56,13 @@ class FixUidCommands extends DrushCommands {
    * @command labdoo:fix-node-uids
    * @aliases lfnuid
    * @option limit Maximum number of nodes to process.
+   * @option batch-size Number of nodes to process per batch.
    * @option type Filter by node type.
    * @option default-uid UID to assign if the original user is not found in Drupal 10.
    * @option dry-run Only show what would be done, without making changes.
    * @usage drush labdoo:fix-node-uids --type=laptop --limit=100
    */
-  public function fixNodeUids(array $options = ['limit' => -1, 'type' => NULL, 'default-uid' => NULL, 'dry-run' => FALSE]) {
+  public function fixNodeUids(array $options = ['limit' => -1, 'batch-size' => 1000, 'type' => NULL, 'default-uid' => NULL, 'dry-run' => FALSE]) {
     $query = $this->database->select('node_field_data', 'n')
       ->fields('n', ['nid', 'type'])
       ->condition('n.uid', 0);
@@ -81,7 +82,8 @@ class FixUidCommands extends DrushCommands {
       return;
     }
 
-    $this->io()->title(sprintf('Found %d nodes with uid=0', count($nodes)));
+    $total = count($nodes);
+    $this->io()->title(sprintf('Found %d nodes with uid=0', $total));
 
     try {
       $extConn = $this->externalConnectionManager->setConnection();
@@ -97,8 +99,6 @@ class FixUidCommands extends DrushCommands {
     $nodeNotFoundInD7 = 0;
     $defaultAssigned = 0;
 
-    $progressBar = $this->io()->createProgressBar(count($nodes));
-
     $defaultUid = $options['default-uid'];
     if ($defaultUid) {
       $userExists = $this->database->select('users', 'u')
@@ -112,62 +112,81 @@ class FixUidCommands extends DrushCommands {
       }
     }
 
-    foreach ($nodes as $node) {
-      // Get original uid from Drupal 7.
-      $originalUid = $extConn->select('node', 'n')
-        ->fields('n', ['uid'])
-        ->condition('nid', $node->nid)
+    $batchSize = (int) $options['batch-size'];
+    $chunks = array_chunk($nodes, $batchSize);
+    $progressBar = $this->io()->createProgressBar($total);
+
+    foreach ($chunks as $chunk) {
+      $nids = array_map(fn($n) => $n->nid, $chunk);
+
+      // Get original uids from Drupal 7 for this batch.
+      $originalUids = $extConn->select('node', 'n')
+        ->fields('n', ['nid', 'uid'])
+        ->condition('nid', $nids, 'IN')
         ->execute()
-        ->fetchField();
+        ->fetchAllKeyed();
 
-      if ($originalUid === FALSE) {
-        $nodeNotFoundInD7++;
-      }
-      elseif ($originalUid == 0) {
-        $alreadyAnonymous++;
-      }
-      else {
-        // Check if the user exists in Drupal 10.
-        $userExists = $this->database->select('users', 'u')
-          ->fields('u', ['uid'])
-          ->condition('uid', $originalUid)
-          ->execute()
-          ->fetchField();
+      $updates = [];
 
-        if ($userExists) {
-          if (!$options['dry-run']) {
-            // Update the node.
-            $this->database->update('node_field_data')
-              ->fields(['uid' => $originalUid])
-              ->condition('nid', $node->nid)
-              ->execute();
-
-            $this->database->update('node_revision')
-              ->fields(['revision_uid' => $originalUid])
-              ->condition('nid', $node->nid)
-              ->execute();
-          }
-          $fixed++;
+      foreach ($chunk as $node) {
+        $nid = $node->nid;
+        if (!isset($originalUids[$nid])) {
+          $nodeNotFoundInD7++;
+          $progressBar->advance();
+          continue;
         }
-        elseif ($defaultUid) {
-          if (!$options['dry-run']) {
-            $this->database->update('node_field_data')
-              ->fields(['uid' => $defaultUid])
-              ->condition('nid', $node->nid)
-              ->execute();
 
-            $this->database->update('node_revision')
-              ->fields(['revision_uid' => $defaultUid])
-              ->condition('nid', $node->nid)
-              ->execute();
-          }
-          $defaultAssigned++;
+        $originalUid = $originalUids[$nid];
+
+        if ($originalUid == 0) {
+          $alreadyAnonymous++;
         }
         else {
-          $userNotFound++;
+          // Check if the user exists in Drupal 10.
+          $userExists = $this->database->select('users', 'u')
+            ->fields('u', ['uid'])
+            ->condition('uid', $originalUid)
+            ->execute()
+            ->fetchField();
+
+          if ($userExists) {
+            $updates[$originalUid][] = $nid;
+            $fixed++;
+          }
+          elseif ($defaultUid) {
+            $updates[$defaultUid][] = $nid;
+            $defaultAssigned++;
+          }
+          else {
+            $userNotFound++;
+          }
+        }
+        $progressBar->advance();
+      }
+
+      // Apply updates for this batch.
+      if (!$options['dry-run'] && !empty($updates)) {
+        $transaction = $this->database->startTransaction();
+        try {
+          foreach ($updates as $uid => $updateNids) {
+            $this->database->update('node_field_data')
+              ->fields(['uid' => $uid])
+              ->condition('nid', $updateNids, 'IN')
+              ->execute();
+
+            $this->database->update('node_revision')
+              ->fields(['revision_uid' => $uid])
+              ->condition('nid', $updateNids, 'IN')
+              ->execute();
+          }
+        }
+        catch (\Exception $e) {
+          $transaction->rollBack();
+          $this->io()->error('Error updating nodes: ' . $e->getMessage());
+          // Optional: break or continue? Let's break to be safe.
+          break;
         }
       }
-      $progressBar->advance();
     }
 
     $progressBar->finish();
