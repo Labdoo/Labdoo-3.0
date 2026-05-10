@@ -214,7 +214,7 @@ backup-slim:
 	@mkdir -p backups
 	vendor/bin/drush sql-dump --gzip \
 		--structure-tables-key=slim \
-		--result-file="/mnt/data/labdoo/backups/project_dev_slim_$$(date +%Y%m%d_%H%M).sql" \
+		--result-file="backups/project_dev_slim_$$(date +%Y%m%d_%H%M).sql.gz" \
 		--extra-dump="--single-transaction=false --no-tablespaces --column-statistics=0"
 
 .PHONY: backup-files
