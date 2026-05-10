@@ -212,7 +212,7 @@ backup: ## 💾 Generate a database backup.
 backup-slim: ## 📉 Generate a slim database backup (no cache/watchdog data).
 	@echo "$(CYAN)📉 Generating slim database backup...$(RESET)"
 	mkdir -p backups
-	@EXCLUDES_LIST="cache_*,watchdog,history,sessions,search_%,webprofiler,queue"; \
+	@EXCLUDES_LIST="cache_*,cachetags,key_value_expire,watchdog,history,sessions,search_%,webprofiler,queue,labdoo_scraper_results"; \
 	DRUSH_EXCLUDES=$$(echo $$EXCLUDES_LIST | sed 's/%/*/g'); \
 	if $(DRUSH_COMMAND) sql-dump --gzip --structure-tables-list="$$DRUSH_EXCLUDES" --result-file="$(shell pwd)/backups/$(PROJECT_NAME)_$(ENVIRONMENT)_slim_$$(date +%Y%m%d_%H%M).sql" --extra-dump="--single-transaction=false --no-tablespaces" 2>/dev/null; then \
 		echo "$(GREEN)✅ Slim backup generated with Drush.$(RESET)"; \
