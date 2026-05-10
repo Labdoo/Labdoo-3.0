@@ -2,11 +2,9 @@ uuid: a9ae735a-0ff1-4932-8f38-1ef9549387ed
 langcode: en
 status: true
 dependencies:
-  config:
-    - views.view.edoovillages
   module:
+    - labdoo_map
     - system
-    - views
   theme:
     - labdoo
 id: labdoo_views_block__edoovillages_block_1
@@ -14,14 +12,13 @@ theme: labdoo
 region: content
 weight: -14
 provider: null
-plugin: 'views_block:edoovillages-block_1'
+plugin: labdoo_map_block
 settings:
-  id: 'views_block:edoovillages-block_1'
-  label: ''
+  id: labdoo_map_block
+  label: 'Edoovillages Map'
   label_display: '0'
-  provider: views
-  views_label: ''
-  items_per_page: none
+  provider: labdoo_map
+  map_type: edoovillage
 visibility:
   request_path:
     id: request_path

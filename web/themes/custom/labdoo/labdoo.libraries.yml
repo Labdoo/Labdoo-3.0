@@ -10,3 +10,19 @@ labdoo_ui:
     - core/jquery
     - core/drupal
     - core/once
+
+labdoo_map:
+  js:
+    https://unpkg.com/leaflet@1.0.3/dist/leaflet.js: { type: external, minified: true }
+    https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js: { type: external, minified: true }
+    js/labdoo-map.js: {}
+  css:
+    theme:
+      https://unpkg.com/leaflet@1.0.3/dist/leaflet.css: { type: external }
+      https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css: { type: external }
+      https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css: { type: external }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings

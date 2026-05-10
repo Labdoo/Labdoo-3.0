@@ -22,4 +22,8 @@ settings:
   hide_empty_block: true
   facets_to_include: {  }
   add_js_classes: true
-visibility: {  }
+visibility:
+  request_path:
+    id: request_path
+    negate: true
+    pages: /statistics/advanced

@@ -1,0 +1,6 @@
+labdoo_map.map_points:
+  path: '/api/map-points/{type}'
+  defaults:
+    _controller: '\Drupal\labdoo_map\Controller\MapDataController::getMapPoints'
+  requirements:
+    _permission: 'access content'
