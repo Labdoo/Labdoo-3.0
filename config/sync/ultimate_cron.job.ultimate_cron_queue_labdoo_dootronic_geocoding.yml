@@ -1,0 +1,20 @@
+uuid: 080e931d-d590-4abe-8ffb-cba83e28695d
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_dootronics
+title: 'Queue: Dootronic Geocoding'
+id: ultimate_cron_queue_labdoo_dootronic_geocoding
+weight: 10
+module: labdoo_dootronics
+callback: 'ultimate_cron.queue_worker:queueCallback'
+scheduler:
+  id: simple
+  configuration:
+    rules:
+      - '* * * * *'
+launcher:
+  id: serial
+logger:
+  id: database
