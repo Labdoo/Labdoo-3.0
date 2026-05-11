@@ -1,0 +1,46 @@
+.block
+  position: relative
+  .toggle-visibility
+    position: absolute
+    top: 5px
+    right: 5px
+    z-index: 999
+    background: rgba(255, 255, 255, 0.7)
+    border: 1px solid #ccc
+    border-radius: 3px
+    padding: 2px 8px
+    cursor: pointer
+    font-size: 16px
+    line-height: 1
+    &:hover
+      background: #eee
+
+  &.is-hidden
+    display: none !important
+
+  &.is-expanded
+    flex: 1 1 100% !important
+    max-width: 100% !important
+    width: 100% !important
+
+.views-element-container, section, div
+  &.is-expanded
+    flex: 1 1 100% !important
+    max-width: 100% !important
+    width: 100% !important
+
+.restore-controls
+  width: 100%
+  display: flex
+  gap: 10px
+  margin-bottom: 10px
+  .restore-visibility
+    background: #0073b0
+    color: white
+    border: none
+    padding: 5px 15px
+    border-radius: 4px
+    cursor: pointer
+    font-size: 14px
+    &:hover
+      background: #005987

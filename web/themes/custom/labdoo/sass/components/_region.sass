@@ -65,11 +65,18 @@
     display: flex
     flex-wrap: wrap
     gap: 20px
+    align-items: flex-start
     > div, > section, > .block, > .views-element-container
-      flex: 1 1 45%
+      flex: 1 1 calc(50% - 11px)
+      max-width: calc(50% - 11px)
       min-width: 300px
+      &.is-expanded
+        flex: 1 1 100% !important
+        max-width: 100% !important
+        width: 100% !important
       @media only screen and (max-width: 1024px)
         flex: 1 1 100%
+        max-width: 100%
     .block-system-main-block,
     .view-edoovillages,
     .view-dootronics-dashboard,
@@ -80,7 +87,9 @@
     .block-labdoo-exposedformdootronics-dashboardpage-1,
     .block-labdoo-exposedformdootrips-dashboardpage-1,
     .block-labdoo-exposedformhubs-dashboardpage-1
-      flex: 1 1 100%
+      &:not(.is-expanded)
+        flex: 1 1 100% !important
+        max-width: 100% !important
       .view-header
         p
           margin: 0

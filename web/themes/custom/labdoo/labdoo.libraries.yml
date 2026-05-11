@@ -6,6 +6,7 @@ custom-styling:
 labdoo_ui:
   js:
     js/labdoo-ui.js: {}
+    js/chart-map-toggle.js: {}
   dependencies:
     - core/jquery
     - core/drupal
