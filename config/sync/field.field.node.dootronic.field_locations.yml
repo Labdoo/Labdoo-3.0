@@ -1,0 +1,21 @@
+uuid: ca6acb25-5a4d-4a00-afdb-246b1222c94f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_locations
+    - node.type.dootronic
+  module:
+    - geofield
+id: node.dootronic.field_locations
+field_name: field_locations
+entity_type: node
+bundle: dootronic
+label: Location
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: geofield
