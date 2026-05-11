@@ -34,3 +34,83 @@ function mini_wiki_update_8001() {
       $fields[$field_id]
     );
 }
+
+/**
+ * Fix double-encoded UTF-8 strings in mini_wiki_page tables.
+ */
+function mini_wiki_update_10001() {
+  $connection = \Drupal::database();
+  $tables = [
+    'mini_wiki_page_field_data' => ['label', 'body__value'],
+    'mini_wiki_page_field_revision' => ['label', 'body__value'],
+  ];
+
+  $count = 0;
+  foreach ($tables as $table => $fields) {
+    if (!$connection->schema()->tableExists($table)) {
+      continue;
+    }
+
+    $results = $connection->select($table, 't')
+      ->fields('t')
+      ->execute();
+
+    foreach ($results as $row) {
+      $updates = [];
+      $needs_update = FALSE;
+
+      foreach ($fields as $field) {
+        if (empty($row->$field)) {
+          continue;
+        }
+
+        $original = $row->$field;
+        // Detect common double-encoding patterns (Cyrillic, Arabic, Accents).
+        if (preg_match('/[\xD0\xD1\xC3\xC2]/', $original)) {
+          $fixed = _mini_wiki_fix_double_encoding($original);
+          if ($fixed !== $original && $fixed !== FALSE) {
+            $updates[$field] = $fixed;
+            $needs_update = TRUE;
+          }
+        }
+      }
+
+      if ($needs_update) {
+        $update_query = $connection->update($table)
+          ->fields($updates);
+
+        if (isset($row->revision_id) && isset($row->langcode)) {
+          $update_query->condition('revision_id', $row->revision_id)
+            ->condition('langcode', $row->langcode);
+        }
+        elseif (isset($row->id) && isset($row->langcode)) {
+          $update_query->condition('id', $row->id)
+            ->condition('langcode', $row->langcode);
+        }
+        else {
+          continue;
+        }
+
+        $update_query->execute();
+        $count++;
+      }
+    }
+  }
+
+  return t('Fixed double encoding in @count rows across mini_wiki tables.', ['@count' => $count]);
+}
+
+/**
+ * Helper function to fix double UTF-8 encoding.
+ */
+function _mini_wiki_fix_double_encoding($string) {
+  // Treat the string as UTF-8 and convert it back to Windows-1252 bytes.
+  $bytes = @mb_convert_encoding($string, 'Windows-1252', 'UTF-8');
+
+  // If the result is valid UTF-8, it means it was double-encoded.
+  if ($bytes !== FALSE && mb_check_encoding($bytes, 'UTF-8')) {
+    return $bytes;
+  }
+
+  return $string;
+}
