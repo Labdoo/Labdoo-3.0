@@ -7,31 +7,92 @@
                 'needed' : {
                     'title' : 'Needed',
                     'data' : [needed],
-                    'color': '#a5682a'
-                },
-                'delivered' : {
-                    'title' : 'Delivered',
-                    'data' : [delivered],
-                    'color' : '#dc3d1f'
-                },
-                'in_transit' : {
-                    'title' : 'In transit',
-                    'data' : [in_transit],
-                    'color' : '#49971c'
+                    'color': 'rgba(165, 104, 42, 0.7)'
                 },
                 'remaining' : {
                     'title' : 'Remaining',
                     'data' : [remaining],
-                    'color' : '#115e7a'
+                    'color' : 'rgba(17, 94, 122, 0.7)'
+                },
+                'in_transit' : {
+                    'title' : 'In transit',
+                    'data' : [in_transit],
+                    'color' : 'rgba(73, 151, 28, 0.7)'
+                },
+                'delivered' : {
+                    'title' : 'Delivered',
+                    'data' : [delivered],
+                    'color' : 'rgba(220, 61, 31, 0.7)'
                 },
             } %}
 
             {% set xaxis = {
-                'title' : 'Dootronics',
-                'labels' : ['Dootronics by current status']
+                'title' : '',
+                'labels' : ['']
             } %}
 
-            {{ chart('hubs_chart', 'column', title, series, xaxis, [], []) }}
+            {% set options = {
+                'plugins': {
+                    'legend': {
+                        'display': true,
+                        'position': 'bottom',
+                        'labels': {
+                            'usePointStyle': true,
+                            'pointStyle': 'rectRounded',
+                            'padding': 20
+                        }
+                    },
+                    'title': {
+                        'display': true,
+                        'text': 'Dootronics by current status',
+                        'position': 'bottom',
+                        'font': {
+                            'size': 14,
+                            'weight': 'normal'
+                        },
+                        'padding': {
+                            'top': 10,
+                            'bottom': 10
+                        }
+                    }
+                },
+                'scales': {
+                    'y': {
+                        'beginAtZero': true,
+                        'grid': {
+                            'display': true,
+                            'drawBorder': false,
+                            'color': 'rgba(0, 0, 0, 0.05)'
+                        },
+                        'ticks': {
+                            'stepSize': 10000
+                        }
+                    },
+                    'x': {
+                        'grid': {
+                            'display': false,
+                            'drawBorder': false
+                        }
+                    }
+                },
+                'barPercentage': 0.7,
+                'categoryPercentage': 0.8
+            } %}
+
+            {% set series_custom = {} %}
+            {% for key, s in series %}
+                {% set series_custom = series_custom|merge({
+                    (key): s|merge({
+                        'raw_options': {
+                            'borderColor': s.color|replace({'0.7': '1'}),
+                            'borderRadius': 8,
+                            'borderWidth': 2
+                        }
+                    })
+                }) %}
+            {% endfor %}
+
+            {{ chart('hubs_chart', 'column', title, series_custom, xaxis, [], options) }}
         </div>
     </div>
 </div>

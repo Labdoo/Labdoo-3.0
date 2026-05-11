@@ -9,17 +9,67 @@
                     (key): {
                         'title' : key ~ ' - ' ~ value.name,
                         'data' : [value.count],
-                        'color': value.color,
+                        'color': value.color ~ 'B3',
+                        'raw_options': {
+                            'borderColor': value.color,
+                            'borderRadius': 8,
+                            'borderWidth': 2
+                        }
                     }
                 }) %}
             {% endfor %}
 
             {% set xaxis = {
-                'title' : 'Dootronics',
-                'labels' : ['Dootronics by current status']
+                'title' : '',
+                'labels' : ['']
             } %}
 
-            {{ chart('dootronics_chart', 'column', title, series, xaxis, [], []) }}
+            {% set options = {
+                'plugins': {
+                    'legend': {
+                        'display': true,
+                        'position': 'bottom',
+                        'labels': {
+                            'usePointStyle': true,
+                            'pointStyle': 'rectRounded',
+                            'padding': 20
+                        }
+                    },
+                    'title': {
+                        'display': true,
+                        'text': 'Dootronics by current status',
+                        'position': 'bottom',
+                        'font': {
+                            'size': 14,
+                            'weight': 'normal'
+                        },
+                        'padding': {
+                            'top': 10,
+                            'bottom': 10
+                        }
+                    }
+                },
+                'scales': {
+                    'y': {
+                        'beginAtZero': true,
+                        'grid': {
+                            'display': true,
+                            'drawBorder': false,
+                            'color': 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    'x': {
+                        'grid': {
+                            'display': false,
+                            'drawBorder': false
+                        }
+                    }
+                },
+                'barPercentage': 0.7,
+                'categoryPercentage': 0.8
+            } %}
+
+            {{ chart('dootronics_chart', 'column', title, series, xaxis, [], options) }}
         </div>
     </div>
 </div>
