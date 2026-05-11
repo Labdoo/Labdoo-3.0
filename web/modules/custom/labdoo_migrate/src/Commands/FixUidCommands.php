@@ -63,9 +63,30 @@ class FixUidCommands extends DrushCommands {
    * @usage drush labdoo:fix-node-uids --type=laptop --limit=100
    */
   public function fixNodeUids(array $options = ['limit' => -1, 'batch-size' => 1000, 'type' => NULL, 'default-uid' => NULL, 'dry-run' => FALSE]) {
+    // Start with nodes that have uid=0 in node_field_data.
     $query = $this->database->select('node_field_data', 'n')
       ->fields('n', ['nid', 'type'])
       ->condition('n.uid', 0);
+
+    // If no explicit limit, we also include nodes that have uid=0 in revisions
+    // but were already "fixed" in node_field_data.
+    if ($options['limit'] == -1) {
+      $revisionQuery = $this->database->select('node_field_revision', 'nfr');
+      $revisionQuery->join('node_field_data', 'nfd', 'nfr.nid = nfd.nid');
+      $revisionQuery->fields('nfr', ['nid'])
+        ->condition('nfr.uid', 0)
+        ->condition('nfd.uid', 0, '<>');
+      
+      $revNids = $revisionQuery->execute()->fetchCol();
+      if (!empty($revNids)) {
+        $query = $this->database->select('node_field_data', 'n')
+          ->fields('n', ['nid', 'type'])
+          ->condition($this->database->condition('OR')
+            ->condition('n.uid', 0)
+            ->condition('n.nid', $revNids, 'IN')
+          );
+      }
+    }
 
     if ($options['type']) {
       $query->condition('n.type', $options['type']);
@@ -116,6 +137,13 @@ class FixUidCommands extends DrushCommands {
     $chunks = array_chunk($nodes, $batchSize);
     $progressBar = $this->io()->createProgressBar($total);
 
+    // Cache existing users in Drupal 10 to avoid repeated queries.
+    $existingUsers = $this->database->select('users', 'u')
+      ->fields('u', ['uid'])
+      ->execute()
+      ->fetchCol();
+    $existingUsersMap = array_combine($existingUsers, $existingUsers);
+
     foreach ($chunks as $chunk) {
       $nids = array_map(fn($n) => $n->nid, $chunk);
 
@@ -123,6 +151,7 @@ class FixUidCommands extends DrushCommands {
       $originalUids = $extConn->select('node', 'n')
         ->fields('n', ['nid', 'uid'])
         ->condition('nid', $nids, 'IN')
+        ->condition('uid', 0, '<>')
         ->execute()
         ->fetchAllKeyed();
 
@@ -131,6 +160,10 @@ class FixUidCommands extends DrushCommands {
       foreach ($chunk as $node) {
         $nid = $node->nid;
         if (!isset($originalUids[$nid])) {
+          // If not in the result, it's either not in D7 or it's uid=0 in D7.
+          // Since we already filtered uid=0 in the query, we can't distinguish
+          // without a second query, so we'll group them for simplicity
+          // as requested by the user's logic suggestion.
           $nodeNotFoundInD7++;
           $progressBar->advance();
           continue;
@@ -138,28 +171,17 @@ class FixUidCommands extends DrushCommands {
 
         $originalUid = $originalUids[$nid];
 
-        if ($originalUid == 0) {
-          $alreadyAnonymous++;
+        // Check if the user exists in Drupal 10 using the cache.
+        if (isset($existingUsersMap[$originalUid])) {
+          $updates[$originalUid][] = $nid;
+          $fixed++;
+        }
+        elseif ($defaultUid) {
+          $updates[$defaultUid][] = $nid;
+          $defaultAssigned++;
         }
         else {
-          // Check if the user exists in Drupal 10.
-          $userExists = $this->database->select('users', 'u')
-            ->fields('u', ['uid'])
-            ->condition('uid', $originalUid)
-            ->execute()
-            ->fetchField();
-
-          if ($userExists) {
-            $updates[$originalUid][] = $nid;
-            $fixed++;
-          }
-          elseif ($defaultUid) {
-            $updates[$defaultUid][] = $nid;
-            $defaultAssigned++;
-          }
-          else {
-            $userNotFound++;
-          }
+          $userNotFound++;
         }
         $progressBar->advance();
       }
@@ -176,6 +198,11 @@ class FixUidCommands extends DrushCommands {
 
             $this->database->update('node_revision')
               ->fields(['revision_uid' => $uid])
+              ->condition('nid', $updateNids, 'IN')
+              ->execute();
+
+            $this->database->update('node_field_revision')
+              ->fields(['uid' => $uid])
               ->condition('nid', $updateNids, 'IN')
               ->execute();
           }
@@ -201,9 +228,8 @@ class FixUidCommands extends DrushCommands {
       [
         ['Fixed (Original user found)', $fixed],
         ['Assigned to default UID', $defaultAssigned],
-        ['Already anonymous in D7', $alreadyAnonymous],
+        ['Not found or already anonymous in D7', $nodeNotFoundInD7],
         ['User not found in D10 (and no default)', $userNotFound],
-        ['Node not found in D7', $nodeNotFoundInD7],
       ]
     );
 

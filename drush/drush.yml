@@ -5,31 +5,31 @@
 #
 # Edit or remove this file as needed.
 # This section is for setting global options.
-options:
-  # Specify the base_url that should be used when generating links.
-  # Not recommended if you have more than one Drupal site on your system.
-  uri: 'https://platform.labdoo.org'
+drush:
+  options:
+    # Specify the base_url that should be used when generating links.
+    # Not recommended if you have more than one Drupal site on your system.
+    uri: 'https://platform.labdoo.org'
 
-  # Tables that should be dumped with structure only (no data).
-  structure-tables:
-    common:
-      - 'cachetags'
-      - 'cache_*'
-      - 'history'
-      - 'queue'
-      - 'search_*'
-      - 'sessions'
-      - 'watchdog'
-      - 'webprofiler'
-    slim:
-      - 'cachetags'
-      - 'cache_*'
-      - 'history'
-      - 'queue'
-      - 'search_*'
-      - 'sessions'
-      - 'watchdog'
-      - 'webprofiler'
-      - 'key_value_expire'
-      - 'labdoo_scraper_results'
+    structure-tables:
+      common:
+        - 'cachetags'
+        - 'cache_*'
+        - 'history'
+        - 'queue'
+        - 'search_*'
+        - 'sessions'
+        - 'watchdog'
+        - 'webprofiler'
+      slim:
+        - 'cachetags'
+        - 'cache_*'
+        - 'history'
+        - 'queue'
+        - 'search_*'
+        - 'sessions'
+        - 'watchdog'
+        - 'webprofiler'
+        - 'key_value_expire'
+        - 'labdoo_scraper_results'
 
