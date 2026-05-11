@@ -27,7 +27,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
 
     $city = '';
     $country = '';
-    $location = $entity->get('field_location')->getValue()[0] ?? [];
+    $location = $entity->get('field_locations')->getValue()[0] ?? [];
     $this->setGeoData($location, $city, $country);
 
     // New Dootronic.
@@ -79,7 +79,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         return;
       }
 
-      $location = $edooVillage->get('field_location')->getValue()[0] ?? [];
+      $location = $edooVillage->get('field_locations')->getValue()[0] ?? [];
       $this->setGeoData($location, $city, $country);
     }
 
@@ -135,7 +135,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
    *   TRUE if the preconditions match, otherwise FALSE.
    */
   protected function preConditions(EntityInterface $entity): bool {
-    return !empty($entity->get('field_location')->getValue());
+    return !empty($entity->get('field_locations')->getValue());
   }
 
   /**

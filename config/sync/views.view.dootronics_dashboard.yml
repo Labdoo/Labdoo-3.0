@@ -6,7 +6,7 @@ dependencies:
     - field.storage.node.field_dootronic_status
     - field.storage.node.field_edoovillage_destination
     - field.storage.node.field_hub
-    - field.storage.node.field_location
+    - field.storage.node.field_locations
     - field.storage.node.field_pick_me_up
     - field.storage.node.field_serial_number
     - node.type.dootronic
@@ -1136,10 +1136,10 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
-        field_location_value:
-          id: field_location_value
-          table: node__field_location
-          field: field_location_value
+        field_locations_value:
+          id: field_locations_value
+          table: node__field_locations
+          field: field_locations_value
           relationship: none
           group_type: group
           admin_label: ''
@@ -1517,10 +1517,10 @@ display:
           empty_zero: false
           hide_alter_empty: true
           display_name: true
-        field_location:
-          id: field_location
-          table: node__field_location
-          field: field_location
+        field_locations:
+          id: field_locations
+          table: node__field_locations
+          field: field_locations
           relationship: none
           group_type: group
           admin_label: ''
@@ -1585,7 +1585,7 @@ display:
         type: maps_common
         options:
           data_provider_id: geofield
-          geolocation_field: field_location
+          geolocation_field: field_locations
           title_field: title
           label_field: none
           marker_row_number: 0
@@ -2221,7 +2221,7 @@ display:
         - user.permissions
       tags:
         - 'config:field.storage.node.field_dootronic_status'
-        - 'config:field.storage.node.field_location'
+        - 'config:field.storage.node.field_locations'
   page_1:
     id: page_1
     display_title: Page

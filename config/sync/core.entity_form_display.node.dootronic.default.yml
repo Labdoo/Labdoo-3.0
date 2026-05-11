@@ -22,7 +22,7 @@ dependencies:
     - field.field.node.dootronic.field_hub
     - field.field.node.dootronic.field_keyboard
     - field.field.node.dootronic.field_keyboard_type
-    - field.field.node.dootronic.field_location
+    - field.field.node.dootronic.field_locations
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
     - field.field.node.dootronic.field_model
@@ -54,7 +54,7 @@ third_party_settings:
         - field_device_type
         - field_manager
         - field_picture
-        - field_location
+        - field_locations
       label: 'Basic information'
       region: content
       parent_name: group_dootronics
@@ -273,7 +273,7 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  field_location:
+  field_locations:
     type: geofield_map
     weight: 11
     region: content

@@ -583,7 +583,7 @@
         ]
       },
       "destination": {
-        "field": "field_location",
+        "field": "field_locations",
         "special_type": {
           "type": "geolocation"
         }

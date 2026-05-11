@@ -23,7 +23,7 @@ dependencies:
     - field.field.node.dootronic.field_hub
     - field.field.node.dootronic.field_keyboard
     - field.field.node.dootronic.field_keyboard_type
-    - field.field.node.dootronic.field_location
+    - field.field.node.dootronic.field_locations
     - field.field.node.dootronic.field_manager
     - field.field.node.dootronic.field_memory
     - field.field.node.dootronic.field_model
@@ -68,7 +68,7 @@ hidden:
   field_hub: true
   field_keyboard: true
   field_keyboard_type: true
-  field_location: true
+  field_locations: true
   field_manager: true
   field_memory: true
   field_model: true
