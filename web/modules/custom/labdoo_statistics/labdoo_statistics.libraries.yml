@@ -1,0 +1,11 @@
+advanced_statistics:
+  version: 1.x
+  js:
+    https://cdn.jsdelivr.net/npm/chart.js: { type: external, minified: true }
+    js/advanced_statistics.js: {}
+  css:
+    theme:
+      css/advanced_statistics.css: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
