@@ -8,9 +8,11 @@
   top: 140px
 
 .region-sidebar
-  margin-right: 40px
+  flex: 0 0 360px
+  margin-right: 24px
   @media only screen and (max-width: 1024px)
     margin-right: 0 !important
+    flex: none
 
 .region-post-content, .region-highlighted
   display: flex
@@ -52,11 +54,47 @@
       padding-top: 0
 
 .page-content
+  flex: 1
   width: 100%
   > .region-highlighted,
   > .region-content,
   > .help
     margin-block-start: 0 !important
+
+  .region-content
+    display: flex
+    flex-wrap: wrap
+    gap: 20px
+    align-items: flex-start
+    > div, > section, > .block, > .views-element-container
+      flex: 1 1 calc(50% - 11px)
+      max-width: calc(50% - 11px)
+      min-width: 300px
+      &.is-expanded
+        flex: 1 1 100% !important
+        max-width: 100% !important
+        width: 100% !important
+      @media only screen and (max-width: 1024px)
+        flex: 1 1 100%
+        max-width: 100%
+    .block-system-main-block,
+    .view-edoovillages,
+    .view-dootronics-dashboard,
+    .view-dootrips-dashboard,
+    .view-hubs-dashboard,
+    .view-wiki,
+    .block-labdoo-exposedformedoovillagesblock-1,
+    .block-labdoo-exposedformdootronics-dashboardpage-1,
+    .block-labdoo-exposedformdootrips-dashboardpage-1,
+    .block-labdoo-exposedformhubs-dashboardpage-1
+      &:not(.is-expanded)
+        flex: 1 1 100% !important
+        max-width: 100% !important
+      .view-header
+        p
+          margin: 0
+          a.button
+            margin: 0
 
 .page-content
   > .region-content

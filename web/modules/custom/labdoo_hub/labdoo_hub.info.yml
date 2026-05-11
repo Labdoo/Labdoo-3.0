@@ -7,3 +7,4 @@ dependencies:
   - drupal:geolocation
   - drupal:labdoo_common
   - drupal:labdoo_gallery
+  - drupal:labdoo_map

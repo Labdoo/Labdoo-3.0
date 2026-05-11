@@ -66,3 +66,4 @@ labdoo_dootronics.update_dootronics:
     _permission: 'bulk upload dootronic'
   options:
     _admin_route: TRUE
+

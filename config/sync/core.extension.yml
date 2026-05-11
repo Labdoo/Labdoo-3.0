@@ -85,6 +85,7 @@ module:
   labdoo_global_action: 0
   labdoo_hub: 0
   labdoo_legal: 0
+  labdoo_map: 0
   labdoo_migrate: 0
   labdoo_notifications: 0
   labdoo_privileges: 0
