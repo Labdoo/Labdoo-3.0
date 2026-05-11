@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 19:01+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: TR\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "Gelişmiş Bilgiler ve Analitik"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "Labdoo'nun küresel etkisi ve operasyonel verimliliği hakkında daha derin metrikleri keşfedin."
+
+msgid "Platform Activity"
+msgstr "Platform Aktivitesi"
+
+msgid "Labdoo has been active for"
+msgstr "Labdoo şu kadar süredir aktif:"
+
+msgid "years"
+msgstr "yıl"
+
+msgid "months"
+msgstr "ay"
+
+msgid "and"
+msgstr "ve"
+
+msgid "days"
+msgstr "gün"
+
+msgid "Total of"
+msgstr "Toplam"
+
+msgid "days of global impact"
+msgstr "günlük küresel etki"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronics ve Katkılar"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "Bağışlanan dizüstü bilgisayarların yaşam döngüsünü ve bu katkıların arkasındaki harika insanları takip etmek."
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "Dootronics Kayıt Gelişimi (Son 12 Ay)"
+
+msgid "Dootronics Status Distribution"
+msgstr "Dootronics Durum Dağılımı"
+
+msgid "Device Type Distribution"
+msgstr "Cihaz Tipi Dağılımı"
+
+msgid "Processor (CPU) Distribution"
+msgstr "İşlemci (CPU) Dağılımı"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "En İyi 5 Dootronic Katılımcısı"
+
+msgid "Schools & Impact"
+msgstr "Okullar ve Etki"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "Kayıtlı okullar ve güçlendirdiğimiz öğrenciler aracılığıyla küresel erişimimizi görselleştirmek."
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "Okul Kayıt Gelişimi (Son 12 Ay)"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "Ulaşılan Öğrenci Sayısına Göre En İyi 10 Ülke"
+
+msgid "Laptops per School (Top 10)"
+msgstr "Okul Başına Dizüstü Bilgisayar (En İyi 10)"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "Öğrenci Başına Dizüstü Bilgisayar Oranı (En İyi 10 Okul)"
+
+msgid "Hubs Network"
+msgstr "Hub Ağı"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "Misyonumuzun yerel operasyonel birimleri olan Labdoo Hub'larının durum dağılımı."
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "Hub Kayıt Gelişimi (Son 12 Ay)"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "En Aktif 4 Hub"
+
+msgid "(By processed dootronics)"
+msgstr "(İşlenen dootronics sayısına göre)"
+
+msgid "Hubs Distribution by Status"
+msgstr "Duruma Göre Hub Dağılımı"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "Ülkeye Göre Hub'lar (En İyi 10)"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootrips ve Lojistik"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "Dünya çapında yardım ulaştırmak için gönüllülerimiz tarafından katedilen toplam mesafeyi ölçmek."
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "Dootrips Kayıt Gelişimi (Son 12 Ay)"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "Dootrip Kilometreleri (Son 5 Yıl)"
+
+msgid "Total Dootrip Distance"
+msgstr "Toplam Dootrip Mesafesi"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "Dünya çapındaki Labdooers tarafından katedildi"
+
+msgid "Collaboration & Teams"
+msgstr "İşbirliği ve Ekipler"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "Görev yönetimi, ekip aktivitesi ve işbirlikçi katkılar hakkındaki metrikler."
+
+msgid "Tasks Distribution by Team"
+msgstr "Ekibe Göre Görev Dağılımı"
+
+msgid "Most Active Teams"
+msgstr "En Aktif Ekipler"
+
+msgid "Actions by Type"
+msgstr "Türe Göre Eylemler"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "Edoovillage Önceliği (Semafor)"
+
+msgid "Edoovillage Project Status"
+msgstr "Edoovillage Proje Durumu"
+
+msgid "Community & Knowledge Base"
+msgstr "Topluluk ve Bilgi Bankası"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "Yorumlar aracılığıyla topluluk katılımının analizi ve bilgi bankamızın büyümesi."
+
+msgid "Wiki Pages"
+msgstr "Wiki Sayfaları"
+
+msgid "Team Posts"
+msgstr "Ekip Gönderileri"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "Ekip Gönderileri Gelişimi (Son 12 Ay)"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "En İyi 5 Ekip Gönderisi Katılımcısı"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "Topluluk Aktivitesi (Yorumlar - Son 12 Ay)"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "En Aktif 5 Yorumcu"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "Wiki Aktivitesi (Son 12 Ay)"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "En Aktif 5 Wiki Editörü"
+
+msgid "Global Platform Overview"
+msgstr "Küresel Platform Genel Bakış"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "İçerik büyümesinin ve Labdoo platformunun genel bileşiminin üst düzey bir görünümü."
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "Genel İçerik Büyümesi (Son 12 Ay)"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "Şunları içerir: Dootronics, Dootrips, Edoovillages, Hub'lar, Ekip Gönderileri, Eylemler ve Sayfalar."
+
+msgid "Platform Composition"
+msgstr "Platform Bileşimi"
+
+msgid "S1: Donated"
+msgstr "S1: Bağışlandı"
+
+msgid "S2: Prepared"
+msgstr "S2: Hazırlandı"
+
+msgid "S3: In Transit"
+msgstr "S3: Transitte"
+
+msgid "S4: Delivered"
+msgstr "S4: Teslim Edildi"
+
+msgid "Laptop"
+msgstr "Dizüstü Bilgisayar"
+
+msgid "Tablet"
+msgstr "Tablet"
+
+msgid "Desktop"
+msgstr "Masaüstü Bilgisayar"
+
+msgid "Red"
+msgstr "Kırmızı"
+
+msgid "Yellow"
+msgstr "Sarı"
+
+msgid "Green"
+msgstr "Yeşil"
+
+msgid "Active"
+msgstr "Aktif"
+
+msgid "Planned"
+msgstr "Planlandı"
+
+msgid "Abandoned"
+msgstr "Terk Edildi"
+
+msgid "Completed"
+msgstr "Tamamlandı"
+
+msgid "Anonymous"
+msgstr "Anonim"
+
+msgid "Team @id"
+msgstr "Ekip @id"
+
+msgid "User @uid"
+msgstr "Kullanıcı @uid"
+
+msgid "Unknown"
+msgstr "Bilinmiyor"
+
+msgid "Jan 2026"
+msgstr "Oca 2026"
+
+msgid "Feb 2026"
+msgstr "Şub 2026"
+
+msgid "Mar 2026"
+msgstr "Mar 2026"
+
+msgid "Apr 2026"
+msgstr "Nis 2026"
+
+msgid "May 2026"
+msgstr "May 2026"
+
+msgid "Jun 2025"
+msgstr "Haz 2025"
+
+msgid "Jul 2025"
+msgstr "Tem 2025"
+
+msgid "Aug 2025"
+msgstr "Ağu 2025"
+
+msgid "Sep 2025"
+msgstr "Eyl 2025"
+
+msgid "Oct 2025"
+msgstr "Eki 2025"
+
+msgid "Nov 2025"
+msgstr "Kas 2025"
+
+msgid "Dec 2025"
+msgstr "Ara 2025"

@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 21:05+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: JA\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "高度なインサイトと分析"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "Labdooのグローバルな影響と運営効率に関するより深い指標を探索します。"
+
+msgid "Platform Activity"
+msgstr "プラットフォームのアクティビティ"
+
+msgid "Labdoo has been active for"
+msgstr "Labdooは"
+
+msgid "years"
+msgstr "年間"
+
+msgid "months"
+msgstr "ヶ月"
+
+msgid "and"
+msgstr "と"
+
+msgid "days"
+msgstr "日間"
+
+msgid "Total of"
+msgstr "合計"
+
+msgid "days of global impact"
+msgstr "日間のグローバルな影響"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronicsと貢献"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "寄付されたノートパソコンのライフサイクルと、それらの貢献を支える素晴らしい人々を追跡します。"
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "Dootronics登録の推移（過去12ヶ月）"
+
+msgid "Dootronics Status Distribution"
+msgstr "Dootronicsステータスの分布"
+
+msgid "Device Type Distribution"
+msgstr "デバイスタイプの分布"
+
+msgid "Processor (CPU) Distribution"
+msgstr "プロセッサ（CPU）の分布"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "上位5名のDootronic貢献者"
+
+msgid "Schools & Impact"
+msgstr "学校と影響"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "登録された学校と私たちが支援する生徒を通じて、私たちのグローバルな広がりを可視化します。"
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "学校登録の推移（過去12ヶ月）"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "生徒到達数上位10カ国"
+
+msgid "Laptops per School (Top 10)"
+msgstr "学校あたりのノートパソコン数（上位10）"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "生徒あたりのノートパソコン比率（上位10校）"
+
+msgid "Hubs Network"
+msgstr "ハブネットワーク"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "私たちのミッションのローカル運営ユニットであるLabdooハブのステータス分布。"
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "ハブ登録の推移（過去12ヶ月）"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "最もアクティブな4つのハブ"
+
+msgid "(By processed dootronics)"
+msgstr "（処理されたdootronicsによる）"
+
+msgid "Hubs Distribution by Status"
+msgstr "ステータス別のハブ分布"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "国別のハブ（上位10）"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootripsとロジスティクス"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "世界中に援助を届けるためにボランティアが移動した総距離を測定します。"
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "Dootrips登録の推移（過去12ヶ月）"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "Dootrip走行距離（過去5年間）"
+
+msgid "Total Dootrip Distance"
+msgstr "総Dootrip距離"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "世界中のLabdooerによる移動"
+
+msgid "Collaboration & Teams"
+msgstr "コラボレーションとチーム"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "タスク管理、チームのアクティビティ、および共同貢献に関する指標。"
+
+msgid "Tasks Distribution by Team"
+msgstr "チーム別のタスク分布"
+
+msgid "Most Active Teams"
+msgstr "最もアクティブなチーム"
+
+msgid "Actions by Type"
+msgstr "タイプ別のアクション"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "Edoovillageの優先順位（信号機）"
+
+msgid "Edoovillage Project Status"
+msgstr "Edoovillageプロジェクトのステータス"
+
+msgid "Community & Knowledge Base"
+msgstr "コミュニティとナレッジベース"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "コメントを通じたコミュニティの関与とナレッジベースの成長の分析。"
+
+msgid "Wiki Pages"
+msgstr "Wikiページ"
+
+msgid "Team Posts"
+msgstr "チームの投稿"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "チーム投稿の推移（過去12ヶ月）"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "チーム投稿の貢献者上位5名"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "コミュニティのアクティビティ（過去12ヶ月のコメント）"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "最もアクティブなコメンター上位5名"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "Wikiのアクティビティ（過去12ヶ月）"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "最もアクティブなWiki編集者上位5名"
+
+msgid "Global Platform Overview"
+msgstr "グローバルプラットフォームの概要"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "コンテンツの成長とLabdooプラットフォーム全体の構成のハイレベルなビュー。"
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "全体のコンテンツ成長（過去12ヶ月）"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "含まれるもの：Dootronics, Dootrips, Edoovillages, Hubs, チーム投稿, アクション, ページ"
+
+msgid "Platform Composition"
+msgstr "プラットフォームの構成"
+
+msgid "S1: Donated"
+msgstr "S1: 寄付済み"
+
+msgid "S2: Prepared"
+msgstr "S2: 準備完了"
+
+msgid "S3: In Transit"
+msgstr "S3: 輸送中"
+
+msgid "S4: Delivered"
+msgstr "S4: 配送済み"
+
+msgid "Laptop"
+msgstr "ノートパソコン"
+
+msgid "Tablet"
+msgstr "タブレット"
+
+msgid "Desktop"
+msgstr "デスクトップ"
+
+msgid "Red"
+msgstr "赤"
+
+msgid "Yellow"
+msgstr "黄"
+
+msgid "Green"
+msgstr "緑"
+
+msgid "Active"
+msgstr "アクティブ"
+
+msgid "Planned"
+msgstr "計画中"
+
+msgid "Abandoned"
+msgstr "中止"
+
+msgid "Completed"
+msgstr "完了"
+
+msgid "Anonymous"
+msgstr "匿名"
+
+msgid "Team @id"
+msgstr "チーム @id"
+
+msgid "User @uid"
+msgstr "ユーザー @uid"
+
+msgid "Unknown"
+msgstr "不明"
+
+msgid "Jan 2026"
+msgstr "1月 2026"
+
+msgid "Feb 2026"
+msgstr "2月 2026"
+
+msgid "Mar 2026"
+msgstr "3月 2026"
+
+msgid "Apr 2026"
+msgstr "4月 2026"
+
+msgid "May 2026"
+msgstr "5月 2026"
+
+msgid "Jun 2025"
+msgstr "6月 2025"
+
+msgid "Jul 2025"
+msgstr "7月 2025"
+
+msgid "Aug 2025"
+msgstr "8月 2025"
+
+msgid "Sep 2025"
+msgstr "9月 2025"
+
+msgid "Oct 2025"
+msgstr "10月 2025"
+
+msgid "Nov 2025"
+msgstr "11月 2025"
+
+msgid "Dec 2025"
+msgstr "12月 2025"

@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 19:01+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: ZH-HANS\n"
+"Language: zh-hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "高级洞察与分析"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "探索有关 Labdoo 全球影响和运营效率的更深层次指标。"
+
+msgid "Platform Activity"
+msgstr "平台活动"
+
+msgid "Labdoo has been active for"
+msgstr "Labdoo 已活跃"
+
+msgid "years"
+msgstr "年"
+
+msgid "months"
+msgstr "个月"
+
+msgid "and"
+msgstr "零"
+
+msgid "days"
+msgstr "天"
+
+msgid "Total of"
+msgstr "总计"
+
+msgid "days of global impact"
+msgstr "天的全球影响"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronics 与贡献"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "追踪捐赠笔记本电脑的生命周期以及这些贡献背后的了不起的人们。"
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "Dootronics 注册演变（过去 12 个月）"
+
+msgid "Dootronics Status Distribution"
+msgstr "Dootronics 状态分布"
+
+msgid "Device Type Distribution"
+msgstr "设备类型分布"
+
+msgid "Processor (CPU) Distribution"
+msgstr "处理器 (CPU) 分布"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "前 5 名 Dootronic 贡献者"
+
+msgid "Schools & Impact"
+msgstr "学校与影响"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "通过注册学校和我们赋能的学生展示我们的全球影响力。"
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "学校注册演变（过去 12 个月）"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "惠及学生人数前 10 名的国家"
+
+msgid "Laptops per School (Top 10)"
+msgstr "每所学校笔记本电脑数量（前 10 名）"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "生均笔记本电脑比例（前 10 名学校）"
+
+msgid "Hubs Network"
+msgstr "枢纽网络"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "Labdoo 枢纽（我们任务的当地运营单位）的状态分布。"
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "枢纽注册演变（过去 12 个月）"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "最活跃的 4 个枢纽"
+
+msgid "(By processed dootronics)"
+msgstr "（按处理的 dootronics 计算）"
+
+msgid "Hubs Distribution by Status"
+msgstr "按状态划分的枢纽分布"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "按国家划分的枢纽（前 10 名）"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootrips 与物流"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "测量我们的志愿者在全球范围内运送援助物资所走的总距离。"
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "Dootrips 注册演变（过去 12 个月）"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "Dootrip 公里数（过去 5 年）"
+
+msgid "Total Dootrip Distance"
+msgstr "Dootrip 总距离"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "由世界各地的 Labdooer 行进"
+
+msgid "Collaboration & Teams"
+msgstr "协作与团队"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "关于任务管理、团队活动和协作贡献的指标。"
+
+msgid "Tasks Distribution by Team"
+msgstr "按团队划分的任务分布"
+
+msgid "Most Active Teams"
+msgstr "最活跃的团队"
+
+msgid "Actions by Type"
+msgstr "按类型划分的操作"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "Edoovillage 优先级（信号灯）"
+
+msgid "Edoovillage Project Status"
+msgstr "Edoovillage 项目状态"
+
+msgid "Community & Knowledge Base"
+msgstr "社区与知识库"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "通过评论和知识库的增长分析社区参与度。"
+
+msgid "Wiki Pages"
+msgstr "Wiki 页面"
+
+msgid "Team Posts"
+msgstr "团队帖子"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "团队帖子演变（过去 12 个月）"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "前 5 名团队帖子贡献者"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "社区活动（评论 - 过去 12 个月）"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "前 5 名最活跃的评论者"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "Wiki 活动（过去 12 个月）"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "前 5 名最活跃的 Wiki 编辑者"
+
+msgid "Global Platform Overview"
+msgstr "全球平台概览"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "内容增长和 Labdoo 平台整体构成的宏观视图。"
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "整体内容增长（过去 12 个月）"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "包括：Dootronics、Dootrips、Edoovillages、枢纽、团队帖子、操作和页面。"
+
+msgid "Platform Composition"
+msgstr "平台构成"
+
+msgid "S1: Donated"
+msgstr "S1：已捐赠"
+
+msgid "S2: Prepared"
+msgstr "S2：已准备"
+
+msgid "S3: In Transit"
+msgstr "S3：运输中"
+
+msgid "S4: Delivered"
+msgstr "S4：已送达"
+
+msgid "Laptop"
+msgstr "笔记本电脑"
+
+msgid "Tablet"
+msgstr "平板电脑"
+
+msgid "Desktop"
+msgstr "台式机"
+
+msgid "Red"
+msgstr "红色"
+
+msgid "Yellow"
+msgstr "黄色"
+
+msgid "Green"
+msgstr "绿色"
+
+msgid "Active"
+msgstr "活跃"
+
+msgid "Planned"
+msgstr "已计划"
+
+msgid "Abandoned"
+msgstr "已放弃"
+
+msgid "Completed"
+msgstr "已完成"
+
+msgid "Anonymous"
+msgstr "匿名"
+
+msgid "Team @id"
+msgstr "团队 @id"
+
+msgid "User @uid"
+msgstr "用户 @uid"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Jan 2026"
+msgstr "一月 2026"
+
+msgid "Feb 2026"
+msgstr "二月 2026"
+
+msgid "Mar 2026"
+msgstr "三月 2026"
+
+msgid "Apr 2026"
+msgstr "四月 2026"
+
+msgid "May 2026"
+msgstr "五月 2026"
+
+msgid "Jun 2025"
+msgstr "六月 2025"
+
+msgid "Jul 2025"
+msgstr "七月 2025"
+
+msgid "Aug 2025"
+msgstr "八月 2025"
+
+msgid "Sep 2025"
+msgstr "九月 2025"
+
+msgid "Oct 2025"
+msgstr "十月 2025"
+
+msgid "Nov 2025"
+msgstr "十一月 2025"
+
+msgid "Dec 2025"
+msgstr "十二月 2025"

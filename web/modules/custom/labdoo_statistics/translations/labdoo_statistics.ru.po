@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 19:01+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: RU\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "Расширенная аналитика и инсайты"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "Изучите более глубокие показатели глобального влияния и операционной эффективности Labdoo."
+
+msgid "Platform Activity"
+msgstr "Активность платформы"
+
+msgid "Labdoo has been active for"
+msgstr "Labdoo активен в течение"
+
+msgid "years"
+msgstr "лет"
+
+msgid "months"
+msgstr "месяцев"
+
+msgid "and"
+msgstr "и"
+
+msgid "days"
+msgstr "дней"
+
+msgid "Total of"
+msgstr "Всего"
+
+msgid "days of global impact"
+msgstr "дней глобального влияния"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronics и вклады"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "Отслеживание жизненного цикла подаренных ноутбуков и удивительных людей, стоящих за этими вкладами."
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "Эволюция регистрации Dootronics (последние 12 месяцев)"
+
+msgid "Dootronics Status Distribution"
+msgstr "Распределение статусов Dootronics"
+
+msgid "Device Type Distribution"
+msgstr "Распределение по типам устройств"
+
+msgid "Processor (CPU) Distribution"
+msgstr "Распределение процессоров (CPU)"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "Топ-5 участников Dootronic"
+
+msgid "Schools & Impact"
+msgstr "Школы и влияние"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "Визуализация нашего глобального охвата через зарегистрированные школы и студентов, которым мы помогаем."
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "Эволюция регистрации школ (последние 12 месяцев)"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "Топ-10 стран по количеству охваченных студентов"
+
+msgid "Laptops per School (Top 10)"
+msgstr "Ноутбуков на школу (Топ-10)"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "Соотношение ноутбуков на одного студента (Топ-10 школ)"
+
+msgid "Hubs Network"
+msgstr "Сеть хабов"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "Распределение статусов хабов Labdoo, местных операционных подразделений нашей миссии."
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "Эволюция регистрации хабов (последние 12 месяцев)"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "Топ-4 самых активных хаба"
+
+msgid "(By processed dootronics)"
+msgstr "(По обработанным dootronics)"
+
+msgid "Hubs Distribution by Status"
+msgstr "Распределение хабов по статусу"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "Хабы по странам (Топ-10)"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootrips и логистика"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "Измерение общего расстояния, пройденного нашими волонтерами для доставки помощи по всему миру."
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "Эволюция регистрации Dootrips (последние 12 месяцев)"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "Километры Dootrip (последние 5 лет)"
+
+msgid "Total Dootrip Distance"
+msgstr "Общая дистанция Dootrip"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "Пройдено Labdooers по всему миру"
+
+msgid "Collaboration & Teams"
+msgstr "Сотрудничество и команды"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "Метрики об управлении задачами, активности команды и совместных вкладах."
+
+msgid "Tasks Distribution by Team"
+msgstr "Распределение задач по командам"
+
+msgid "Most Active Teams"
+msgstr "Самые активные команды"
+
+msgid "Actions by Type"
+msgstr "Действия по типу"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "Приоритет Edoovillage (семафор)"
+
+msgid "Edoovillage Project Status"
+msgstr "Статус проекта Edoovillage"
+
+msgid "Community & Knowledge Base"
+msgstr "Сообщество и база знаний"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "Анализ участия сообщества через комментарии и рост нашей базы знаний."
+
+msgid "Wiki Pages"
+msgstr "Страницы Вики"
+
+msgid "Team Posts"
+msgstr "Посты команд"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "Эволюция постов команд (последние 12 месяцев)"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "Топ-5 авторов постов команд"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "Активность сообщества (комментарии за последние 12 месяцев)"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "Топ-5 самых активных комментаторов"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "Активность Вики (последние 12 месяцев)"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "Топ-5 самых активных редакторов Вики"
+
+msgid "Global Platform Overview"
+msgstr "Обзор глобальной платформы"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "Высокоуровневый обзор роста контента и общего состава платформы Labdoo."
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "Общий рост контента (последние 12 месяцев)"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "Включает: Dootronics, Dootrips, Edoovillages, Hubs, посты команд, действия и страницы."
+
+msgid "Platform Composition"
+msgstr "Состав платформы"
+
+msgid "S1: Donated"
+msgstr "S1: Пожертвовано"
+
+msgid "S2: Prepared"
+msgstr "S2: Подготовлено"
+
+msgid "S3: In Transit"
+msgstr "S3: В пути"
+
+msgid "S4: Delivered"
+msgstr "S4: Доставлено"
+
+msgid "Laptop"
+msgstr "Ноутбук"
+
+msgid "Tablet"
+msgstr "Планшет"
+
+msgid "Desktop"
+msgstr "Настольный ПК"
+
+msgid "Red"
+msgstr "Красный"
+
+msgid "Yellow"
+msgstr "Желтый"
+
+msgid "Green"
+msgstr "Зеленый"
+
+msgid "Active"
+msgstr "Активный"
+
+msgid "Planned"
+msgstr "Запланировано"
+
+msgid "Abandoned"
+msgstr "Заброшено"
+
+msgid "Completed"
+msgstr "Завершено"
+
+msgid "Anonymous"
+msgstr "Анонимно"
+
+msgid "Team @id"
+msgstr "Команда @id"
+
+msgid "User @uid"
+msgstr "Пользователь @uid"
+
+msgid "Unknown"
+msgstr "Неизвестно"
+
+msgid "Jan 2026"
+msgstr "янв 2026"
+
+msgid "Feb 2026"
+msgstr "фев 2026"
+
+msgid "Mar 2026"
+msgstr "мар 2026"
+
+msgid "Apr 2026"
+msgstr "апр 2026"
+
+msgid "May 2026"
+msgstr "май 2026"
+
+msgid "Jun 2025"
+msgstr "июн 2025"
+
+msgid "Jul 2025"
+msgstr "июл 2025"
+
+msgid "Aug 2025"
+msgstr "авг 2025"
+
+msgid "Sep 2025"
+msgstr "сен 2025"
+
+msgid "Oct 2025"
+msgstr "окт 2025"
+
+msgid "Nov 2025"
+msgstr "ноя 2025"
+
+msgid "Dec 2025"
+msgstr "дек 2025"

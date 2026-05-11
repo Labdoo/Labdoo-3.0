@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 21:05+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: AR\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "تحليلات ورؤى متقدمة"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "استكشف مقاييس أعمق حول تأثير Labdoo العالمي وكفاءتها التشغيلية."
+
+msgid "Platform Activity"
+msgstr "نشاط المنصة"
+
+msgid "Labdoo has been active for"
+msgstr "لقد كانت Labdoo نشطة لمدة"
+
+msgid "years"
+msgstr "سنوات"
+
+msgid "months"
+msgstr "أشهر"
+
+msgid "and"
+msgstr "و"
+
+msgid "days"
+msgstr "أيام"
+
+msgid "Total of"
+msgstr "إجمالي"
+
+msgid "days of global impact"
+msgstr "أيام من التأثير العالمي"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronics والمساهمات"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "تتبع دورة حياة الحواسيب المحمولة المتبرع بها والأشخاص الرائعين وراء هذه المساهمات."
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "تطور تسجيل Dootronics (آخر 12 شهرًا)"
+
+msgid "Dootronics Status Distribution"
+msgstr "توزيع حالة Dootronics"
+
+msgid "Device Type Distribution"
+msgstr "توزيع نوع الجهاز"
+
+msgid "Processor (CPU) Distribution"
+msgstr "توزيع المعالج (CPU)"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "أفضل 5 مساهمين في Dootronics"
+
+msgid "Schools & Impact"
+msgstr "المدارس والتأثير"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "تصور وصولنا العالمي من خلال المدارس المسجلة والطلاب الذين نمكنهم."
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "تطور تسجيل المدارس (آخر 12 شهرًا)"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "أفضل 10 دول من حيث وصول الطلاب"
+
+msgid "Laptops per School (Top 10)"
+msgstr "أجهزة الكمبيوتر المحمولة لكل مدرسة (أفضل 10)"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "نسبة أجهزة الكمبيوتر المحمولة لكل طالب (أفضل 10 مدارس)"
+
+msgid "Hubs Network"
+msgstr "شبكة المحاور (Hubs)"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "توزيع حالة محاور Labdoo، الوحدات التشغيلية المحلية لمهمتنا."
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "تطور تسجيل المحاور (آخر 12 شهرًا)"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "أكثر 4 محاور نشاطًا"
+
+msgid "(By processed dootronics)"
+msgstr "(حسب أجهزة dootronics المعالجة)"
+
+msgid "Hubs Distribution by Status"
+msgstr "توزيع المحاور حسب الحالة"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "المحاور حسب الدولة (أفضل 10)"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootrips والخدمات اللوجستية"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "قياس المسافة الإجمالية التي قطعها متطوعونا لتقديم المساعدات في جميع أنحاء العالم."
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "تطور تسجيل Dootrips (آخر 12 شهرًا)"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "كيلومترات Dootrip (آخر 5 سنوات)"
+
+msgid "Total Dootrip Distance"
+msgstr "إجمالي مسافة Dootrip"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "سافر بها أعضاء Labdoo حول العالم"
+
+msgid "Collaboration & Teams"
+msgstr "التعاون والفرق"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "مقاييس حول إدارة المهام ونشاط الفريق والمساهمات التعاونية."
+
+msgid "Tasks Distribution by Team"
+msgstr "توزيع المهام حسب الفريق"
+
+msgid "Most Active Teams"
+msgstr "الفرق الأكثر نشاطًا"
+
+msgid "Actions by Type"
+msgstr "الإجراءات حسب النوع"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "أولوية Edoovillage (إشارة ضوئية)"
+
+msgid "Edoovillage Project Status"
+msgstr "حالة مشروع Edoovillage"
+
+msgid "Community & Knowledge Base"
+msgstr "المجتمع وقاعدة المعرفة"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "تحليل مشاركة المجتمع من خلال التعليقات ونمو قاعدة معرفتنا."
+
+msgid "Wiki Pages"
+msgstr "صفحات الويكي"
+
+msgid "Team Posts"
+msgstr "منشورات الفريق"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "تطور منشورات الفريق (آخر 12 شهرًا)"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "أفضل 5 مساهمين في منشورات الفريق"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "نشاط المجتمع (التعليقات - آخر 12 شهرًا)"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "أفضل 5 معلقين نشاطًا"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "نشاط الويكي (آخر 12 شهرًا)"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "أفضل 5 محرري ويكي نشاطًا"
+
+msgid "Global Platform Overview"
+msgstr "نظرة عامة على المنصة العالمية"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "نظرة رفيعة المستوى على نمو المحتوى والتكوين العام لمنصة Labdoo."
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "نمو المحتوى الإجمالي (آخر 12 شهرًا)"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "يشمل: Dootronics وDootrips وEdoovillages والمحاور ومنشورات الفريق والإجراءات والصفحات."
+
+msgid "Platform Composition"
+msgstr "تكوين المنصة"
+
+msgid "S1: Donated"
+msgstr "S1: متبرع به"
+
+msgid "S2: Prepared"
+msgstr "S2: مُجهز"
+
+msgid "S3: In Transit"
+msgstr "S3: في الطريق"
+
+msgid "S4: Delivered"
+msgstr "S4: تم التسليم"
+
+msgid "Laptop"
+msgstr "كمبيوتر محمول"
+
+msgid "Tablet"
+msgstr "جهاز لوحي"
+
+msgid "Desktop"
+msgstr "كمبيوتر مكتبي"
+
+msgid "Red"
+msgstr "أحمر"
+
+msgid "Yellow"
+msgstr "أصفر"
+
+msgid "Green"
+msgstr "أخضر"
+
+msgid "Active"
+msgstr "نشط"
+
+msgid "Planned"
+msgstr "مخطط له"
+
+msgid "Abandoned"
+msgstr "مهجور"
+
+msgid "Completed"
+msgstr "مكتمل"
+
+msgid "Anonymous"
+msgstr "مجهول"
+
+msgid "Team @id"
+msgstr "فريق @id"
+
+msgid "User @uid"
+msgstr "مستخدم @uid"
+
+msgid "Unknown"
+msgstr "غير معروف"
+
+msgid "Jan 2026"
+msgstr "يناير 2026"
+
+msgid "Feb 2026"
+msgstr "فبراير 2026"
+
+msgid "Mar 2026"
+msgstr "مارس 2026"
+
+msgid "Apr 2026"
+msgstr "أبريل 2026"
+
+msgid "May 2026"
+msgstr "مايو 2026"
+
+msgid "Jun 2025"
+msgstr "يونيو 2025"
+
+msgid "Jul 2025"
+msgstr "يوليو 2025"
+
+msgid "Aug 2025"
+msgstr "أغسطس 2025"
+
+msgid "Sep 2025"
+msgstr "سبتمبر 2025"
+
+msgid "Oct 2025"
+msgstr "أكتوبر 2025"
+
+msgid "Nov 2025"
+msgstr "نوفمبر 2025"
+
+msgid "Dec 2025"
+msgstr "ديسمبر 2025"

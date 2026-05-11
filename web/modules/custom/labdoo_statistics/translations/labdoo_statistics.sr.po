@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 19:01+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: SR\n"
+"Language: sr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "Napredni uvidi i analitika"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "Istražite dublje metrike o globalnom uticaju i operativnoj efikasnosti Labdoo-a."
+
+msgid "Platform Activity"
+msgstr "Aktivnost platforme"
+
+msgid "Labdoo has been active for"
+msgstr "Labdoo je aktivan već"
+
+msgid "years"
+msgstr "godina"
+
+msgid "months"
+msgstr "meseci"
+
+msgid "and"
+msgstr "i"
+
+msgid "days"
+msgstr "dana"
+
+msgid "Total of"
+msgstr "Ukupno"
+
+msgid "days of global impact"
+msgstr "dana globalnog uticaja"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronics i doprinosi"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "Praćenje životnog ciklusa doniranih laptopova i neverovatnih ljudi koji stoje iza ovih doprinosa."
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "Evolucija registracije Dootronics-a (poslednjih 12 meseci)"
+
+msgid "Dootronics Status Distribution"
+msgstr "Distribucija statusa Dootronics-a"
+
+msgid "Device Type Distribution"
+msgstr "Distribucija tipa uređaja"
+
+msgid "Processor (CPU) Distribution"
+msgstr "Distribucija procesora (CPU)"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "Top 5 Dootronic saradnika"
+
+msgid "Schools & Impact"
+msgstr "Škole i uticaj"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "Vizualizacija našeg globalnog dosega kroz registrovane škole i učenike koje osnažujemo."
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "Evolucija registracije škola (poslednjih 12 meseci)"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "Top 10 zemalja po broju obuhvaćenih učenika"
+
+msgid "Laptops per School (Top 10)"
+msgstr "Laptopova po školi (Top 10)"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "Odnos laptopova po učeniku (Top 10 škola)"
+
+msgid "Hubs Network"
+msgstr "Mreža hub-ova"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "Distribucija statusa Labdoo hub-ova, lokalnih operativnih jedinica naše misije."
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "Evolucija registracije hub-ova (poslednjih 12 meseci)"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "Top 4 najaktivnija hub-a"
+
+msgid "(By processed dootronics)"
+msgstr "(Po obrađenim dootronics-ima)"
+
+msgid "Hubs Distribution by Status"
+msgstr "Distribucija hub-ova po statusu"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "Hub-ovi po zemljama (Top 10)"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootrips i logistika"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "Merenje ukupne udaljenosti koju su prešli naši volonteri kako bi isporučili pomoć širom sveta."
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "Evolucija registracije Dootrips-a (poslednjih 12 meseci)"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "Dootrip kilometri (poslednjih 5 godina)"
+
+msgid "Total Dootrip Distance"
+msgstr "Ukupna udaljenost Dootrip-ova"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "Preputovali Labdoo-ovci širom sveta"
+
+msgid "Collaboration & Teams"
+msgstr "Saradnja i timovi"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "Metrike o upravljanju zadacima, aktivnosti tima i zajedničkim doprinosima."
+
+msgid "Tasks Distribution by Team"
+msgstr "Distribucija zadataka po timu"
+
+msgid "Most Active Teams"
+msgstr "Najaktivniji timovi"
+
+msgid "Actions by Type"
+msgstr "Akcije po tipu"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "Edoovillage prioritet (semafor)"
+
+msgid "Edoovillage Project Status"
+msgstr "Status Edoovillage projekta"
+
+msgid "Community & Knowledge Base"
+msgstr "Zajednica i baza znanja"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "Analiza angažmana zajednice kroz komentare i rast naše baze znanja."
+
+msgid "Wiki Pages"
+msgstr "Wiki stranice"
+
+msgid "Team Posts"
+msgstr "Objave timova"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "Evolucija objava timova (poslednjih 12 meseci)"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "Top 5 autora objava timova"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "Aktivnost zajednice (komentari - poslednjih 12 meseci)"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "Top 5 najaktivnijih komentatora"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "Wiki aktivnost (poslednjih 12 meseci)"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "Top 5 najaktivnijih Wiki urednika"
+
+msgid "Global Platform Overview"
+msgstr "Globalni pregled platforme"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "Pregled rasta sadržaja i celokupnog sastava Labdoo platforme na visokom nivou."
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "Ukupni rast sadržaja (poslednjih 12 meseci)"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "Uključuje: Dootronics, Dootrips, Edoovillages, hub-ove, objave timova, akcije i stranice."
+
+msgid "Platform Composition"
+msgstr "Sastav platforme"
+
+msgid "S1: Donated"
+msgstr "S1: Donirano"
+
+msgid "S2: Prepared"
+msgstr "S2: Pripremljeno"
+
+msgid "S3: In Transit"
+msgstr "S3: U tranzitu"
+
+msgid "S4: Delivered"
+msgstr "S4: Isporučeno"
+
+msgid "Laptop"
+msgstr "Laptop"
+
+msgid "Tablet"
+msgstr "Tablet"
+
+msgid "Desktop"
+msgstr "Stoni kompjuter"
+
+msgid "Red"
+msgstr "Crveno"
+
+msgid "Yellow"
+msgstr "Žuto"
+
+msgid "Green"
+msgstr "Zeleno"
+
+msgid "Active"
+msgstr "Aktivno"
+
+msgid "Planned"
+msgstr "Planirano"
+
+msgid "Abandoned"
+msgstr "Napušteno"
+
+msgid "Completed"
+msgstr "Završeno"
+
+msgid "Anonymous"
+msgstr "Anonimno"
+
+msgid "Team @id"
+msgstr "Tim @id"
+
+msgid "User @uid"
+msgstr "Korisnik @uid"
+
+msgid "Unknown"
+msgstr "Nepoznato"
+
+msgid "Jan 2026"
+msgstr "jan 2026"
+
+msgid "Feb 2026"
+msgstr "feb 2026"
+
+msgid "Mar 2026"
+msgstr "mar 2026"
+
+msgid "Apr 2026"
+msgstr "apr 2026"
+
+msgid "May 2026"
+msgstr "maj 2026"
+
+msgid "Jun 2025"
+msgstr "jun 2025"
+
+msgid "Jul 2025"
+msgstr "jul 2025"
+
+msgid "Aug 2025"
+msgstr "avg 2025"
+
+msgid "Sep 2025"
+msgstr "sep 2025"
+
+msgid "Oct 2025"
+msgstr "okt 2025"
+
+msgid "Nov 2025"
+msgstr "nov 2025"
+
+msgid "Dec 2025"
+msgstr "dec 2025"

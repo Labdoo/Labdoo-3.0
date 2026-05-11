@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 21:05+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: HY\n"
+"Language: hy\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "Ընդլայնված պատկերացումներ և վերլուծություն"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "Բացահայտեք ավելի խորը մետրիկաներ Labdoo-ի գլոբալ ազդեցության և գործառնական արդյունավետության մասին:"
+
+msgid "Platform Activity"
+msgstr "Պլատֆորմի գործունեություն"
+
+msgid "Labdoo has been active for"
+msgstr "Labdoo-ն ակտիվ է եղել"
+
+msgid "years"
+msgstr "տարի"
+
+msgid "months"
+msgstr "ամիս"
+
+msgid "and"
+msgstr "և"
+
+msgid "days"
+msgstr "օր"
+
+msgid "Total of"
+msgstr "Ընդհանուր"
+
+msgid "days of global impact"
+msgstr "գլոբալ ազդեցության օրեր"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronics և ներդրումներ"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "Հետևելով նվիրաբերված նոութբուքերի կյանքի ցիկլին և այս ներդրումների հետևում կանգնած հիանալի մարդկանց:"
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "Dootronics-ի գրանցման էվոլյուցիան (վերջին 12 ամիսները)"
+
+msgid "Dootronics Status Distribution"
+msgstr "Dootronics-ի կարգավիճակի բաշխումը"
+
+msgid "Device Type Distribution"
+msgstr "Սարքի տեսակի բաշխումը"
+
+msgid "Processor (CPU) Distribution"
+msgstr "Պրոցեսորի (CPU) բաշխումը"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "Լավագույն 5 Dootronic ներդրողները"
+
+msgid "Schools & Impact"
+msgstr "Դպրոցներ և ազդեցություն"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "Պատկերացնելով մեր գլոբալ հասանելիությունը գրանցված դպրոցների և այն ուսանողների միջոցով, որոնց մենք հզորացնում ենք:"
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "Դպրոցների գրանցման էվոլյուցիան (վերջին 12 ամիսները)"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "Լավագույն 10 երկրները ըստ հասանելի ուսանողների"
+
+msgid "Laptops per School (Top 10)"
+msgstr "Նոութբուքեր մեկ դպրոցի համար (Լավագույն 10)"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "Նոութբուքերի և ուսանողների հարաբերակցությունը (Լավագույն 10 դպրոցներ)"
+
+msgid "Hubs Network"
+msgstr "Հաբերի ցանց"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "Labdoo հաբերի կարգավիճակի բաշխումը՝ մեր առաքելության տեղական գործառնական միավորները:"
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "Հաբերի գրանցման էվոլյուցիան (վերջին 12 ամիսները)"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "Լավագույն 4 առավել ակտիվ հաբերը"
+
+msgid "(By processed dootronics)"
+msgstr "(Ըստ մշակված dootronics-ի)"
+
+msgid "Hubs Distribution by Status"
+msgstr "Հաբերի բաշխումը ըստ կարգավիճակի"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "Հաբերն ըստ երկրների (Լավագույն 10)"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootrips և լոգիստիկա"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "Չափելով մեր կամավորների անցած ընդհանուր հեռավորությունը ամբողջ աշխարհում օգնություն հասցնելու համար:"
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "Dootrips-ի գրանցման էվոլյուցիան (վերջին 12 ամիսները)"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "Dootrip կիլոմետրեր (վերջին 5 տարիները)"
+
+msgid "Total Dootrip Distance"
+msgstr "Dootrip-ի ընդհանուր հեռավորությունը"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "Անցել են Labdoo-ի անդամները ամբողջ աշխարհում"
+
+msgid "Collaboration & Teams"
+msgstr "Համագործակցություն և թիմեր"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "Մետրիկաներ առաջադրանքների կառավարման, թիմային գործունեության և համագործակցային ներդրումների մասին:"
+
+msgid "Tasks Distribution by Team"
+msgstr "Առաջադրանքների բաշխումն ըստ թիմերի"
+
+msgid "Most Active Teams"
+msgstr "Ամենաակտիվ թիմերը"
+
+msgid "Actions by Type"
+msgstr "Գործողություններն ըստ տեսակի"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "Edoovillage-ի առաջնահերթություն (լուսացույց)"
+
+msgid "Edoovillage Project Status"
+msgstr "Edoovillage նախագծի կարգավիճակը"
+
+msgid "Community & Knowledge Base"
+msgstr "Համայնք և գիտելիքների բազա"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "Համայնքի ներգրավվածության վերլուծություն մեկնաբանությունների և մեր գիտելիքների բազայի աճի միջոցով:"
+
+msgid "Wiki Pages"
+msgstr "Wiki էջեր"
+
+msgid "Team Posts"
+msgstr "Թիմային գրառումներ"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "Թիմային գրառումների էվոլյուցիան (վերջին 12 ամիսները)"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "Լավագույն 5 թիմային գրառումների հեղինակները"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "Համայնքի գործունեություն (Մեկնաբանություններ - վերջին 12 ամիսները)"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "Լավագույն 5 առավել ակտիվ մեկնաբանողները"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "Wiki գործունեություն (վերջին 12 ամիսները)"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "Լավագույն 5 առավել ակտիվ Wiki խմբագիրները"
+
+msgid "Global Platform Overview"
+msgstr "Համաշխարհային հարթակի ակնարկ"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "Բովանդակության աճի և Labdoo հարթակի ընդհանուր կազմի բարձր մակարդակի տեսք:"
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "Բովանդակության ընդհանուր աճը (վերջին 12 ամիսները)"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "Ներառում է՝ Dootronics, Dootrips, Edoovillages, Hubs, Թիմային գրառումներ, Գործողություններ և Էջեր:"
+
+msgid "Platform Composition"
+msgstr "Պլատֆորմի կազմը"
+
+msgid "S1: Donated"
+msgstr "S1: Նվիրաբերված"
+
+msgid "S2: Prepared"
+msgstr "S2: Պատրաստված"
+
+msgid "S3: In Transit"
+msgstr "S3: Տրանզիտում"
+
+msgid "S4: Delivered"
+msgstr "S4: Առաքված"
+
+msgid "Laptop"
+msgstr "Նոութբուք"
+
+msgid "Tablet"
+msgstr "Պլանշետ"
+
+msgid "Desktop"
+msgstr "Համակարգիչ"
+
+msgid "Red"
+msgstr "Կարմիր"
+
+msgid "Yellow"
+msgstr "Դեղին"
+
+msgid "Green"
+msgstr "Կանաչ"
+
+msgid "Active"
+msgstr "Ակտիվ"
+
+msgid "Planned"
+msgstr "Պլանավորված"
+
+msgid "Abandoned"
+msgstr "Լքված"
+
+msgid "Completed"
+msgstr "Ավարտված"
+
+msgid "Anonymous"
+msgstr "Անանուն"
+
+msgid "Team @id"
+msgstr "Թիմ @id"
+
+msgid "User @uid"
+msgstr "Օգտատեր @uid"
+
+msgid "Unknown"
+msgstr "Անհայտ"
+
+msgid "Jan 2026"
+msgstr "Հուն 2026"
+
+msgid "Feb 2026"
+msgstr "Փետ 2026"
+
+msgid "Mar 2026"
+msgstr "Մար 2026"
+
+msgid "Apr 2026"
+msgstr "Ապր 2026"
+
+msgid "May 2026"
+msgstr "Մայ 2026"
+
+msgid "Jun 2025"
+msgstr "Հուն 2025"
+
+msgid "Jul 2025"
+msgstr "Հուլ 2025"
+
+msgid "Aug 2025"
+msgstr "Օգո 2025"
+
+msgid "Sep 2025"
+msgstr "Սեպ 2025"
+
+msgid "Oct 2025"
+msgstr "Հոկ 2025"
+
+msgid "Nov 2025"
+msgstr "Նոյ 2025"
+
+msgid "Dec 2025"
+msgstr "Դեկ 2025"

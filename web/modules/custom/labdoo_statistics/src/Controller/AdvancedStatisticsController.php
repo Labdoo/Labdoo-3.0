@@ -186,7 +186,8 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = ucfirst(str_replace('_', ' ', $row->field_device_type_value));
+      $label = ucfirst(str_replace('_', ' ', $row->field_device_type_value));
+      $data['labels'][] = (string) $this->t($label);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -205,7 +206,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = $row->field_cpu_type_value;
+      $data['labels'][] = (string) $this->t($row->field_cpu_type_value);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -232,7 +233,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     foreach ($order as $key) {
       if (isset($ordered_results[$key])) {
-        $data['labels'][] = ucfirst($key);
+        $data['labels'][] = (string) $this->t(ucfirst($key));
         $data['values'][] = $ordered_results[$key];
       }
     }
@@ -253,7 +254,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = ucfirst($row->field_status_value);
+      $data['labels'][] = (string) $this->t(ucfirst($row->field_status_value));
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -286,7 +287,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.type', 'gallery', '<>');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = $date->format('M Y');
+      $data['labels'][] = (string) $this->t($date->format('M Y'));
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -331,7 +332,7 @@ class AdvancedStatisticsController extends ControllerBase {
     });
 
     foreach ($results as $row) {
-      $data['labels'][] = ucfirst(str_replace('_', ' ', $row->type));
+      $data['labels'][] = (string) $this->t(ucfirst(str_replace('_', ' ', $row->type)));
       $data['values'][] = (int) $row->count;
     }
 
@@ -374,7 +375,7 @@ class AdvancedStatisticsController extends ControllerBase {
     
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = ucfirst($row->field_action_type_value);
+      $data['labels'][] = (string) $this->t(ucfirst($row->field_action_type_value));
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -442,8 +443,8 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.type', 'dootronic');
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
-      
-      $data['labels'][] = $date->format('M Y');
+
+      $data['labels'][] = (string) $this->t($date->format('M Y'));
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -519,7 +520,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('c.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = $date->format('M Y');
+      $data['labels'][] = (string) $this->t($date->format('M Y'));
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -567,7 +568,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = ucfirst($row->field_hub_status_value);
+      $data['labels'][] = (string) $this->t(ucfirst($row->field_hub_status_value));
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -600,7 +601,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = $date->format('M Y');
+      $data['labels'][] = (string) $this->t($date->format('M Y'));
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -679,7 +680,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = $date->format('M Y');
+      $data['labels'][] = (string) $this->t($date->format('M Y'));
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -712,7 +713,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = $date->format('M Y');
+      $data['labels'][] = (string) $this->t($date->format('M Y'));
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -801,7 +802,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = "Team " . $row->field_team_target_id;
+      $data['labels'][] = (string) $this->t("Team @id", ['@id' => $row->field_team_target_id]);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -910,7 +911,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = $date->format('M Y');
+      $data['labels'][] = (string) $this->t($date->format('M Y'));
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -976,7 +977,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = $date->format('M Y');
+      $data['labels'][] = (string) $this->t($date->format('M Y'));
       $data['values'][] = (int) $count;
     }
     return $data;

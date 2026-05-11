@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 19:01+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: PL\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "Zaawansowane statystyki i analizy"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "Poznaj szczegółowe wskaźniki dotyczące globalnego wpływu i efektywności operacyjnej Labdoo."
+
+msgid "Platform Activity"
+msgstr "Aktywność platformy"
+
+msgid "Labdoo has been active for"
+msgstr "Labdoo działa od"
+
+msgid "years"
+msgstr "lat"
+
+msgid "months"
+msgstr "miesięcy"
+
+msgid "and"
+msgstr "i"
+
+msgid "days"
+msgstr "dni"
+
+msgid "Total of"
+msgstr "Łącznie"
+
+msgid "days of global impact"
+msgstr "dni globalnego wpływu"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronics i wkłady"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "Śledzenie cyklu życia darowanych laptopów i niesamowitych ludzi stojących za tymi wkładami."
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "Ewolucja rejestracji Dootronics (ostatnie 12 miesięcy)"
+
+msgid "Dootronics Status Distribution"
+msgstr "Rozkład statusów Dootronics"
+
+msgid "Device Type Distribution"
+msgstr "Rozkład typów urządzeń"
+
+msgid "Processor (CPU) Distribution"
+msgstr "Rozkład procesorów (CPU)"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "Top 5 darczyńców Dootronic"
+
+msgid "Schools & Impact"
+msgstr "Szkoły i wpływ"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "Wizualizacja naszego globalnego zasięgu poprzez zarejestrowane szkoły i uczniów, których wspieramy."
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "Ewolucja rejestracji szkół (ostatnie 12 miesięcy)"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "Top 10 krajów pod względem liczby uczniów"
+
+msgid "Laptops per School (Top 10)"
+msgstr "Laptopy na szkołę (Top 10)"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "Wskaźnik laptopów na ucznia (Top 10 szkół)"
+
+msgid "Hubs Network"
+msgstr "Sieć hubów"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "Rozkład statusów hubów Labdoo, lokalnych jednostek operacyjnych naszej misji."
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "Ewolucja rejestracji hubów (ostatnie 12 miesięcy)"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "Top 4 najbardziej aktywne huby"
+
+msgid "(By processed dootronics)"
+msgstr "(Według przetworzonych dootronics)"
+
+msgid "Hubs Distribution by Status"
+msgstr "Rozkład hubów według statusu"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "Huby według krajów (Top 10)"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootrips i logistyka"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "Pomiar całkowitej odległości przebytej przez naszych wolontariuszy w celu dostarczenia pomocy na całym świecie."
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "Ewolucja rejestracji Dootrips (ostatnie 12 miesięcy)"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "Kilometry Dootrip (ostatnie 5 lat)"
+
+msgid "Total Dootrip Distance"
+msgstr "Całkowity dystans Dootrip"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "Przebyte przez Labdooers na całym świecie"
+
+msgid "Collaboration & Teams"
+msgstr "Współpraca i zespoły"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "Metryki dotyczące zarządzania zadaniami, aktywności zespołu i wspólnych wkładów."
+
+msgid "Tasks Distribution by Team"
+msgstr "Rozkład zadań według zespołów"
+
+msgid "Most Active Teams"
+msgstr "Najbardziej aktywne zespoły"
+
+msgid "Actions by Type"
+msgstr "Działania według typu"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "Priorytet Edoovillage (Semafor)"
+
+msgid "Edoovillage Project Status"
+msgstr "Status projektu Edoovillage"
+
+msgid "Community & Knowledge Base"
+msgstr "Społeczność i baza wiedzy"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "Analiza zaangażowania społeczności poprzez komentarze i rozwój naszej bazy wiedzy."
+
+msgid "Wiki Pages"
+msgstr "Strony Wiki"
+
+msgid "Team Posts"
+msgstr "Posty zespołów"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "Ewolucja postów zespołów (ostatnie 12 miesięcy)"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "Top 5 autorów postów zespołów"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "Aktywność społeczności (komentarze - ostatnie 12 miesięcy)"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "Top 5 najbardziej aktywnych komentujących"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "Aktywność Wiki (ostatnie 12 miesięcy)"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "Top 5 najbardziej aktywnych edytorów Wiki"
+
+msgid "Global Platform Overview"
+msgstr "Globalny przegląd platformy"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "Ogólny widok wzrostu treści i ogólnego składu platformy Labdoo."
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "Całkowity wzrost treści (ostatnie 12 miesięcy)"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "Zawiera: Dootronics, Dootrips, Edoovillages, huby, posty zespołów, działania i strony."
+
+msgid "Platform Composition"
+msgstr "Skład platformy"
+
+msgid "S1: Donated"
+msgstr "S1: Podarowane"
+
+msgid "S2: Prepared"
+msgstr "S2: Przygotowane"
+
+msgid "S3: In Transit"
+msgstr "S3: W transporcie"
+
+msgid "S4: Delivered"
+msgstr "S4: Dostarczone"
+
+msgid "Laptop"
+msgstr "Laptop"
+
+msgid "Tablet"
+msgstr "Tablet"
+
+msgid "Desktop"
+msgstr "Komputer stacjonarny"
+
+msgid "Red"
+msgstr "Czerwony"
+
+msgid "Yellow"
+msgstr "Żółty"
+
+msgid "Green"
+msgstr "Zielony"
+
+msgid "Active"
+msgstr "Aktywny"
+
+msgid "Planned"
+msgstr "Zaplanowane"
+
+msgid "Abandoned"
+msgstr "Porzucone"
+
+msgid "Completed"
+msgstr "Zakończone"
+
+msgid "Anonymous"
+msgstr "Anonimowy"
+
+msgid "Team @id"
+msgstr "Zespół @id"
+
+msgid "User @uid"
+msgstr "Użytkownik @uid"
+
+msgid "Unknown"
+msgstr "Nieznany"
+
+msgid "Jan 2026"
+msgstr "sty 2026"
+
+msgid "Feb 2026"
+msgstr "lut 2026"
+
+msgid "Mar 2026"
+msgstr "mar 2026"
+
+msgid "Apr 2026"
+msgstr "kwi 2026"
+
+msgid "May 2026"
+msgstr "maj 2026"
+
+msgid "Jun 2025"
+msgstr "cze 2025"
+
+msgid "Jul 2025"
+msgstr "lip 2025"
+
+msgid "Aug 2025"
+msgstr "sie 2025"
+
+msgid "Sep 2025"
+msgstr "wrz 2025"
+
+msgid "Oct 2025"
+msgstr "paź 2025"
+
+msgid "Nov 2025"
+msgstr "lis 2025"
+
+msgid "Dec 2025"
+msgstr "gru 2025"

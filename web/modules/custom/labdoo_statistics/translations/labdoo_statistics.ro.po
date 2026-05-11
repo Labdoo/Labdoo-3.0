@@ -1,0 +1,276 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo Statistics\n"
+"POT-Creation-Date: 2026-05-11 21:00+0000\n"
+"PO-Revision-Date: 2026-05-11 19:01+0000\n"
+"Last-Translator: Junie\n"
+"Language-Team: RO\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Junie\n"
+
+msgid "Advanced Insights & Analytics"
+msgstr "Analize și perspective avansate"
+
+msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
+msgstr "Explorați indicatori aprofundați despre impactul global și eficiența operațională a Labdoo."
+
+msgid "Platform Activity"
+msgstr "Activitatea platformei"
+
+msgid "Labdoo has been active for"
+msgstr "Labdoo este activ de"
+
+msgid "years"
+msgstr "ani"
+
+msgid "months"
+msgstr "luni"
+
+msgid "and"
+msgstr "și"
+
+msgid "days"
+msgstr "zile"
+
+msgid "Total of"
+msgstr "Total de"
+
+msgid "days of global impact"
+msgstr "zile de impact global"
+
+msgid "Dootronics & Contributions"
+msgstr "Dootronics și contribuții"
+
+msgid "Tracking the life cycle of donated laptops and the amazing people behind these contributions."
+msgstr "Urmărirea ciclului de viață al laptopurilor donate și a oamenilor minunați din spatele acestor contribuții."
+
+msgid "Dootronics Registration Evolution (Last 12 Months)"
+msgstr "Evoluția înregistrării Dootronics (ultimele 12 luni)"
+
+msgid "Dootronics Status Distribution"
+msgstr "Distribuția stării Dootronics"
+
+msgid "Device Type Distribution"
+msgstr "Distribuția tipului de dispozitiv"
+
+msgid "Processor (CPU) Distribution"
+msgstr "Distribuția procesorului (CPU)"
+
+msgid "Top 5 Dootronic Contributors"
+msgstr "Top 5 contribuitori Dootronic"
+
+msgid "Schools & Impact"
+msgstr "Școli și impact"
+
+msgid "Visualizing our global reach through registered schools and the students we empower."
+msgstr "Vizualizarea razei noastre globale prin școlile înregistrate și elevii pe care îi sprijinim."
+
+msgid "Schools Registration Evolution (Last 12 Months)"
+msgstr "Evoluția înregistrării școlilor (ultimele 12 luni)"
+
+msgid "Top 10 Countries by Students Reached"
+msgstr "Top 10 țări după numărul de elevi ajunși"
+
+msgid "Laptops per School (Top 10)"
+msgstr "Laptopuri pe școală (Top 10)"
+
+msgid "Laptops per Student Ratio (Top 10 Schools)"
+msgstr "Raport laptopuri per elev (Top 10 școli)"
+
+msgid "Hubs Network"
+msgstr "Rețeaua de hub-uri"
+
+msgid "Status distribution of Labdoo Hubs, the local operational units of our mission."
+msgstr "Distribuția stării hub-urilor Labdoo, unitățile operaționale locale ale misiunii noastre."
+
+msgid "Hubs Registration Evolution (Last 12 Months)"
+msgstr "Evoluția înregistrării hub-urilor (ultimele 12 luni)"
+
+msgid "Top 4 Most Active Hubs"
+msgstr "Top 4 cele mai active hub-uri"
+
+msgid "(By processed dootronics)"
+msgstr "(După dootronics procesate)"
+
+msgid "Hubs Distribution by Status"
+msgstr "Distribuția hub-urilor după stare"
+
+msgid "Hubs by Country (Top 10)"
+msgstr "Hub-uri după țară (Top 10)"
+
+msgid "Dootrips & Logistics"
+msgstr "Dootrips și logistică"
+
+msgid "Measuring the total distance travelled by our volunteers to deliver aid worldwide."
+msgstr "Măsurarea distanței totale parcurse de voluntarii noștri pentru a livra ajutor în întreaga lume."
+
+msgid "Dootrips Registration Evolution (Last 12 Months)"
+msgstr "Evoluția înregistrării Dootrips (ultimele 12 luni)"
+
+msgid "Dootrip Kilometers (Last 5 Years)"
+msgstr "Kilometri Dootrip (ultimii 5 ani)"
+
+msgid "Total Dootrip Distance"
+msgstr "Distanța totală Dootrip"
+
+msgid "Travelled by Labdooers around the world"
+msgstr "Parcursă de Labdoo-iști din întreaga lume"
+
+msgid "Collaboration & Teams"
+msgstr "Colaborare și echipe"
+
+msgid "Metrics about tasks management, team activity and collaborative contributions."
+msgstr "Indicatori despre gestionarea sarcinilor, activitatea echipei și contribuțiile colaborative."
+
+msgid "Tasks Distribution by Team"
+msgstr "Distribuția sarcinilor pe echipă"
+
+msgid "Most Active Teams"
+msgstr "Cele mai active echipe"
+
+msgid "Actions by Type"
+msgstr "Acțiuni după tip"
+
+msgid "Edoovillage Priority (Semaphore)"
+msgstr "Prioritate Edoovillage (Semafor)"
+
+msgid "Edoovillage Project Status"
+msgstr "Starea proiectului Edoovillage"
+
+msgid "Community & Knowledge Base"
+msgstr "Comunitate și bază de cunoștințe"
+
+msgid "Analysis of community engagement through comments and the growth of our knowledge base."
+msgstr "Analiza implicării comunității prin comentarii și creșterea bazei noastre de cunoștințe."
+
+msgid "Wiki Pages"
+msgstr "Pagini Wiki"
+
+msgid "Team Posts"
+msgstr "Postări de echipă"
+
+msgid "Team Posts Evolution (Last 12 Months)"
+msgstr "Evoluția postărilor de echipă (ultimele 12 luni)"
+
+msgid "Top 5 Team Post Contributors"
+msgstr "Top 5 contribuitori postări de echipă"
+
+msgid "Community Activity (Comments - Last 12 Months)"
+msgstr "Activitatea comunității (comentarii - ultimele 12 luni)"
+
+msgid "Top 5 Most Active Commenters"
+msgstr "Top 5 cei mai activi comentatori"
+
+msgid "Wiki Activity (Last 12 Months)"
+msgstr "Activitatea Wiki (ultimele 12 luni)"
+
+msgid "Top 5 Most Active Wiki Editors"
+msgstr "Top 5 cei mai activi editori Wiki"
+
+msgid "Global Platform Overview"
+msgstr "Prezentare generală a platformei globale"
+
+msgid "A high-level view of content growth and the overall composition of the Labdoo platform."
+msgstr "O vedere de ansamblu a creșterii conținutului și a compoziției globale a platformei Labdoo."
+
+msgid "Overall Content Growth (Last 12 Months)"
+msgstr "Creșterea totală a conținutului (ultimele 12 luni)"
+
+msgid "Includes: Dootronics, Dootrips, Edoovillages, Hubs, Team Posts, Actions and Pages."
+msgstr "Include: Dootronics, Dootrips, Edoovillages, Hub-uri, postări de echipă, acțiuni și pagini."
+
+msgid "Platform Composition"
+msgstr "Compoziția platformei"
+
+msgid "S1: Donated"
+msgstr "S1: Donat"
+
+msgid "S2: Prepared"
+msgstr "S2: Pregătit"
+
+msgid "S3: In Transit"
+msgstr "S3: În tranzit"
+
+msgid "S4: Delivered"
+msgstr "S4: Livrat"
+
+msgid "Laptop"
+msgstr "Laptop"
+
+msgid "Tablet"
+msgstr "Tabletă"
+
+msgid "Desktop"
+msgstr "Desktop"
+
+msgid "Red"
+msgstr "Roșu"
+
+msgid "Yellow"
+msgstr "Galben"
+
+msgid "Green"
+msgstr "Verde"
+
+msgid "Active"
+msgstr "Activ"
+
+msgid "Planned"
+msgstr "Planificat"
+
+msgid "Abandoned"
+msgstr "Abandonat"
+
+msgid "Completed"
+msgstr "Finalizat"
+
+msgid "Anonymous"
+msgstr "Anonim"
+
+msgid "Team @id"
+msgstr "Echipa @id"
+
+msgid "User @uid"
+msgstr "Utilizator @uid"
+
+msgid "Unknown"
+msgstr "Necunoscut"
+
+msgid "Jan 2026"
+msgstr "ian 2026"
+
+msgid "Feb 2026"
+msgstr "feb 2026"
+
+msgid "Mar 2026"
+msgstr "mar 2026"
+
+msgid "Apr 2026"
+msgstr "apr 2026"
+
+msgid "May 2026"
+msgstr "mai 2026"
+
+msgid "Jun 2025"
+msgstr "iun 2025"
+
+msgid "Jul 2025"
+msgstr "iul 2025"
+
+msgid "Aug 2025"
+msgstr "aug 2025"
+
+msgid "Sep 2025"
+msgstr "sep 2025"
+
+msgid "Oct 2025"
+msgstr "oct 2025"
+
+msgid "Nov 2025"
+msgstr "noi 2025"
+
+msgid "Dec 2025"
+msgstr "dec 2025"
