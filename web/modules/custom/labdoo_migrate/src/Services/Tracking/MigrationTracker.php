@@ -313,4 +313,40 @@ class MigrationTracker implements MigrationTrackerInterface {
     return $destinationId ? (int) $destinationId : NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function updateIntegrityStatus(string $entityType, int $sourceId, int $status): void {
+    $this->database->update(self::TRACKING_TABLE)
+      ->fields([
+        'integrity_status' => $status,
+        'last_integrity_check' => time(),
+      ])
+      ->condition('entity_type', $entityType)
+      ->condition('source_id', $sourceId)
+      ->execute();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSourceIdsByIntegrityStatus(string $entityType, string $bundle, array $statuses): array {
+    $query = $this->database->select(self::TRACKING_TABLE, 't');
+    $query->fields('t', ['source_id']);
+    $query->condition('t.entity_type', $entityType);
+    $query->condition('t.bundle', $bundle);
+    $query->condition('t.integrity_status', $statuses, 'IN');
+
+    // Filter to ensure the destination entity still exists and matches the expected bundle.
+    if ($entityType === 'node') {
+      $query->join('node', 'n', 't.destination_id = n.nid');
+      $query->condition('n.type', $bundle);
+    }
+    elseif ($entityType === 'user') {
+      $query->join('users', 'u', 't.destination_id = u.uid');
+    }
+
+    return $query->execute()->fetchCol();
+  }
+
 }

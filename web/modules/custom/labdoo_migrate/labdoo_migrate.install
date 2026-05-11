@@ -49,12 +49,28 @@ function labdoo_migrate_schema(): array {
         'not null' => TRUE,
         'default' => 0,
       ],
+      'integrity_status' => [
+        'description' => 'Status of the integrity check (0: not checked, 1: ok, 2: mismatch).',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'last_integrity_check' => [
+        'description' => 'Unix timestamp of the latest integrity check.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
     ],
     'primary key' => ['entity_type', 'bundle', 'source_id'],
     'indexes' => [
       'bundle_idx' => ['bundle'],
       'last_migrated_idx' => ['last_migrated'],
       'destination_id_idx' => ['destination_id'],
+      'integrity_status_idx' => ['integrity_status'],
     ],
   ];
 
@@ -74,6 +90,51 @@ function labdoo_migrate_update_9001(): void {
       'unsigned' => TRUE,
       'not null' => TRUE,
       'default' => 0,
+    ]);
+  }
+}
+
+/**
+ * Add integrity status fields to tracking table.
+ */
+function labdoo_migrate_update_9002(): void {
+  $database = \Drupal::getContainer()->get('database');
+  $schema = $database->schema();
+  $table = 'labdoo_migrate_tracking';
+
+  if (!$schema->fieldExists($table, 'integrity_status')) {
+    $schema->addField($table, 'integrity_status', [
+      'description' => 'Status of the integrity check (0: not checked, 1: ok, 2: mismatch).',
+      'type' => 'int',
+      'size' => 'tiny',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ]);
+  }
+
+  if (!$schema->fieldExists($table, 'last_integrity_check')) {
+    $schema->addField($table, 'last_integrity_check', [
+      'description' => 'Unix timestamp of the latest integrity check.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ]);
+  }
+
+  if (!$schema->indexExists($table, 'integrity_status_idx')) {
+    $schema->addIndex($table, 'integrity_status_idx', ['integrity_status'], [
+      'fields' => [
+        'integrity_status' => [
+          'description' => 'Status of the integrity check (0: not checked, 1: ok, 2: mismatch).',
+          'type' => 'int',
+          'size' => 'tiny',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+      ],
     ]);
   }
 }

@@ -70,4 +70,31 @@ interface MigrationTrackerInterface {
    */
   public function getDestinationIdBySourceId(string $entityType, int $sourceId): ?int;
 
+  /**
+   * Updates the integrity status of a migrated entity.
+   *
+   * @param string $entityType
+   *   The destination entity type.
+   * @param int $sourceId
+   *   The source entity ID.
+   * @param int $status
+   *   The integrity status (1: ok, 2: mismatch).
+   */
+  public function updateIntegrityStatus(string $entityType, int $sourceId, int $status): void;
+
+  /**
+   * Retrieves source IDs filtered by integrity status.
+   *
+   * @param string $entityType
+   *   The destination entity type.
+   * @param string $bundle
+   *   The destination bundle/content type.
+   * @param array $statuses
+   *   An array of integrity statuses to filter by.
+   *
+   * @return array
+   *   An array of source entity IDs.
+   */
+  public function getSourceIdsByIntegrityStatus(string $entityType, string $bundle, array $statuses): array;
+
 }

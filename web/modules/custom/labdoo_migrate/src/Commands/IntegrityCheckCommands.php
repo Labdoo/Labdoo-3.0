@@ -104,15 +104,19 @@ class IntegrityCheckCommands extends DrushCommands {
    *   Specific source IDs to check.
    * @option fields
    *   Specific fields to check (comma separated).
+   * @option inconsistent-only
+   *   Check only nodes that were previously marked as inconsistent.
    *
    * @command labdoo:migrate-check-integrity
    * @aliases lm-ci
    * @usage drush lm-ci story
    * @usage drush lm-ci story --limit=10
+   * @usage drush lm-ci story --inconsistent-only
    */
-  public function checkIntegrity(string $contentType, array $options = ['limit' => 0, 'destination-type' => NULL, 'nids' => NULL, 'fields' => NULL]): void {
+  public function checkIntegrity(string $contentType, array $options = ['limit' => 0, 'destination-type' => NULL, 'nids' => NULL, 'fields' => NULL, 'inconsistent-only' => FALSE]): void {
     $limit = isset($options['limit']) ? (int) $options['limit'] : 0;
     $destinationType = $options['destination-type'] ?? $contentType;
+    $inconsistentOnly = $options['inconsistent-only'] ?? FALSE;
 
     $bundleMapping = [
       'story' => 'labdoo_story',
@@ -144,10 +148,15 @@ class IntegrityCheckCommands extends DrushCommands {
         $selectedIds = $nids;
       }
       else {
-        $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $destinationType);
+        if ($inconsistentOnly) {
+          $allIds = $this->migrationTracker->getSourceIdsByIntegrityStatus($entityType, $destinationType, [2]);
+        }
+        else {
+          $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $destinationType);
+        }
 
         if (empty($allIds)) {
-          $this->io()->warning('No migrated nodes found for this content type.');
+          $this->io()->warning($inconsistentOnly ? 'No inconsistent nodes found for this content type.' : 'No migrated nodes found for this content type.');
           return;
         }
 
@@ -207,8 +216,10 @@ class IntegrityCheckCommands extends DrushCommands {
         $entityErrors = $this->compareData($sourceData, $destEntity, $mapping, $targetFields);
         if (empty($entityErrors)) {
           $results[] = [$sid, $destId, 'OK', 'All fields match'];
+          $this->migrationTracker->updateIntegrityStatus($entityType, $sid, 1);
         }
         else {
+          $this->migrationTracker->updateIntegrityStatus($entityType, $sid, 2);
           foreach ($entityErrors as $error) {
             $results[] = [$sid, $destId, 'ERROR', $error];
           }

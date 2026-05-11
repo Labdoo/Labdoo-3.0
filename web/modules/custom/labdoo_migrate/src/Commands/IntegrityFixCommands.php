@@ -114,15 +114,19 @@ class IntegrityFixCommands extends DrushCommands {
    *   Specific source IDs to check and fix.
    * @option fields
    *   Specific fields to fix (comma separated).
+   * @option inconsistent-only
+   *   Fix only nodes that were previously marked as inconsistent.
    *
    * @command labdoo:migrate-fix-integrity
    * @aliases lm-fi
    * @usage drush lm-fi story
    * @usage drush lm-fi story --limit=10
+   * @usage drush lm-fi story --inconsistent-only
    */
-  public function fixIntegrity(string $contentType, array $options = ['limit' => 0, 'destination-type' => NULL, 'nids' => NULL, 'fields' => NULL]): void {
+  public function fixIntegrity(string $contentType, array $options = ['limit' => 0, 'destination-type' => NULL, 'nids' => NULL, 'fields' => NULL, 'inconsistent-only' => FALSE]): void {
     $limit = isset($options['limit']) ? (int) $options['limit'] : 0;
     $destinationType = $options['destination-type'] ?? $contentType;
+    $inconsistentOnly = $options['inconsistent-only'] ?? FALSE;
 
     $bundleMapping = [
       'story' => 'labdoo_story',
@@ -154,9 +158,15 @@ class IntegrityFixCommands extends DrushCommands {
         $selectedIds = $nids;
       }
       else {
-        $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $destinationType);
+        if ($inconsistentOnly) {
+          $allIds = $this->migrationTracker->getSourceIdsByIntegrityStatus($entityType, $destinationType, [2]);
+        }
+        else {
+          $allIds = $this->migrationTracker->getMigratedSourceIds($entityType, $destinationType);
+        }
+
         if (empty($allIds)) {
-          $this->io()->warning('No migrated nodes found for this content type.');
+          $this->io()->warning($inconsistentOnly ? 'No inconsistent nodes found for this content type.' : 'No migrated nodes found for this content type.');
           return;
         }
 
@@ -263,6 +273,7 @@ class IntegrityFixCommands extends DrushCommands {
 
         if ($nodeChanged) {
           $destEntity->save();
+          $this->migrationTracker->updateIntegrityStatus($entityType, $sid, 1);
           // We don't want to break the progress bar with success messages for every node.
           // But we can overwrite the progress bar message or just log it if we use a quieter approach.
           // For now, let's just advance the progress bar.
