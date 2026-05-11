@@ -4,6 +4,9 @@
     "user"
   ],
   "entity_type": "user",
+  "integrity_fields": [
+    "field_username"
+  ],
   "fields_mapping": [
     {
       "source": {

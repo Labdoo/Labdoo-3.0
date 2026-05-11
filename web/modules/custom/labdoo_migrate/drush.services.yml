@@ -89,6 +89,20 @@ services:
     tags:
       - { name: drush.command }
 
+  labdoo_migrate.integrity_fix_commands:
+    class: \Drupal\labdoo_migrate\Commands\IntegrityFixCommands
+    arguments:
+      - '@labdoo_migrate.config.configuration_manager'
+      - '@labdoo_migrate.mapper.fields_mapper'
+      - '@labdoo_migrate.source_content.repository.node'
+      - '@entity_type.manager'
+      - '@labdoo_migrate.tracking.migration_tracker'
+      - '@labdoo_migrate.database.external_connection_manager'
+      - '@language_manager'
+      - '@labdoo_migrate.media.file_manager'
+    tags:
+      - { name: drush.command }
+
   labdoo_migrate.purge_commands:
     class: \Drupal\labdoo_migrate\Commands\PurgeCommands
     arguments:

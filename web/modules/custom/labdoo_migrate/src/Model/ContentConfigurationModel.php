@@ -63,4 +63,15 @@ class ContentConfigurationModel {
     return $this->configuration['fields_mapping'];
   }
 
+  /**
+   * Retrieves the integrity fields.
+   *
+   * @return array
+   *   Returns the integrity fields.
+   */
+  public function getIntegrityFields(): array {
+
+    return $this->configuration['integrity_fields'] ?? [];
+  }
+
 }

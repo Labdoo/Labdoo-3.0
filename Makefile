@@ -96,7 +96,8 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all-incremental-bg" "🌙 Run incremental migration for all entities in background."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-bg" "🌙 Run migration in background with nohup and migration-[entity].log."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-*-incremental-bg" "🌙 Run incremental migration in background."
-	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-check-integrity" "🔍 Compare N random nodes from D7 with D10."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-check-integrity" "🔍 Compare migrated nodes from D7 with D10 (use type=TYPE)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-fix-integrity" "🛠️  Fix migrated nodes from D7 with D10 (use type=TYPE)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "sync-geography" "🌍 Synchronize geographic information from D7."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "fix-node-uids" "👤 Fix nodes with uid=0 checking original author in D7."
 	@echo ""
@@ -605,13 +606,22 @@ migrate-team-incremental-bg: ## 🌙 Run incremental team migration in backgroun
 	nohup sh -c "vendor/bin/drush labdoo-sync-teams --incremental" > migration-team-incremental.log 2>&1 &
 
 .PHONY: migrate-check-integrity
-migrate-check-integrity: ## 🔍 Compare N random nodes from D7 with D10 (e.g., make migrate-check-integrity type=story limit=10).
+migrate-check-integrity: ## 🔍 Compare migrated nodes from D7 with D10 (e.g., make migrate-check-integrity type=laptop).
 	@if [ -z "$(type)" ]; then \
-		echo "$(RED)❌ Error: You must specify a content type (e.g., make migrate-check-integrity type=story).$(RESET)"; \
+		echo "$(RED)❌ Error: You must specify a content type (e.g., make migrate-check-integrity type=laptop).$(RESET)"; \
 		exit 1; \
 	fi
 	@echo "$(CYAN)🔍 Checking integrity for $(type) nodes...$(RESET)"
-	$(DRUSH_COMMAND) labdoo:migrate-check-integrity $(type) --limit=$(or $(limit),5) --destination-type=$(or $(destination_type),$(type))
+	$(DRUSH_COMMAND) labdoo:migrate-check-integrity $(type) --limit=$(or $(limit),0) --destination-type=$(or $(destination_type),$(type)) $(if $(fields),--fields=$(fields),) $(if $(nids),--nids=$(nids),)
+
+.PHONY: migrate-fix-integrity
+migrate-fix-integrity: ## 🛠️  Fix migrated nodes from D7 with D10 (e.g., make migrate-fix-integrity type=laptop).
+	@if [ -z "$(type)" ]; then \
+		echo "$(RED)❌ Error: You must specify a content type (e.g., make migrate-fix-integrity type=laptop).$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🛠️  Fixing integrity for $(type) nodes...$(RESET)"
+	$(DRUSH_COMMAND) labdoo:migrate-fix-integrity $(type) --limit=$(or $(limit),0) --destination-type=$(or $(destination_type),$(type)) $(if $(fields),--fields=$(fields),) $(if $(nids),--nids=$(nids),)
 
 .PHONY: sync-geography
 sync-geography: ## 🌍 Synchronize geographic information from D7 for all main types. Usage: make sync-geography [force=1]

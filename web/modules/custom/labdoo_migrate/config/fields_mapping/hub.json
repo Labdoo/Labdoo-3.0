@@ -4,6 +4,9 @@
     "hub"
   ],
   "entity_type": "node",
+  "integrity_fields": [
+    "changed"
+  ],
   "fields_mapping": [
     {
       "source": {

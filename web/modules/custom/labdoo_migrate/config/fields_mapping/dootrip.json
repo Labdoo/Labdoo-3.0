@@ -4,6 +4,11 @@
     "dootrip"
   ],
   "entity_type": "node",
+  "integrity_fields": [
+    "field_destination_of_the_trip",
+    "field_origin_of_the_trip",
+    "changed"
+  ],
   "fields_mapping": [
     {
       "source": {

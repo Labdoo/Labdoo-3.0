@@ -97,41 +97,46 @@ class IntegrityCheckCommands extends DrushCommands {
    *   The command options.
    *
    * @option limit
-   *   The number of random nodes to check.
+   *   The number of nodes to check (0 for all).
    * @option destination-type
    *   The destination content type (bundle) in Drupal 10.
    * @option nids
    *   Specific source IDs to check.
+   * @option fields
+   *   Specific fields to check (comma separated).
    *
    * @command labdoo:migrate-check-integrity
    * @aliases lm-ci
+   * @usage drush lm-ci story
    * @usage drush lm-ci story --limit=10
    */
-  public function checkIntegrity(string $contentType, array $options = ['limit' => 5, 'destination-type' => NULL, 'nids' => NULL]): void {
-    $limit = (int) $options['limit'];
+  public function checkIntegrity(string $contentType, array $options = ['limit' => 0, 'destination-type' => NULL, 'nids' => NULL, 'fields' => NULL]): void {
+    $limit = isset($options['limit']) ? (int) $options['limit'] : 0;
     $destinationType = $options['destination-type'] ?? $contentType;
-    if (($contentType === 'story' || $destinationType === 'story') && $options['destination-type'] === NULL) {
-      $destinationType = 'labdoo_story';
-    }
-    if ($destinationType === 'story') {
-      $destinationType = 'labdoo_story';
-    }
-    if ($contentType === 'team_task' && $options['destination-type'] === NULL) {
-      $destinationType = 'task_team';
-    }
-    $nids = $options['nids'] ? explode(',', $options['nids']) : [];
 
-    // Bundle mapping for D7 vs D10.
     $bundleMapping = [
       'story' => 'labdoo_story',
-      'team_task' => 'team_task',
+      'team_task' => 'task_team',
+      'laptop' => 'dootronic',
     ];
-    $sourceContentType = $bundleMapping[$contentType] ?? $contentType;
 
-    $this->io()->title(sprintf('Checking integrity for %d random migrated nodes of type %s (D7) -> %s (D10)', $limit, $sourceContentType, $destinationType));
+    if ($options['destination-type'] === NULL) {
+      $destinationType = $bundleMapping[$contentType] ?? $contentType;
+    }
+    $nids = $options['nids'] ? explode(',', $options['nids']) : [];
+    $config = $this->configurationManager->getContentConfiguration($contentType);
+    $targetFields = $options['fields'] ? explode(',', $options['fields']) : $config->getIntegrityFields();
+
+    $sourceContentType = $contentType;
+
+    if ($limit > 0) {
+      $this->io()->title(sprintf('Checking integrity for %d random migrated nodes of type %s (D7) -> %s (D10)', $limit, $sourceContentType, $destinationType));
+    }
+    else {
+      $this->io()->title(sprintf('Checking integrity for ALL migrated nodes of type %s (D7) -> %s (D10)', $sourceContentType, $destinationType));
+    }
 
     try {
-      $config = $this->configurationManager->getContentConfiguration($contentType);
       $entityType = $config->getEntityType();
       $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
 
@@ -146,17 +151,27 @@ class IntegrityCheckCommands extends DrushCommands {
           return;
         }
 
-        shuffle($allIds);
-        $selectedIds = array_slice($allIds, 0, $limit);
+        if ($limit > 0) {
+          shuffle($allIds);
+          $selectedIds = array_slice($allIds, 0, $limit);
+        }
+        else {
+          $selectedIds = $allIds;
+          sort($selectedIds);
+        }
       }
 
       $results = [];
-      foreach ($selectedIds as $sid) {
-        $this->io()->text("Checking Source ID: $sid");
+      $deferredMessages = [];
+      $progressBar = $this->io()->createProgressBar(count($selectedIds));
+      $progressBar->start();
 
+      foreach ($selectedIds as $sid) {
         $destId = $this->migrationTracker->getDestinationIdBySourceId($entityType, $sid);
         if (!$destId) {
           $results[] = [$sid, 'N/A', 'ERROR', 'Not found in D10'];
+          $deferredMessages[] = "Source ID $sid not found in D10.";
+          $progressBar->advance();
           continue;
         }
 
@@ -185,10 +200,11 @@ class IntegrityCheckCommands extends DrushCommands {
         $destEntity = $this->entityTypeManager->getStorage($entityType)->load($destId);
         if (!$destEntity) {
           $results[] = [$sid, $destId, 'ERROR', 'D10 entity could not be loaded'];
+          $progressBar->advance();
           continue;
         }
 
-        $entityErrors = $this->compareData($sourceData, $destEntity, $mapping);
+        $entityErrors = $this->compareData($sourceData, $destEntity, $mapping, $targetFields);
         if (empty($entityErrors)) {
           $results[] = [$sid, $destId, 'OK', 'All fields match'];
         }
@@ -197,6 +213,14 @@ class IntegrityCheckCommands extends DrushCommands {
             $results[] = [$sid, $destId, 'ERROR', $error];
           }
         }
+        $progressBar->advance();
+      }
+
+      $progressBar->finish();
+      $this->io()->newLine(2);
+
+      foreach ($deferredMessages as $message) {
+        $this->io()->warning($message);
       }
 
       $this->io()->table(['Source ID', 'Dest ID', 'Status', 'Details'], $results);
@@ -209,7 +233,7 @@ class IntegrityCheckCommands extends DrushCommands {
   /**
    * Compares source data with destination node.
    */
-  protected function compareData(array $sourceData, EntityInterface $destNode, array $mapping): array {
+  protected function compareData(array $sourceData, EntityInterface $destNode, array $mapping, array $targetFields = []): array {
     $errors = [];
     /** @var \Drupal\labdoo_migrate\Model\MappingModel $map */
     foreach ($mapping as $map) {
@@ -218,6 +242,10 @@ class IntegrityCheckCommands extends DrushCommands {
 
       // Some fields might be internal metadata or ignored.
       if (in_array($destField, ['nid', 'vid', 'type', 'uuid', 'langcode', 'pass', 'preferred_langcode'])) {
+        continue;
+      }
+
+      if (!empty($targetFields) && !in_array($destField, $targetFields)) {
         continue;
       }
 
@@ -272,6 +300,9 @@ class IntegrityCheckCommands extends DrushCommands {
       }
       elseif (isset($val['value'])) {
         $processedValues[] = $val['value'];
+      }
+      elseif (isset($val['country_code'])) {
+        $processedValues[] = $val['country_code'];
       }
       else {
         $processedValues[] = $val;
@@ -335,6 +366,18 @@ class IntegrityCheckCommands extends DrushCommands {
     }
 
     // Drupal 7 often has strings, Drupal 10 might have integers or strings.
+    // Case insensitive for strings (like country codes).
+    if (is_string($val1) && is_string($val2)) {
+      // If they are strictly equal, return true.
+      if ($val1 === $val2) {
+        return TRUE;
+      }
+      // If they are both 2-char strings, compare case-insensitively (likely country codes).
+      if (strlen($val1) === 2 && strlen($val2) === 2) {
+        return strcasecmp($val1, $val2) === 0;
+      }
+    }
+
     return (string) $val1 === (string) $val2;
   }
 

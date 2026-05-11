@@ -4,6 +4,12 @@
     "dootronic"
   ],
   "entity_type": "node",
+  "integrity_fields": [
+    "field_manager",
+    "field_locations",
+    "field_country",
+    "field_picture"
+  ],
   "fields_mapping": [
     {
       "source": {

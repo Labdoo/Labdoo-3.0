@@ -64,29 +64,22 @@ class FixUidCommands extends DrushCommands {
    */
   public function fixNodeUids(array $options = ['limit' => -1, 'batch-size' => 1000, 'type' => NULL, 'default-uid' => NULL, 'dry-run' => FALSE]) {
     // Start with nodes that have uid=0 in node_field_data.
+    // Process nodes that have uid=0 in node_field_data.
+    $this->io()->title('Stage 1: Fixing nodes with uid=0 in node_field_data');
+    $this->doFixNodeUids($options);
+
+    // Process nodes that have uid=0 in node_field_revision but are already fixed in node_field_data.
+    $this->io()->title('Stage 2: Fixing internal inconsistencies in node_field_revision');
+    $this->fixRevisionInconsistencies($options);
+  }
+
+  /**
+   * Internal logic to fix node UIDs.
+   */
+  protected function doFixNodeUids(array $options) {
     $query = $this->database->select('node_field_data', 'n')
       ->fields('n', ['nid', 'type'])
       ->condition('n.uid', 0);
-
-    // If no explicit limit, we also include nodes that have uid=0 in revisions
-    // but were already "fixed" in node_field_data.
-    if ($options['limit'] == -1) {
-      $revisionQuery = $this->database->select('node_field_revision', 'nfr');
-      $revisionQuery->join('node_field_data', 'nfd', 'nfr.nid = nfd.nid');
-      $revisionQuery->fields('nfr', ['nid'])
-        ->condition('nfr.uid', 0)
-        ->condition('nfd.uid', 0, '<>');
-      
-      $revNids = $revisionQuery->execute()->fetchCol();
-      if (!empty($revNids)) {
-        $query = $this->database->select('node_field_data', 'n')
-          ->fields('n', ['nid', 'type'])
-          ->condition($this->database->condition('OR')
-            ->condition('n.uid', 0)
-            ->condition('n.nid', $revNids, 'IN')
-          );
-      }
-    }
 
     if ($options['type']) {
       $query->condition('n.type', $options['type']);
@@ -99,12 +92,12 @@ class FixUidCommands extends DrushCommands {
     $nodes = $query->execute()->fetchAll();
 
     if (empty($nodes)) {
-      $this->io()->success('No nodes with uid=0 found.');
+      $this->io()->success('No nodes with uid=0 in node_field_data found.');
       return;
     }
 
     $total = count($nodes);
-    $this->io()->title(sprintf('Found %d nodes with uid=0', $total));
+    $this->io()->note(sprintf('Found %d nodes with uid=0 in node_field_data', $total));
 
     try {
       $extConn = $this->externalConnectionManager->setConnection();
@@ -160,10 +153,6 @@ class FixUidCommands extends DrushCommands {
       foreach ($chunk as $node) {
         $nid = $node->nid;
         if (!isset($originalUids[$nid])) {
-          // If not in the result, it's either not in D7 or it's uid=0 in D7.
-          // Since we already filtered uid=0 in the query, we can't distinguish
-          // without a second query, so we'll group them for simplicity
-          // as requested by the user's logic suggestion.
           $nodeNotFoundInD7++;
           $progressBar->advance();
           continue;
@@ -210,7 +199,6 @@ class FixUidCommands extends DrushCommands {
         catch (\Exception $e) {
           $transaction->rollBack();
           $this->io()->error('Error updating nodes: ' . $e->getMessage());
-          // Optional: break or continue? Let's break to be safe.
           break;
         }
       }
@@ -218,10 +206,6 @@ class FixUidCommands extends DrushCommands {
 
     $progressBar->finish();
     $this->io()->newLine();
-
-    if ($options['dry-run']) {
-      $this->io()->note('DRY RUN: No changes were made.');
-    }
 
     $this->io()->table(
       ['Status', 'Count'],
@@ -233,19 +217,71 @@ class FixUidCommands extends DrushCommands {
       ]
     );
 
-    if ($fixed + $defaultAssigned > 0) {
-      $this->io()->success(sprintf('Processed %d nodes.', $fixed + $defaultAssigned));
-      $this->io()->note('Remember to rebuild the search index if necessary.');
-    }
-    else {
-      $this->io()->warning('No nodes were updated.');
-    }
-
-    if ($userNotFound > 0) {
-      $this->io()->info(sprintf('%d nodes could not be fixed because their original author does not exist in D10. Use --default-uid to assign them to a specific user.', $userNotFound));
-    }
-
     $this->externalConnectionManager->restoreConnection();
+  }
+
+  /**
+   * Fixes inconsistencies where node_field_data has UID but revisions don't.
+   */
+  protected function fixRevisionInconsistencies(array $options) {
+    $query = $this->database->select('node_field_data', 'nfd');
+    $query->join('node_field_revision', 'nfr', 'nfd.nid = nfr.nid AND nfd.vid = nfr.vid');
+    $query->fields('nfd', ['nid', 'vid', 'uid'])
+      ->condition('nfr.uid', 0)
+      ->condition('nfd.uid', 0, '<>');
+
+    if ($options['limit'] != -1) {
+      $query->range(0, $options['limit']);
+    }
+
+    $results = $query->execute()->fetchAll();
+
+    if (empty($results)) {
+      $this->io()->success('No inconsistencies found between node_field_data and node_field_revision.');
+      return;
+    }
+
+    $total = count($results);
+    $this->io()->note(sprintf('Found %d nodes with inconsistent UIDs in revisions', $total));
+
+    if ($options['dry-run']) {
+      $this->io()->note('DRY RUN: No revision changes were made.');
+      return;
+    }
+
+    $progressBar = $this->io()->createProgressBar($total);
+    $batchSize = (int) $options['batch-size'];
+    $chunks = array_chunk($results, $batchSize);
+
+    foreach ($chunks as $chunk) {
+      $transaction = $this->database->startTransaction();
+      try {
+        foreach ($chunk as $row) {
+          $this->database->update('node_revision')
+            ->fields(['revision_uid' => $row->uid])
+            ->condition('nid', $row->nid)
+            ->condition('vid', $row->vid)
+            ->execute();
+
+          $this->database->update('node_field_revision')
+            ->fields(['uid' => $row->uid])
+            ->condition('nid', $row->nid)
+            ->condition('vid', $row->vid)
+            ->execute();
+          
+          $progressBar->advance();
+        }
+      }
+      catch (\Exception $e) {
+        $transaction->rollBack();
+        $this->io()->error('Error updating revisions: ' . $e->getMessage());
+        break;
+      }
+    }
+
+    $progressBar->finish();
+    $this->io()->newLine();
+    $this->io()->success(sprintf('Fixed %d revision inconsistencies.', $total));
   }
 
 }
