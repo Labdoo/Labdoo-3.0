@@ -1228,6 +1228,11 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+      pager:
+        type: some
+        options:
+          offset: 0
+          items_per_page: 1
       style:
         type: default
         options: {  }
@@ -1236,17 +1241,12 @@ display:
         options: {  }
       defaults:
         title: false
+        pager: false
         style: false
         row: false
         fields: false
         header: false
         footer: false
-        pager: false
-      pager:
-        type: some
-        options:
-          items_per_page: 1
-          offset: 0
       header:
         area:
           id: area

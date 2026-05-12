@@ -1396,6 +1396,11 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+      pager:
+        type: some
+        options:
+          offset: 0
+          items_per_page: 1
       style:
         type: default
         options: {  }
@@ -1408,15 +1413,10 @@ display:
           hide_empty: false
       defaults:
         title: false
+        pager: false
         style: false
         row: false
         fields: false
-        pager: false
-      pager:
-        type: some
-        options:
-          items_per_page: 1
-          offset: 0
       header:
         area:
           id: area
