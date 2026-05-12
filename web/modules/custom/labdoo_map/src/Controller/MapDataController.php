@@ -39,6 +39,40 @@ class MapDataController extends ControllerBase {
   }
 
   /**
+   * Helper to check if a location is suspicious.
+   *
+   * @param float $lat
+   *   The latitude.
+   * @param float $lon
+   *   The longitude.
+   *
+   * @return bool
+   *   TRUE if the location is suspicious, FALSE otherwise.
+   */
+  public static function isSuspiciousLocation($lat, $lon) {
+    // 0,0 is usually a sign of missing geocoding.
+    if (abs($lat) < 0.0001 && abs($lon) < 0.0001) {
+      return TRUE;
+    }
+    // Latitudes beyond the habitable range are suspicious.
+    // South of -56.7 and North of 77.75 are considered polar/uninhabitable.
+    if ($lat < -56.7 || $lat > 77.75) {
+      return TRUE;
+    }
+    // Specific coordinates that are known to be "defaults" or incorrect.
+    // E.g. Madrid or Barcelona city centers when only country/region was provided.
+    $defaults = [
+      '40.416775,-3.703790', // Madrid
+      '41.385064,2.173404',  // Barcelona
+    ];
+    if (in_array(sprintf('%.6f,%.6f', $lat, $lon), $defaults)) {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Returns points for a specific content type.
    */
   public function getMapPoints($type) {
@@ -69,37 +103,25 @@ class MapDataController extends ControllerBase {
     $query->condition('n.status', 1);
     $query->isNotNull('l.' . $lat_col);
     $query->isNotNull('l.' . $lon_col);
+    // Filter out suspicious locations directly in the query for better performance.
+    // 1. 0,0 is suspicious.
+    $query->condition('l.' . $lat_col, 0, '!=');
+    $query->condition('l.' . $lon_col, 0, '!=');
+    // 2. Habitable range filter.
+    $query->condition('l.' . $lat_col, 77.75, '<=');
+    $query->condition('l.' . $lat_col, -56.7, '>=');
+    // 3. Known "default" coordinates that might be incorrect.
+    $query->condition('l.' . $lat_col, [40.416775, 41.385064, -73.989308, -69.021414], 'NOT IN');
 
     $results = $query->execute();
 
     while ($row = $results->fetchObject()) {
-      $point = [
+      $points[] = [
         'lat' => (float) $row->{$lat_col},
         'lon' => (float) $row->{$lon_col},
         'id' => (int) $row->nid,
         'title' => $row->title,
       ];
-
-      // If dootronic, fetch the trajectory from field_locations.
-      if ($type === 'dootronic') {
-        $trajectory = [];
-        $t_query = $this->database->select('node__field_locations', 'fl');
-        $t_query->fields('fl', ['field_locations_lat', 'field_locations_lon']);
-        $t_query->condition('fl.entity_id', $row->nid);
-        $t_query->orderBy('fl.delta', 'ASC');
-        $t_results = $t_query->execute();
-        while ($t_row = $t_results->fetchObject()) {
-          $trajectory[] = [
-            'lat' => (float) $t_row->field_locations_lat,
-            'lon' => (float) $t_row->field_locations_lon,
-          ];
-        }
-        if (!empty($trajectory)) {
-          $point['trajectory'] = $trajectory;
-        }
-      }
-
-      $points[] = $point;
     }
 
     return new JsonResponse($points);

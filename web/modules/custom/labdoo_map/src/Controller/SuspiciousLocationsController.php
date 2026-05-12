@@ -74,7 +74,7 @@ class SuspiciousLocationsController extends ControllerBase {
     $query1->addField('l', 'field_location_lon', 'lon');
     $query1->addField('c', 'field_city_value', 'city');
     $query1->addField('co', 'field_country_value', 'country');
-    $query1->where('(l.field_location_lat = 0 AND l.field_location_lon = 0) OR ABS(l.field_location_lat) > 85');
+    $query1->where('(l.field_location_lat = 0 AND l.field_location_lon = 0) OR l.field_location_lat < -56.7 OR l.field_location_lat > 77.75 OR (l.field_location_lat = 40.416775 AND l.field_location_lon = -3.703790) OR (l.field_location_lat = 41.385064 AND l.field_location_lon = 2.173404) OR (l.field_location_lat = -73.989308 AND l.field_location_lon = 40.741890) OR (l.field_location_lat = -69.021414 AND l.field_location_lon = 84.375000)');
 
     // Query 2: field_locations (action, dootrip, hub)
     $query2 = $this->database->select('node_field_data', 'n');
@@ -88,7 +88,7 @@ class SuspiciousLocationsController extends ControllerBase {
     $query2->addField('l', 'field_locations_lon', 'lon');
     $query2->addField('c', 'field_city_value', 'city');
     $query2->addField('co', 'field_country_value', 'country');
-    $query2->where('(l.field_locations_lat = 0 AND l.field_locations_lon = 0) OR ABS(l.field_locations_lat) > 85');
+    $query2->where('(l.field_locations_lat = 0 AND l.field_locations_lon = 0) OR l.field_locations_lat < -56.7 OR l.field_locations_lat > 77.75 OR (l.field_locations_lat = 40.416775 AND l.field_locations_lon = -3.703790) OR (l.field_locations_lat = 41.385064 AND l.field_locations_lon = 2.173404) OR (l.field_locations_lat = -73.989308 AND l.field_locations_lon = 40.741890) OR (l.field_locations_lat = -69.021414 AND l.field_locations_lon = 84.375000)');
 
     // We can't easily use the Union with the Drupal Query builder for Pager.
     // So we'll use a manual query with UNION and then handle pager.
