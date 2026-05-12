@@ -112,16 +112,29 @@
                 latlngs.push([point.lat, point.lon]);
                 
                 // Add markers for each point in trajectory if it's a detail map
-                var marker = L.marker([point.lat, point.lon]);
+                var icon = L.divIcon({
+                  className: 'labdoo-map-numbered-marker',
+                  html: '<span>' + (point.index || (i + 1)) + '</span>',
+                  iconSize: [26, 26],
+                  iconAnchor: [13, 13]
+                });
+                
+                var popupContent = '<strong>' + Drupal.t('Point') + ' ' + (point.index || (i + 1)) + '</strong>';
+                if (point.date) {
+                  popupContent += '<br>' + Drupal.t('Date') + ': ' + point.date;
+                }
+                
+                var marker = L.marker([point.lat, point.lon], {icon: icon})
+                  .bindPopup(popupContent);
                 trajectoryMarkers.addLayer(marker);
               });
               
               if (latlngs.length > 1) {
                 L.polyline(latlngs, {
                   color: '#00aeee', // Labdoo blue
-                  weight: 3,
-                  opacity: 0.7,
-                  dashArray: '5, 10'
+                  weight: 4,
+                  opacity: 0.8,
+                  dashArray: '8, 12'
                 }).addTo(map);
               }
               

@@ -1,0 +1,19 @@
+.labdoo-map-numbered-marker {
+    background-color: #00aeee;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.6);
+    transition: transform 0.2s ease-in-out;
+}
+
+.labdoo-map-numbered-marker:hover {
+    transform: scale(1.2);
+    z-index: 1000 !important;
+}

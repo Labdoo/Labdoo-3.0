@@ -22,6 +22,7 @@ labdoo_map:
       https://unpkg.com/leaflet@1.0.3/dist/leaflet.css: { type: external }
       https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css: { type: external }
       https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css: { type: external }
+      css/labdoo-map.css: {}
   dependencies:
     - core/jquery
     - core/drupal

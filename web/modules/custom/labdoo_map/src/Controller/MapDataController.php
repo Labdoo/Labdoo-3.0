@@ -131,34 +131,43 @@ class MapDataController extends ControllerBase {
    * Returns trajectory points for a specific node.
    */
   public function getNodeTrajectory($nid) {
-    $points = [];
+    $unique_points = [];
     $node = \Drupal\node\Entity\Node::load($nid);
     
     if (!$node) {
-      return new JsonResponse($points);
+      return new JsonResponse([]);
     }
 
     // Try both field_location (single) and field_locations (multiple).
     $fields = ['field_location', 'field_locations'];
     
+    $created = $node->getCreatedTime();
+    $date_formatter = \Drupal::service('date.formatter');
+    $formatted_date = $date_formatter->format($created, 'short');
+
     foreach ($fields as $field_name) {
       if ($node->hasField($field_name) && !$node->get($field_name)->isEmpty()) {
         $values = $node->get($field_name)->getValue();
-        foreach ($values as $value) {
+        foreach ($values as $delta => $value) {
           $lat = (float) ($value['lat'] ?? $value['value_lat'] ?? 0);
           $lon = (float) ($value['lon'] ?? $value['value_lon'] ?? 0);
           
           if ($lat && $lon && !self::isSuspiciousLocation($lat, $lon)) {
-            $points[] = [
-              'lat' => $lat,
-              'lon' => $lon,
-            ];
+            $key = sprintf('%.6f,%.6f', $lat, $lon);
+            if (!isset($unique_points[$key])) {
+              $unique_points[$key] = [
+                'lat' => $lat,
+                'lon' => $lon,
+                'index' => count($unique_points) + 1,
+                'date' => $formatted_date,
+              ];
+            }
           }
         }
       }
     }
 
-    return new JsonResponse($points);
+    return new JsonResponse(array_values($unique_points));
   }
 
 }
