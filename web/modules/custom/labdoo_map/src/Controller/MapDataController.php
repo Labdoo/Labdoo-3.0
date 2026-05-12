@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_map\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\Core\Database\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -132,7 +133,7 @@ class MapDataController extends ControllerBase {
    */
   public function getNodeTrajectory($nid) {
     $unique_points = [];
-    $node = \Drupal\node\Entity\Node::load($nid);
+    $node = Node::load($nid);
     
     if (!$node) {
       return new JsonResponse([]);

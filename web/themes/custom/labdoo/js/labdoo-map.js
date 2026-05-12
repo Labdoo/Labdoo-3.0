@@ -50,6 +50,10 @@
 
             if (map) {
               loadAndDrawTrajectory(map, nid);
+              // Ensure map is correctly rendered
+              setTimeout(function() {
+                map.invalidateSize();
+              }, 200);
             }
           }, 1000);
         }
@@ -61,6 +65,11 @@
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(map);
+
+          // Ensure map is correctly rendered
+          setTimeout(function() {
+            map.invalidateSize();
+          }, 200);
 
           var markers = L.markerClusterGroup();
           
@@ -79,7 +88,7 @@
 
             if (data.length > 0) {
               try {
-                map.fitBounds(markers.getBounds());
+                map.fitBounds(markers.getBounds(), {padding: [50, 50], maxZoom: 15});
               } catch (e) {
                 console.error('Error fitting bounds:', e);
               }
@@ -96,7 +105,7 @@
                    }
                  });
                  map.addLayer(markers);
-                 if (data.length > 0) { map.fitBounds(markers.getBounds()); }
+                 if (data.length > 0) { map.fitBounds(markers.getBounds(), {padding: [50, 50], maxZoom: 15}); }
               });
             }
           });
@@ -139,15 +148,10 @@
               }
               
               trajectoryMarkers.addTo(map);
-              map.fitBounds(trajectoryMarkers.getBounds());
+              map.fitBounds(trajectoryMarkers.getBounds(), {padding: [50, 50], maxZoom: 15});
             }
           });
         }
-        
-        // Ensure map is correctly rendered
-        setTimeout(function() {
-          map.invalidateSize();
-        }, 200);
       });
     }
   };

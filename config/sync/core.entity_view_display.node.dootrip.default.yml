@@ -34,6 +34,7 @@ dependencies:
     - node.type.dootrip
   module:
     - datetime
+    - geocoder_geofield
     - geolocation_geofield
     - options
     - user
@@ -47,7 +48,7 @@ content:
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 6
+    weight: 7
     region: content
   field_arrival_date:
     type: datetime_default
@@ -56,7 +57,7 @@ content:
       timezone_override: ''
       format_type: medium
     third_party_settings: {  }
-    weight: 3
+    weight: 4
     region: content
   field_co2_savings_dootrip:
     type: string
@@ -64,14 +65,14 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 19
+    weight: 20
     region: content
   field_comments:
     type: basic_string
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 16
+    weight: 17
     region: content
   field_departure_date:
     type: datetime_default
@@ -80,34 +81,22 @@ content:
       timezone_override: ''
       format_type: medium
     third_party_settings: {  }
-    weight: 2
+    weight: 3
     region: content
   field_destination_of_the_trip:
-    type: geolocation_geofield
+    type: geocoder_geofield_reverse_geocode
     label: above
     settings:
-      set_marker: true
-      show_label: false
-      common_map: true
-      show_delta_label: false
-      use_overridden_map_settings: false
-      title: ''
-      info_text:
-        value: ''
-        format: plain_text
-      centre:
-        fit_bounds:
-          enable: true
-          weight: -101
-          settings:
-            reset_zoom: true
-            min_zoom: 16
-          map_center_id: fit_bounds
-      map_provider_id: leaflet
-      map_provider_settings: {  }
-      data_provider_settings: {  }
+      providers:
+        freegeoip:
+          weight: '0'
+          checked: 0
+        googlemaps:
+          checked: '1'
+          weight: '0'
+      dumper: addresstext
     third_party_settings: {  }
-    weight: 1
+    weight: 2
     region: content
   field_distance_dootrip:
     type: number_decimal
@@ -118,7 +107,7 @@ content:
       scale: 2
       prefix_suffix: true
     third_party_settings: {  }
-    weight: 13
+    weight: 14
     region: content
   field_dootrip_capacity:
     type: number_integer
@@ -127,7 +116,7 @@ content:
       thousand_separator: ''
       prefix_suffix: true
     third_party_settings: {  }
-    weight: 10
+    weight: 11
     region: content
   field_dootrip_weight:
     type: string
@@ -135,7 +124,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 20
+    weight: 21
     region: content
   field_dootripper_s:
     type: entity_reference_label
@@ -143,7 +132,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 4
+    weight: 5
     region: content
   field_dootronics_delivered:
     type: number_integer
@@ -152,7 +141,7 @@ content:
       thousand_separator: ''
       prefix_suffix: true
     third_party_settings: {  }
-    weight: 17
+    weight: 18
     region: content
   field_edoovillages_assigned:
     type: entity_reference_label
@@ -160,7 +149,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 15
+    weight: 16
     region: content
   field_hub:
     type: entity_reference_label
@@ -168,7 +157,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 5
+    weight: 6
     region: content
   field_laptops:
     type: entity_reference_label
@@ -176,36 +165,9 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 12
+    weight: 13
     region: content
-  field_number_of_days_after:
-    type: number_integer
-    label: above
-    settings:
-      thousand_separator: ''
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 9
-    region: content
-  field_number_of_days_before:
-    type: number_integer
-    label: above
-    settings:
-      thousand_separator: ''
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 8
-    region: content
-  field_number_of_doojects_assigne:
-    type: number_integer
-    label: above
-    settings:
-      thousand_separator: ''
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 11
-    region: content
-  field_origin_of_the_trip:
+  field_locations:
     type: geolocation_geofield
     label: above
     settings:
@@ -224,19 +186,21 @@ content:
           weight: -101
           settings:
             reset_zoom: true
-            min_zoom: 16
+            min_zoom: null
           map_center_id: fit_bounds
-        client_location:
+        fit_shapes:
           enable: false
           weight: 0
-          map_center_id: client_location
+          settings:
+            min_zoom: null
+          map_center_id: fit_shapes
         fixed_value:
           enable: false
           weight: 0
           settings:
             location_option_id: fixed_value
-            latitude: null
-            longitude: null
+            latitude: '0'
+            longitude: '0'
           map_center_id: location_plugins
         ipstack:
           enable: false
@@ -256,8 +220,12 @@ content:
           map_center_id: fixed_boundaries
       map_provider_id: leaflet
       map_provider_settings:
+        conditional_initialization: 'no'
+        conditional_description: 'Clicking this button will embed a map.'
+        conditional_label: 'Show map'
+        conditional_viewport_threshold: 0.8
         map_features:
-          leaflet_client_location_indicator:
+          client_location_indicator:
             enabled: false
             weight: 0
           leaflet_disable_user_interaction:
@@ -296,38 +264,41 @@ content:
             enabled: false
             weight: 0
             settings:
-              position: topright
-          leaflet_control_geocoder:
+              position: topleft
+          control_geocoder:
             enabled: false
             weight: 0
             settings:
-              position: topright
+              position: topleft
               geocoder: photon
-              settings:
-                label: Address
-                description: 'Enter an address to be localized.'
-          leaflet_control_locate:
+          control_loading_indicator:
             enabled: false
             weight: 0
             settings:
-              position: topright
-          leaflet_control_recenter:
+              position: topleft
+              loading_label: Loading
+          control_locate:
             enabled: false
             weight: 0
             settings:
-              position: topright
+              position: topleft
+          control_recenter:
+            enabled: false
+            weight: 0
+            settings:
+              position: topleft
           leaflet_control_scale:
             enabled: false
             weight: 0
             settings:
-              position: topright
+              position: topleft
               metric: true
               imperial: true
           leaflet_control_layer:
             enabled: false
             weight: 0
             settings:
-              position: topright
+              position: topleft
               default_label: Default
               tile_layer_providers:
                 OpenStreetMap:
@@ -620,65 +591,21 @@ content:
                   app_code: ''
                 GeoportailFrance:
                   apikey: ''
+          control_tile_layers:
+            enabled: false
+            weight: 0
+            settings:
+              position: topleft
+          control_view_fullscreen:
+            enabled: false
+            weight: 0
+            settings:
+              position: topleft
           leaflet_control_zoom:
             enabled: true
             weight: 0
             settings:
-              position: topright
-          leaflet_marker_clusterer:
-            enabled: false
-            weight: 0
-            settings:
-              cluster_settings:
-                show_coverage_on_hover: true
-                zoom_to_bounds_on_click: true
-              disable_clustering_at_zoom: 0
-              custom_marker_settings: ''
-          leaflet_marker_icon:
-            enabled: false
-            weight: 0
-            settings:
-              marker_shadow_path: ''
-              marker_icon_path: ''
-              icon_size:
-                width: null
-                height: null
-              icon_anchor:
-                x: null
-                'y': null
-              popup_anchor:
-                x: 0
-                'y': 0
-              shadow_size:
-                width: null
-                height: null
-              shadow_anchor:
-                x: null
-                'y': null
-          leaflet_marker_popup:
-            enabled: true
-            weight: 0
-            settings:
-              info_auto_display: false
-              max_width: 300
-              min_width: 50
-              max_height: 0
-              auto_pan: true
-              keep_in_view: false
-              close_button: true
-              auto_close: true
-              close_on_escape_key: true
-              class_name: ''
-          geolocation_marker_scroll_to_id:
-            enabled: false
-            weight: 0
-            settings:
-              scroll_target_id: ''
-          leaflet_marker_zoom_and_animate:
-            enabled: false
-            weight: 0
-            settings:
-              marker_zoom_anchor_id: ''
+              position: topleft
           leaflet_max_bounds:
             enabled: false
             weight: 0
@@ -727,10 +654,88 @@ content:
               format: image/jpeg
               transparent: false
               identify: false
-        zoom: '16'
+        data_layers:
+          'geolocation_default_layer:default':
+            enabled: true
+            weight: -1
+            settings:
+              features:
+                leaflet_marker_clusterer:
+                  enabled: false
+                  weight: 0
+                  settings:
+                    cluster_settings:
+                      show_coverage_on_hover: true
+                      zoom_to_bounds_on_click: true
+                    disable_clustering_at_zoom: 0
+                    custom_marker_settings: ''
+                leaflet_marker_icon:
+                  enabled: false
+                  weight: 0
+                  settings:
+                    marker_shadow_path: ''
+                    marker_icon_path: ''
+                    icon_size:
+                      width: null
+                      height: null
+                    icon_anchor:
+                      x: null
+                      'y': null
+                    popup_anchor:
+                      x: 0
+                      'y': 0
+                    shadow_size:
+                      width: null
+                      height: null
+                    shadow_anchor:
+                      x: null
+                      'y': null
+                leaflet_marker_popup:
+                  enabled: false
+                  weight: 0
+                  settings:
+                    info_auto_display: false
+                    max_width: 300
+                    min_width: 50
+                    max_height: 0
+                    auto_pan: true
+                    keep_in_view: false
+                    close_button: true
+                    auto_close: true
+                    close_on_escape_key: true
+                    class_name: ''
+                marker_zoom_by_anchor:
+                  enabled: false
+                  weight: 0
+                  settings:
+                    marker_zoom_anchor_id: ''
+        tile_layers:
+          geolocation_tile_thunderforest:
+            settings:
+              apikey: ''
+            layers:
+              'geolocation_tile_thunderforest:cycle':
+                enabled: 0
+              'geolocation_tile_thunderforest:transport':
+                enabled: 0
+              'geolocation_tile_thunderforest:transport-dark':
+                enabled: 0
+              'geolocation_tile_thunderforest:spinal-map':
+                enabled: 0
+              'geolocation_tile_thunderforest:landscape':
+                enabled: 0
+              'geolocation_tile_thunderforest:outdoors':
+                enabled: 0
+              'geolocation_tile_thunderforest:pioneer':
+                enabled: 0
+              'geolocation_tile_thunderforest:mobile-atlas':
+                enabled: 0
+              'geolocation_tile_thunderforest:neighbourhood':
+                enabled: 0
+        zoom: '10'
         height: 400px
         width: 100%
-        minZoom: '2'
+        minZoom: '0'
         maxZoom: '20'
         maxBounds:
           north_east_bound:
@@ -769,25 +774,67 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
+  field_number_of_days_after:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_number_of_days_before:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  field_number_of_doojects_assigne:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_origin_of_the_trip:
+    type: geocoder_geofield_reverse_geocode
+    label: above
+    settings:
+      providers:
+        freegeoip:
+          weight: '0'
+          checked: 0
+        googlemaps:
+          checked: '1'
+          weight: '0'
+      dumper: addresstext
+    third_party_settings: {  }
+    weight: 1
+    region: content
   field_preferred_edoovillages:
     type: entity_reference_label
     label: above
     settings:
       link: true
     third_party_settings: {  }
-    weight: 14
+    weight: 15
     region: content
   field_status_dootrip:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 7
+    weight: 8
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 18
+    weight: 19
     region: content
 hidden:
   field_announce_this_dootrip: true
@@ -796,6 +843,5 @@ hidden:
   field_edoo_additional_editors: true
   field_edoo_additional_notif_em: true
   field_full: true
-  field_locations: true
   langcode: true
   search_api_excerpt: true
