@@ -5,6 +5,13 @@ labdoo_map.map_points:
   requirements:
     _permission: 'access content'
 
+labdoo_map.node_trajectory:
+  path: '/api/node-trajectory/{nid}'
+  defaults:
+    _controller: '\Drupal\labdoo_map\Controller\MapDataController::getNodeTrajectory'
+  requirements:
+    _permission: 'access content'
+
 labdoo_map.suspicious_locations:
   path: '/admin/reports/suspicious-locations'
   defaults:

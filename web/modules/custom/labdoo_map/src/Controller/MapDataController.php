@@ -127,4 +127,38 @@ class MapDataController extends ControllerBase {
     return new JsonResponse($points);
   }
 
+  /**
+   * Returns trajectory points for a specific node.
+   */
+  public function getNodeTrajectory($nid) {
+    $points = [];
+    $node = \Drupal\node\Entity\Node::load($nid);
+    
+    if (!$node) {
+      return new JsonResponse($points);
+    }
+
+    // Try both field_location (single) and field_locations (multiple).
+    $fields = ['field_location', 'field_locations'];
+    
+    foreach ($fields as $field_name) {
+      if ($node->hasField($field_name) && !$node->get($field_name)->isEmpty()) {
+        $values = $node->get($field_name)->getValue();
+        foreach ($values as $value) {
+          $lat = (float) ($value['lat'] ?? $value['value_lat'] ?? 0);
+          $lon = (float) ($value['lon'] ?? $value['value_lon'] ?? 0);
+          
+          if ($lat && $lon && !self::isSuspiciousLocation($lat, $lon)) {
+            $points[] = [
+              'lat' => $lat,
+              'lon' => $lon,
+            ];
+          }
+        }
+      }
+    }
+
+    return new JsonResponse($points);
+  }
+
 }

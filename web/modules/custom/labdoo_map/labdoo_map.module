@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Contains labdoo_map.module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function labdoo_map_preprocess_field(&$variables) {
+  $element = $variables['element'];
+  if ($element['#field_name'] == 'field_locations' || $element['#field_name'] == 'field_location') {
+    $node = $element['#object'];
+    if ($node instanceof EntityInterface) {
+      $variables['attributes']['data-nid'] = $node->id();
+      $variables['attributes']['data-labdoo-map-type'] = $node->bundle();
+      $variables['attributes']['class'][] = 'labdoo-map-container';
+      
+      // Ensure our library is attached.
+      $variables['#attached']['library'][] = 'labdoo/labdoo_map';
+    }
+  }
+}

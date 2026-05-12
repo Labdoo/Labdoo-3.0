@@ -54,14 +54,22 @@ class LabdooMapBlock extends BlockBase {
     $config = $this->getConfiguration();
     $type = $config['map_type'] ?? 'dootronic';
     
+    $attributes = [
+      'id' => 'map-' . $type,
+      'class' => ['labdoo-map-container'],
+      'data-labdoo-map-type' => $type,
+      'style' => 'height: 400px; width: 100%;',
+    ];
+
+    // If we are on a node page, add the NID to the attributes.
+    $node = \Drupal::routeMatch()->getParameter('node');
+    if ($node instanceof \Drupal\node\NodeInterface) {
+      $attributes['data-nid'] = $node->id();
+    }
+
     return [
       '#type' => 'container',
-      '#attributes' => [
-        'id' => 'map-' . $type,
-        'class' => ['labdoo-map-container'],
-        'data-labdoo-map-type' => $type,
-        'style' => 'height: 400px; width: 100%;',
-      ],
+      '#attributes' => $attributes,
       '#attached' => [
         'library' => [
           'labdoo/labdoo_map',
