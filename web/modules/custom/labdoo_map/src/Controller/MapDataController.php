@@ -73,12 +73,33 @@ class MapDataController extends ControllerBase {
     $results = $query->execute();
 
     while ($row = $results->fetchObject()) {
-      $points[] = [
+      $point = [
         'lat' => (float) $row->{$lat_col},
         'lon' => (float) $row->{$lon_col},
         'id' => (int) $row->nid,
         'title' => $row->title,
       ];
+
+      // If dootronic, fetch the trajectory from field_locations.
+      if ($type === 'dootronic') {
+        $trajectory = [];
+        $t_query = $this->database->select('node__field_locations', 'fl');
+        $t_query->fields('fl', ['field_locations_lat', 'field_locations_lon']);
+        $t_query->condition('fl.entity_id', $row->nid);
+        $t_query->orderBy('fl.delta', 'ASC');
+        $t_results = $t_query->execute();
+        while ($t_row = $t_results->fetchObject()) {
+          $trajectory[] = [
+            'lat' => (float) $t_row->field_locations_lat,
+            'lon' => (float) $t_row->field_locations_lon,
+          ];
+        }
+        if (!empty($trajectory)) {
+          $point['trajectory'] = $trajectory;
+        }
+      }
+
+      $points[] = $point;
     }
 
     return new JsonResponse($points);

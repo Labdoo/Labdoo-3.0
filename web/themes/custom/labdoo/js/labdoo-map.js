@@ -30,6 +30,29 @@
               var marker = L.marker([point.lat, point.lon])
                 .bindPopup('<a href="/node/' + point.id + '">' + point.title + '</a>');
               markers.addLayer(marker);
+
+              // Draw trajectory if available.
+              if (point.trajectory && point.trajectory.length > 1) {
+                var latlngs = [];
+                $.each(point.trajectory, function(i, loc) {
+                  if (loc.lat && loc.lon) {
+                    latlngs.push([loc.lat, loc.lon]);
+                  }
+                });
+                // Also add current location to the end of trajectory if not already there.
+                if (latlngs.length > 0 && (latlngs[latlngs.length-1][0] !== point.lat || latlngs[latlngs.length-1][1] !== point.lon)) {
+                  latlngs.push([point.lat, point.lon]);
+                }
+                
+                if (latlngs.length > 1) {
+                  var polyline = L.polyline(latlngs, {
+                    color: '#00aeee', // Labdoo blue
+                    weight: 2,
+                    opacity: 0.6,
+                    dashArray: '5, 5'
+                  }).addTo(map);
+                }
+              }
             }
           });
           map.addLayer(markers);
