@@ -18,6 +18,7 @@ module:
   captcha: 0
   charts: 0
   charts_c3: 0
+  charts_chartjs: 0
   charts_twig: 0
   chosen: 0
   chosen_lib: 0
