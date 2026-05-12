@@ -76,12 +76,19 @@
       font-weight: normal
       font-size: 14px
 
-.labdoo-map-container
+.labdoo-map-container,
+.geolocation-map-container
   height: 400px
   width: 100%
-  z-index: 1
   background-color: #f8f9fa
   border: 1px solid #ddd
   margin-bottom: 20px
+  position: relative
   .leaflet-container
     width: 100% !important
+    pointer-events: auto !important
+  .leaflet-overlay-pane
+    pointer-events: none !important
+  .leaflet-marker-pane,
+  .leaflet-popup-pane
+    pointer-events: auto !important
