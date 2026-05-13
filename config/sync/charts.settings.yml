@@ -73,4 +73,6 @@ advanced:
   debug: false
   requirements:
     cdn: true
-dependencies: {  }
+dependencies:
+  module:
+    - charts_chartjs
