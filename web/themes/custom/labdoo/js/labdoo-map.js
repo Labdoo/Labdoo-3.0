@@ -1,7 +1,7 @@
 (function ($, Drupal, once) {
   Drupal.behaviors.labdooMap = {
     attach: function (context, settings) {
-      const elements = once('labdoo-map', '.labdoo-map-container, .geolocation-map-container', context);
+      const elements = once('labdoo-map', '.labdoo-map-container', context);
 
       elements.forEach(function (el) {
         var $container = $(el);
@@ -110,7 +110,7 @@
 
         function enableInteractions(map) {
           console.log('Labdoo Map: Enabling interactions', map);
-          
+
           if (map.dragging) map.dragging.enable();
           if (map.touchZoom) map.touchZoom.enable();
           if (map.doubleClickZoom) map.doubleClickZoom.enable();
@@ -119,28 +119,36 @@
           if (map.keyboard) map.keyboard.enable();
           if (map.tap) map.tap.enable();
 
-          // Force options in the options object
           map.options.dragging = true;
           map.options.scrollWheelZoom = true;
           map.options.doubleClickZoom = true;
           map.options.touchZoom = true;
           map.options.boxZoom = true;
           map.options.keyboard = true;
-          
+
           if (map.gestureHandling) {
-            map.gestureHandling.enable();
+            map.gestureHandling.disable();
           }
 
-          // Force pointer events on the container
           var container = map.getContainer();
           if (container) {
             container.style.pointerEvents = 'auto';
             $(container).find('.leaflet-overlay-pane').css('pointer-events', 'none');
             $(container).find('.leaflet-marker-pane').css('pointer-events', 'auto');
             $(container).find('.leaflet-tile-pane').css('pointer-events', 'auto');
-            
-            // If there's a gesture handling overlay, make sure it doesn't block everything incorrectly
             $(container).find('.leaflet-gesture-handling-touch-overlay').css('pointer-events', 'none');
+
+            // Add a capture-phase wheel listener so wheel events intercepted by child
+            // elements (tile images, SVG panes) still trigger zoom.
+            if (!container._labdooScrollZoom) {
+              container._labdooScrollZoom = true;
+              container.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                var delta = e.deltaY > 0 ? -1 : 1;
+                var containerPoint = map.mouseEventToContainerPoint(e);
+                map.setZoomAround(containerPoint, map.getZoom() + delta);
+              }, {capture: true, passive: false});
+            }
           }
         }
 
