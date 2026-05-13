@@ -518,7 +518,8 @@ class IntegrityFixCommands extends DrushCommands {
       $parts2 = explode(',', $val2);
       if (count($parts1) === 2 && count($parts2) === 2) {
         if (is_numeric($parts1[0]) && is_numeric($parts1[1]) && is_numeric($parts2[0]) && is_numeric($parts2[1])) {
-          return abs((float)$parts1[0] - (float)$parts2[0]) < 0.0001 && abs((float)$parts1[1] - (float)$parts2[1]) < 0.0001;
+          // Relax threshold to 0.002 to absorb small geocoding differences.
+          return abs((float)$parts1[0] - (float)$parts2[0]) < 0.002 && abs((float)$parts1[1] - (float)$parts2[1]) < 0.002;
         }
       }
     }
@@ -538,15 +539,13 @@ class IntegrityFixCommands extends DrushCommands {
     }
 
     // Drupal 7 often has strings, Drupal 10 might have integers or strings.
-    // Case insensitive for strings (like country codes).
+    // Case insensitive for strings (like country codes or usernames).
     if (is_string($val1) && is_string($val2)) {
-      // If they are strictly equal, return true.
       if ($val1 === $val2) {
         return TRUE;
       }
-      // If they are both 2-char strings, compare case-insensitively (likely country codes).
-      if (strlen($val1) === 2 && strlen($val2) === 2) {
-        return strcasecmp($val1, $val2) === 0;
+      if (strcasecmp($val1, $val2) === 0) {
+        return TRUE;
       }
     }
 

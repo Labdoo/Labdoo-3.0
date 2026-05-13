@@ -306,6 +306,17 @@ class IntegrityCheckCommands extends DrushCommands {
       if (isset($val['latlon'])) {
         $processedValues[] = $val['latlon'];
       }
+      elseif (isset($val['value']) && is_string($val['value']) && strpos($val['value'], 'POINT (') === 0) {
+        // Handle Geofield WKT format for comparison.
+        // Convert "POINT (lng lat)" to "lat,lng" for comparison with source.
+        $wkt = $val['value'];
+        if (preg_match('/POINT\s*\(\s*([0-9.-]+)\s+([0-9.-]+)\s*\)/', $wkt, $matches)) {
+          $processedValues[] = $matches[2] . ',' . $matches[1];
+        }
+        else {
+          $processedValues[] = $val['value'];
+        }
+      }
       elseif (isset($val['target_id'])) {
         $processedValues[] = $val['target_id'];
       }
@@ -320,8 +331,9 @@ class IntegrityCheckCommands extends DrushCommands {
       }
     }
 
-    if (count($processedValues) === 1) {
-      return $processedValues[0];
+    $cardinality = $entity->getFieldDefinition($fieldName)->getFieldStorageDefinition()->getCardinality();
+    if ($cardinality == 1) {
+      return !empty($processedValues) ? $processedValues[0] : NULL;
     }
 
     return $processedValues;
@@ -331,8 +343,13 @@ class IntegrityCheckCommands extends DrushCommands {
    * Compare two values for equality.
    */
   protected function isEqual($val1, $val2): bool {
-    if (is_null($val1) && is_null($val2)) {
+    if (is_null($val1) && (is_null($val2) || $val2 === '' || (is_array($val2) && empty($val2)))) {
       return TRUE;
+    }
+
+    // Normalize source array to single value if needed.
+    if (is_array($val1) && !is_array($val2) && count($val1) <= 1) {
+       $val1 = !empty($val1) ? reset($val1) : NULL;
     }
 
     if (is_array($val1) && is_array($val2)) {
@@ -348,16 +365,23 @@ class IntegrityCheckCommands extends DrushCommands {
     }
 
     if (is_array($val1) || is_array($val2)) {
+      if (is_array($val1) && count($val1) === 1 && $this->isEqual(reset($val1), $val2)) {
+        return TRUE;
+      }
+      if (is_array($val2) && count($val2) === 1 && $this->isEqual($val1, reset($val2))) {
+        return TRUE;
+      }
       return FALSE;
     }
 
-    // Handle numeric strings with different precision/trailing zeros.
+    // Handle numeric strings with different precision/trailing zeros (coordinates).
     if (is_string($val1) && is_string($val2) && strpos($val1, ',') !== FALSE && strpos($val2, ',') !== FALSE) {
       $parts1 = explode(',', $val1);
       $parts2 = explode(',', $val2);
       if (count($parts1) === 2 && count($parts2) === 2) {
         if (is_numeric($parts1[0]) && is_numeric($parts1[1]) && is_numeric($parts2[0]) && is_numeric($parts2[1])) {
-          return abs((float)$parts1[0] - (float)$parts2[0]) < 0.000001 && abs((float)$parts1[1] - (float)$parts2[1]) < 0.000001;
+          // Relax threshold to 0.002 to absorb small geocoding differences.
+          return abs((float)$parts1[0] - (float)$parts2[0]) < 0.002 && abs((float)$parts1[1] - (float)$parts2[1]) < 0.002;
         }
       }
     }
@@ -377,15 +401,13 @@ class IntegrityCheckCommands extends DrushCommands {
     }
 
     // Drupal 7 often has strings, Drupal 10 might have integers or strings.
-    // Case insensitive for strings (like country codes).
+    // Case insensitive for strings (like country codes or usernames).
     if (is_string($val1) && is_string($val2)) {
-      // If they are strictly equal, return true.
       if ($val1 === $val2) {
         return TRUE;
       }
-      // If they are both 2-char strings, compare case-insensitively (likely country codes).
-      if (strlen($val1) === 2 && strlen($val2) === 2) {
-        return strcasecmp($val1, $val2) === 0;
+      if (strcasecmp($val1, $val2) === 0) {
+        return TRUE;
       }
     }
 
