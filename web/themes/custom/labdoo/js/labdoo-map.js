@@ -18,39 +18,79 @@
         if (nid) {
           // Geolocation module might have already initialized a map.
           // We check multiple times to ensure we catch it.
-          for (let i = 1; i <= 5; i++) {
-            setTimeout(function() {
-              var map;
-              if (el._leaflet_map) {
-                map = el._leaflet_map;
+          var checkCount = 0;
+          var maxChecks = 10;
+          var checkInterval = setInterval(function() {
+            checkCount++;
+            var map;
+            
+            // Try to find the map in various common locations
+            if (el._leaflet_map) {
+              map = el._leaflet_map;
+            } else if (el.geolocationMap && el.geolocationMap.leafletMap) {
+              map = el.geolocationMap.leafletMap;
+            } else {
+              // Geolocation might store it in data
+              var geoData = $(el).data('geolocation-map');
+              if (geoData && geoData.leafletMap) {
+                map = geoData.leafletMap;
               } else {
                 $container.find('*').each(function() {
                   if (this._leaflet_map) {
                     map = this._leaflet_map;
                     return false;
                   }
+                  if (this.geolocationMap && this.geolocationMap.leafletMap) {
+                    map = this.geolocationMap.leafletMap;
+                    return false;
+                  }
+                  var childGeoData = $(this).data('geolocation-map');
+                  if (childGeoData && childGeoData.leafletMap) {
+                    map = childGeoData.leafletMap;
+                    return false;
+                  }
                 });
               }
+            }
 
-              if (!map && i === 1) {
-                if (!$container.hasClass('leaflet-container')) {
-                  map = L.map(el).setView([20, 0], 2);
-                  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  }).addTo(map);
-                }
+            if (!map && checkCount === 1) {
+              if (!$container.hasClass('leaflet-container')) {
+                map = L.map(el).setView([20, 0], 2);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
               }
+            }
 
-              if (map) {
-                console.log('Labdoo Map: Found map after ' + i + 's', map);
+            if (map) {
+              console.log('Labdoo Map: Found map (check ' + checkCount + ')', map);
+              
+              // Ensure we have a reference on the element for future behaviors
+              if (!el._leaflet_map) el._leaflet_map = map;
+
+              // We need to re-enable interactions even if we already did, 
+              // just in case another script disabled them in between.
+              // But we only want to do the heavy setup (like wheel listeners) once.
+              forceInteractions(map);
+              
+              if (!map._labdooInteractionsEnabled) {
                 enableInteractions(map);
-                if (i === 1) loadAndDrawTrajectory(map, nid);
-                setTimeout(function() {
-                  map.invalidateSize();
-                }, 200);
               }
-            }, i * 1000);
-          }
+              
+              if (checkCount === 1) {
+                loadAndDrawTrajectory(map, nid);
+              }
+              
+              // We keep checking a few times even if found, because Geolocation might
+              // re-initialize or override settings shortly after creation.
+              if (checkCount >= maxChecks) {
+                clearInterval(checkInterval);
+              }
+            } else if (checkCount >= maxChecks) {
+              clearInterval(checkInterval);
+              console.log('Labdoo Map: No map found after ' + maxChecks + ' checks');
+            }
+          }, 1000);
         }
         else {
           // Standard map with all points of a type
@@ -70,17 +110,8 @@
 
           var markers = L.markerClusterGroup();
 
-          // Use relative path for API
+          // Use absolute path for API
           var apiUrl = '/api/map-points/' + type;
-        
-          // Ensure we handle language prefix if present in the current URL
-          var pathPrefix = '';
-          var currentPath = window.location.pathname;
-          var langMatch = currentPath.match(/^\/([a-z]{2})(\/|$)/);
-          if (langMatch) {
-            pathPrefix = langMatch[0].replace(/\/$/, '');
-            apiUrl = pathPrefix + apiUrl;
-          }
 
           $.getJSON(apiUrl, function (data) {
             $.each(data, function (index, point) {
@@ -100,26 +131,31 @@
               }
             }
           }).fail(function() {
-            // Retry without prefix if it fails and we had one, or vice versa
-            var retryUrl = (pathPrefix === '') ? '/en' + apiUrl : apiUrl.replace(pathPrefix, '');
-            $.getJSON(retryUrl, function(data) {
-               $.each(data, function (index, point) {
-                 if (point.lat && point.lon) {
-                   var marker = L.marker([point.lat, point.lon])
-                     .bindPopup('<a href="/node/' + point.id + '">' + point.title + '</a>');
-                   markers.addLayer(marker);
-                 }
-               });
-               map.addLayer(markers);
-               if (data.length > 0) { map.fitBounds(markers.getBounds(), {padding: [50, 50], maxZoom: 15}); }
-            });
+            // Retry with /en/ prefix if it fails (just in case)
+            if (apiUrl.indexOf('/en/') === -1) {
+              $.getJSON('/en' + apiUrl, function(data) {
+                 $.each(data, function (index, point) {
+                   if (point.lat && point.lon) {
+                     var marker = L.marker([point.lat, point.lon])
+                       .bindPopup('<a href="/node/' + point.id + '">' + point.title + '</a>');
+                     markers.addLayer(marker);
+                   }
+                 });
+                 map.addLayer(markers);
+                 if (data.length > 0) { map.fitBounds(markers.getBounds(), {padding: [50, 50], maxZoom: 15}); }
+              });
+            }
           });
         }
 
         function enableInteractions(map) {
+          if (map._labdooInteractionsEnabled) return;
+          map._labdooInteractionsEnabled = true;
+
           console.log('Labdoo Map: Enabling interactions', map);
 
-          if (map.dragging) map.dragging.enable();
+          forceInteractions(map);
+
           if (map.touchZoom) map.touchZoom.enable();
           if (map.doubleClickZoom) map.doubleClickZoom.enable();
           if (map.scrollWheelZoom) map.scrollWheelZoom.enable();
@@ -127,30 +163,45 @@
           if (map.keyboard) map.keyboard.enable();
           if (map.tap) map.tap.enable();
 
-          map.options.dragging = true;
           map.options.scrollWheelZoom = true;
           map.options.doubleClickZoom = true;
           map.options.touchZoom = true;
           map.options.boxZoom = true;
           map.options.keyboard = true;
 
-          if (map.gestureHandling) {
-            map.gestureHandling.disable();
-          }
+          // Invalidate size once to ensure proper rendering
+          setTimeout(function() {
+            map.invalidateSize();
+          }, 200);
 
           var container = map.getContainer();
           if (container) {
             container.style.pointerEvents = 'auto';
+            $(container).find('.leaflet-map-pane').css('pointer-events', 'auto');
             $(container).find('.leaflet-overlay-pane').css('pointer-events', 'none');
+            $(container).find('.leaflet-shadow-pane').css('pointer-events', 'none');
             $(container).find('.leaflet-marker-pane').css('pointer-events', 'auto');
             $(container).find('.leaflet-tile-pane').css('pointer-events', 'auto');
+            $(container).find('.leaflet-objects-pane').css('pointer-events', 'none');
+            $(container).find('svg.leaflet-zoom-animated').css('pointer-events', 'none');
+            $(container).find('path.leaflet-interactive').css('pointer-events', 'none');
             $(container).find('.leaflet-gesture-handling-touch-overlay').css('pointer-events', 'none');
+            $(container).find('.leaflet-gesture-handling-scroll-overlay').css('pointer-events', 'none');
+
+            // Force interaction by adding event listeners to the container
+            // to re-enable dragging if something disabled it
+            $(container).on('mousedown touchstart', function() {
+              forceInteractions(map);
+            });
 
             // Add a capture-phase wheel listener so wheel events intercepted by child
             // elements (tile images, SVG panes) still trigger zoom.
             if (!container._labdooScrollZoom) {
               container._labdooScrollZoom = true;
               container.addEventListener('wheel', function(e) {
+                // If the user is dragging, let's not interfere with zoom here if possible,
+                // but usually wheel and dragging don't happen together.
+                // We use setZoomAround to maintain the zoom functionality requested.
                 e.preventDefault();
                 var delta = e.deltaY > 0 ? -1 : 1;
                 var containerPoint = map.mouseEventToContainerPoint(e);
@@ -160,18 +211,39 @@
           }
         }
 
-        function loadAndDrawTrajectory(map, nid) {
-          var trajectoryUrl = '/api/node-trajectory/' + nid;
-        
-          // Handle language prefix
-          var currentPath = window.location.pathname;
-          var langMatch = currentPath.match(/^\/([a-z]{2})(\/|$)/);
-          if (langMatch) {
-            var pathPrefix = langMatch[0].replace(/\/$/, '');
-            trajectoryUrl = pathPrefix + trajectoryUrl;
+        function forceInteractions(map) {
+          var container = map.getContainer();
+          
+          if (map.dragging) {
+            map.dragging.enable();
+          }
+          map.options.dragging = true;
+
+          if (map.gestureHandling) {
+            if (map.gestureHandling.enabled()) {
+              map.gestureHandling.disable();
+            }
+          }
+          
+          // Geolocation specific override
+          if (map.options.gestureHandling) {
+            map.options.gestureHandling = false;
           }
 
-          $.getJSON(trajectoryUrl, function (trajectory) {
+          if (container) {
+            $(container).find('.leaflet-gesture-handling-touch-overlay').css('pointer-events', 'none');
+            $(container).find('.leaflet-gesture-handling-scroll-overlay').css('pointer-events', 'none');
+            // Some versions use this class
+            $(container).find('.leaflet-gesture-handling-overlay').css('pointer-events', 'none');
+            $(container).find('.leaflet-overlay-pane').css('pointer-events', 'none');
+            $(container).find('.leaflet-shadow-pane').css('pointer-events', 'none');
+            $(container).find('svg.leaflet-zoom-animated').css('pointer-events', 'none');
+            $(container).find('path.leaflet-interactive').css('pointer-events', 'none');
+          }
+        }
+
+        function loadAndDrawTrajectory(map, nid) {
+          $.getJSON('/api/node-trajectory/' + nid, function (trajectory) {
             if (trajectory.length > 0) {
               var latlngs = [];
               var trajectoryMarkers = L.featureGroup();
@@ -202,7 +274,8 @@
                   color: '#00aeee', // Labdoo blue
                   weight: 4,
                   opacity: 0.8,
-                  dashArray: '8, 12'
+                  dashArray: '8, 12',
+                  interactive: false
                 }).addTo(map);
               }
 

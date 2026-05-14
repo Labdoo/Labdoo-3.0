@@ -87,8 +87,18 @@
   .leaflet-container
     width: 100% !important
     pointer-events: auto !important
-  .leaflet-overlay-pane
+  .leaflet-overlay-pane,
+  .leaflet-shadow-pane
     pointer-events: none !important
   .leaflet-marker-pane,
-  .leaflet-popup-pane
+  .leaflet-popup-pane,
+  .leaflet-tile-pane,
+  .leaflet-map-pane,
+  svg.leaflet-zoom-animated
     pointer-events: auto !important
+  path.leaflet-interactive
+    pointer-events: none !important
+  .leaflet-gesture-handling-touch-overlay,
+  .leaflet-gesture-handling-scroll-overlay,
+  .leaflet-gesture-handling-overlay
+    pointer-events: none !important

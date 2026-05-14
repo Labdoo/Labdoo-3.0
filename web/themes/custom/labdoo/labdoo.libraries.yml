@@ -28,3 +28,4 @@ labdoo_map:
     - core/drupal
     - core/once
     - core/drupalSettings
+    - geolocation/geolocation.map
