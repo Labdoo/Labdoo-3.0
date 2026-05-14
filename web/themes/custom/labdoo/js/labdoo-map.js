@@ -70,8 +70,17 @@
 
           var markers = L.markerClusterGroup();
 
-          // Use absolute path for API
+          // Use relative path for API
           var apiUrl = '/api/map-points/' + type;
+        
+          // Ensure we handle language prefix if present in the current URL
+          var pathPrefix = '';
+          var currentPath = window.location.pathname;
+          var langMatch = currentPath.match(/^\/([a-z]{2})(\/|$)/);
+          if (langMatch) {
+            pathPrefix = langMatch[0].replace(/\/$/, '');
+            apiUrl = pathPrefix + apiUrl;
+          }
 
           $.getJSON(apiUrl, function (data) {
             $.each(data, function (index, point) {
@@ -91,20 +100,19 @@
               }
             }
           }).fail(function() {
-            // Retry with /en/ prefix if it fails (just in case)
-            if (apiUrl.indexOf('/en/') === -1) {
-              $.getJSON('/en' + apiUrl, function(data) {
-                 $.each(data, function (index, point) {
-                   if (point.lat && point.lon) {
-                     var marker = L.marker([point.lat, point.lon])
-                       .bindPopup('<a href="/node/' + point.id + '">' + point.title + '</a>');
-                     markers.addLayer(marker);
-                   }
-                 });
-                 map.addLayer(markers);
-                 if (data.length > 0) { map.fitBounds(markers.getBounds(), {padding: [50, 50], maxZoom: 15}); }
-              });
-            }
+            // Retry without prefix if it fails and we had one, or vice versa
+            var retryUrl = (pathPrefix === '') ? '/en' + apiUrl : apiUrl.replace(pathPrefix, '');
+            $.getJSON(retryUrl, function(data) {
+               $.each(data, function (index, point) {
+                 if (point.lat && point.lon) {
+                   var marker = L.marker([point.lat, point.lon])
+                     .bindPopup('<a href="/node/' + point.id + '">' + point.title + '</a>');
+                   markers.addLayer(marker);
+                 }
+               });
+               map.addLayer(markers);
+               if (data.length > 0) { map.fitBounds(markers.getBounds(), {padding: [50, 50], maxZoom: 15}); }
+            });
           });
         }
 
@@ -153,7 +161,17 @@
         }
 
         function loadAndDrawTrajectory(map, nid) {
-          $.getJSON('/api/node-trajectory/' + nid, function (trajectory) {
+          var trajectoryUrl = '/api/node-trajectory/' + nid;
+        
+          // Handle language prefix
+          var currentPath = window.location.pathname;
+          var langMatch = currentPath.match(/^\/([a-z]{2})(\/|$)/);
+          if (langMatch) {
+            var pathPrefix = langMatch[0].replace(/\/$/, '');
+            trajectoryUrl = pathPrefix + trajectoryUrl;
+          }
+
+          $.getJSON(trajectoryUrl, function (trajectory) {
             if (trajectory.length > 0) {
               var latlngs = [];
               var trajectoryMarkers = L.featureGroup();
