@@ -26,3 +26,27 @@
 +  public function reverse($latitude, $longitude, array $providers): ?AddressCollection;
  
  }
+--- a/src/ProviderUsingHandlerBase.php
++++ b/src/ProviderUsingHandlerBase.php
+@@ -131,6 +131,9 @@
+    * @throws \Geocoder\Exception\Exception
+    */
+   protected function doReverse($latitude, $longitude) {
++    if ($latitude === NULL || $longitude === NULL) {
++      return NULL;
++    }
+     return $this->getHandlerWrapper()->reverse($latitude, $longitude);
+   }
+ 
+--- a/src/ConfigurableProviderUsingHandlerWithAdapterBase.php
++++ b/src/ConfigurableProviderUsingHandlerWithAdapterBase.php
+@@ -105,6 +105,9 @@
+    * {@inheritdoc}
+    */
+   protected function doReverse($latitude, $longitude) {
++    if ($latitude === NULL || $longitude === NULL) {
++      return NULL;
++    }
+     $this->throttle->waitForAvailability($this->pluginId, $this->configuration['throttle'] ?? []);
+     return parent::doReverse($latitude, $longitude);
+   }
