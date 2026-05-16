@@ -60,6 +60,21 @@ class QueueHelper {
    *   Returns the queue object if the item is enqueued, otherwise FALSE.
    */
   public function enqueueData(string $queueId, array $data): ?QueueInterface {
+    // Basic deduplication: Check if an item with the same data already exists.
+    // This is useful for recompute queues where we only care about the latest ID.
+    $serializedData = serialize($data);
+    $exists = $this->database->select('queue', 'q')
+      ->fields('q', ['item_id'])
+      ->condition('name', $queueId)
+      ->condition('data', $serializedData)
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+
+    if ($exists) {
+      return $this->queueFactory->get($queueId);
+    }
+
     $queue = $this->queueFactory->get($queueId);
     $queue->createQueue();
     $queue->createItem($data);

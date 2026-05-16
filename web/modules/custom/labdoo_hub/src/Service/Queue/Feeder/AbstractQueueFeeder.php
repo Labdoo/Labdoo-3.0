@@ -34,7 +34,7 @@ abstract class AbstractQueueFeeder implements QueueFeederInterface {
    */
   protected function enqueueItem($data): void {
     $queue = $this->queueFactory->get($this->getQueueId());
-    $queue->createItem(['data' => serialize($data)]);
+    $queue->createItem($data);
   }
 
 }

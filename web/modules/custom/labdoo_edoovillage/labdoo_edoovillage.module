@@ -86,6 +86,9 @@ function labdoo_edoovillage_entity_presave(EntityInterface $entity) {
  */
 function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
   if ($entity->bundle() === 'edoovillage') {
+    if (!empty($entity->skip_recompute_enqueue) && !empty($entity->skip_geocoding_enqueue)) {
+      return;
+    }
     /** @var \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface $edoovillageCompute */
     $edoovillageCompute = \Drupal::service('labdoo_edoovillage.compute');
     $edoovillageCompute->enqueueRecompute($entity);
@@ -105,6 +108,9 @@ function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
  */
 function labdoo_edoovillage_entity_update(EntityInterface $entity) {
   if ($entity->bundle() === 'edoovillage') {
+    if (!empty($entity->skip_recompute_enqueue) && !empty($entity->skip_geocoding_enqueue)) {
+      return;
+    }
     /** @var \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface $edoovillageCompute */
     $edoovillageCompute = \Drupal::service('labdoo_edoovillage.compute');
     $edoovillageCompute->enqueueRecompute($entity);
@@ -162,7 +168,7 @@ function labdoo_edoovillage_views_query_alter(ViewExecutable $view, QueryPluginB
  *   The entity.
  */
 function __labdoo_edoovillage_enqueue_geocoding(EntityInterface $entity): void {
-  if ($entity->bundle() !== 'edoovillage') {
+  if ($entity->bundle() !== 'edoovillage' || !empty($entity->skip_geocoding_enqueue)) {
     return;
   }
 

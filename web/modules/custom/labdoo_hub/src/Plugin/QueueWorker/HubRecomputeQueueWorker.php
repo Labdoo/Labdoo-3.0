@@ -10,6 +10,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Drupal\labdoo_hub\Service\Compute\HubComputeInterface;
 use Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface;
+use Drupal\Component\Serialization\Exception\InvalidDataTypeException;
 use Drupal\queue_manager\Exception\EmptyQueueItemException;
 use Drupal\queue_manager\Model\QueueDataModel;
 use Drupal\queue_manager\Model\QueueDataModelInterface;
@@ -22,6 +23,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @QueueWorker(
  *   id = "labdoo_hub_recompute",
  *   title = @Translation("Recompute the hub data"),
+ *   cron = {"time" = 10}
  * )
  */
 class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
@@ -130,11 +132,20 @@ class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactor
         return;
       }
 
+      // Flag to prevent recursive enqueuing during background recompute.
+      $hub->skip_geocoding_enqueue = TRUE;
+      $hub->skip_recompute_enqueue = TRUE;
+
       // Recompute logic (currently none for Hub, but we clear tags).
       $this->clearCachetag($hub);
     }
-    catch (EmptyQueueItemException $exception) {
-      $this->logger->warning($exception->getMessage());
+    catch (EmptyQueueItemException | InvalidDataTypeException $exception) {
+      $this->logger->warning(sprintf(
+        'Removing item from queue %s: %s',
+        $this->getPluginId(),
+        $exception->getMessage()
+      ));
+      // By not re-throwing, the item is removed from the queue.
     }
     catch (\Exception $exception) {
       $errorMessage = sprintf(

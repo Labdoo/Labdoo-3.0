@@ -75,6 +75,9 @@ class LabdooGalleryCreateOrUpdate extends QueueWorkerBase implements ContainerFa
     $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
 
     if ($entity) {
+      // Flag to prevent recursive enqueuing during gallery creation.
+      $entity->skip_geocoding_enqueue = TRUE;
+      $entity->skip_recompute_enqueue = TRUE;
       $this->galleryCompute->createOrUpdateGallery($entity);
     }
   }

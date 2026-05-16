@@ -10,6 +10,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface;
 use Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface;
+use Drupal\Component\Serialization\Exception\InvalidDataTypeException;
 use Drupal\queue_manager\Exception\EmptyQueueItemException;
 use Drupal\queue_manager\Model\QueueDataModel;
 use Drupal\queue_manager\Model\QueueDataModelInterface;
@@ -139,13 +140,22 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
         return;
       }
 
+      // Flag to prevent recursive enqueuing during background processing.
+      $dootrip->skip_geocoding_enqueue = TRUE;
+      $dootrip->skip_recompute_enqueue = TRUE;
+
       $this->dootripCompute->computeDootripCapacity($dootrip);
       $this->dootripCompute->computeRelatedDootronics($dootrip);
       $this->dootripRepository->saveEntity($dootrip);
       $this->clearCachetag($dootrip);
     }
-    catch (EmptyQueueItemException $exception) {
-      $this->logger->warning($exception->getMessage());
+    catch (EmptyQueueItemException | InvalidDataTypeException $exception) {
+      $this->logger->warning(sprintf(
+        'Removing item from queue %s: %s',
+        $this->getPluginId(),
+        $exception->getMessage()
+      ));
+      // By not re-throwing, the item is removed from the queue.
     }
     catch (\Exception $exception) {
       $errorMessage = sprintf(

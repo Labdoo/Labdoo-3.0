@@ -10,6 +10,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface;
 use Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface;
+use Drupal\Component\Serialization\Exception\InvalidDataTypeException;
 use Drupal\queue_manager\Exception\EmptyQueueItemException;
 use Drupal\queue_manager\Model\QueueDataModel;
 use Drupal\queue_manager\Model\QueueDataModelInterface;
@@ -22,6 +23,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @QueueWorker(
  *   id = "labdoo_edoovillage_recompute",
  *   title = @Translation("Recompute the edoovillage data"),
+ *   cron = {"time" = 10}
  * )
  */
 class EdooVillageRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
@@ -130,11 +132,20 @@ class EdooVillageRecomputeQueueWorker extends QueueWorkerBase implements Contain
         return;
       }
 
+      // Flag to prevent recursive enqueuing during background recompute.
+      $edoovillage->skip_geocoding_enqueue = TRUE;
+      $edoovillage->skip_recompute_enqueue = TRUE;
+
       // Recompute logic (currently none for EdooVillage, but we clear tags).
       $this->clearCachetag($edoovillage);
     }
-    catch (EmptyQueueItemException $exception) {
-      $this->logger->warning($exception->getMessage());
+    catch (EmptyQueueItemException | InvalidDataTypeException $exception) {
+      $this->logger->warning(sprintf(
+        'Removing item from queue %s: %s',
+        $this->getPluginId(),
+        $exception->getMessage()
+      ));
+      // By not re-throwing, the item is removed from the queue.
     }
     catch (\Exception $exception) {
       $errorMessage = sprintf(

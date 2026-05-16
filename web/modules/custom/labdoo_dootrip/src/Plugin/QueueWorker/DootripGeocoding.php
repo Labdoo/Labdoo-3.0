@@ -165,8 +165,21 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
       }
     }
     catch (\Exception $e) {
-      \Drupal::logger('labdoo_dootrip')->error('Failed to reverse geocode dootrip coordinates: @message', ['@message' => $e->getMessage()]);
-      // Re-throw to ensure the queue item is not deleted.
+      $msg = $e->getMessage();
+      \Drupal::logger('labdoo_dootrip')->error('Failed to reverse geocode dootrip coordinates: @message', ['@message' => $msg]);
+
+      // Circuit Breaker: If API is blocked (403) or rate limited (429), suspend queue.
+      if (
+        strpos($msg, 'Access Not Configured') !== FALSE || 
+        strpos($msg, 'API keys with referer restrictions') !== FALSE ||
+        strpos($msg, '403') !== FALSE ||
+        strpos($msg, '429') !== FALSE ||
+        strpos($msg, 'QuotaExceeded') !== FALSE
+      ) {
+        throw new \Drupal\Core\Queue\SuspendQueueException('Google Maps API Error: ' . $msg);
+      }
+      
+      // Re-throw to ensure the queue item is not deleted for other transient errors.
       throw $e;
     }
 

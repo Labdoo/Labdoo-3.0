@@ -107,18 +107,38 @@ class QueueDataModel implements QueueDataModelInterface, DataModelInterface {
       return;
     }
 
+    // Handle legacy/corrupt items that don't match the DTO structure.
     if (
       !array_key_exists('queue_id', $data)
       || !array_key_exists('data', $data)
       || !array_key_exists('timestamp', $data)
     ) {
-      $errorMessage = 'Cannot unserialize the Queue Data: corrupt data provided.';
-      throw new InvalidDataTypeException($errorMessage);
+      // If we have 'data' but not the others, it might be a legacy direct-serialized item.
+      if (array_key_exists('data', $data)) {
+        $this->data = $data['data'];
+        $this->queueId = NULL;
+        $this->timestamp = NULL;
+      }
+      else {
+        // Log the failure before throwing to help debugging.
+        \Drupal::logger('queue_manager')->warning('Corrupt queue data detected: missing required keys.');
+        $errorMessage = 'Cannot unserialize the Queue Data: corrupt data provided.';
+        throw new InvalidDataTypeException($errorMessage);
+      }
+    }
+    else {
+      $this->queueId = $data['queue_id'];
+      $this->data = $data['data'];
+      $this->timestamp = $data['timestamp'];
     }
 
-    $this->queueId = $data['queue_id'];
-    $this->data = $data['data'];
-    $this->timestamp = $data['timestamp'];
+    // Hardening: Handle double serialization from legacy producers.
+    if (is_string($this->data) && strpos($this->data, 'a:') === 0) {
+      $unserialized = @unserialize($this->data);
+      if ($unserialized !== FALSE) {
+        $this->data = $unserialized;
+      }
+    }
   }
 
 }

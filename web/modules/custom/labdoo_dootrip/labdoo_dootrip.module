@@ -59,6 +59,13 @@ function labdoo_dootrip_form_alter(&$form, FormStateInterface $form_state, $form
  */
 function labdoo_dootrip_entity_insert(EntityInterface $entity) {
   if ($entity->bundle() === 'dootrip') {
+    if (
+      !empty($entity->skip_geocoding_enqueue) ||
+      !empty($entity->skip_recompute_enqueue) ||
+      \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    ) {
+      return;
+    }
     /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
     $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
     $dootripCompute->enqueueCapacityRecompute($entity);
@@ -71,6 +78,13 @@ function labdoo_dootrip_entity_insert(EntityInterface $entity) {
  */
 function labdoo_dootrip_entity_update(EntityInterface $entity) {
   if ($entity->bundle() === 'dootrip') {
+    if (
+      !empty($entity->skip_geocoding_enqueue) ||
+      !empty($entity->skip_recompute_enqueue) ||
+      \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    ) {
+      return;
+    }
     /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
     $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
     $dootripCompute->computeDootronicsAssigned($entity);

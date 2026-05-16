@@ -32,3 +32,10 @@ services:
   labdoo_common.geocode_cache_manager:
     class: Drupal\labdoo_common\Service\GeocodeCacheManager
     arguments: ['@entity_type.manager', '@entity_field.manager']
+  labdoo_common.geocoder_decorator:
+    class: Drupal\labdoo_common\Service\GeocoderDecorator
+    decorates: geocoder
+    arguments:
+      - "@config.factory"
+      - "@plugin.manager.geocoder.provider"
+      - "@module_handler"

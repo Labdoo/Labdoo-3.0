@@ -10,6 +10,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Drupal\labdoo_dootronics\Service\Compute\DootronicComputeInterface;
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
+use Drupal\Component\Serialization\Exception\InvalidDataTypeException;
 use Drupal\queue_manager\Exception\EmptyQueueItemException;
 use Drupal\queue_manager\Model\QueueDataModel;
 use Drupal\queue_manager\Model\QueueDataModelInterface;
@@ -27,6 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @QueueWorker(
  *   id = "labdoo_dootronics_recompute",
  *   title = @Translation("Recompute heavy dootronics fields"),
+ *   cron = {"time" = 20}
  * )
  */
 class DootronicRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
@@ -139,14 +141,23 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
         return;
       }
 
+      // Flag to prevent recursive enqueuing during background recompute.
+      $dootronic->skip_geocoding_enqueue = TRUE;
+      $dootronic->skip_recompute_enqueue = TRUE;
+
       $this->dootronicCompute->computeEdooVillageData($dootronic);
       $this->dootronicCompute->computeHubData($dootronic);
       $this->dootronicCompute->computeRelatedDootrips($dootronic);
       $this->dootronicRepository->saveEntity($dootronic);
       $this->clearCachetag($dootronic);
     }
-    catch (EmptyQueueItemException $exception) {
-      $this->logger->warning($exception->getMessage());
+    catch (EmptyQueueItemException | InvalidDataTypeException $exception) {
+      $this->logger->warning(sprintf(
+        'Removing item from queue %s: %s',
+        $this->getPluginId(),
+        $exception->getMessage()
+      ));
+      // By not re-throwing, the item is removed from the queue.
     }
     catch (\Exception $exception) {
       $errorMessage = sprintf(

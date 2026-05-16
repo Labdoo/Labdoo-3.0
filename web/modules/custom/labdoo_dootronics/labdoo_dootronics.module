@@ -132,7 +132,7 @@ function labdoo_dootronics_entity_delete(EntityInterface $entity) {
 }
 
 function __labdoo_dootronics_recalculate(EntityInterface $entity): void {
-  if ($entity->bundle() !== 'dootronic') {
+  if ($entity->bundle() !== 'dootronic' || !empty($entity->skip_recompute_enqueue)) {
     return;
   }
 
@@ -148,7 +148,7 @@ function __labdoo_dootronics_recalculate(EntityInterface $entity): void {
  *   The entity.
  */
 function __labdoo_dootronics_enqueue_geocoding(EntityInterface $entity): void {
-  if ($entity->bundle() !== 'dootronic') {
+  if ($entity->bundle() !== 'dootronic' || !empty($entity->skip_geocoding_enqueue)) {
     return;
   }
 

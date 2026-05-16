@@ -42,6 +42,15 @@ class CacheEventSubscriber implements EventSubscriberInterface {
       return;
     }
 
+    // Filter out tags that are already being processed to avoid infinite loops.
+    $cacheTags = array_filter($cacheTags, function($tag) {
+      return strpos($tag, 'labdoo_common_cache_invalidation') === FALSE;
+    });
+
+    if (empty($cacheTags)) {
+      return;
+    }
+
     $queue = $this->queueFactory->get('labdoo_common_cache_invalidation');
     $queue->createItem(['tags' => $cacheTags]);
   }

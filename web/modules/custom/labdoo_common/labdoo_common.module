@@ -15,6 +15,7 @@ use Drupal\user\UserInterface;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\file\FileInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Site\Settings;
 
 /**
  * Implements hook_webform_element_alter().
@@ -258,7 +259,7 @@ function labdoo_common_entity_presave(EntityInterface $entity) {
  */
 function labdoo_common_module_implements_alter(array &$implementations, string $hook) {
   if (
-    ($hook !== 'entity_presave' && $hook !== 'reverse_geocode_entity_field_coordinates_alter' && $hook !== 'geocode_entity_field_address_string_alter')
+    ($hook !== 'entity_presave' && $hook !== 'reverse_geocode_entity_field_coordinates_alter' && $hook !== 'geocode_entity_field_address_string_alter' && $hook !== 'reverse_geocode_coordinates' && $hook !== 'geocode_address_string')
     || !isset($implementations['labdoo_common'])
   ) {
     return;
@@ -273,7 +274,12 @@ function labdoo_common_module_implements_alter(array &$implementations, string $
  * Implements hook_reverse_geocode_coordinates_alter().
  */
 function labdoo_common_reverse_geocode_coordinates_alter(&$latitude, &$longitude) {
-  if (\Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
+  if (
+    \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))
+    || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
+    || Settings::get('labdoo_geocoding_disabled', FALSE)
+  ) {
     $latitude = NULL;
     $longitude = NULL;
     return;
@@ -301,7 +307,13 @@ function labdoo_common_reverse_geocode_coordinates_alter(&$latitude, &$longitude
 function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude, &$longitude, FieldItemListInterface $field) {
   // Prevent geocoding during migration or if explicitly disabled for this entity.
   $entity = $field->getEntity();
-  if (isset($entity->labdoo_skip_geocoding) || \Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv'] ?? []), 'labdoo_migrate_migration'))) {
+  if (
+    isset($entity->labdoo_skip_geocoding)
+    || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv'] ?? []), 'labdoo_migrate_migration'))
+    || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
+    || Settings::get('labdoo_geocoding_disabled', FALSE)
+  ) {
     $latitude = NULL;
     $longitude = NULL;
     return;
@@ -328,7 +340,11 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude
  * Implements hook_geocode_address_string_alter().
  */
 function labdoo_common_geocode_address_string_alter(string &$address_string) {
-  if (\Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
+  if (
+    \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))
+    || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
+  ) {
     $address_string = '';
     return;
   }
@@ -345,7 +361,12 @@ function labdoo_common_geocode_address_string_alter(string &$address_string) {
 function labdoo_common_geocode_entity_field_address_string_alter(string &$address_string, FieldItemListInterface $field) {
   // Prevent geocoding during migration or if explicitly disabled for this entity.
   $entity = $field->getEntity();
-  if (isset($entity->labdoo_skip_geocoding) || \Drupal::state()->get('labdoo_migrate_is_running', FALSE) || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))) {
+  if (
+    isset($entity->labdoo_skip_geocoding)
+    || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))
+    || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
+  ) {
     $address_string = '';
     return;
   }
