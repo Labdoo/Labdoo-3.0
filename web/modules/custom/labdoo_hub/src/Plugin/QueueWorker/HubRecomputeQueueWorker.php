@@ -136,9 +136,6 @@ class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactor
       $hub->skip_geocoding_enqueue = TRUE;
       $hub->skip_recompute_enqueue = TRUE;
 
-      // Disable geocoder_field processing for this request.
-      \Drupal::request()->attributes->set('geocoder_presave_disabled', TRUE);
-
       // Recompute logic (currently none for Hub, but we clear tags).
       $this->clearCachetag($hub);
     }

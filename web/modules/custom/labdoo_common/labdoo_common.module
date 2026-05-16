@@ -249,6 +249,17 @@ function labdoo_common_entity_update(EntityInterface $entity) {
  * Implements hook_entity_presave().
  */
 function labdoo_common_entity_presave(EntityInterface $entity) {
+  // Disable geocoder_field if skip flag is present or the entity is syncing.
+  if (
+    !empty($entity->skip_geocoding_enqueue) ||
+    !empty($entity->labdoo_skip_geocoding) ||
+    (method_exists($entity, 'isSyncing') && $entity->isSyncing())
+  ) {
+    if (\Drupal::hasRequest()) {
+      \Drupal::request()->attributes->set('geocoder_presave_disabled', TRUE);
+    }
+  }
+
   if ($entity instanceof FieldableEntityInterface && !isset($entity->labdoo_skip_geocoding) && !\Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
     \Drupal::service('labdoo_common.geocode_cache_manager')->applyCacheToEntity($entity);
   }
