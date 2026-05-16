@@ -145,6 +145,9 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
       $dootronic->skip_geocoding_enqueue = TRUE;
       $dootronic->skip_recompute_enqueue = TRUE;
 
+      // Disable geocoder_field processing for this request.
+      \Drupal::request()->attributes->set('geocoder_presave_disabled', TRUE);
+
       $this->dootronicCompute->computeEdooVillageData($dootronic);
       $this->dootronicCompute->computeHubData($dootronic);
       $this->dootronicCompute->computeRelatedDootrips($dootronic);
