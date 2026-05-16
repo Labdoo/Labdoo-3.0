@@ -15,8 +15,6 @@ dependencies:
     - address
     - better_exposed_filters
     - geofield
-    - geolocation
-    - geolocation_leaflet
     - labdoo_filters
     - node
     - options
@@ -795,22 +793,21 @@ display:
             format: basic_html
           tokenize: false
       sorts:
-        created:
-          id: created
+        title:
+          id: title
           table: node_field_data
-          field: created
+          field: title
           relationship: none
           group_type: group
           admin_label: ''
           entity_type: node
-          entity_field: created
-          plugin_id: date
+          entity_field: title
+          plugin_id: standard
           order: DESC
           expose:
             label: ''
             field_identifier: ''
           exposed: false
-          granularity: second
       arguments: {  }
       filters:
         status:
@@ -1625,7 +1622,6 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url
-        - url.query_args
         - 'user.node_grants:view'
         - user.permissions
       tags:
@@ -1637,9 +1633,337 @@ display:
     display_plugin: page
     position: 1
     display_options:
+      filters:
+        status:
+          id: status
+          table: node_field_data
+          field: status
+          entity_type: node
+          entity_field: status
+          plugin_id: boolean
+          value: '1'
+          group: 1
+          expose:
+            operator: ''
+        type:
+          id: type
+          table: node_field_data
+          field: type
+          entity_type: node
+          entity_field: type
+          plugin_id: bundle
+          value:
+            dootronic: dootronic
+          group: 1
+        combine:
+          id: combine
+          table: views
+          field: combine
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: combine
+          operator: contains
+          value: ''
+          group: 1
+          exposed: true
+          expose:
+            operator_id: combine_op
+            label: 'Free text search'
+            description: ''
+            use_operator: false
+            operator: combine_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: combine
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              administrator: '0'
+              superhub_manager: '0'
+              team_manager: '0'
+              edoovillage_manager: '0'
+              hub_manager: '0'
+              wiki_writer: '0'
+              laptop_manager: '0'
+            placeholder: ''
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          fields:
+            title: title
+        field_dootronic_status_value:
+          id: field_dootronic_status_value
+          table: node__field_dootronic_status
+          field: field_dootronic_status_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: list_field
+          operator: or
+          value: {  }
+          group: 1
+          exposed: true
+          expose:
+            operator_id: field_dootronic_status_value_op
+            label: Status
+            description: ''
+            use_operator: false
+            operator: field_dootronic_status_value_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: field_dootronic_status_value
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              administrator: '0'
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          reduce_duplicates: false
+        related_entity_autocomplete:
+          id: related_entity_autocomplete
+          table: node
+          field: related_entity_autocomplete
+          relationship: none
+          group_type: group
+          admin_label: Edoovillage
+          entity_type: node
+          plugin_id: related_entity_autocomplete
+          operator: in
+          value: null
+          group: 1
+          exposed: true
+          expose:
+            operator_id: related_entity_autocomplete_op
+            label: Edoovillage
+            description: ''
+            use_operator: false
+            operator: related_entity_autocomplete_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: related_entity_autocomplete
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              administrator: '0'
+              newsletter_manager: '0'
+              superhub_manager: '0'
+              team_manager: '0'
+              edoovillage_manager: '0'
+              hub_manager: '0'
+              wiki_writer: '0'
+              laptop_manager: '0'
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          target_entity_type: node
+          target_bundles: edoovillage
+          source_entity_type: node
+          source_bundle: dootronic
+          source_reference_field: field_edoovillage_destination
+          reference_table: node__field_edoovillage_destination
+          reference_target_column: field_edoovillage_destination_target_id
+        related_entity_autocomplete_1:
+          id: related_entity_autocomplete_1
+          table: node
+          field: related_entity_autocomplete
+          relationship: none
+          group_type: group
+          admin_label: Hub
+          entity_type: node
+          plugin_id: related_entity_autocomplete
+          operator: in
+          value: null
+          group: 1
+          exposed: true
+          expose:
+            operator_id: related_entity_autocomplete_1_op
+            label: Hub
+            description: ''
+            use_operator: false
+            operator: related_entity_autocomplete_1_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: related_entity_autocomplete_1
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              administrator: '0'
+              newsletter_manager: '0'
+              superhub_manager: '0'
+              team_manager: '0'
+              edoovillage_manager: '0'
+              hub_manager: '0'
+              wiki_writer: '0'
+              laptop_manager: '0'
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          target_entity_type: node
+          target_bundles: hub
+          source_entity_type: node
+          source_bundle: dootronic
+          source_reference_field: field_hub
+          reference_table: node__field_hub
+          reference_target_column: field_hub_target_id
+        related_entity_autocomplete_2:
+          id: related_entity_autocomplete_2
+          table: node
+          field: related_entity_autocomplete
+          relationship: none
+          group_type: group
+          admin_label: Dootrip
+          entity_type: node
+          plugin_id: related_entity_autocomplete
+          operator: in
+          value: null
+          group: 1
+          exposed: true
+          expose:
+            operator_id: related_entity_autocomplete_2_op
+            label: Dootrip
+            description: ''
+            use_operator: false
+            operator: related_entity_autocomplete_2_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: related_entity_autocomplete_2
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              administrator: '0'
+              newsletter_manager: '0'
+              superhub_manager: '0'
+              team_manager: '0'
+              edoovillage_manager: '0'
+              hub_manager: '0'
+              wiki_writer: '0'
+              laptop_manager: '0'
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          target_entity_type: node
+          target_bundles: dootrip
+          source_entity_type: node
+          source_bundle: dootronic
+          source_reference_field: field_field_dootrips
+          reference_table: node__field_dootrips
+          reference_target_column: field_dootrips_target_id
+        field_country_value:
+          id: field_country_value
+          table: node__field_country
+          field: field_country_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: country
+          operator: in
+          value: {  }
+          group: 1
+          exposed: true
+          expose:
+            operator_id: field_country_value_op
+            label: Country
+            description: ''
+            use_operator: false
+            operator: field_country_value_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: field_country_value
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              content_editor: '0'
+              administrator: '0'
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+      filter_groups:
+        operator: AND
+        groups:
+          1: AND
       defaults:
-        filters: true
-        filter_groups: true
+        filters: false
+        filter_groups: false
       exposed_block: true
       display_extenders: {  }
       path: content/dootronics-dashboard
