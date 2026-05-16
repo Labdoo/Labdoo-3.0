@@ -42,6 +42,15 @@ class GalleryCompute implements GalleryComputeInterface {
    * {@inheritdoc}
    */
   public function enqueueGalleryCreateOrUpdate(EntityInterface $entity): void {
+    // Only enqueue if it's a new entity or the label has changed.
+    if (
+      !$entity->isNew()
+      && isset($entity->original)
+      && $entity->label() === $entity->original->label()
+    ) {
+      return;
+    }
+
     $queue = $this->queueFactory->get('labdoo_gallery_create_or_update');
     $item = [
       'entity_id' => $entity->id(),
