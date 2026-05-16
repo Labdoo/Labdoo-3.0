@@ -82,7 +82,7 @@ class StatisticsBlock extends BlockBase implements ContainerFactoryPluginInterfa
    */
   public function build() {
     $dootronicsTagged = $this->commonRepository
-      ->getDootronicsCountByStatus();
+      ->getBundleCount('dootronic');
     $dootronicsDelivered = $this->commonRepository
       ->getDootronicsCountByStatus('S4');
     $edoovillages = $this->commonRepository

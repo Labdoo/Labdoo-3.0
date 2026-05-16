@@ -138,7 +138,7 @@ class CommonRepository {
   /**
    * Retrieves the Dootronics number by status and EdooVillage.
    *
-   * @param string|null $status
+   * @param string|array|null $status
    *   Tbe status.
    * @param int|null $edooVillageId
    *   The edoovillage ID.
@@ -149,7 +149,7 @@ class CommonRepository {
    *   The number of Dootronics by the given status.
    */
   public function getDootronicsCountByStatus(
-    ?string $status = NULL,
+    $status = NULL,
     ?int $edooVillageId = NULL,
     ?int $hubId = NULL
   ): int {
@@ -158,7 +158,8 @@ class CommonRepository {
     $query->fields('nfs', ['entity_id']);
     $query->condition('nfs.bundle', 'dootronic');
     if ($status !== NULL) {
-      $query->condition('nfs.field_dootronic_status_value', $status);
+      $op = is_array($status) ? 'IN' : '=';
+      $query->condition('nfs.field_dootronic_status_value', $status, $op);
     }
     if ($edooVillageId !== NULL) {
       $query->addJoin('INNER', 'node__field_edoovillage_destination', 'ned', 'ned.entity_id = nfs.entity_id');
