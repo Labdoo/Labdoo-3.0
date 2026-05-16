@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_hub\Service\Queue\Feeder;
 
-use Drupal\Core\Queue\QueueFactory;
+use Drupal\queue_manager\Service\QueueHelper;
 
 /**
  * Abstract class for the Queue feeder.
@@ -10,31 +10,20 @@ use Drupal\Core\Queue\QueueFactory;
 abstract class AbstractQueueFeeder implements QueueFeederInterface {
 
   /**
-   * The queue factory.
+   * The queue helper.
    *
-   * @var \Drupal\Core\Queue\QueueFactory
+   * @var \Drupal\queue_manager\Service\QueueHelper
    */
-  protected QueueFactory $queueFactory;
+  protected QueueHelper $queueHelper;
 
   /**
    * AbstractQueueFeeder constructor.
    *
-   * @param \Drupal\Core\Queue\QueueFactory $queueFactory
-   *   The queue factory.
+   * @param \Drupal\queue_manager\Service\QueueHelper $queueHelper
+   *   The queue helper.
    */
-  public function __construct(QueueFactory $queueFactory) {
-    $this->queueFactory = $queueFactory;
-  }
-
-  /**
-   * Enqueues an item.
-   *
-   * @param array|int $data
-   *   The data.
-   */
-  protected function enqueueItem($data): void {
-    $queue = $this->queueFactory->get($this->getQueueId());
-    $queue->createItem($data);
+  public function __construct(QueueHelper $queueHelper) {
+    $this->queueHelper = $queueHelper;
   }
 
 }
