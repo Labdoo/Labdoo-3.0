@@ -141,6 +141,9 @@ class DootronicCompute implements DootronicComputeInterface {
     $hub->set('field_dootronics_remaining', $remaining);
     $hub->set('field_dootronics_completed', $completed);
 
+    $hub->skip_geocoding_enqueue = TRUE;
+    $hub->skip_recompute_enqueue = TRUE;
+
     try {
       $hub->save();
       \Drupal::entityTypeManager()->getStorage('node')->resetCache([$hub->id()]);

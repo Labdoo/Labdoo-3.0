@@ -82,7 +82,12 @@ function labdoo_hub_preprocess_node(&$variables) {
  */
 function labdoo_hub_entity_insert(EntityInterface $entity) {
   if ($entity->bundle() === 'hub') {
-    if (!empty($entity->skip_recompute_enqueue) && !empty($entity->skip_geocoding_enqueue)) {
+    if (!empty($entity->skip_recompute_enqueue)) {
+      /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
+      $hubCompute = \Drupal::service('labdoo_hub.compute');
+      if (empty($entity->skip_geocoding_enqueue)) {
+        $hubCompute->enqueueGeocoding($entity);
+      }
       return;
     }
     /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
@@ -103,7 +108,12 @@ function labdoo_hub_entity_insert(EntityInterface $entity) {
  */
 function labdoo_hub_entity_update(EntityInterface $entity) {
   if ($entity->bundle() === 'hub') {
-    if (!empty($entity->skip_recompute_enqueue) && !empty($entity->skip_geocoding_enqueue)) {
+    if (!empty($entity->skip_recompute_enqueue)) {
+      /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
+      $hubCompute = \Drupal::service('labdoo_hub.compute');
+      if (empty($entity->skip_geocoding_enqueue)) {
+        $hubCompute->enqueueGeocoding($entity);
+      }
       return;
     }
     /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
