@@ -7,7 +7,7 @@ services:
     arguments: ['@database']
   labdoo_hub.recompute_feeder:
     class: Drupal\labdoo_hub\Service\Queue\Feeder\HubRecomputeQueueFeeder
-    arguments: ['@queue_manager.queue_helper']
+    arguments: ['@queue_manager.helper']
   labdoo_hub.compute:
     class: Drupal\labdoo_hub\Service\Compute\HubCompute
     arguments: ['@labdoo_hub.recompute_feeder']
