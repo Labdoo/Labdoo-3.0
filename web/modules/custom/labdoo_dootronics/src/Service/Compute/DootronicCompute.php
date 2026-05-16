@@ -114,7 +114,7 @@ class DootronicCompute implements DootronicComputeInterface {
     if ($remaining < 0) {
       $remaining = 0;
     }
-    $completed = $needed === 0 ? 0 : $remaining * 100 / $needed;
+    $completed = $needed === 0 ? 0 : ($needed - $remaining) * 100 / $needed;
     if ($completed < 0) {
       $completed = 0;
     }
