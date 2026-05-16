@@ -249,18 +249,23 @@ function labdoo_common_entity_update(EntityInterface $entity) {
  * Implements hook_entity_presave().
  */
 function labdoo_common_entity_presave(EntityInterface $entity) {
-  // Disable geocoder_field if skip flag is present or the entity is syncing.
+  // Disable geocoder_field if skip flag is present, the entity is syncing,
+  // or geocoding is globally disabled.
   if (
     !empty($entity->skip_geocoding_enqueue) ||
     !empty($entity->labdoo_skip_geocoding) ||
-    (method_exists($entity, 'isSyncing') && $entity->isSyncing())
+    (method_exists($entity, 'isSyncing') && $entity->isSyncing()) ||
+    \Drupal::state()->get('labdoo_migrate_is_running', FALSE) ||
+    \Drupal::state()->get('labdoo_geocoding_disabled', FALSE) ||
+    Settings::get('labdoo_geocoding_disabled', FALSE) ||
+    Settings::get('labdoo_migrate_is_running', FALSE)
   ) {
     if (\Drupal::hasRequest()) {
       \Drupal::request()->attributes->set('geocoder_presave_disabled', TRUE);
     }
   }
 
-  if ($entity instanceof FieldableEntityInterface && !isset($entity->labdoo_skip_geocoding) && !\Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
+  if ($entity instanceof FieldableEntityInterface && !isset($entity->labdoo_skip_geocoding) && !\Drupal::state()->get('labdoo_migrate_is_running', FALSE) && !Settings::get('labdoo_migrate_is_running', FALSE)) {
     \Drupal::service('labdoo_common.geocode_cache_manager')->applyCacheToEntity($entity);
   }
 }
@@ -287,6 +292,7 @@ function labdoo_common_module_implements_alter(array &$implementations, string $
 function labdoo_common_reverse_geocode_coordinates_alter(&$latitude, &$longitude) {
   if (
     \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    || Settings::get('labdoo_migrate_is_running', FALSE)
     || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))
     || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
     || Settings::get('labdoo_geocoding_disabled', FALSE)
@@ -321,6 +327,7 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude
   if (
     isset($entity->labdoo_skip_geocoding)
     || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    || Settings::get('labdoo_migrate_is_running', FALSE)
     || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv'] ?? []), 'labdoo_migrate_migration'))
     || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
     || Settings::get('labdoo_geocoding_disabled', FALSE)
@@ -353,8 +360,10 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude
 function labdoo_common_geocode_address_string_alter(string &$address_string) {
   if (
     \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    || Settings::get('labdoo_migrate_is_running', FALSE)
     || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))
     || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
+    || Settings::get('labdoo_geocoding_disabled', FALSE)
   ) {
     $address_string = '';
     return;
@@ -375,8 +384,10 @@ function labdoo_common_geocode_entity_field_address_string_alter(string &$addres
   if (
     isset($entity->labdoo_skip_geocoding)
     || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    || Settings::get('labdoo_migrate_is_running', FALSE)
     || (PHP_SAPI === 'cli' && str_contains(implode(' ', $_SERVER['argv']), 'labdoo_migrate_migration'))
     || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
+    || Settings::get('labdoo_geocoding_disabled', FALSE)
   ) {
     $address_string = '';
     return;
