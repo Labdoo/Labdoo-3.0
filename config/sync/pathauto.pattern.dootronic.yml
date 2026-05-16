@@ -1,0 +1,22 @@
+uuid: c799fd43-6641-445b-98fa-7a859f8d1fb3
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: dootronic
+label: Dootronic
+type: 'canonical_entities:node'
+pattern: '/content/[node:title]'
+selection_criteria:
+  12bb2f44-edf4-4ba5-8852-02c766e2f660:
+    id: 'entity_bundle:node'
+    negate: false
+    uuid: 12bb2f44-edf4-4ba5-8852-02c766e2f660
+    context_mapping:
+      node: node
+    bundles:
+      dootronic: dootronic
+selection_logic: and
+weight: -5
+relationships: {  }
