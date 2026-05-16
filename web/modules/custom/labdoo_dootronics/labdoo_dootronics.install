@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Labdoo Dootronics module.
+ */
+
+use Drupal\Core\Cache\Cache;
+
+/**
+ * Synchronize Dootronic IDs so MAX(ID) == COUNT(*).
+ *
+ * Reassigns duplicate and out-of-range titles to fill gaps in the sequence,
+ * ensuring that the highest Labdoo ID matches the total number of dootronics.
+ */
+function labdoo_dootronics_update_8001() {
+  $database = \Drupal::database();
+  $type = 'dootronic';
+
+  // Get all dootronic nodes.
+  $query = $database->select('node_field_data', 'n');
+  $query->fields('n', ['nid', 'title']);
+  $query->condition('n.type', $type);
+  $nodes = $query->execute()->fetchAll();
+
+  $total_count = count($nodes);
+  if ($total_count === 0) {
+    return t('No dootronic nodes found.');
+  }
+
+  $problematic_nids = [];
+  $id_to_nids = [];
+
+  foreach ($nodes as $node) {
+    $id = (int) $node->title;
+    // IDs out of range or non-numeric/zero.
+    if ($id > $total_count || $id <= 0) {
+      $problematic_nids[] = $node->nid;
+    }
+    else {
+      if (!isset($id_to_nids[$id])) {
+        $id_to_nids[$id] = [];
+      }
+      $id_to_nids[$id][] = $node->nid;
+    }
+  }
+
+  // Identify duplicates in the 1..total_count range.
+  foreach ($id_to_nids as $id => $nids) {
+    if (count($nids) > 1) {
+      // Keep the first NID (lowest NID usually), reassign others.
+      sort($nids);
+      for ($i = 1; $i < count($nids); $i++) {
+        $problematic_nids[] = $nids[$i];
+      }
+    }
+  }
+
+  // Identify gaps in the 1..total_count range.
+  $gaps = [];
+  for ($i = 1; $i <= $total_count; $i++) {
+    if (!isset($id_to_nids[$i])) {
+      $gaps[] = $i;
+    }
+  }
+
+  if (count($problematic_nids) === 0) {
+    return t('No synchronization needed.');
+  }
+
+  $updated_count = 0;
+  foreach ($problematic_nids as $index => $nid) {
+    if (!isset($gaps[$index])) {
+      break;
+    }
+
+    $new_id = $gaps[$index];
+    $new_title = str_pad($new_id, 9, '0', STR_PAD_LEFT);
+
+    // Update node_field_data.
+    $database->update('node_field_data')
+      ->fields(['title' => $new_title])
+      ->condition('nid', $nid)
+      ->execute();
+
+    // Update node_field_revision.
+    $database->update('node_field_revision')
+      ->fields(['title' => $new_title])
+      ->condition('nid', $nid)
+      ->execute();
+
+    $updated_count++;
+  }
+
+  // Invalidate cache tags for dootronic nodes.
+  Cache::invalidateTags(['node_list:dootronic', 'node:dootronic']);
+
+  return t('Synchronized @count dootronic IDs. New MAX(ID) is @max.', [
+    '@count' => $updated_count,
+    '@max' => $total_count,
+  ]);
+}
