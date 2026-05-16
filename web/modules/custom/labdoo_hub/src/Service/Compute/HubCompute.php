@@ -45,6 +45,11 @@ class HubCompute implements HubComputeInterface {
     if ($entity->bundle() !== 'hub') {
       return;
     }
+
+    if (!empty($entity->skip_geocoding_enqueue)) {
+      return;
+    }
+
     /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
     $queueFactory = \Drupal::service('queue');
     $queue = $queueFactory->get('labdoo_hub_geocoding');
