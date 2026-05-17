@@ -11,6 +11,7 @@ use Drupal\pathauto\Plugin\pathauto\AliasType\EntityAliasTypeBase;
  * @AliasType(
  *   id = "mini_wiki_page",
  *   label = @Translation("Mini Wiki Page"),
+ *   types = {"mini_wiki_page"},
  *   entity_type = "mini_wiki_page"
  * )
  *
@@ -20,6 +21,13 @@ use Drupal\pathauto\Plugin\pathauto\AliasType\EntityAliasTypeBase;
  * @link http://natiboo.es
  */
 class MiniWikiAliasType extends EntityAliasTypeBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEntityTypeId() {
+    return 'mini_wiki_page';
+  }
 
   /**
    * {@inheritdoc}
