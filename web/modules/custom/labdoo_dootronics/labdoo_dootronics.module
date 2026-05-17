@@ -7,6 +7,7 @@
  * @link http://natiboo.es
  */
 
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
@@ -47,6 +48,44 @@ function labdoo_dootronics_theme() {
       'template' => 'dootronics-label',
     ],
   ];
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function labdoo_dootronics_node_view(array &$build, EntityInterface $node, EntityViewDisplayInterface $display, $view_mode) {
+  if ($node->bundle() === 'dootronic' && $view_mode === 'full') {
+    $created = $node->getCreatedTime();
+    $changed = $node->getChangedTime();
+
+    /** @var \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter */
+    $dateFormatter = \Drupal::service('date.formatter');
+
+    // Handle localized date formats.
+    // For English, we use mm/dd/yyyy (m/d/Y).
+    // For other languages, we keep the historical Labdoo 2 format (d/m/y).
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    if ($langcode === 'en') {
+      $format_tagged = 'm/d/Y';
+      $format_updated = 'm/d/Y';
+    }
+    else {
+      $format_tagged = 'd/m/y/';
+      $format_updated = 'd/m/y';
+    }
+
+    $build['dootronic_dates'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['dootronic-dates']],
+      '#weight' => 100,
+      'tagged' => [
+        '#markup' => '<p><strong>' . t('Date it was tagged:') . '</strong> ' . $dateFormatter->format($created, 'custom', (string) t($format_tagged)) . '</p>',
+      ],
+      'updated' => [
+        '#markup' => '<p><strong>' . t('Date it was last updated:') . '</strong> ' . $dateFormatter->format($changed, 'custom', (string) t($format_updated)) . '</p>',
+      ],
+    ];
+  }
 }
 
 /**
