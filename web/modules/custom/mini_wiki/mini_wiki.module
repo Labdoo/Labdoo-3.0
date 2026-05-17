@@ -173,3 +173,14 @@ function mini_wiki_entity_delete(EntityInterface $entity) {
   }
 }
 
+/**
+ * Implements hook_pathauto_alias_types_alter().
+ */
+function mini_wiki_pathauto_alias_types_alter(&$definitions) {
+  // Remove the base canonical_entities plugin if it exists, as it's not a valid
+  // generator without a derivative.
+  if (isset($definitions['canonical_entities'])) {
+    unset($definitions['canonical_entities']);
+  }
+}
+
