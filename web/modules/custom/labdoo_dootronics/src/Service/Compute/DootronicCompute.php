@@ -221,16 +221,22 @@ class DootronicCompute implements DootronicComputeInterface {
       }
       $found = FALSE;
 
-      foreach ($dootrip->get('field_laptops') as $dootronicAssigned) {
-        $dootronicAssigned = $dootronicAssigned->entity;
+      foreach ($dootrip->get('field_laptops') as $dootronicAssignedItem) {
+        $dootronicAssigned = $dootronicAssignedItem->entity;
         if ($dootronicAssigned && $dootronicAssigned->id() === $dootronic->id()) {
           $found = TRUE;
+          break;
         }
       }
 
       if (!$found) {
         $dootrip->field_laptops->appendItem($dootronic);
         $dootrip->save();
+
+        /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
+        $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
+        $dootripCompute->enqueueCapacityRecompute($dootrip);
+
         \Drupal::entityTypeManager()->getStorage('node')->resetCache([$dootrip->id()]);
       }
     }
@@ -249,6 +255,11 @@ class DootronicCompute implements DootronicComputeInterface {
           if ($item->target_id == $dootronic->id()) {
             $laptops->removeItem($index);
             $originalDootrip->save();
+
+            /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
+            $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
+            $dootripCompute->enqueueCapacityRecompute($originalDootrip);
+
             \Drupal::entityTypeManager()->getStorage('node')->resetCache([$originalDootrip->id()]);
             break;
           }
