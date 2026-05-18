@@ -107,7 +107,7 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
     }
 
     // 3. Inclusion of Project Summary.
-    // v2 uses field_project_summary. In v3 config it is field_project_description.
+    // Replicate v2 title construction logic.
     $summary = $this->getProjectSummary($entity);
 
     if (empty($edoovillagePrefix)) {
@@ -182,11 +182,11 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
    *   The project summary.
    */
   private function getProjectSummary(EntityInterface $entity): string {
-    if ($entity->hasField('field_project_description') && !$entity->get('field_project_description')->isEmpty()) {
-      return $entity->get('field_project_description')->value;
-    }
-    elseif ($entity->hasField('field_project_summary') && !$entity->get('field_project_summary')->isEmpty()) {
+    if ($entity->hasField('field_project_summary') && !$entity->get('field_project_summary')->isEmpty()) {
       return $entity->get('field_project_summary')->value;
+    }
+    elseif ($entity->hasField('field_project_description') && !$entity->get('field_project_description')->isEmpty()) {
+      return $entity->get('field_project_description')->value;
     }
     return '';
   }

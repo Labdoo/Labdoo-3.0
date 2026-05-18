@@ -1,0 +1,19 @@
+uuid: c480afa3-9526-4cfc-926c-067ec4e4f4bc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_project_summary
+    - node.type.edoovillage
+id: node.edoovillage.field_project_summary
+field_name: field_project_summary
+entity_type: node
+bundle: edoovillage
+label: 'Project summary'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

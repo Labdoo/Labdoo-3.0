@@ -176,6 +176,20 @@
       "source": {
         "fields": [
           {
+            "table": "field_data_field_project_summary",
+            "key": "entity_id",
+            "field": "field_project_summary_value"
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_project_summary"
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
             "table": "field_data_field_number_of_students",
             "key": "entity_id",
             "field": "field_number_of_students_value"

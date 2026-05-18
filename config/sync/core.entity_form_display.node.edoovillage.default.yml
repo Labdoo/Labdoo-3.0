@@ -26,6 +26,7 @@ dependencies:
     - field.field.node.edoovillage.field_on_site_point_of_contact
     - field.field.node.edoovillage.field_project_application
     - field.field.node.edoovillage.field_project_description
+    - field.field.node.edoovillage.field_project_summary
     - field.field.node.edoovillage.field_project_manager_s_
     - field.field.node.edoovillage.field_semaphore
     - field.field.node.edoovillage.field_socket_type
@@ -44,6 +45,7 @@ third_party_settings:
     group_project_information:
       children:
         - title
+        - field_project_summary
         - field_project_description
         - field_number_of_students
         - field_number_of_teachers
@@ -353,6 +355,14 @@ content:
     settings:
       match_operator: CONTAINS
       match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_project_summary:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
