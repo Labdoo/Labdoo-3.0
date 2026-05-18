@@ -29,8 +29,12 @@
             {% if clone_link is not empty %}
             <div class="action">{% if clone_link is not empty %}<a href="{{ clone_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/clone-icon.png">{{ "Clone this edoovillage"|t }}{% if clone_link is not empty %}</a>{% endif %}</div>
             {% endif %}
+            {% if next_link is not empty %}
             <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png">{{ "Next edoovillage"|t }}</a></div>
+            {% endif %}
+            {% if previous_link is not empty %}
             <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous edoovillage"|t }}</a></div>
+            {% endif %}
         </div>
         <div class="block-title-wrapper"><span class="block-title">{{ "The edoovillage's semaphore:"|t }}</span> <a href="/content/managing-your-edoovillage-semaphore">{{ "Help"|t }}</a></div>
         <img class="semaphore" src='/themes/custom/labdoo/img/semaphore-{{ semaphore }}-en.png'>

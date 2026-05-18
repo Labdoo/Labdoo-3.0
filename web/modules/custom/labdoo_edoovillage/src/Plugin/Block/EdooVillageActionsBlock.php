@@ -163,23 +163,29 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
     $semaphore = $edooVillage->get('field_semaphore')->value;
     $status = $edooVillage->get('field_status')->value;
 
-    $prevNode = $this->commonRepository->getPreviousEntity(
+    $prevNodeId = $this->commonRepository->getPreviousEntity(
       $edooVillage->id(),
       $edooVillage->bundle()
     );
-    $prevLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $prevNode],
-    );
+    $prevLink = '';
+    if ($prevNodeId > 0 && $prevNodeId != $edooVillage->id()) {
+      $prevLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $prevNodeId],
+      );
+    }
 
-    $nextNode = $this->commonRepository->getNextEntity(
+    $nextNodeId = $this->commonRepository->getNextEntity(
       $edooVillage->id(),
       $edooVillage->bundle()
     );
-    $nextLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $nextNode],
-    );
+    $nextLink = '';
+    if ($nextNodeId > 0 && $nextNodeId != $edooVillage->id()) {
+      $nextLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $nextNodeId],
+      );
+    }
 
     $gallery = $this->galleryRepository->loadByParentId($edooVillage->id());
     $galleryLink = '';

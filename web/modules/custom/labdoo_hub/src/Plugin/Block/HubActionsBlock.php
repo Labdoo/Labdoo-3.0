@@ -163,23 +163,29 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
     $cloneLink = $this->linkHelper->generateCloneLink($hub);
     $semaphore = $hub->get('field_hub_status')->value;
 
-    $prevNode = $this->commonRepository->getPreviousEntity(
+    $prevNodeId = $this->commonRepository->getPreviousEntity(
       $hub->id(),
       $hub->bundle()
     );
-    $prevLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $prevNode],
-    );
+    $prevLink = '';
+    if ($prevNodeId > 0 && $prevNodeId != $hub->id()) {
+      $prevLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $prevNodeId],
+      );
+    }
 
-    $nextNode = $this->commonRepository->getNextEntity(
+    $nextNodeId = $this->commonRepository->getNextEntity(
       $hub->id(),
       $hub->bundle()
     );
-    $nextLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $nextNode],
-    );
+    $nextLink = '';
+    if ($nextNodeId > 0 && $nextNodeId != $hub->id()) {
+      $nextLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $nextNodeId],
+      );
+    }
 
     $hubType = $hub->get('field_types_of_mini_missions')->getValue();
     $dropping = '';

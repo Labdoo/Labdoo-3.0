@@ -5,8 +5,12 @@
             {% if edit_link is not empty %}
             <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/house.png">{{ "Edit this story"|t }}</a></div>
             {% endif %}
+            {% if next_link is not empty %}
             <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png">{{ "Next story"|t }}</a></div>
+            {% endif %}
+            {% if previous_link is not empty %}
             <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous story"|t }}</a></div>
+            {% endif %}
             {% if parent_link is not empty %}
                 <div class="action"><a href="{{ parent_link }}"><img class="icon" src="/themes/custom/labdoo/img/{{ parent_type }}.png">{{ "Go to edoovillage"|t }}</a></div>
             {% endif %}

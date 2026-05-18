@@ -11,8 +11,12 @@
             {% if clone_link is not empty %}
             <div class="action">{% if clone_link is not empty %}<a href="{{ clone_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/clone-icon.png">{{ "Clone this dootrip"|t }}{% if clone_link is not empty %}</a>{% endif %}</div>
             {% endif %}
+            {% if next_link is not empty %}
             <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png">{{ "Next dootrip"|t }}</a></div>
+            {% endif %}
+            {% if previous_link is not empty %}
             <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous dootrip"|t }}</a></div>
+            {% endif %}
         </div>
         <div class="block-title-wrapper"><span class="block-title">{{ "Dootrip status:"|t }}</span> <span class="dootrip-status-{{ status }}">{{ status|t }}</span></div>
     </div>

@@ -25,8 +25,12 @@
             {% else %}
                 <div class="action">{% if pick_me_up_link is not empty %}<a href="{{ pick_me_up_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/truck-off.png">{{ "Pick me up (deactivated)"|t }}{% if pick_me_up_link is not empty %}</a>{% endif %}</div>
             {% endif %}
+            {% if next_link is not empty %}
             <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png">{{ "Next dootronic"|t }}</a></div>
+            {% endif %}
+            {% if previous_link is not empty %}
             <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous dootronic"|t }}</a></div>
+            {% endif %}
         </div>
     </div>
 </div>

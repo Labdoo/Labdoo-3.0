@@ -130,23 +130,29 @@ class DootripActionsBlock extends BlockBase implements ContainerFactoryPluginInt
       $statusLabel = $options[$status];
     }
 
-    $prevNode = $this->commonRepository->getPreviousEntity(
+    $prevNodeId = $this->commonRepository->getPreviousEntity(
       $dootrip->id(),
       $dootrip->bundle()
     );
-    $prevLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $prevNode],
-    );
+    $prevLink = '';
+    if ($prevNodeId > 0 && $prevNodeId != $dootrip->id()) {
+      $prevLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $prevNodeId],
+      );
+    }
 
-    $nextNode = $this->commonRepository->getNextEntity(
+    $nextNodeId = $this->commonRepository->getNextEntity(
       $dootrip->id(),
       $dootrip->bundle()
     );
-    $nextLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $nextNode],
-    );
+    $nextLink = '';
+    if ($nextNodeId > 0 && $nextNodeId != $dootrip->id()) {
+      $nextLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $nextNodeId],
+      );
+    }
 
     $cacheTags = [
       sprintf(

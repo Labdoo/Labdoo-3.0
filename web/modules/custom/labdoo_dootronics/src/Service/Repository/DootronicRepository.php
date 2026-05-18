@@ -664,9 +664,11 @@ class DootronicRepository implements DootronicRepositoryInterface {
    */
   public function getPreviousDootronicByTitle(string $title): int {
     $query = $this->database->select('node_field_data', 'n');
+    $query->join('node', 'base', 'n.nid = base.nid');
     $query->addField('n', 'nid');
     $query->condition('n.title', $title, '<');
     $query->condition('n.type', 'dootronic');
+    $query->condition('n.status', 1);
     $query->orderBy('n.title', 'DESC');
     $query->range(0, 1);
     try {
@@ -687,8 +689,10 @@ class DootronicRepository implements DootronicRepositoryInterface {
 
     // Wrap around to the last one by title.
     $query = $this->database->select('node_field_data', 'n');
+    $query->join('node', 'base', 'n.nid = base.nid');
     $query->addField('n', 'nid');
     $query->condition('n.type', 'dootronic');
+    $query->condition('n.status', 1);
     $query->orderBy('n.title', 'DESC');
     $query->range(0, 1);
     return (int) $query->execute()->fetchField();
@@ -699,9 +703,11 @@ class DootronicRepository implements DootronicRepositoryInterface {
    */
   public function getNextDootronicByTitle(string $title): int {
     $query = $this->database->select('node_field_data', 'n');
+    $query->join('node', 'base', 'n.nid = base.nid');
     $query->addField('n', 'nid');
     $query->condition('n.title', $title, '>');
     $query->condition('n.type', 'dootronic');
+    $query->condition('n.status', 1);
     $query->orderBy('n.title', 'ASC');
     $query->range(0, 1);
     try {
@@ -722,8 +728,10 @@ class DootronicRepository implements DootronicRepositoryInterface {
 
     // Wrap around to the first one by title.
     $query = $this->database->select('node_field_data', 'n');
+    $query->join('node', 'base', 'n.nid = base.nid');
     $query->addField('n', 'nid');
     $query->condition('n.type', 'dootronic');
+    $query->condition('n.status', 1);
     $query->orderBy('n.title', 'ASC');
     $query->range(0, 1);
     return (int) $query->execute()->fetchField();

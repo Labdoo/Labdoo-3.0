@@ -361,9 +361,11 @@ class CommonRepository {
    */
   public function getPreviousEntity(int $entityId, string $type): int {
     $query = $this->database->select('node_field_data', 'n');
+    $query->join('node', 'base', 'n.nid = base.nid');
     $query->addField('n', 'nid');
     $query->condition('n.nid', $entityId, '<');
     $query->condition('n.type', $type);
+    $query->condition('n.status', 1);
     $query->orderBy('n.nid', 'DESC');
     $query->range(0, 1);
     try {
@@ -400,9 +402,11 @@ class CommonRepository {
    */
   public function getNextEntity(int $entityId, string $type): int {
     $query = $this->database->select('node_field_data', 'n');
+    $query->join('node', 'base', 'n.nid = base.nid');
     $query->addField('n', 'nid');
     $query->condition('n.nid', $entityId, '>');
     $query->condition('n.type', $type);
+    $query->condition('n.status', 1);
     $query->orderBy('n.nid');
     $query->range(0, 1);
     try {
@@ -437,8 +441,10 @@ class CommonRepository {
    */
   public function getMinEntity(string $type): int {
     $query = $this->database->select('node_field_data', 'n');
+    $query->join('node', 'base', 'n.nid = base.nid');
     $query->addExpression('MIN(n.nid)', 'max_nid');
     $query->condition('n.type', $type);
+    $query->condition('n.status', 1);
 
     try {
       return $query->execute()->fetchField() ?? -1;
@@ -466,8 +472,10 @@ class CommonRepository {
    */
   public function getMaxEntity(string $type): int {
     $query = $this->database->select('node_field_data', 'n');
+    $query->join('node', 'base', 'n.nid = base.nid');
     $query->addExpression('MAX(n.nid)', 'max_nid');
     $query->condition('n.type', $type);
+    $query->condition('n.status', 1);
 
     try {
       return $query->execute()->fetchField() ?? -1;

@@ -118,23 +118,29 @@ class StoryActionsBlock extends BlockBase implements ContainerFactoryPluginInter
 
     $editLink = $this->linkHelper->generateEditLink($story);
 
-    $prevNode = $this->commonRepository->getPreviousEntity(
+    $prevNodeId = $this->commonRepository->getPreviousEntity(
       $story->id(),
       $story->bundle()
     );
-    $prevLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $prevNode],
-    );
+    $prevLink = '';
+    if ($prevNodeId > 0 && $prevNodeId != $story->id()) {
+      $prevLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $prevNodeId],
+      );
+    }
 
-    $nextNode = $this->commonRepository->getNextEntity(
+    $nextNodeId = $this->commonRepository->getNextEntity(
       $story->id(),
       $story->bundle()
     );
-    $nextLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $nextNode],
-    );
+    $nextLink = '';
+    if ($nextNodeId > 0 && $nextNodeId != $story->id()) {
+      $nextLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $nextNodeId],
+      );
+    }
 
     $parentNode = $story->get('field_parent')->entity;
     $parentLink = '';

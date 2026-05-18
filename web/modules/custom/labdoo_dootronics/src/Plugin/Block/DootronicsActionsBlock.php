@@ -142,32 +142,38 @@ class DootronicsActionsBlock extends BlockBase implements ContainerFactoryPlugin
     );
 
     if ($dootronic->bundle() === 'dootronic') {
-      $prevNode = $this->dootronicRepository->getPreviousDootronicByTitle($dootronic->label());
+      $prevNodeId = $this->dootronicRepository->getPreviousDootronicByTitle($dootronic->label());
     }
     else {
-      $prevNode = $this->commonRepository->getPreviousEntity(
+      $prevNodeId = $this->commonRepository->getPreviousEntity(
         $dootronic->id(),
         $dootronic->bundle()
       );
     }
-    $prevLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $prevNode],
-    );
+    $prevLink = '';
+    if ($prevNodeId > 0 && $prevNodeId != $dootronic->id()) {
+      $prevLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $prevNodeId],
+      );
+    }
 
     if ($dootronic->bundle() === 'dootronic') {
-      $nextNode = $this->dootronicRepository->getNextDootronicByTitle($dootronic->label());
+      $nextNodeId = $this->dootronicRepository->getNextDootronicByTitle($dootronic->label());
     }
     else {
-      $nextNode = $this->commonRepository->getNextEntity(
+      $nextNodeId = $this->commonRepository->getNextEntity(
         $dootronic->id(),
         $dootronic->bundle()
       );
     }
-    $nextLink = $this->linkHelper->generateUrlFromRoute(
-      'entity.node.canonical',
-      ['node' => $nextNode],
-    );
+    $nextLink = '';
+    if ($nextNodeId > 0 && $nextNodeId != $dootronic->id()) {
+      $nextLink = $this->linkHelper->generateUrlFromRoute(
+        'entity.node.canonical',
+        ['node' => $nextNodeId],
+      );
+    }
 
     $followLink = '';
     $unfollowLink = '';
