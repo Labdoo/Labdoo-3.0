@@ -316,7 +316,11 @@ class IntegrityCheckCommands extends DrushCommands {
     $values = $field->getValue();
     $processedValues = [];
     foreach ($values as $val) {
-      if (isset($val['latlon'])) {
+      if (isset($val['lat']) && (isset($val['lng']) || isset($val['lon']))) {
+        $lng = $val['lng'] ?? $val['lon'];
+        $processedValues[] = $val['lat'] . ',' . $lng;
+      }
+      elseif (isset($val['latlon'])) {
         $processedValues[] = $val['latlon'];
       }
       elseif (isset($val['value']) && is_string($val['value']) && strpos($val['value'], 'POINT (') === 0) {
@@ -362,7 +366,12 @@ class IntegrityCheckCommands extends DrushCommands {
 
     // Normalize source array to single value if needed.
     if (is_array($val1) && !is_array($val2) && count($val1) <= 1) {
-       $val1 = !empty($val1) ? reset($val1) : NULL;
+      $val1 = !empty($val1) ? reset($val1) : NULL;
+    }
+
+    // Special case for Geolocation field: Dest -90,-180 means empty/null.
+    if (($val2 === '-90,-180' || $val2 === '-90,-180.000000') && (is_null($val1) || $val1 === '0.000000,0.000000' || $val1 === '0,0')) {
+      return TRUE;
     }
 
     if (is_array($val1) && is_array($val2)) {
