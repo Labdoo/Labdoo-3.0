@@ -327,17 +327,25 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
       );
 
     if ($result) {
-      $sourceId = (int) $destinationEntity->{self::SOURCE_ID_FIELD}->value;
+      $sourceId = (int) $destinationEntity->id();
       if ($sourceId > 0 && !$this->dryRun) {
         $durationMs = (int) round((microtime(TRUE) - $startedAt) * 1000);
         $this->migrationTracker->track('user', 'user', $sourceId, (int) $destinationEntity->id(), $durationMs);
       }
 
+      ++$this->mainEntitiesCount;
+      $divisor = $this->totalSourceEntitiesCount > 0 ? $this->totalSourceEntitiesCount : 1;
       $message = sprintf(
-        'Updated entity %d',
-        $destinationEntity->id()
+        'Updated user %d [%d/%d %f%%]',
+        $destinationEntity->id(),
+        $this->mainEntitiesCount,
+        $this->totalSourceEntitiesCount,
+        round($this->mainEntitiesCount * 100 / $divisor, 2)
       );
       $this->logger->notice($message);
+    }
+    else {
+      $this->failingIds[] = $destinationEntity->id();
     }
 
     return $result;
@@ -501,7 +509,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   protected function checkIfValueExists(FieldItemListInterface $field, $value): bool {
 
     foreach ($field->getValue() as $existingValue) {
-      $existingValue = $existingValue['value'] ?? '';
+      $existingValue = $existingValue['value'] ?? ($existingValue['target_id'] ?? '');
       if ($existingValue === $value) {
         return TRUE;
       }
