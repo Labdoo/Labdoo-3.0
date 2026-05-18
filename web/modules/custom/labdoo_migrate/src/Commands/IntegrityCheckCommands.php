@@ -184,28 +184,28 @@ class IntegrityCheckCommands extends DrushCommands {
           continue;
         }
 
-        // Get source data.
-        $sourceRepositoryService = sprintf(
-          'labdoo_migrate.source_content.repository.%s',
-          $entityType
-        );
-        /** @var \Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface $sourceRepo */
-        $sourceRepo = \Drupal::getContainer()->get($sourceRepositoryService);
+    // Get source data.
+    $sourceRepositoryService = sprintf(
+      'labdoo_migrate.source_content.repository.%s',
+      $entityType
+    );
+    /** @var \Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface $sourceRepo */
+    $sourceRepo = \Drupal::getContainer()->get($sourceRepositoryService);
 
-        $this->externalConnectionManager->setConnection();
-        $sourceDataRaw = $sourceRepo->getEntity($sourceContentType, $mapping, $sid);
-        $this->externalConnectionManager->restoreConnection();
+    $this->externalConnectionManager->setConnection();
+    $sourceDataRaw = $sourceRepo->getEntity($sourceContentType, $mapping, $sid);
+    $this->externalConnectionManager->restoreConnection();
 
-        $defaultLang = $this->languageManager->getDefaultLanguage()->getId();
-        if ($entityType === 'user' || $entityType === 'comment') {
-          $sourceData = $sourceDataRaw[$defaultLang] ?? $sourceDataRaw;
-        }
-        else {
-          $mainLang = $sourceDataRaw['metadata']['main_langcode'] ?? $defaultLang;
-          $sourceData = $sourceDataRaw[$mainLang] ?? [];
-        }
+    $defaultLang = $this->languageManager->getDefaultLanguage()->getId();
+    if ($entityType === 'user' || $entityType === 'comment') {
+      $sourceData = $sourceDataRaw[$defaultLang] ?? $sourceDataRaw;
+    }
+    else {
+      $mainLang = $sourceDataRaw['metadata']['main_langcode'] ?? $defaultLang;
+      $sourceData = $sourceDataRaw[$mainLang] ?? [];
+    }
 
-        // Get destination entity.
+    // Get destination entity.
         $destEntity = $this->entityTypeManager->getStorage($entityType)->load($destId);
         if (!$destEntity) {
           $results[] = [$sid, $destId, 'ERROR', 'D10 entity could not be loaded'];
@@ -269,6 +269,12 @@ class IntegrityCheckCommands extends DrushCommands {
       }
 
       $destValue = $this->getDestinationValue($destNode, $destField);
+
+      // If source value is null but destination has value, it's a mismatch
+      // unless it's an ignored field or expected default.
+      if (is_null($sourceValue) && !empty($destValue)) {
+         // We keep it as is, but we want to make sure it's caught by isEqual.
+      }
 
       // Special handling for file/image fields: compare URIs.
       if ($destField === 'field_picture' && is_numeric($destValue) && is_string($sourceValue) && strpos($sourceValue, '://') !== FALSE) {

@@ -124,7 +124,7 @@ class MiniWikiRepository {
       'body' => $bodyWithoutTags,
       'tags' => $tagsData,
       'uri' => $miniWikiPage->toUrl()->toString(),
-      'author' => $miniWikiPage->getOwner()->get('field_username')->value,
+      'author' => $miniWikiPage->getOwner()->get('name')->value,
       'created' => (int) $miniWikiPage->get('created')->value,
       'changed' => (int) $miniWikiPage->get('changed')->value,
     ];

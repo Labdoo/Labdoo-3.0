@@ -52,13 +52,8 @@ class ExternalConnectionManager implements ConnectionManagerInterface {
    * {@inheritDoc}
    */
   public function setConnection(): Connection {
-
-    if (!isset($this->connection)) {
-      $this->defaultKey = Database::setActiveConnection(self::DB_KEY);
-      $this->connection = Database::getConnection(self::DB_KEY);
-    }
-
-    return $this->connection;
+    Database::setActiveConnection(self::DB_KEY);
+    return Database::getConnection(self::DB_KEY);
   }
 
   /**

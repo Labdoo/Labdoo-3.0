@@ -5,7 +5,8 @@
   ],
   "entity_type": "user",
   "integrity_fields": [
-    "field_username"
+    "name",
+    "field_user_name"
   ],
   "fields_mapping": [
     {
@@ -192,20 +193,6 @@
       "source": {
         "fields": [
           {
-            "table": "field_data_field_user_name",
-            "key": "entity_id",
-            "field": "field_user_name_value"
-          }
-        ]
-      },
-      "destination": {
-        "field": "field_username"
-      }
-    },
-    {
-      "source": {
-        "fields": [
-          {
             "table": "field_data_field_notification_area",
             "key": "entity_id",
             "field": "field_notification_area_value"
@@ -271,7 +258,7 @@
         "fields": [
           {
             "table": "location",
-            "key": "users.uid",
+            "key": "location_instance.uid",
             "field": "coords",
             "expression": "CONCAT(location.latitude, ',', location.longitude)",
             "ignore_langcode": "true",
@@ -280,11 +267,6 @@
                 "type": "INNER",
                 "table": "location_instance",
                 "condition": "location_instance.lid = location.lid"
-              },
-              {
-                "type": "INNER",
-                "table": "users",
-                "condition": "users.uid = location_instance.uid"
               }
             ]
           }

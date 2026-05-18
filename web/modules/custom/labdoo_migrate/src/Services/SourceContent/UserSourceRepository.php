@@ -380,6 +380,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
         $dbResult
       );
     }
+
     if (count($value) === 1) {
       $value = reset($value);
     }
@@ -403,9 +404,8 @@ class UserSourceRepository implements SourceRepositoryInterface {
     $search = NULL
   ): array {
 
-    $query = $this->externalConnectionManager
-      ->setConnection()
-      ->select($field->getTableName());
+    $conn = $this->externalConnectionManager->setConnection();
+    $query = $conn->select($field->getTableName());
 
     if (!empty($field->getExpression())) {
       $query->addExpression($field->getExpression(), $field->getFieldName());
@@ -421,7 +421,14 @@ class UserSourceRepository implements SourceRepositoryInterface {
     }
 
     if ($search !== NULL) {
-      $query->condition($field->getKeyName(), $search, $field->getOperator());
+      $tableName = $field->getTableName();
+      $keyName = $field->getKeyName();
+      if (strpos($keyName, '.') !== FALSE) {
+          $parts = explode('.', $keyName);
+          $tableName = $parts[0];
+          $keyName = $parts[1];
+      }
+      $query->condition($tableName . '.' . $keyName, $search, $field->getOperator());
     }
 
     return $query->execute()->fetchAll();

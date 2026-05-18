@@ -111,7 +111,6 @@ function labdoo_common_tokens($type, $tokens, array $data = array(), array $opti
  * Implements hook_user_presave().
  */
 function labdoo_common_user_presave(UserInterface $account) {
-  $account->set('field_username', $account->get('name')->value);
 }
 
 /**
@@ -170,7 +169,6 @@ function labdoo_common_form_user_register_form_alter(&$form, FormStateInterface 
   labdoo_common_form_user_form_alter($form, $form_state, $form_id);
 
   $required_fields = [
-    'field_username',
     'field_user_name',
     'field_about_me',
     'field_skills',

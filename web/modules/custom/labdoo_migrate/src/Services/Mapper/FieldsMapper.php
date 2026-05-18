@@ -148,6 +148,9 @@ class FieldsMapper implements MapperInterface {
         $overriddenByField
       );
       $sourceIdentifier = $mappingModel->getSourceIdentifier();
+      if (isset($this->mapping[$sourceIdentifier])) {
+        $sourceIdentifier .= '_' . $mappingModel->getDestinationField()->getFieldName();
+      }
       $this->mapping[$sourceIdentifier] = $mappingModel;
     }
   }
