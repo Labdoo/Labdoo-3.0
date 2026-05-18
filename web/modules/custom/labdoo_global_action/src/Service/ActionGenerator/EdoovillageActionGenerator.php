@@ -27,7 +27,7 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
 
     $city = '';
     $country = '';
-    $location = $entity->get('field_location')->getValue()[0] ?? [];
+    $location = $entity->hasField('field_location') ? ($entity->get('field_location')->getValue()[0] ?? []) : [];
     $this->setGeoData($location, $city, $country);
 
     $title = sprintf(
@@ -48,7 +48,7 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
       $title,
       $body,
       $entity->id(),
-      $entity->get('field_hub')->target_id,
+      $entity->hasField('field_hub') ? $entity->get('field_hub')->target_id : NULL,
       $entity->getOwner()->id(),
       $location,
       $city ?? '',

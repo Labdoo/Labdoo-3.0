@@ -27,7 +27,7 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
 
     $city = '';
     $country = '';
-    $location = $entity->get('field_destination_of_the_trip')->getValue();
+    $location = $entity->hasField('field_destination_of_the_trip') ? $entity->get('field_destination_of_the_trip')->getValue() : [];
     if (empty($location)) {
       return;
     }
@@ -48,8 +48,8 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
     else {
       // This Dootrip already exists.
       // Only report new activity if Dootronics have been added to it.
-      $prevDootronicId = $entity->original->get('field_laptops')->target_id;
-      $dootronicId = $entity->get('field_laptops')->target_id;
+      $prevDootronicId = ($entity->original->hasField('field_laptops') && !$entity->original->get('field_laptops')->isEmpty()) ? $entity->original->get('field_laptops')->target_id : NULL;
+      $dootronicId = ($entity->hasField('field_laptops') && !$entity->get('field_laptops')->isEmpty()) ? $entity->get('field_laptops')->target_id : NULL;
       if ($prevDootronicId != NULL or $dootronicId == NULL) {
         return;
       }
@@ -57,9 +57,9 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
       $title = sprintf('Dootrip %s was updated', $titlePart);
     }
 
-    $edooVillage = $entity->get('field_edoovillages_assigned')->entity;
+    $edooVillage = $entity->hasField('field_edoovillages_assigned') ? $entity->get('field_edoovillages_assigned')->entity : NULL;
     $edooVillageId = $edooVillage ? $edooVillage->id() : NULL;
-    $hub = $entity->get('field_hub')->entity;
+    $hub = $entity->hasField('field_hub') ? $entity->get('field_hub')->entity : NULL;
     $hubId = $hub ? $hub->id() : NULL;
 
     $body = sprintf(

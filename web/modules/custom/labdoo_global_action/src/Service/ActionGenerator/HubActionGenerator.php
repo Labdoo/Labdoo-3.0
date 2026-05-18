@@ -27,7 +27,7 @@ class HubActionGenerator extends AbstractActionGenerator implements ActionGenera
 
     $city = '';
     $country = '';
-    $location = $entity->get('field_locations')->getValue()[0] ?? [];
+    $location = $entity->hasField('field_locations') ? ($entity->get('field_locations')->getValue()[0] ?? []) : [];
     $this->setGeoData($location, $city, $country);
 
     $title = sprintf(
@@ -67,7 +67,7 @@ class HubActionGenerator extends AbstractActionGenerator implements ActionGenera
    *   TRUE if the preconditions match, otherwise FALSE.
    */
   protected function preConditions(EntityInterface $entity): bool {
-    return $entity->original === NULL;
+    return $entity->original === NULL && $entity->hasField('field_locations') && !empty($entity->get('field_locations')->getValue());
   }
 
 }

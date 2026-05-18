@@ -27,7 +27,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
 
     $city = '';
     $country = '';
-    $location = $entity->get('field_locations')->getValue()[0] ?? [];
+    $location = $entity->hasField('field_locations') ? ($entity->get('field_locations')->getValue()[0] ?? []) : [];
     $this->setGeoData($location, $city, $country);
 
     // New Dootronic.
@@ -46,9 +46,9 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
     }
 
     // Discard no-workflow updates.
-    $status = $entity->get('field_dootronic_status')->value;
+    $status = $entity->hasField('field_dootronic_status') ? $entity->get('field_dootronic_status')->value : NULL;
     if ($entity->original !== NULL) {
-      $prevStatus = $entity->original->get('field_dootronic_status')->value;
+      $prevStatus = $entity->original->hasField('field_dootronic_status') ? $entity->original->get('field_dootronic_status')->value : NULL;
       if ($prevStatus === $status) {
         return;
       }
@@ -74,12 +74,21 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
 
     // We take the location from the Edoovillage.
     if ($status === 'S4' || $status === 'T1') {
-      $edooVillage = $entity->get('field_edoovillage_destination')->entity;
+      $edooVillage = $entity->hasField('field_edoovillage_destination') ? $entity->get('field_edoovillage_destination')->entity : NULL;
       if ($edooVillage === NULL) {
         return;
       }
 
-      $location = $edooVillage->get('field_locations')->getValue()[0] ?? [];
+      if ($edooVillage->hasField('field_locations')) {
+        $location = $edooVillage->get('field_locations')->getValue()[0] ?? [];
+      }
+      elseif ($edooVillage->hasField('field_location')) {
+        $location = $edooVillage->get('field_location')->getValue()[0] ?? [];
+      }
+      else {
+        $location = [];
+      }
+
       $this->setGeoData($location, $city, $country);
     }
 
@@ -135,7 +144,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
    *   TRUE if the preconditions match, otherwise FALSE.
    */
   protected function preConditions(EntityInterface $entity): bool {
-    return !empty($entity->get('field_locations')->getValue());
+    return $entity->hasField('field_locations') && !empty($entity->get('field_locations')->getValue());
   }
 
   /**
@@ -187,8 +196,8 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
       'Dooject',
       $title,
       $body,
-      $entity->get('field_edoovillage_destination')->target_id,
-      $entity->get('field_hub')->target_id,
+      $entity->hasField('field_edoovillage_destination') ? $entity->get('field_edoovillage_destination')->target_id : NULL,
+      $entity->hasField('field_hub') ? $entity->get('field_hub')->target_id : NULL,
       $entity->getOwner()->id(),
       $location,
       $city ?? '',
