@@ -1,7 +1,11 @@
 <div id="block-hub-actions" class="block block-actions-block-block">
     <div class="views-exposed-form block-views">
-        <div class="block-title-wrapper"><span class="block-title">{{ "Actions available for this hub:"|t }}</span></div>
-        <div class="actions">
+        <div class="block-title-wrapper block-actions-toggle">
+            <span class="block-title">{{ "Actions available for this hub:"|t }}</span>
+            <span class="toggle-icon"></span>
+        </div>
+        <div class="block-actions-content">
+            <div class="actions">
             {% if data_link is not empty %}
             <div class="action tab"><a href="{{ data_link }}"><img class="icon" src="/themes/custom/labdoo/img/hub.png" alt="Hub details">{{ "Hub details"|t }}</a></div>
             {% endif %}
@@ -45,5 +49,6 @@
         {% if sanitation is not empty %}
         <div class="sanitation-point"><img src='/themes/custom/labdoo/img/labdoo-marker-blue.png'> {{ 'Sanitation point'|t }}</div>
         {% endif %}
+        </div>
     </div>
 </div>

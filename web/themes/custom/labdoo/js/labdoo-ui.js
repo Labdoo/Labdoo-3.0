@@ -44,6 +44,21 @@
                 });
             });
 
+            // Actions block toggle logic for mobile
+            const actionBlocks = once('actions-toggle', '.block-actions-block-block', context);
+            actionBlocks.forEach((el) => {
+                const $block = $(el);
+                const $toggle = $block.find('.block-actions-toggle');
+                const $content = $block.find('.block-actions-content');
+
+                $toggle.on('click', function() {
+                    if (window.innerWidth <= 1024) {
+                        $toggle.toggleClass('is-active');
+                        $content.toggleClass('is-expanded');
+                    }
+                });
+            });
+
             // Sidebar visibility logic
             const sidebarElements = once('sidebar-visibility', '.region-sidebar', context);
             sidebarElements.forEach((el) => {

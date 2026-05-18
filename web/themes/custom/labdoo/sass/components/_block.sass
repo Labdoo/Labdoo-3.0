@@ -5,6 +5,50 @@
   border-radius: 0
   //border: 1px solid rgba($border-color, 0.5)
   //box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05)
+  @media only screen and (max-width: 1024px)
+    width: 100%
+    border: none
+
+  .block-actions-toggle
+    @media only screen and (max-width: 1024px)
+      cursor: pointer
+      display: flex
+      justify-content: space-between
+      align-items: center
+      padding: 10px 15px
+      margin: 0 !important
+      background-color: $lighter-blue
+      min-height: 44px
+      width: 100%
+      box-sizing: border-box
+      .toggle-icon
+        display: inline-block
+        &::after
+          content: '▼'
+          display: inline-block
+          font-size: 0.8rem
+          color: $blue
+          transition: transform 0.3s ease
+
+    &.is-active
+      .toggle-icon::after
+        transform: rotate(180deg)
+
+  .block-actions-content
+    @media only screen and (max-width: 1024px)
+      max-height: 0
+      overflow: hidden
+      transition: max-height 0.4s ease-out, padding 0.4s ease
+      padding: 0 15px
+      box-sizing: border-box
+      width: 100%
+
+    &.is-expanded
+      @media only screen and (max-width: 1024px)
+        max-height: 1000px // Suficiente para el contenido
+        padding: 15px
+        border-top: 1px solid $border-color
+
   .actions
     .action
       margin: 8px 0
@@ -23,7 +67,7 @@
     .block-title
       color: $green
       font-weight: 600
-      font-size: 1.1rem
+      font-size: 0.9rem
   .icon
     height: 100% !important
     margin-right: 15px

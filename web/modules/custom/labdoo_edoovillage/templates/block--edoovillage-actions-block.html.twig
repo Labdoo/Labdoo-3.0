@@ -1,7 +1,11 @@
 <div id="block-edoovillage-actions" class="block block-actions-block-block">
     <div class="views-exposed-form block-views">
-        <div class="block-title-wrapper"><span class="block-title">{{ "Actions available for this edoovillage:"|t }}</span></div>
-        <div class="actions">
+        <div class="block-title-wrapper block-actions-toggle">
+            <span class="block-title">{{ "Actions available for this edoovillage:"|t }}</span>
+            <span class="toggle-icon"></span>
+        </div>
+        <div class="block-actions-content">
+            <div class="actions">
             {% if data_link is not empty %}
             <div class="action tab"><a href="{{ data_link }}"><img class="icon" src="/themes/custom/labdoo/img/edoovillage.png" alt="EdooVillage details">{{ "EdooVillage details"|t }}</a></div>
             {% endif %}
@@ -39,5 +43,6 @@
         <div class="block-title-wrapper"><span class="block-title">{{ "The edoovillage's semaphore:"|t }}</span> <a href="/content/managing-your-edoovillage-semaphore">{{ "Help"|t }}</a></div>
         <img class="semaphore" src='/themes/custom/labdoo/img/semaphore-{{ semaphore }}-en.png'>
         <div class="block-title-wrapper"><span class="block-title">{{ "Project status:"|t }}</span> <span class="edoovillage-status-{{ status }}">{{ status|t }}</span></div>
+        </div>
     </div>
 </div>

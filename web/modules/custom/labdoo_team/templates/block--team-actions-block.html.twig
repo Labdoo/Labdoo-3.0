@@ -1,7 +1,11 @@
 <div id="block-team-actions" class="block block-actions-block-block">
     <div class="views-exposed-form block-views">
-        <div class="block-title-wrapper"><span class="block-title">{{ 'Team'|t }} {{ team_name }}</span></div>
-        <div class="actions">
+        <div class="block-title-wrapper block-actions-toggle">
+            <span class="block-title">{{ 'Team'|t }} {{ team_name }}</span>
+            <span class="toggle-icon"></span>
+        </div>
+        <div class="block-actions-content">
+            <div class="actions">
             <div class="action"><a href="/teams"><img class="icon" src="/themes/custom/labdoo/img/all-teams.png">{{ "All teams"|t }}</a></div>
             <div class="action"><a href="{{ wall_link }}"><img class="icon" src="/themes/custom/labdoo/img/wall.png">{{ "View wall"|t }}</a></div>
             {% if edit_link is not empty %}
@@ -13,6 +17,7 @@
                 <div class="action"><a href="{{ members_link }}"><img class="icon" src="/themes/custom/labdoo/img/team-members.png">{{ "Team members"|t }}</a></div>
             {% endif %}
             <div class="action"><a href="{{ membership_link }}"><img class="icon" src="/themes/custom/labdoo/img/feed.png">{{ membership_label }}</a></div>
+        </div>
         </div>
     </div>
 </div>

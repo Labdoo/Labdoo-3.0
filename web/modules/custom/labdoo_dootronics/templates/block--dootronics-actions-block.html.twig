@@ -1,7 +1,11 @@
 <div id="block-dootronics-actions" class="block block-actions-block-block">
     <div class="views-exposed-form block-views">
-        <div class="block-title-wrapper"><span class="block-title">{{ "Actions available for this dootronic:"|t }}</span></div>
-        <div class="actions">
+        <div class="block-title-wrapper block-actions-toggle">
+            <span class="block-title">{{ "Actions available for this dootronic:"|t }}</span>
+            <span class="toggle-icon"></span>
+        </div>
+        <div class="block-actions-content">
+            <div class="actions">
             {% if edit_link is not empty %}
             <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/laptop.png">{{ "Edit this dootronic"|t }}</a></div>
             {% endif %}
@@ -31,6 +35,7 @@
             {% if previous_link is not empty %}
             <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous dootronic"|t }}</a></div>
             {% endif %}
+        </div>
         </div>
     </div>
 </div>
