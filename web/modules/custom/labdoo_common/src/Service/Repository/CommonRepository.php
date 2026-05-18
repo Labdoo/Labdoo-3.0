@@ -109,6 +109,7 @@ class CommonRepository {
         $query->condition('nfc.bundle', $bundle);
       }
       $results = $query->execute()->fetchCol();
+      $results = array_map('strtoupper', $results);
     }
     catch (\Exception $e) {
       if ($bundle !== NULL) {
