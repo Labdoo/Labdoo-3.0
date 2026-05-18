@@ -143,31 +143,15 @@ function labdoo_edoovillage_entity_delete(EntityInterface $entity) {
   }
 }
 
-/**
- * Implements hook_views_pre_render().
- */
-function labdoo_edoovillage_views_pre_render(ViewExecutable $view) {
-  if ($view->id() == 'edoovillages_dashboard' || $view->id() == 'edoovillages') {
-    $results = $view->result;
-    $new_results = [];
-    $nids = [];
-    foreach ($results as $index => $row) {
-      $nid = $row->_entity->id();
-      if (!in_array($nid, $nids)) {
-        $nids[] = $nid;
-        $new_results[] = $row;
-      }
-    }
-    $view->result = $new_results;
-    $view->total_rows = count($new_results);
-  }
-}
 
 /**
  * Implements hook_views_query_alter().
  */
 function labdoo_edoovillage_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
   if ($view->id() == 'edoovillages_dashboard' || $view->id() == 'edoovillages') {
+    $query->addField('node_field_data', 'nid', 'nid', ['function' => 'groupby']);
+    $query->addGroupBy('node_field_data.nid');
+
     $user_id = \Drupal::request()->query->get('u');
     $mine = \Drupal::request()->query->get('mine');
 
