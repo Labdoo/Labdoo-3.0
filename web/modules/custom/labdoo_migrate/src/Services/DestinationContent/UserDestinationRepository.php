@@ -147,7 +147,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    */
   public function getEntities(array $contentTypes, array $nids = []): array {
 
-    $properties = ['type' => $contentTypes];
+    $properties = [];
     if ($nids) {
       $properties['uid'] = $nids;
     }
@@ -370,7 +370,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
       $mapping = $this->mapping[$sourceIdentifier];
       $destination = $mapping->getDestinationField();
 
-      $destinationEntity = $this->setFieldValue(
+      $this->setFieldValue(
         $destinationEntity,
         $destination->getFieldName(),
         $value,
@@ -428,7 +428,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
 
     // Early return. We need it here because some destination fields are
     // indeed virtual fields so that, they cannot be stored.
-    if (!$fieldName) {
+    if (!$fieldName || $value === NULL) {
       return $entity;
     }
 
@@ -553,16 +553,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
 
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     foreach ($entities as $entity) {
-      $sourceId = $entity->get(self::SOURCE_ID_FIELD)->value ?? FALSE;
-      if (!$sourceId) {
-        $errorMessage = sprintf(
-          'Could not retrieve D7 entity from D9 entity %d',
-          $entity->id()
-        );
-
-        $this->logger->warning($errorMessage);
-        continue;
-      }
+      $sourceId = $entity->id();
       $processedEntities[$sourceId] = $entity;
     }
 

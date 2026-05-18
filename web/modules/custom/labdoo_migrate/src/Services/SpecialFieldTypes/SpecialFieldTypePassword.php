@@ -30,10 +30,6 @@ class SpecialFieldTypePassword implements SpecialFieldTypeInterface {
       $entity->pass->pre_hashed = TRUE;
     }
 
-    // We return NULL because the password has already been set via
-    // setExistingPassword() and we don't want setFieldValue() to
-    // try to set it again using the standard field API, which would
-    // trigger the re-hashing.
     return NULL;
   }
 

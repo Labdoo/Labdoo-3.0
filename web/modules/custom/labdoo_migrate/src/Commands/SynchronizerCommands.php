@@ -576,7 +576,7 @@ class SynchronizerCommands extends DrushCommands {
     $this->logger->notice('Retrieving the destination entities...');
 
     $destinationEntities = $this->destinationRepository
-      ->getEntities($this->configData->getDestinationTypes(), $this->nids);
+      ->getEntities($this->configData->getDestinationTypes(), $this->nids ?? []);
 
     if ($this->limit > -1) {
       $destinationEntities = array_slice(
