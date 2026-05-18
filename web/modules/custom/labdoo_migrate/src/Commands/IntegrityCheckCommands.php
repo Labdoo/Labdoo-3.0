@@ -196,6 +196,13 @@ class IntegrityCheckCommands extends DrushCommands {
     $sourceDataRaw = $sourceRepo->getEntity($sourceContentType, $mapping, $sid);
     $this->externalConnectionManager->restoreConnection();
 
+    if (empty($sourceDataRaw)) {
+      $results[] = [$sid, $destId, 'ERROR', 'Source entity does not exist in D7'];
+      $this->migrationTracker->updateIntegrityStatus($entityType, $sid, 2);
+      $progressBar->advance();
+      continue;
+    }
+
     $defaultLang = $this->languageManager->getDefaultLanguage()->getId();
     if ($entityType === 'user' || $entityType === 'comment') {
       $sourceData = $sourceDataRaw[$defaultLang] ?? $sourceDataRaw;

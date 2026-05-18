@@ -177,6 +177,18 @@ class UserSourceRepository implements SourceRepositoryInterface {
    */
   protected function getFieldValues($entityId): array {
 
+    // For users, first check if the user exists in the base table.
+    $conn = $this->externalConnectionManager->setConnection();
+    $exists = $conn->select('users', 'u')
+      ->fields('u', ['uid'])
+      ->condition('uid', $entityId)
+      ->execute()
+      ->fetchField();
+
+    if (!$exists) {
+      return [];
+    }
+
     $entity = [];
 
     /** @var \Drupal\labdoo_migrate\Model\MappingModel $mapping */

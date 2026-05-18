@@ -260,7 +260,7 @@ class IntegrityFixCommands extends DrushCommands {
 
           // Skip fix if source value is NULL and it's a critical field
           // to avoid SQL integrity violations, unless we really want to clear it.
-          if ($sourceValue === NULL && in_array($destField, ['title', 'created', 'changed', 'uid'])) {
+          if ($sourceValue === NULL && in_array($destField, ['title', 'name', 'created', 'changed', 'uid'])) {
             continue;
           }
 
