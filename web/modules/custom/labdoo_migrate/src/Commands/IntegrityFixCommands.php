@@ -306,9 +306,19 @@ class IntegrityFixCommands extends DrushCommands {
     $cardinality = $fieldDefinition->getFieldStorageDefinition()->getCardinality();
 
     // Specific case for Geofield with WKT.
-    if ($fieldType === 'geofield' && is_string($sourceValue) && strpos($sourceValue, ',') !== FALSE) {
-      list($lat, $lng) = explode(',', $sourceValue);
-      $sourceValue = sprintf('POINT (%f %f)', (float)trim($lng), (float)trim($lat));
+    if ($fieldType === 'geofield' && !empty($sourceValue)) {
+      if (is_array($sourceValue)) {
+        foreach ($sourceValue as &$val) {
+          if (is_string($val) && strpos($val, ',') !== FALSE) {
+            list($lat, $lng) = explode(',', $val);
+            $val = sprintf('POINT (%f %f)', (float)trim($lng), (float)trim($lat));
+          }
+        }
+      }
+      elseif (is_string($sourceValue) && strpos($sourceValue, ',') !== FALSE) {
+        list($lat, $lng) = explode(',', $sourceValue);
+        $sourceValue = sprintf('POINT (%f %f)', (float)trim($lng), (float)trim($lat));
+      }
     }
 
     if ($sourceValue === NULL) {
@@ -382,7 +392,16 @@ class IntegrityFixCommands extends DrushCommands {
         if ($fieldType === 'geofield') {
           // Geofield expects WKT string like "POINT (longitude latitude)".
           // Already handled normalization above.
-          $entity->set($fieldName, $sourceValue);
+          if (is_array($sourceValue)) {
+            $geofieldValues = [];
+            foreach ($sourceValue as $wkt) {
+              $geofieldValues[] = ['value' => $wkt];
+            }
+            $entity->set($fieldName, $geofieldValues);
+          }
+          else {
+            $entity->set($fieldName, $sourceValue);
+          }
         }
         else {
           // Geolocation expects 'lat' and 'lng'.
@@ -440,6 +459,10 @@ class IntegrityFixCommands extends DrushCommands {
     foreach ($values as $val) {
       if (isset($val['latlon'])) {
         $processedValues[] = $val['latlon'];
+      }
+      elseif (isset($val['lat']) && (isset($val['lng']) || isset($val['lon']))) {
+        $lng = $val['lng'] ?? $val['lon'];
+        $processedValues[] = $val['lat'] . ',' . $lng;
       }
       elseif (isset($val['value']) && is_string($val['value']) && strpos($val['value'], 'POINT (') === 0) {
         // Handle Geofield WKT format for comparison.

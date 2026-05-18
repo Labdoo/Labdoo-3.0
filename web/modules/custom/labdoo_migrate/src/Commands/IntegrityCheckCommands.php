@@ -316,12 +316,12 @@ class IntegrityCheckCommands extends DrushCommands {
     $values = $field->getValue();
     $processedValues = [];
     foreach ($values as $val) {
-      if (isset($val['lat']) && (isset($val['lng']) || isset($val['lon']))) {
+      if (isset($val['latlon'])) {
+        $processedValues[] = $val['latlon'];
+      }
+      elseif (isset($val['lat']) && (isset($val['lng']) || isset($val['lon']))) {
         $lng = $val['lng'] ?? $val['lon'];
         $processedValues[] = $val['lat'] . ',' . $lng;
-      }
-      elseif (isset($val['latlon'])) {
-        $processedValues[] = $val['latlon'];
       }
       elseif (isset($val['value']) && is_string($val['value']) && strpos($val['value'], 'POINT (') === 0) {
         // Handle Geofield WKT format for comparison.
