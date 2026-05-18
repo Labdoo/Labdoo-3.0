@@ -146,6 +146,7 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
 
       $this->dootripCompute->computeDootripCapacity($dootrip);
       $this->dootripCompute->computeRelatedDootronics($dootrip);
+      $this->dootripCompute->computeEdoovillagesAssigned($dootrip);
       $this->dootripRepository->saveEntity($dootrip);
       $this->clearCachetag($dootrip);
     }

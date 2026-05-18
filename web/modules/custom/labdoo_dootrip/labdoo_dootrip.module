@@ -119,6 +119,7 @@ function labdoo_dootrip_entity_presave(EntityInterface $entity) {
   $dootripCompute->computeCo2Savings($entity);
   $dootripCompute->computeDistance($entity);
   $dootripCompute->computeDootripLocations($entity);
+  $dootripCompute->computeEdoovillagesAssigned($entity);
 }
 
 function labdoo_dootrip_cron() {

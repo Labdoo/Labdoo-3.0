@@ -225,6 +225,26 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
+  public function computeEdoovillagesAssigned(EntityInterface &$dootrip): void {
+    $dootronics = $dootrip->get('field_laptops')->referencedEntities();
+    $edoovillageIds = [];
+
+    foreach ($dootronics as $dootronic) {
+      if ($dootronic->hasField('field_edoovillage_destination') && !$dootronic->get('field_edoovillage_destination')->isEmpty()) {
+        $edoovillageId = $dootronic->get('field_edoovillage_destination')->target_id;
+        if ($edoovillageId) {
+          $edoovillageIds[] = $edoovillageId;
+        }
+      }
+    }
+
+    $uniqueEdoovillageIds = array_unique($edoovillageIds);
+    $dootrip->set('field_edoovillages_assigned', $uniqueEdoovillageIds);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public function computeRelatedDootronics(EntityInterface &$dootrip): void {
     foreach ($dootrip->get('field_laptops') as $dootronic) {
       $dootronic = $dootronic->entity;

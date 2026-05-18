@@ -71,6 +71,14 @@ interface DootripComputeInterface {
   public function computeDootripLocations(EntityInterface &$dootrip): void;
 
   /**
+   * Computes the edoovillages assigned to a dootrip.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   *   The dootrip.
+   */
+  public function computeEdoovillagesAssigned(EntityInterface &$dootrip): void;
+
+  /**
    * Computes the related dootronics for a dootrip.
    *
    * @param \Drupal\Core\Entity\EntityInterface $dootrip
