@@ -44,6 +44,13 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
   protected bool $dryRun = FALSE;
 
   /**
+   * The incremental mode.
+   *
+   * @var bool
+   */
+  protected bool $incremental = FALSE;
+
+  /**
    * The progress bar.
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
@@ -84,6 +91,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode.
    * @option body-field The field name in D7 that contains the body content (default: "body").
+   * @option incremental Whether to run this command in incremental mode (only if source and destination revision counts differ).
    */
   public function startSync(
     string $type,
@@ -91,6 +99,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
       'nids' => NULL,
       'limit' => -1,
       'dry-run' => FALSE,
+      'incremental' => FALSE,
       'body-field' => 'body',
     ]
   ): void {
@@ -145,6 +154,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
     }
     $this->limit = (int) $options['limit'];
     $this->dryRun = (bool) $options['dry-run'];
+    $this->incremental = (bool) $options['incremental'];
   }
 
   /**

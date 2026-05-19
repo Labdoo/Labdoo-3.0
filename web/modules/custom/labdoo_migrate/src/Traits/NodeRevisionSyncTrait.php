@@ -36,6 +36,19 @@ trait NodeRevisionSyncTrait {
       return;
     }
 
+    if ($this->incremental) {
+      $destinationRevisionIds = $this->entityTypeManager
+        ->getStorage('node')
+        ->revisionIds($destinationNode);
+
+      if (count($revisions) === count($destinationRevisionIds)) {
+        if ($this->logger->isVerbose()) {
+          $this->logger->info(sprintf('Skipping node %d: Source and destination have the same number of revisions (%d).', $nid, count($revisions)));
+        }
+        return;
+      }
+    }
+
     // Load mapping for this content type
     $config = $this->configurationManager->getContentConfiguration($sourceContentType);
     $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
