@@ -102,4 +102,9 @@ interface DootripComputeInterface {
    */
   public function enqueueGeocoding(EntityInterface $entity): void;
 
+  /**
+   * Enqueues the recompute of the total CO2 savings.
+   */
+  public function enqueueTotalCo2SavingsRecompute(): void;
+
 }

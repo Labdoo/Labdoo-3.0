@@ -2,9 +2,12 @@
 
 namespace Drupal\labdoo_dootrip\Service\Compute;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\State\StateInterface;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Drupal\labdoo_dootrip\Service\Queue\Feeder\QueueFeederInterface;
 use Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface;
@@ -48,6 +51,20 @@ class DootripCompute implements DootripComputeInterface {
   protected QueueFeederInterface $dootripCapacityQueueFeeder;
 
   /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected StateInterface $state;
+
+  /**
+   * The database service.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected Connection $database;
+
+  /**
    * DootripCompute repository.
    *
    * @param \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface $dootripRepository
@@ -58,17 +75,25 @@ class DootripCompute implements DootripComputeInterface {
    *   The total CO2 savings queue feeder.
    * @param \Drupal\labdoo_dootrip\Service\Queue\Feeder\QueueFeederInterface $dootripCapacityQueueFeeder
    *   The dootrip capacity queue feeder.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database service.
    */
   public function __construct(
     DootripRepositoryInterface $dootripRepository,
     CacheBackendInterface $cacheBackend,
     QueueFeederInterface $totalCo2SavingsQueueFeeder,
-    QueueFeederInterface $dootripCapacityQueueFeeder
+    QueueFeederInterface $dootripCapacityQueueFeeder,
+    StateInterface $state,
+    Connection $database
   ) {
     $this->dootripRepository = $dootripRepository;
     $this->cacheBackend = $cacheBackend;
     $this->totalCo2SavingsQueueFeeder = $totalCo2SavingsQueueFeeder;
     $this->dootripCapacityQueueFeeder = $dootripCapacityQueueFeeder;
+    $this->state = $state;
+    $this->database = $database;
   }
 
   /**
@@ -77,33 +102,62 @@ class DootripCompute implements DootripComputeInterface {
   public function computeTotalCo2Savings(): float {
     $co2Saved = 0;
 
-    $cachedValue = $this->cacheBackend->get(CommonRepository::CO2_SAVINGS_CID);
-    if ($cachedValue) {
-      return (float) $cachedValue;
+    // Use direct SQL query for better performance.
+    // Fetches coordinates and laptop counts for all active dootrips.
+    $query = $this->database->select('node', 'n');
+    $query->join('node_field_data', 'nfd', 'nfd.nid = n.nid');
+    $query->leftJoin('node__field_origin_of_the_trip', 'o', 'o.entity_id = n.nid AND o.deleted = 0');
+    $query->leftJoin('node__field_destination_of_the_trip', 'd', 'd.entity_id = n.nid AND d.deleted = 0');
+
+    // Subquery to count laptops.
+    $laptop_query = $this->database->select('node__field_laptops', 'l');
+    $laptop_query->fields('l', ['entity_id']);
+    $laptop_query->addExpression('COUNT(*)', 'laptop_count');
+    $laptop_query->condition('l.deleted', 0);
+    $laptop_query->groupBy('l.entity_id');
+
+    $query->leftJoin($laptop_query, 'lc', 'lc.entity_id = n.nid');
+
+    $query->fields('o', ['field_origin_of_the_trip_lat', 'field_origin_of_the_trip_lon']);
+    $query->fields('d', ['field_destination_of_the_trip_lat', 'field_destination_of_the_trip_lon']);
+    $query->addField('lc', 'laptop_count');
+
+    $query->condition('n.type', 'dootrip');
+    $query->condition('nfd.status', 1);
+
+    $results = $query->execute();
+
+    // Configuration constants for CO2 calculation.
+    $dootronicWeightKgms = 2.5;
+    $CO2gramsPerKgmPerKm = 0.5;
+
+    foreach ($results as $row) {
+      if (empty($row->field_origin_of_the_trip_lat) || empty($row->field_destination_of_the_trip_lat)) {
+        continue;
+      }
+
+      $numDootronics = !empty($row->laptop_count) ? (int) $row->laptop_count : 1;
+
+      $distanceMeters = $this->vincentyGreatCircleDistance(
+        (float) $row->field_origin_of_the_trip_lat,
+        (float) $row->field_origin_of_the_trip_lon,
+        (float) $row->field_destination_of_the_trip_lat,
+        (float) $row->field_destination_of_the_trip_lon
+      );
+
+      $distanceKms = round($distanceMeters / 1000);
+
+      $co2Saved += round($CO2gramsPerKgmPerKm *
+        $numDootronics *
+        $dootronicWeightKgms *
+        $distanceKms / 1000, 1);
     }
 
-    // Retrieves all the dootrips.
-    try {
-      $this->dootripRepository->disableEntityStorageCache();
-    } catch (\Exception $e) {
-      return 0;
-    }
-    $dootripNids = $this->dootripRepository
-      ->getAllNids();
+    $this->state->set(CommonRepository::CO2_SAVINGS_CID, $co2Saved);
+    $this->cacheBackend->set(CommonRepository::CO2_SAVINGS_CID, $co2Saved, CacheBackendInterface::CACHE_PERMANENT, ['dootrip_co2_savings']);
+    Cache::invalidateTags(['dootrip_co2_savings']);
 
-    foreach ($dootripNids as $dootripNid) {
-      $dootrip = $this->dootripRepository->load($dootripNid);
-      $co2Saved += $this->calculateCo2Savings($dootrip);
-    }
-
-    try {
-      $this->dootripRepository->enableEntityStorageCache();
-    } catch (\Exception $e) {
-    }
-
-    $this->cacheBackend->set(CommonRepository::CO2_SAVINGS_CID, $co2Saved);
-
-    return $co2Saved;
+    return (float) $co2Saved;
   }
 
   /**
@@ -427,9 +481,18 @@ class DootripCompute implements DootripComputeInterface {
    *   The number of dootronics.
    */
   protected function getNumDootronics(EntityInterface $dootrip): int {
-    $dootronics = $dootrip->get('field_laptops')->value;
+    $dootronics = $dootrip->get('field_laptops');
 
-    return !empty($dootronics) ? count($dootronics) : 1;
+    return !$dootronics->isEmpty() ? count($dootronics) : 1;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function enqueueTotalCo2SavingsRecompute(): void {
+    /** @var \Drupal\labdoo_dootrip\Service\Queue\Feeder\TotalCo2SavingsQueueFeeder $totalCo2SavingsQueueFeeder */
+    $totalCo2SavingsQueueFeeder = $this->totalCo2SavingsQueueFeeder;
+    $totalCo2SavingsQueueFeeder->recompute();
   }
 
 }

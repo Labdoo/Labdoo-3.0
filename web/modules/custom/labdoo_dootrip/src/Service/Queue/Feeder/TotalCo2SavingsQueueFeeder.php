@@ -33,4 +33,11 @@ class TotalCo2SavingsQueueFeeder extends AbstractQueueFeeder implements QueueFee
     $this->enqueueItem([$dootrip->id()]);
   }
 
+  /**
+   * Recomputes the total CO2 savings.
+   */
+  public function recompute(): void {
+    $this->enqueueItem([]);
+  }
+
 }

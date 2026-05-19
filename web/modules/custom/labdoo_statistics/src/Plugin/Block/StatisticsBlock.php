@@ -83,8 +83,9 @@ class StatisticsBlock extends BlockBase implements ContainerFactoryPluginInterfa
   public function build() {
     $dootronicsTagged = $this->commonRepository
       ->getBundleCount('dootronic');
+    $deliveredStates = ['S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'T1', 'T2'];
     $dootronicsDelivered = $this->commonRepository
-      ->getDootronicsCountByStatus('S4');
+      ->getDootronicsCountByStatus($deliveredStates);
     $edoovillages = $this->commonRepository
       ->getEdooVillagesCount();
     $students = $this->commonRepository
@@ -115,7 +116,7 @@ class StatisticsBlock extends BlockBase implements ContainerFactoryPluginInterfa
       '#hubs_url' => $hubsUrl,
       '#cache' => [
         'max-age' => Cache::PERMANENT,
-        'tags' => Constants::CACHE_TAGS,
+        'tags' => array_merge(Constants::CACHE_TAGS, ['dootrip_co2_savings']),
       ],
     ];
   }

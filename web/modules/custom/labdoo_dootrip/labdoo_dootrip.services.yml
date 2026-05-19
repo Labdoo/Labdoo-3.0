@@ -7,7 +7,7 @@ services:
     arguments: ['@entity_type.manager', '@logger.factory', '@database']
   labdoo_dootrip.compute:
     class: Drupal\labdoo_dootrip\Service\Compute\DootripCompute
-    arguments: ['@labdoo_dootrip.repository', '@cache.default', '@labdoo_dootrip.queue.feeder.total_co2_savings', '@labdoo_dootrip.queue.feeder.dootrip_capacity']
+    arguments: ['@labdoo_dootrip.repository', '@cache.default', '@labdoo_dootrip.queue.feeder.total_co2_savings', '@labdoo_dootrip.queue.feeder.dootrip_capacity', '@state', '@database']
   labdoo_dootrip.queue.feeder.total_co2_savings:
     class: Drupal\labdoo_dootrip\Service\Queue\Feeder\TotalCo2SavingsQueueFeeder
     arguments: ['@queue_manager.helper']

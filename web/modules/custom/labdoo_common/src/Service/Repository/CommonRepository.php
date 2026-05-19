@@ -145,6 +145,8 @@ class CommonRepository {
    *   The edoovillage ID.
    * @param int|null $hubId
    *   The hub ID.
+   * @param bool $useRevisionHistory
+   *   Whether to use the revision history to count.
    *
    * @return int
    *   The number of Dootronics by the given status.
@@ -152,9 +154,11 @@ class CommonRepository {
   public function getDootronicsCountByStatus(
     $status = NULL,
     ?int $edooVillageId = NULL,
-    ?int $hubId = NULL
+    ?int $hubId = NULL,
+    bool $useRevisionHistory = FALSE
   ): int {
-    $query = $this->database->select('node__field_dootronic_status', 'nfs');
+    $tableName = $useRevisionHistory ? 'node_revision__field_dootronic_status' : 'node__field_dootronic_status';
+    $query = $this->database->select($tableName, 'nfs');
     $query->distinct();
     $query->fields('nfs', ['entity_id']);
     $query->condition('nfs.bundle', 'dootronic');
@@ -339,13 +343,33 @@ class CommonRepository {
 
   public function getCo2Saved(int $dootronicsDelivered): float {
     $co2SavingsDootrip = $this->cacheBackend->get(self::CO2_SAVINGS_CID);
-    $co2SavingsDootrip = $co2SavingsDootrip->data ?? 0;
+    if ($co2SavingsDootrip) {
+      $co2SavingsDootrip = $co2SavingsDootrip->data;
+    }
+    else {
+      $co2SavingsDootrip = \Drupal::state()->get(self::CO2_SAVINGS_CID);
+      if ($co2SavingsDootrip === NULL) {
+        /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
+        $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
+        $dootripCompute->enqueueTotalCo2SavingsRecompute();
+        $co2SavingsDootrip = 0;
+      }
+      else {
+        // Cache it for performance if it was found in state.
+        $this->cacheBackend->set(self::CO2_SAVINGS_CID, $co2SavingsDootrip, CacheBackendInterface::CACHE_PERMANENT, ['dootrip_co2_savings']);
+      }
+    }
+
+    // Use historical count for CO2 savings by fabrication/recycling as in v2.
+    $deliveredStates = ['S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'T1', 'T2'];
+    $historicalDeliveredCount = $this->getDootronicsCountByStatus($deliveredStates, NULL, NULL, TRUE);
+
     // See these links for more information about this constant:
     // http://www.allgreenrecycling.com/ewaste-recycling-calculator/
     // http://www.co2list.org/files/carbon.htm#RANGE!A175
-    $co2SavingsDootronic = $dootronicsDelivered * 18.59;
+    $co2SavingsDootronic = $historicalDeliveredCount * 18.59;
 
-    return $co2SavingsDootrip + $co2SavingsDootronic;
+    return (float) $co2SavingsDootrip + $co2SavingsDootronic;
   }
 
   /**
