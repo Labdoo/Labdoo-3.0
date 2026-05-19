@@ -91,6 +91,7 @@ help: ## ❓ Show available commands grouped by theme.
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team-posts" "🔄 Migrate team posts and comments (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-team-tasks" "🔄 Migrate team tasks and comments (foreground)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-user" "🔄 Migrate user (foreground)."
+	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-revisions" "🔄 Migrate node revisions (e.g., make migrate-revisions type=page limit=10)."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all-queue" "📥 Enqueue all entities for migration."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-incremental" "🔄 Run incremental migration for all entities."
 	@printf "  $(CYAN)%-25s$(RESET) %s\n" "migrate-all-incremental-bg" "🌙 Run incremental migration for all entities in background."
@@ -549,6 +550,15 @@ migrate-all-queue: ## 📥 Enqueue all entities for migration.
 	vendor/bin/drush cset geocoder.settings geocoder_presave_disabled 0 -y
 	vendor/bin/drush cset search_api.index.default_index options.index_directly 1 -y
 	vendor/bin/drush search-api:index
+
+.PHONY: migrate-revisions
+migrate-revisions: ## 🔄 Migrate node revisions (e.g., make migrate-revisions type=page [limit=10] [body-field=field_body] [dry-run=1]).
+	@if [ -z "$(type)" ]; then \
+		echo "$(RED)❌ Error: You must specify a content type (e.g., make migrate-revisions type=page).$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🔄 Migrating revisions for $(type) nodes...$(RESET)"
+	$(DRUSH_COMMAND) labdoo-sync-revisions $(type) $(if $(limit),--limit=$(limit),) $(if $(body-field),--body-field=$(body-field),) $(if $(dry-run),--dry-run,)
 
 .PHONY: migrate-user-bg
 migrate-user-bg: ## 🌙 Migrate user in background (nohup + log).

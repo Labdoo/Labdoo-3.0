@@ -7,7 +7,9 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
+use Drupal\labdoo_migrate\Services\SourceContent\RevisionSourceRepositoryInterface;
 use Drupal\labdoo_migrate\Services\SourceContent\TranslationRepositoryInterface as SourceTranslationRepositoryInterface;
+use Drupal\labdoo_migrate\Traits\NodeRevisionSyncTrait;
 use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -23,6 +25,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 class BasicPageSynchronizerCommands extends DrushCommands {
 
   use TextFormatMapperTrait;
+  use NodeRevisionSyncTrait;
 
   private const CONTENT_TYPE = 'page';
   private const DESTINATION_CONTENT_TYPE = 'page';
@@ -91,6 +94,13 @@ class BasicPageSynchronizerCommands extends DrushCommands {
   private int $translationsCount = 0;
 
   /**
+   * The source revision repository.
+   *
+   * @var \Drupal\labdoo_migrate\Services\SourceContent\RevisionSourceRepositoryInterface
+   */
+  protected RevisionSourceRepositoryInterface $revisionSourceRepository;
+
+  /**
    * BasicPageSynchronizerCommands constructor.
    */
   public function __construct(
@@ -99,11 +109,88 @@ class BasicPageSynchronizerCommands extends DrushCommands {
     protected EntityTypeManagerInterface $entityTypeManager,
     SourceTranslationRepositoryInterface $sourceTranslationRepository,
     TranslationRepositoryInterface $destinationTranslationRepository,
-    protected LanguageManagerInterface $languageManager
+    protected LanguageManagerInterface $languageManager,
+    RevisionSourceRepositoryInterface $revisionSourceRepository
   ) {
     parent::__construct();
     $this->sourceTranslationRepository = $sourceTranslationRepository;
     $this->destinationTranslationRepository = $destinationTranslationRepository;
+    $this->revisionSourceRepository = $revisionSourceRepository;
+  }
+
+  /**
+   * Synchronizes node revisions.
+   *
+   * @param array $options
+   *   Command options.
+   *
+   * @command labdoo-synchronize-basic-page-revisions [nids=123,456,789] [limit=9] [dry-run]
+   * @aliases labdoo-sync-basic-page-revisions
+   * @usage labdoo-synchronize-basic-page-revisions
+   *   Synchronizes the revisions of the type "page" (basic page).
+   *
+   * @option nids List of Drupal 7 IDs to synchronize.
+   * @option limit Limits the execution to the given elements.
+   * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
+   */
+  public function startSyncRevisions(
+    array $options = [
+      'nids' => NULL,
+      'limit' => -1,
+      'dry-run' => FALSE,
+    ]
+  ): void {
+    try {
+      $this->setEnvironment($options);
+
+      $this->logger->notice('Retrieving the source entities IDs for revisions...');
+      $pagesQuery = $this->externalConnectionManager
+        ->setConnection()
+        ->select('node', 'n')
+        ->fields('n', ['nid', 'language', 'tnid'])
+        ->condition('type', self::CONTENT_TYPE)
+        ->condition(
+          $this->externalConnectionManager->setConnection()->condition('OR')
+            ->condition('tnid', 0)
+            ->where('nid = tnid')
+        );
+
+      if ($this->nids !== NULL) {
+        $pagesQuery->condition('nid', $this->nids, 'IN');
+      }
+      if ($this->limit > -1) {
+        $pagesQuery->range(0, $this->limit);
+      }
+      $pages = $pagesQuery->execute()->fetchAll();
+      $total = count($pages);
+      $this->logger->notice(sprintf('%d source entities found for revision sync.', $total));
+      $this->externalConnectionManager->restoreConnection();
+
+      $this->initProgressBar($total, 'Processing revisions');
+
+      foreach ($pages as $page) {
+        $nid = $page->nid;
+        $this->syncNodeRevisionsWrapper($nid);
+        $this->advanceProgressBar();
+      }
+
+      $this->tearDown(0, 0, 0);
+    }
+    catch (\Exception $e) {
+      $this->logger->error($e->getMessage());
+    }
+  }
+
+  /**
+   * Synchronizes revisions for a single node.
+   *
+   * @param int $nid
+   *   The node ID.
+   *
+   * @throws \Exception
+   */
+  protected function syncNodeRevisionsWrapper(int $nid): void {
+    $this->syncNodeRevisions($nid, self::CONTENT_TYPE);
   }
 
   /**

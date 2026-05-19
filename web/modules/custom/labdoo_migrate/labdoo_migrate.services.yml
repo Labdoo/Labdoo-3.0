@@ -40,6 +40,9 @@ services:
   labdoo_migrate.source_content.translation_repository:
     class: Drupal\labdoo_migrate\Services\SourceContent\TranslationRepository
     arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.config.configuration_manager']
+  labdoo_migrate.source_content.repository.revision:
+    class: Drupal\labdoo_migrate\Services\SourceContent\RevisionSourceRepository
+    arguments: ['@logger.factory', '@labdoo_migrate.database.external_connection_manager']
   labdoo_migrate.mapper.fields_mapper:
     class: Drupal\labdoo_migrate\Services\Mapper\FieldsMapper
     arguments: ['@logger.factory', '@labdoo_migrate.config.configuration_manager']

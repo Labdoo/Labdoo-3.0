@@ -65,6 +65,16 @@ services:
       - '@labdoo_migrate.source_content.translation_repository'
       - '@labdoo_migrate.destination_content.translation_repository'
       - '@language_manager'
+      - '@labdoo_migrate.source_content.repository.revision'
+    tags:
+      - { name: drush.command }
+
+  labdoo_migrate.synchronizer_revisions_commands:
+    class: \Drupal\labdoo_migrate\Commands\NodeRevisionSynchronizerCommands
+    arguments:
+      - '@labdoo_migrate.database.external_connection_manager'
+      - '@entity_type.manager'
+      - '@labdoo_migrate.source_content.repository.revision'
     tags:
       - { name: drush.command }
 
