@@ -214,6 +214,9 @@ class DootronicCompute implements DootronicComputeInterface {
    * {@inheritDoc}
    */
   public function computeRelatedDootrips(EntityInterface &$dootronic): void {
+    if ($dootronic->isNew()) {
+      return;
+    }
     foreach ($dootronic->get('field_dootrips') as $item) {
       $dootrip = $item->entity;
       if (!$dootrip) {
@@ -230,7 +233,7 @@ class DootronicCompute implements DootronicComputeInterface {
       }
 
       if (!$found) {
-        $dootrip->field_laptops->appendItem($dootronic);
+        $dootrip->get('field_laptops')->appendItem($dootronic->id());
         $dootrip->save();
 
         /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */

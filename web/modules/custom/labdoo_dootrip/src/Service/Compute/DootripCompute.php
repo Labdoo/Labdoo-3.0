@@ -246,6 +246,9 @@ class DootripCompute implements DootripComputeInterface {
    * {@inheritDoc}
    */
   public function computeRelatedDootronics(EntityInterface &$dootrip): void {
+    if ($dootrip->isNew()) {
+      return;
+    }
     foreach ($dootrip->get('field_laptops') as $dootronic) {
       $dootronic = $dootronic->entity;
       if (!$dootronic) {
@@ -255,13 +258,13 @@ class DootripCompute implements DootripComputeInterface {
       $found = FALSE;
 
       foreach ($dootronic->get('field_dootrips') as $dootripAssigned) {
-        if ($dootripAssigned && $dootripAssigned->target_id === $dootrip->id()) {
+        if ($dootripAssigned && (int) $dootripAssigned->target_id === (int) $dootrip->id()) {
           $found = TRUE;
         }
       }
 
       if (!$found) {
-        $dootronic->field_dootrips->appendItem($dootrip);
+        $dootronic->get('field_dootrips')->appendItem($dootrip->id());
         $dootronic->save();
         \Drupal::entityTypeManager()->getStorage('node')->resetCache([$dootronic->id()]);
       }
