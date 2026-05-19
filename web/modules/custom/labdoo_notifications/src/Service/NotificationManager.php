@@ -13,6 +13,8 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\user\UserInterface;
+use Drupal\geocoder\GeocoderInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Service for managing notifications.
@@ -52,6 +54,8 @@ class NotificationManager {
    *   The entity type manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
+   * @param \Drupal\geocoder\GeocoderInterface $geocoder
+   *   The geocoder service.
    */
   public function __construct(
     protected AccountInterface $currentUser,
@@ -61,7 +65,8 @@ class NotificationManager {
     LoggerChannelFactoryInterface $loggerChannelFactory,
     protected EmailProcessor $emailProcessor,
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected ConfigFactoryInterface $configFactory
+    protected ConfigFactoryInterface $configFactory,
+    protected GeocoderInterface $geocoder
   ) {
     $this->logger = $loggerChannelFactory->get('labdoo_notifications');
   }
@@ -207,7 +212,7 @@ class NotificationManager {
       return;
     }
 
-    $langCode = $this->getUserPreferredLanguage();
+    $langCode = $this->getUserPreferredLanguage($node);
     $emailParams = ['type' => 'DOOTRIP_EVENT'];
 
     // Determine the template based on the event type
@@ -263,23 +268,14 @@ class NotificationManager {
     $mailConfig = $this->configFactory->get('system.site')->get('mail');
     $emailsList = $mailConfig ?: '';
 
-    // Add the author of the dootrip
-    $authorId = $node->getOwnerId();
-    if ($authorId) {
-      $author = $this->entityTypeManager->getStorage('user')->load($authorId);
-      if ($author) {
-        $emailsList .= ',' . $author->getEmail();
-      }
-    }
+    // Add the travelers and related users
+    $emailsList .= $this->getDootripRelatedEmails($node);
 
-    // For announcements, add hub managers near the origin and destination
+    // For announcements, add hub and edoovillage managers in the destination country
     if ($eventType === 'announce') {
-      // This would require more complex logic to find nearby hubs
-      // For now, we'll just add all hub managers
-      $hubManagers = $this->entityTypeManager->getStorage('user')
-        ->loadByProperties(['roles' => 'hub_manager']);
-      foreach ($hubManagers as $hubManager) {
-        $emailsList .= ', ' . $hubManager->getEmail();
+      $destinationCountryCode = $this->getDootripDestinationCountryCode($node);
+      if ($destinationCountryCode) {
+        $emailsList .= $this->getManagersByCountry($destinationCountryCode);
       }
     }
 
@@ -483,13 +479,163 @@ class NotificationManager {
   /**
    * Gets the user's preferred language code.
    *
+   * @param \Drupal\Core\Entity\EntityInterface|null $node
+   *   Optional node to get the language from.
+   *
    * @return string
    *   The language code.
    */
-  protected function getUserPreferredLanguage(): string {
+  protected function getUserPreferredLanguage(EntityInterface $node = NULL): string {
+    if ($node instanceof NodeInterface && $node->bundle() === 'dootrip') {
+      // Try to get language from the first traveler
+      if ($node->hasField('field_dootripper_s') && !$node->get('field_dootripper_s')->isEmpty()) {
+        $item = $node->get('field_dootripper_s')->first();
+        if ($item && $item->target_id) {
+          $user = $this->entityTypeManager->getStorage('user')->load($item->target_id);
+          if ($user instanceof UserInterface) {
+            return $user->getPreferredLangcode();
+          }
+        }
+      }
+      // Fallback to author
+      if ($author = $node->getOwner()) {
+        return $author->getPreferredLangcode();
+      }
+    }
+
     $langCode = $this->currentUser->getPreferredLangcode();
-    
     return $langCode ?: $this->languageManager->getDefaultLanguage()->getId();
+  }
+
+  /**
+   * Gets the email addresses of travelers and related users for a dootrip.
+   */
+  protected function getDootripRelatedEmails(EntityInterface $node): string {
+    $emails = [];
+
+    // Add author
+    if ($author = $node->getOwner()) {
+      $emails[] = $author->getEmail();
+    }
+
+    // Add travelers (field_dootripper_s)
+    if ($node->hasField('field_dootripper_s')) {
+      foreach ($node->get('field_dootripper_s') as $item) {
+        if ($item->target_id) {
+          $user = $this->entityTypeManager->getStorage('user')->load($item->target_id);
+          if ($user instanceof UserInterface) {
+            $emails[] = $user->getEmail();
+          }
+        }
+      }
+    }
+
+    $emails = array_filter(array_unique($emails));
+    return $emails ? ',' . implode(',', $emails) : '';
+  }
+
+  /**
+   * Gets the destination country code for a dootrip.
+   */
+  protected function getDootripDestinationCountryCode(EntityInterface $node): ?string {
+    // Try field_destination_of_the_trip first
+    if ($node->hasField('field_destination_of_the_trip') && !$node->get('field_destination_of_the_trip')->isEmpty()) {
+      $value = $node->get('field_destination_of_the_trip')->first()->getValue();
+      if (!empty($value['lat']) && !empty($value['lon'])) {
+        return $this->getCountryCodeFromCoords($value['lat'], $value['lon']);
+      }
+    }
+    // Then field_locations
+    if ($node->hasField('field_locations') && !$node->get('field_locations')->isEmpty()) {
+      $value = $node->get('field_locations')->first()->getValue();
+      if (!empty($value['lat']) && !empty($value['lon'])) {
+        return $this->getCountryCodeFromCoords($value['lat'], $value['lon']);
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Helper to get country code from coordinates.
+   */
+  protected function getCountryCodeFromCoords($lat, $lon): ?string {
+    try {
+      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, ['googlemaps']);
+      if ($addressCollection && !$addressCollection->isEmpty()) {
+        $address = $addressCollection->first();
+        if ($country = $address->getCountry()) {
+          return $country->getCode();
+        }
+      }
+    }
+    catch (\Exception $e) {
+      $this->logger->error('Error geocoding dootrip: @message', ['@message' => $e->getMessage()]);
+    }
+    return NULL;
+  }
+
+  /**
+   * Gets the emails of hub and edoovillage managers in a specific country.
+   */
+  protected function getManagersByCountry(string $countryCode): string {
+    $emails = [];
+
+    // Find edoovillages in this country.
+    $edoovillageNids = $this->entityTypeManager->getStorage('node')->getQuery()
+      ->condition('type', 'edoovillage')
+      ->condition('field_country', $countryCode)
+      ->accessCheck(FALSE)
+      ->execute();
+
+    if (!empty($edoovillageNids)) {
+      $edoovillages = $this->entityTypeManager->getStorage('node')->loadMultiple($edoovillageNids);
+      foreach ($edoovillages as $edoovillage) {
+        if ($owner = $edoovillage->getOwner()) {
+          $emails[] = $owner->getEmail();
+        }
+        // Also add additional editors/managers if any
+        if ($edoovillage->hasField('field_edoo_additional_editors')) {
+          foreach ($edoovillage->get('field_edoo_additional_editors') as $item) {
+            if ($item->target_id) {
+              $user = $this->entityTypeManager->getStorage('user')->load($item->target_id);
+              if ($user instanceof UserInterface) {
+                $emails[] = $user->getEmail();
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Find hubs in this country.
+    $hubNids = $this->entityTypeManager->getStorage('node')->getQuery()
+      ->condition('type', 'hub')
+      ->condition('field_country', $countryCode)
+      ->accessCheck(FALSE)
+      ->execute();
+
+    if (!empty($hubNids)) {
+      $hubs = $this->entityTypeManager->getStorage('node')->loadMultiple($hubNids);
+      foreach ($hubs as $hub) {
+        if ($owner = $hub->getOwner()) {
+          $emails[] = $owner->getEmail();
+        }
+        if ($hub->hasField('field_hub_additional_editors')) {
+          foreach ($hub->get('field_hub_additional_editors') as $item) {
+            if ($item->target_id) {
+              $user = $this->entityTypeManager->getStorage('user')->load($item->target_id);
+              if ($user instanceof UserInterface) {
+                $emails[] = $user->getEmail();
+              }
+            }
+          }
+        }
+      }
+    }
+
+    $emails = array_filter(array_unique($emails));
+    return $emails ? ',' . implode(',', $emails) : '';
   }
 
 }

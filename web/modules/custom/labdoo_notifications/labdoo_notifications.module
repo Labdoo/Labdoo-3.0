@@ -80,6 +80,11 @@ function labdoo_notifications_node_insert(EntityInterface $node) {
   if ($node->getType() === 'dootrip') {
     $processor = \Drupal::service('labdoo_notifications.entity_processor.dootrip');
     $processor->process($node, 'insert', NULL);
+
+    // If "Announce this dootrip" is checked, also send an announcement email.
+    if ($node->hasField('field_announce_this_dootrip') && (int) $node->get('field_announce_this_dootrip')->value === 1) {
+      $processor->process($node, 'announce', NULL);
+    }
   }
 
   // Process team-related notifications.
@@ -136,27 +141,50 @@ function labdoo_notifications_mail_alter(&$message) {
  * Implements hook_cron().
  */
 function labdoo_notifications_cron() {
-  // Check for expired dootrips.
   $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $now = new \DateTime();
+  $today = $now->format('Y-m-d');
+
+  // 1. First-time expiration notification.
+  // Find dootrips that expired today or earlier and haven't been marked as expired.
   $query = $storage->getQuery()
     ->condition('type', 'dootrip')
-    ->condition('field_trip_date', date('Y-m-d'), '<')
+    ->condition('field_arrival_date', $today, '<')
     ->condition('field_expired', 0)
+    ->condition('field_status_dootrip', 'DS0') // Only Pending
     ->accessCheck(FALSE);
   $nids = $query->execute();
 
+  $processor = \Drupal::service('labdoo_notifications.entity_processor.dootrip');
+
   if (!empty($nids)) {
     $dootrips = $storage->loadMultiple($nids);
-    $processor = \Drupal::service('labdoo_notifications.entity_processor.dootrip');
-
     foreach ($dootrips as $dootrip) {
-      // Mark the dootrip as expired.
       $dootrip->set('field_expired', 1);
       $dootrip->save();
-
-      // Send notification.
       $processor->process($dootrip, 'expired', NULL);
     }
   }
 
+  // 2. Reminders at 5, 10, and 15 days after expiration.
+  $intervals = [5, 10, 15];
+  foreach ($intervals as $days) {
+    $targetDate = clone $now;
+    $targetDate->modify("- $days days");
+    $dateString = $targetDate->format('Y-m-d');
+
+    $query = $storage->getQuery()
+      ->condition('type', 'dootrip')
+      ->condition('field_arrival_date', $dateString)
+      ->condition('field_status_dootrip', 'DS0')
+      ->accessCheck(FALSE);
+    $nids = $query->execute();
+
+    if (!empty($nids)) {
+      $dootrips = $storage->loadMultiple($nids);
+      foreach ($dootrips as $dootrip) {
+        $processor->process($dootrip, 'expired', NULL);
+      }
+    }
+  }
 }

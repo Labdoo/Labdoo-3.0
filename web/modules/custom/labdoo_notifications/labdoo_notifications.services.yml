@@ -10,6 +10,7 @@ services:
       - '@labdoo_notifications.email_processor'
       - '@entity_type.manager'
       - '@config.factory'
+      - '@geocoder'
 
   labdoo_notifications.email_processor:
     class: Drupal\labdoo_notifications\Service\EmailProcessor
