@@ -47,6 +47,18 @@ trait NodeRevisionSyncTrait {
         }
         return;
       }
+
+      if (count($destinationRevisionIds) > count($revisions)) {
+        $this->cleanDuplicateRevisions($destinationNode, $revisions);
+        // Refresh destination revision IDs after cleanup.
+        $destinationRevisionIds = $this->entityTypeManager
+          ->getStorage('node')
+          ->revisionIds($destinationNode);
+
+        if (count($revisions) === count($destinationRevisionIds)) {
+          return;
+        }
+      }
     }
 
     // Load mapping for this content type
@@ -136,6 +148,51 @@ trait NodeRevisionSyncTrait {
     }
 
     $node->save();
+  }
+
+  /**
+   * Cleans duplicate revisions in destination.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node entity.
+   * @param array $sourceRevisions
+   *   The source revisions.
+   */
+  protected function cleanDuplicateRevisions(NodeInterface $node, array $sourceRevisions): void {
+    $storage = $this->entityTypeManager->getStorage('node');
+    $revisionIds = $storage->revisionIds($node);
+    $vidsFound = [];
+    $currentVid = $node->getRevisionId();
+
+    foreach ($revisionIds as $revisionId) {
+      /** @var \Drupal\node\NodeInterface $revision */
+      $revision = $storage->loadRevision($revisionId);
+      $logMessage = $revision->getRevisionLogMessage();
+
+      // Extract D7 vid from log message.
+      if (preg_match('/Imported from Drupal 7 revision (\d+)/', $logMessage, $matches)) {
+        $d7Vid = $matches[1];
+
+        if (isset($vidsFound[$d7Vid])) {
+          // It's a duplicate.
+          if ($revisionId == $currentVid) {
+            $this->logger->warning(sprintf('Revision %d for node %d is a duplicate but it is the current revision. Skipping deletion.', $revisionId, $node->id()));
+            continue;
+          }
+
+          if ($this->dryRun) {
+            $this->logger->info(sprintf('Dry-run: Would delete duplicate revision %d for node %d (D7 vid: %s)', $revisionId, $node->id(), $d7Vid));
+          }
+          else {
+            $storage->deleteRevision($revisionId);
+            $this->logger->notice(sprintf('Deleted duplicate revision %d for node %d (D7 vid: %s)', $revisionId, $node->id(), $d7Vid));
+          }
+        }
+        else {
+          $vidsFound[$d7Vid] = $revisionId;
+        }
+      }
+    }
   }
 
 }
