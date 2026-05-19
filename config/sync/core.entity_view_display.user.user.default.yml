@@ -9,6 +9,7 @@ dependencies:
     - field.field.user.user.field_notification_area
     - field.field.user.user.field_skills
     - field.field.user.user.field_user_name
+    - field.field.user.user.field_username
     - field.field.user.user.user_picture
     - image.style.thumbnail
   module:
@@ -68,6 +69,14 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 1
+    region: content
+  field_username:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 5
     region: content
   masquerade:
     settings: {  }

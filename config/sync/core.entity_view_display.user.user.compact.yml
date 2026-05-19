@@ -10,6 +10,7 @@ dependencies:
     - field.field.user.user.field_notification_area
     - field.field.user.user.field_skills
     - field.field.user.user.field_user_name
+    - field.field.user.user.field_username
     - field.field.user.user.user_picture
     - image.style.thumbnail
   module:
@@ -45,6 +46,7 @@ hidden:
   field_notification_area: true
   field_skills: true
   field_user_name: true
+  field_username: true
   langcode: true
   member_for: true
   search_api_excerpt: true
