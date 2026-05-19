@@ -420,6 +420,7 @@ hidden:
   created: true
   field_battery_watt_hours: true
   field_country: true
+  field_location: true
   field_tagged: true
   path: true
   promote: true

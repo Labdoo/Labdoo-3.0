@@ -831,15 +831,15 @@ content:
     third_party_settings: {  }
     weight: 8
     region: content
-  links:
-    settings: {  }
-    third_party_settings: {  }
-    weight: 19
-    region: content
   labdoo_dates:
     settings: {  }
     third_party_settings: {  }
     weight: 100
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 19
     region: content
 hidden:
   field_announce_this_dootrip: true

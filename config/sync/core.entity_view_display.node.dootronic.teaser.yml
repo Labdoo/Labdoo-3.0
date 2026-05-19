@@ -68,6 +68,7 @@ hidden:
   field_hub: true
   field_keyboard: true
   field_keyboard_type: true
+  field_location: true
   field_locations: true
   field_manager: true
   field_memory: true

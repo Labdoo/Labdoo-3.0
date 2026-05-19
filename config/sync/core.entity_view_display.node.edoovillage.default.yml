@@ -974,15 +974,15 @@ content:
     third_party_settings: {  }
     weight: 6
     region: content
-  links:
-    settings: {  }
-    third_party_settings: {  }
-    weight: 0
-    region: content
   labdoo_dates:
     settings: {  }
     third_party_settings: {  }
     weight: 100
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
     region: content
 hidden:
   field_project_summary: true

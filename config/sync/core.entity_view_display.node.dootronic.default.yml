@@ -928,15 +928,15 @@ content:
     third_party_settings: {  }
     weight: 16
     region: content
-  links:
-    settings: {  }
-    third_party_settings: {  }
-    weight: 0
-    region: content
   labdoo_dates:
     settings: {  }
     third_party_settings: {  }
     weight: 100
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
     region: content
 hidden:
   field_country: true
