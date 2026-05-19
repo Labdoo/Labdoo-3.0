@@ -32,48 +32,50 @@
             } %}
 
             {% set options = {
-                'plugins': {
-                    'legend': {
-                        'display': true,
-                        'position': 'bottom',
-                        'labels': {
-                            'usePointStyle': true,
-                            'pointStyle': 'rectRounded',
-                            'padding': 20
-                        }
-                    },
-                    'title': {
-                        'display': true,
-                        'text': 'Dootrips by current status',
-                        'position': 'bottom',
-                        'font': {
-                            'size': 14,
-                            'weight': 'normal'
-                        },
-                        'padding': {
-                            'top': 10,
-                            'bottom': 10
-                        }
-                    }
-                },
-                'scales': {
-                    'y': {
-                        'beginAtZero': true,
-                        'grid': {
+                'options': {
+                    'plugins': {
+                        'legend': {
                             'display': true,
-                            'drawBorder': false,
-                            'color': 'rgba(0, 0, 0, 0.05)'
+                            'position': 'bottom',
+                            'labels': {
+                                'usePointStyle': true,
+                                'pointStyle': 'rectRounded',
+                                'padding': 20
+                            }
+                        },
+                        'title': {
+                            'display': true,
+                            'text': 'Dootrips by current status',
+                            'position': 'bottom',
+                            'font': {
+                                'size': 14,
+                                'weight': 'normal'
+                            },
+                            'padding': {
+                                'top': 10,
+                                'bottom': 10
+                            }
                         }
                     },
-                    'x': {
-                        'grid': {
-                            'display': false,
-                            'drawBorder': false
+                    'scales': {
+                        'y': {
+                            'beginAtZero': true,
+                            'grid': {
+                                'display': true,
+                                'drawBorder': false,
+                                'color': 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        'x': {
+                            'grid': {
+                                'display': false,
+                                'drawBorder': false
+                            }
                         }
-                    }
-                },
-                'barPercentage': 0.7,
-                'categoryPercentage': 0.8
+                    },
+                    'barPercentage': 0.7,
+                    'categoryPercentage': 0.8
+                }
             } %}
 
             {% set series_custom = {} %}
