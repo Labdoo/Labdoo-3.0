@@ -348,10 +348,11 @@ class CommonRepository {
     }
     else {
       $co2SavingsDootrip = \Drupal::state()->get(self::CO2_SAVINGS_CID);
+      /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
+      $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
+      $dootripCompute->enqueueTotalCo2SavingsRecompute();
+
       if ($co2SavingsDootrip === NULL) {
-        /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
-        $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
-        $dootripCompute->enqueueTotalCo2SavingsRecompute();
         $co2SavingsDootrip = 0;
       }
       else {
