@@ -75,6 +75,10 @@ services:
       - '@labdoo_migrate.database.external_connection_manager'
       - '@entity_type.manager'
       - '@labdoo_migrate.source_content.repository.revision'
+      - '@labdoo_migrate.config.configuration_manager'
+      - '@labdoo_migrate.mapper.fields_mapper'
+      - '@labdoo_migrate.source_content.repository.node'
+      - '@language_manager'
     tags:
       - { name: drush.command }
 

@@ -36,71 +36,33 @@ trait NodeRevisionSyncTrait {
       return;
     }
 
+    // Load mapping for this content type
+    $config = $this->configurationManager->getContentConfiguration($sourceContentType);
+    $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
+
     foreach ($revisions as $revision) {
-      // Get revision data including fields
-      $revisionData = $this->getRevisionData($revision, $sourceContentType, $bodyFieldName);
+      // Get revision metadata
+      $revisionMetadata = [
+        'nid' => $revision->nid,
+        'vid' => $revision->vid,
+        'title' => $revision->title,
+        'uid' => $revision->uid,
+        'status' => $revision->status,
+        'created' => $revision->timestamp,
+        'changed' => $revision->timestamp,
+        'log' => $revision->log,
+      ];
 
-      if (empty($revisionData)) {
-        continue;
-      }
+      // Get field data for this specific revision using mapping
+      $fieldData = $this->revisionSourceRepository->getRevisionFieldData(
+        $nid,
+        $revision->vid,
+        $mapping,
+        $sourceContentType
+      );
 
-      $this->updateRevisionInDestination($destinationNode, $revisionData);
+      $this->updateRevisionInDestination($destinationNode, $revisionMetadata, $fieldData);
     }
-  }
-
-  /**
-   * Gets revision data.
-   *
-   * @param object $revision
-   *   The revision object from D7.
-   * @param string $sourceContentType
-   *   The source content type in D7.
-   * @param string $bodyFieldName
-   *   The body field name in D7.
-   *
-   * @return array
-   *   The revision data.
-   */
-  protected function getRevisionData(object $revision, string $sourceContentType, string $bodyFieldName): array {
-    $nodeId = $revision->nid;
-    $vid = $revision->vid;
-
-    // Get the body field for this specific revision
-    $tableName = 'field_revision_' . $bodyFieldName;
-    $valueCol = $bodyFieldName . '_value';
-    $formatCol = $bodyFieldName . '_format';
-
-    $body = NULL;
-    try {
-      $body = $this->externalConnectionManager
-        ->setConnection()
-        ->select($tableName, 'frb')
-        ->fields('frb', [$valueCol, $formatCol])
-        ->condition('entity_id', $nodeId)
-        ->condition('revision_id', $vid)
-        ->condition('entity_type', 'node')
-        ->condition('bundle', $sourceContentType)
-        ->execute()
-        ->fetch();
-    }
-    catch (\Exception $e) {
-      // If table or field doesn't exist, we just skip it (body will be empty)
-    }
-
-    $this->externalConnectionManager->restoreConnection();
-
-    return [
-      'nid' => $nodeId,
-      'vid' => $vid,
-      'title' => $revision->title,
-      'uid' => $revision->uid,
-      'status' => $revision->status,
-      'created' => $revision->timestamp,
-      'changed' => $revision->timestamp,
-      'log' => $revision->log,
-      'body' => $body ? $body->$valueCol : '',
-      'body_format' => $body ? $body->$formatCol : 'basic_html',
-    ];
   }
 
   /**
@@ -108,34 +70,56 @@ trait NodeRevisionSyncTrait {
    *
    * @param \Drupal\node\NodeInterface $node
    *   The node entity.
-   * @param array $revisionData
-   *   The revision data.
+   * @param array $metadata
+   *   The revision metadata.
+   * @param array $fieldData
+   *   The revision field data.
    */
-  protected function updateRevisionInDestination(NodeInterface $node, array $revisionData): void {
+  protected function updateRevisionInDestination(NodeInterface $node, array $metadata, array $fieldData): void {
     if ($this->dryRun) {
-      $this->logger->info(sprintf('Dry-run: Creating revision for node %d (D7 vid: %d)', $revisionData['nid'], $revisionData['vid']));
+      $this->logger->info(sprintf('Dry-run: Creating revision for node %d (D7 vid: %d)', $metadata['nid'], $metadata['vid']));
       return;
     }
 
     $node->setNewRevision(TRUE);
-    $node->setRevisionLogMessage($revisionData['log'] ?: 'Imported from Drupal 7 revision ' . $revisionData['vid']);
-    $node->setRevisionCreationTime($revisionData['created']);
-    $node->setRevisionUserId($revisionData['uid']);
+    $node->setRevisionLogMessage($metadata['log'] ?: 'Imported from Drupal 7 revision ' . $metadata['vid']);
+    $node->setRevisionCreationTime($metadata['created']);
+    $node->setRevisionUserId($metadata['uid']);
 
-    // Set values
-    if ($node->hasField('body')) {
-      $format = $this->mapFormat($revisionData['body_format']);
-      $node->set('body', [
-        'value' => $revisionData['body'],
-        'format' => $format,
-      ]);
+    // Set title and status
+    $node->set('title', $metadata['title']);
+    $node->set('status', $metadata['status']);
+    $node->set('changed', $metadata['changed']);
+
+    // Set field values from mapping
+    foreach ($fieldData as $fieldName => $value) {
+      if ($node->hasField($fieldName)) {
+        // Special handling for body or formatted text fields if needed
+        $fieldDefinition = $node->getFieldDefinition($fieldName);
+        $fieldType = $fieldDefinition->getType();
+
+        if ($fieldType === 'text_with_summary' || $fieldType === 'text_long') {
+          // Attempt to get format if available, otherwise use default
+          $format = 'basic_html';
+          if (isset($fieldData[$fieldName . '_format'])) {
+            $format = $this->mapFormat($fieldData[$fieldName . '_format']);
+          }
+          $node->set($fieldName, [
+            'value' => $value,
+            'format' => $format,
+          ]);
+        }
+        else {
+          // Check for multi-value fields (many fields in D7 are migrated as single value but might be arrays)
+          // For now, simple set.
+          $node->set($fieldName, $value);
+        }
+      }
     }
-    $node->set('title', $revisionData['title']);
-    $node->set('status', $revisionData['status']);
-    $node->set('changed', $revisionData['changed']);
 
+    // Force values to be saved in revisions
     if (method_exists($node, 'setSyncing')) {
-      $node->setSyncing(TRUE);
+      $node->setSyncing(FALSE); // Try FALSE to see if it makes a difference for revisions
     }
 
     $node->save();

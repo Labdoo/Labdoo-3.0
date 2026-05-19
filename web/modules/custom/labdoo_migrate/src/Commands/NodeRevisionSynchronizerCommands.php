@@ -3,8 +3,12 @@
 namespace Drupal\labdoo_migrate\Commands;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
+use Drupal\labdoo_migrate\Services\Mapper\MapperInterface;
 use Drupal\labdoo_migrate\Services\SourceContent\RevisionSourceRepositoryInterface;
+use Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface;
 use Drupal\labdoo_migrate\Traits\NodeRevisionSyncTrait;
 use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
@@ -52,7 +56,11 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
   public function __construct(
     protected ConnectionManagerInterface $externalConnectionManager,
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected RevisionSourceRepositoryInterface $revisionSourceRepository
+    protected RevisionSourceRepositoryInterface $revisionSourceRepository,
+    protected ConfigurationManagerInterface $configurationManager,
+    protected MapperInterface $mapper,
+    protected SourceRepositoryInterface $sourceRepository,
+    protected LanguageManagerInterface $languageManager
   ) {
     parent::__construct();
   }
@@ -66,7 +74,6 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
    *   Command options.
    *
    * @command labdoo-synchronize-revisions
-   * @param $type The Drupal 7 content type.
    * @aliases labdoo-sync-revisions
    * @usage labdoo-synchronize-revisions page
    *   Synchronizes the revisions of the type "page" (basic page).
