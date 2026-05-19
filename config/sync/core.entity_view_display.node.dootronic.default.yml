@@ -58,6 +58,7 @@ third_party_settings:
         - field_device_type
         - field_dootrips
         - field_locations
+        - labdoo_dates
       label: 'Basic information'
       parent_name: group_dootronics
       region: content
@@ -932,11 +933,17 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
+  labdoo_dates:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
 hidden:
   field_country: true
   field_edoo_additional_editors: true
   field_edoo_additional_followers: true
   field_edoo_additional_notif_em: true
+  field_location: true
   field_pick_me_up: true
   field_tagged: true
   langcode: true

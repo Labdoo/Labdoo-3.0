@@ -26,8 +26,8 @@ dependencies:
     - field.field.node.edoovillage.field_on_site_point_of_contact
     - field.field.node.edoovillage.field_project_application
     - field.field.node.edoovillage.field_project_description
-    - field.field.node.edoovillage.field_project_summary
     - field.field.node.edoovillage.field_project_manager_s_
+    - field.field.node.edoovillage.field_project_summary
     - field.field.node.edoovillage.field_semaphore
     - field.field.node.edoovillage.field_socket_type
     - field.field.node.edoovillage.field_socket_voltage
@@ -59,6 +59,7 @@ third_party_settings:
         - field_on_site_point_of_contact
         - field_project_application
         - field_project_manager_s_
+        - labdoo_dates
       label: 'Project information'
       parent_name: group_edoovillage
       region: content
@@ -952,14 +953,6 @@ content:
     third_party_settings: {  }
     weight: 19
     region: content
-  field_project_summary:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 1
-    region: content
   field_socket_type:
     type: list_default
     label: above
@@ -986,7 +979,13 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
+  labdoo_dates:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
 hidden:
+  field_project_summary: true
   field_semaphore: true
   field_status: true
   langcode: true
