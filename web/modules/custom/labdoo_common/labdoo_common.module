@@ -7,6 +7,7 @@
  * @link http://natiboo.es
  */
 
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -394,5 +395,58 @@ function labdoo_common_geocode_entity_field_address_string_alter(string &$addres
   // Prevent geocoding empty or absurdly short address strings.
   if (strlen(trim($address_string)) < 2) {
     $address_string = '';
+  }
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function labdoo_common_entity_extra_field_info() {
+  $extra = [];
+  $bundles = ['dootronic', 'dootrip', 'hub', 'edoovillage'];
+  foreach ($bundles as $bundle) {
+    $extra['node'][$bundle]['display']['labdoo_dates'] = [
+      'label' => t('Labdoo: Created/Updated dates'),
+      'description' => t('Displays the creation and last update dates.'),
+      'weight' => 100,
+      'visible' => TRUE,
+    ];
+  }
+  return $extra;
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function labdoo_common_node_view(array &$build, EntityInterface $node, EntityViewDisplayInterface $display, $view_mode) {
+  if ($view_mode === 'full' && $display->getComponent('labdoo_dates')) {
+    $created = $node->getCreatedTime();
+    $changed = $node->getChangedTime();
+
+    /** @var \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter */
+    $dateFormatter = \Drupal::service('date.formatter');
+
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    if ($langcode === 'en') {
+      $format_tagged = 'm/d/Y';
+      $format_updated = 'm/d/Y';
+    }
+    else {
+      $format_tagged = 'd/m/y';
+      $format_updated = 'd/m/y';
+    }
+
+    $created_label = ($node->bundle() === 'dootronic') ? t('Date it was tagged:') : t('Date it was created:');
+
+    $build['labdoo_dates'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['labdoo-dates-box']],
+      'tagged' => [
+        '#markup' => '<p><strong>' . $created_label . '</strong> ' . $dateFormatter->format($created, 'custom', (string) t($format_tagged)) . '</p>',
+      ],
+      'updated' => [
+        '#markup' => '<p><strong>' . t('Date it was last updated:') . '</strong> ' . $dateFormatter->format($changed, 'custom', (string) t($format_updated)) . '</p>',
+      ],
+    ];
   }
 }

@@ -99,16 +99,18 @@
   {% endif %}
 
   <div{{ content_attributes.addClass('node__content') }}>
-    {{ content }}
+    <div class="labdoo-content-box">
+      {{ content }}
 
-    {% if branches is not empty %}
-      <h3>{{ "Hub branches"|t }}:</h3>
-      <ul class="branches">
-      {% for branch in branches %}
-          <li class="branch"><a href="node/{{ branch.id }}">{{ branch.label }}</a></li>
-      {% endfor %}
-    {% endif %}
-    </ul>
+      {% if branches is not empty %}
+        <h3>{{ "Hub branches"|t }}:</h3>
+        <ul class="branches">
+        {% for branch in branches %}
+            <li class="branch"><a href="node/{{ branch.id }}">{{ branch.label }}</a></li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
   </div>
 
 </article>
