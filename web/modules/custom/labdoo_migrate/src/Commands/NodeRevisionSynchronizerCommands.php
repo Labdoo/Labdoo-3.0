@@ -114,6 +114,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
         $sourceCounts = $this->revisionSourceRepository->getRevisionCountsByType($type);
 
         $destinationCountsQuery = $this->entityTypeManager->getStorage('node')->getAggregateQuery();
+        $destinationCountsQuery->accessCheck(FALSE);
         $destinationCountsQuery->condition('type', $type);
         $destinationCountsQuery->groupBy('nid');
         $destinationCountsQuery->aggregate('vid', 'COUNT');
