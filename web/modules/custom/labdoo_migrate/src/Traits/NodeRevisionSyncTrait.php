@@ -42,7 +42,7 @@ trait NodeRevisionSyncTrait {
         ->revisionIds($destinationNode);
 
       if (count($revisions) === count($destinationRevisionIds)) {
-        if ($this->logger->isVerbose()) {
+        if ($this->output()->isVerbose()) {
           $this->logger->info(sprintf('Skipping node %d: Source and destination have the same number of revisions (%d).', $nid, count($revisions)));
         }
         return;
@@ -167,7 +167,7 @@ trait NodeRevisionSyncTrait {
     foreach ($revisionIds as $revisionId) {
       /** @var \Drupal\node\NodeInterface $revision */
       $revision = $storage->loadRevision($revisionId);
-      $logMessage = $revision->getRevisionLogMessage();
+      $logMessage = $revision->getRevisionLogMessage() ?? '';
 
       // Extract D7 vid from log message.
       if (preg_match('/Imported from Drupal 7 revision (\d+)/', $logMessage, $matches)) {
