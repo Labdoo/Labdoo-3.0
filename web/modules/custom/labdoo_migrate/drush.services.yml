@@ -46,6 +46,7 @@ services:
       - '@labdoo_migrate.media.file_manager'
       - '@entity_type.manager'
       - '@database'
+      - '@labdoo_migrate.tracking.migration_tracker'
     tags:
       - { name: drush.command }
 

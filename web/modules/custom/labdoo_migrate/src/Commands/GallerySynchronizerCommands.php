@@ -6,6 +6,7 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
+use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -73,11 +74,25 @@ class GallerySynchronizerCommands extends DrushCommands {
   private $progressBar;
 
   /**
+   * Incremental mode.
+   *
+   * @var bool
+   */
+  private bool $incremental = FALSE;
+
+  /**
    * Optional UNIX timestamp filter for source nodes.
    *
    * @var int|null
    */
   private ?int $fromTimestamp = NULL;
+
+  /**
+   * The migration tracker.
+   *
+   * @var \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface
+   */
+  protected MigrationTrackerInterface $migrationTracker;
 
   /**
    * GallerySynchronizerCommands constructor.
@@ -86,9 +101,11 @@ class GallerySynchronizerCommands extends DrushCommands {
     protected ConnectionManagerInterface $externalConnectionManager,
     protected FileManagerInterface $fileManager,
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected Connection $database
+    protected Connection $database,
+    MigrationTrackerInterface $migrationTracker
   ) {
     parent::__construct();
+    $this->migrationTracker = $migrationTracker;
   }
 
   /**
@@ -106,6 +123,7 @@ class GallerySynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode. Specify this parameter to activate the dry-run mode.
    * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
+   * @option incremental Migrates only those entities that are in Drupal 7 but not in Drupal 10.
    */
   public function startSync(
     array $options = [
@@ -113,6 +131,7 @@ class GallerySynchronizerCommands extends DrushCommands {
       'limit' => -1,
       'dry-run' => FALSE,
       'from-date' => NULL,
+      'incremental' => FALSE,
     ]
   ) {
     try {
@@ -209,6 +228,7 @@ class GallerySynchronizerCommands extends DrushCommands {
     }
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
+    $this->incremental = $options['incremental'];
     if (!empty($options['from-date'])) {
       $ts = strtotime($options['from-date']);
       if ($ts === FALSE) {
@@ -274,6 +294,13 @@ class GallerySynchronizerCommands extends DrushCommands {
 
     // Execute query
     $galleries = $query->execute()->fetchAll();
+
+    if ($this->incremental) {
+      $migratedSourceIds = $this->migrationTracker->getMigratedSourceIds('node', self::GALLERY_CONTENT_TYPE);
+      $galleries = array_filter($galleries, function ($gallery) use ($migratedSourceIds) {
+        return !in_array($gallery->nid, $migratedSourceIds);
+      });
+    }
 
     foreach ($galleries as $gallery) {
       $galleriesResult[] = [

@@ -446,6 +446,16 @@ migrate-gallery-bg: ## 🌙 Migrate gallery in background (nohup + log).
 	@echo "$(CYAN)🌙 Running gallery migration in background (migration-gallery.log)...$(RESET)"
 	nohup sh -c "vendor/bin/drush entity:delete node --bundle=gallery && vendor/bin/drush labdoo-sync-galleries" > migration-gallery.log 2>&1 &
 
+.PHONY: migrate-gallery-incremental
+migrate-gallery-incremental: ## 🔄 Migrate gallery incrementally (foreground).
+	@echo "$(CYAN)🔄 Running gallery migration incrementally...$(RESET)"
+	vendor/bin/drush labdoo-sync-galleries --incremental
+
+.PHONY: migrate-gallery-incremental-bg
+migrate-gallery-incremental-bg: ## 🌙 Migrate gallery incrementally in background (nohup + log).
+	@echo "$(CYAN)🌙 Running gallery migration incrementally in background (migration-gallery.log)...$(RESET)"
+	nohup vendor/bin/drush labdoo-sync-galleries --incremental > migration-gallery.log 2>&1 &
+
 .PHONY: migrate-hub
 migrate-hub: ## 🔄 Migrate hub (foreground).
 	@echo "$(CYAN)🔄 Running hub migration...$(RESET)"
