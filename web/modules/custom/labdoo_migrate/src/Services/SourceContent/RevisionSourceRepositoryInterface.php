@@ -19,6 +19,17 @@ interface RevisionSourceRepositoryInterface {
   public function getRevisionsByNid(int $nid): array;
 
   /**
+   * Retrieves revision counts for all nodes of a specific type.
+   *
+   * @param string $contentType
+   *   The content type.
+   *
+   * @return array
+   *   An array keyed by nid with the count of revisions as value.
+   */
+  public function getRevisionCountsByType(string $contentType): array;
+
+  /**
    * Retrieves the field data for a specific revision.
    *
    * @param int $nid

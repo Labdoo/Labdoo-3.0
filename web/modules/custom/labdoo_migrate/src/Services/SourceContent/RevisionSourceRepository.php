@@ -59,6 +59,30 @@ class RevisionSourceRepository implements RevisionSourceRepositoryInterface {
   /**
    * {@inheritdoc}
    */
+  public function getRevisionCountsByType(string $contentType): array {
+    $query = $this->externalConnectionManager
+      ->setConnection()
+      ->select('node', 'n');
+    $query->join('node_revision', 'nr', 'n.nid = nr.nid');
+    $query->fields('n', ['nid']);
+    $query->addExpression('COUNT(nr.vid)', 'revision_count');
+    $query->condition('n.type', $contentType)
+      ->condition(
+        $this->externalConnectionManager->setConnection()->condition('OR')
+          ->condition('n.tnid', 0)
+          ->where('n.nid = n.tnid')
+      )
+      ->groupBy('n.nid');
+
+    $results = $query->execute()->fetchAllKeyed(0, 1);
+    $this->externalConnectionManager->restoreConnection();
+
+    return $results;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getRevisionFieldData(int $nid, int $vid, array $mapping, string $contentType): array {
     $data = [];
     /** @var \Drupal\labdoo_migrate\Model\MappingModel $mappingModel */

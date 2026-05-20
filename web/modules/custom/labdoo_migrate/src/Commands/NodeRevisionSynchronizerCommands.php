@@ -108,27 +108,64 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
       $bodyField = $options['body-field'];
 
       $this->logger->notice(sprintf('Retrieving source entities IDs for type "%s"...', $type));
-      $query = $this->externalConnectionManager
-        ->setConnection()
-        ->select('node', 'n')
-        ->fields('n', ['nid'])
-        ->condition('type', $type)
-        ->condition(
-          $this->externalConnectionManager->setConnection()->condition('OR')
-            ->condition('tnid', 0)
-            ->where('nid = tnid')
-        );
 
-      if ($this->nids !== NULL) {
-        $query->condition('nid', $this->nids, 'IN');
+      if ($this->incremental && $this->nids === NULL) {
+        $this->logger->notice('Incremental mode: pre-calculating nodes with different revision counts...');
+        $sourceCounts = $this->revisionSourceRepository->getRevisionCountsByType($type);
+
+        $destinationCountsQuery = $this->entityTypeManager->getStorage('node')->getAggregateQuery();
+        $destinationCountsQuery->condition('type', $type);
+        $destinationCountsQuery->groupBy('nid');
+        $destinationCountsQuery->aggregate('vid', 'COUNT');
+        $destResults = $destinationCountsQuery->execute();
+
+        $destinationCounts = [];
+        foreach ($destResults as $result) {
+          $destinationCounts[$result['nid']] = (int) $result['vid_count'];
+        }
+
+        $filteredNids = [];
+        foreach ($sourceCounts as $nid => $count) {
+          if (!isset($destinationCounts[$nid]) || $destinationCounts[$nid] !== (int) $count) {
+            $filteredNids[] = $nid;
+          }
+        }
+
+        if (empty($filteredNids)) {
+          $this->logger->success('All nodes have the same number of revisions. Nothing to synchronize.');
+          return;
+        }
+
+        $this->logger->notice(sprintf('Found %d nodes that need revision synchronization.', count($filteredNids)));
+        $nodes = array_map(function($nid) { return (object)['nid' => $nid]; }, $filteredNids);
+
+        if ($this->limit > -1) {
+          $nodes = array_slice($nodes, 0, $this->limit);
+        }
       }
-      if ($this->limit > -1) {
-        $query->range(0, $this->limit);
+      else {
+        $query = $this->externalConnectionManager
+          ->setConnection()
+          ->select('node', 'n')
+          ->fields('n', ['nid'])
+          ->condition('type', $type)
+          ->condition(
+            $this->externalConnectionManager->setConnection()->condition('OR')
+              ->condition('tnid', 0)
+              ->where('nid = tnid')
+          );
+
+        if ($this->nids !== NULL) {
+          $query->condition('nid', $this->nids, 'IN');
+        }
+        if ($this->limit > -1) {
+          $query->range(0, $this->limit);
+        }
+        $nodes = $query->execute()->fetchAll();
+        $this->externalConnectionManager->restoreConnection();
       }
-      $nodes = $query->execute()->fetchAll();
+
       $total = count($nodes);
-      $this->logger->notice(sprintf('%d source entities found for revision sync.', $total));
-      $this->externalConnectionManager->restoreConnection();
 
       $this->initProgressBar($total, sprintf('Processing revisions for %s', $type));
 
