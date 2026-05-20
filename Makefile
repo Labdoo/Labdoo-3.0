@@ -562,13 +562,13 @@ migrate-all-queue: ## 📥 Enqueue all entities for migration.
 	vendor/bin/drush search-api:index
 
 .PHONY: migrate-revisions
-migrate-revisions: ## 🔄 Migrate node revisions (e.g., make migrate-revisions type=page [limit=10] [body-field=field_body] [nids=1,2,3] [dry-run=1] [incremental=1]).
+migrate-revisions: ## 🔄 Migrate node revisions (e.g., make migrate-revisions type=page [limit=10] [body-field=field_body] [nids=1,2,3] [dry-run=1] [incremental=1] [destination_type=dootronic]).
 	@if [ -z "$(type)" ]; then \
 		echo "$(RED)❌ Error: You must specify a content type (e.g., make migrate-revisions type=page).$(RESET)"; \
 		exit 1; \
 	fi
 	@echo "$(CYAN)🔄 Migrating revisions for $(type) nodes...$(RESET)"
-	$(DRUSH_COMMAND) labdoo-sync-revisions $(type) $(if $(limit),--limit=$(limit),) $(if $(body-field),--body-field=$(body-field),) $(if $(nids),--nids=$(nids),) $(if $(dry-run),--dry-run,) $(if $(incremental),--incremental,)
+	$(DRUSH_COMMAND) labdoo-sync-revisions $(type) $(if $(limit),--limit=$(limit),) $(if $(body-field),--body-field=$(body-field),) $(if $(nids),--nids=$(nids),) $(if $(dry-run),--dry-run,) $(if $(incremental),--incremental,) $(if $(destination_type),--destination-type=$(destination_type),)
 
 .PHONY: migrate-user-bg
 migrate-user-bg: ## 🌙 Migrate user in background (nohup + log).

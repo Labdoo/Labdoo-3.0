@@ -91,6 +91,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode.
    * @option body-field The field name in D7 that contains the body content (default: "body").
+   * @option destination-type The content type in Drupal 10 (defaults to the same as "type").
    * @option incremental Whether to run this command in incremental mode (only if source and destination revision counts differ).
    */
   public function startSync(
@@ -101,6 +102,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
       'dry-run' => FALSE,
       'incremental' => FALSE,
       'body-field' => 'body',
+      'destination-type' => NULL,
     ]
   ): void {
     try {
@@ -113,9 +115,10 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
         $this->logger->notice('Incremental mode: pre-calculating nodes with different revision counts...');
         $sourceCounts = $this->revisionSourceRepository->getRevisionCountsByType($type);
 
+        $destinationType = $options['destination-type'] ?: $type;
         $destinationCountsQuery = $this->entityTypeManager->getStorage('node')->getAggregateQuery();
         $destinationCountsQuery->accessCheck(FALSE);
-        $destinationCountsQuery->condition('type', $type);
+        $destinationCountsQuery->condition('type', $destinationType);
         $destinationCountsQuery->groupBy('nid');
         $destinationCountsQuery->aggregate('vid', 'COUNT');
         $destResults = $destinationCountsQuery->execute();
