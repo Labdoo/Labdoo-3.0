@@ -83,8 +83,10 @@ interface DootripComputeInterface {
    *
    * @param \Drupal\Core\Entity\EntityInterface $dootrip
    *   The dootrip object for which the related dootronics need to be computed.
+   * @param array $originalDootronicIds
+   *   Optional list of original dootronic IDs.
    */
-  public function computeRelatedDootronics(EntityInterface &$dootrip): void;
+  public function computeRelatedDootronics(EntityInterface &$dootrip, array $originalDootronicIds = []): void;
 
   /**
    * Enqueues the recompute of the dootrip capacity.

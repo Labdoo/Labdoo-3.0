@@ -117,10 +117,12 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
       $queueData = $data->getData();
       $dootripId = NULL;
       $uid = NULL;
+      $originalDootronicIds = [];
 
       if (is_array($queueData)) {
         $dootripId = $queueData['id'] ?? (reset($queueData) ?: NULL);
         $uid = $queueData['uid'] ?? NULL;
+        $originalDootronicIds = $queueData['original_dootronic_ids'] ?? [];
       }
       else {
         $dootripId = $queueData;
@@ -145,7 +147,7 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
       $dootrip->skip_recompute_enqueue = TRUE;
 
       $this->dootripCompute->computeDootripCapacity($dootrip);
-      $this->dootripCompute->computeRelatedDootronics($dootrip);
+      $this->dootripCompute->computeRelatedDootronics($dootrip, $originalDootronicIds);
       $this->dootripCompute->computeEdoovillagesAssigned($dootrip);
       $this->dootripRepository->saveEntity($dootrip);
       $this->clearCachetag($dootrip);

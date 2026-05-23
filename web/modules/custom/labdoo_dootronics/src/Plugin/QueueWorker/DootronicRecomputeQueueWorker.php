@@ -118,10 +118,12 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
       $queueData = $data->getData();
       $dootronicId = NULL;
       $uid = NULL;
+      $originalDootripIds = [];
 
       if (is_array($queueData)) {
         $dootronicId = $queueData['id'] ?? (reset($queueData) ?: NULL);
         $uid = $queueData['uid'] ?? NULL;
+        $originalDootripIds = $queueData['original_dootrip_ids'] ?? [];
       }
       else {
         $dootronicId = $queueData;
@@ -147,7 +149,7 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
 
       $this->dootronicCompute->computeEdooVillageData($dootronic);
       $this->dootronicCompute->computeHubData($dootronic);
-      $this->dootronicCompute->computeRelatedDootrips($dootronic);
+      $this->dootronicCompute->computeRelatedDootrips($dootronic, $originalDootripIds);
       $this->dootronicRepository->saveEntity($dootronic);
       $this->clearCachetag($dootronic);
     }

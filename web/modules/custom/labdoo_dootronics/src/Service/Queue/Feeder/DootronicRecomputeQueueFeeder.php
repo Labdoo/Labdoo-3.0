@@ -31,10 +31,22 @@ class DootronicRecomputeQueueFeeder extends AbstractQueueFeeder implements Queue
    * {@inheritDoc}
    */
   public function feedQueue(EntityInterface $dootronic): void {
-    $this->enqueueItem([
+    $item = [
       'id' => (int) $dootronic->id(),
       'uid' => (int) $dootronic->getOwnerId(),
-    ]);
+    ];
+
+    if (isset($dootronic->original)) {
+      $originalDootripIds = [];
+      foreach ($dootronic->original->get('field_dootrips') as $fieldItem) {
+        if ($fieldItem->target_id) {
+          $originalDootripIds[] = (int) $fieldItem->target_id;
+        }
+      }
+      $item['original_dootrip_ids'] = $originalDootripIds;
+    }
+
+    $this->enqueueItem($item);
   }
 
   /**

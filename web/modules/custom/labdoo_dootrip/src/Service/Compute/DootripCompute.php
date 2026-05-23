@@ -299,7 +299,7 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeRelatedDootronics(EntityInterface &$dootrip): void {
+  public function computeRelatedDootronics(EntityInterface &$dootrip, array $originalDootronicIds = []): void {
     if ($dootrip->isNew()) {
       return;
     }
@@ -324,11 +324,17 @@ class DootripCompute implements DootripComputeInterface {
       }
     }
 
-    if (!isset($dootrip->original)) {
+    if (empty($originalDootronicIds) && !isset($dootrip->original)) {
       return;
     }
 
-    $originalDootronics = $dootrip->original->get('field_laptops')->referencedEntities();
+    if (empty($originalDootronicIds)) {
+      $originalDootronics = $dootrip->original->get('field_laptops')->referencedEntities();
+    }
+    else {
+      $originalDootronics = \Drupal::entityTypeManager()->getStorage('node')->loadMultiple($originalDootronicIds);
+    }
+
     $currentDootronicIds = array_map(fn($entity) => $entity->id(), $dootrip->get('field_laptops')->referencedEntities());
 
     foreach ($originalDootronics as $originalDootronic) {
