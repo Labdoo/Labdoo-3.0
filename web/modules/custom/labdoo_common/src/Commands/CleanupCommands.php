@@ -95,9 +95,22 @@ class CleanupCommands extends DrushCommands {
       // $this->io()->text(dt('Checking node @nid (@count revisions)...', ['@nid' => $nid, '@count' => count($vids)]));
       
       $revisions_to_delete = [];
-      $seen_revisions_data = [];
+      $seen_hashes = [];
+      $default_vid = $node->getRevisionId();
+
+      // First pass: identify the default revision's hash if it exists.
+      $default_revision = $storage->loadRevision($default_vid);
+      $default_hash = null;
+      if ($default_revision) {
+        $default_hash = md5(serialize($this->getRevisionData($default_revision)));
+        $seen_hashes[$default_hash] = $default_vid;
+      }
 
       foreach ($vids as $vid) {
+        if ($vid == $default_vid) {
+          continue;
+        }
+
         /** @var \Drupal\node\NodeInterface $revision */
         $revision = $storage->loadRevision($vid);
         if (!$revision) {
@@ -105,20 +118,13 @@ class CleanupCommands extends DrushCommands {
         }
 
         $current_revision_data = $this->getRevisionData($revision);
-        
-        // Use a hash of the serialized data for efficient comparison.
         $revision_hash = md5(serialize($current_revision_data));
 
-        if (isset($seen_revisions_data[$revision_hash])) {
-          // It's a duplicate of a previous revision.
-          // Check if it's the default revision. We should not delete the current/default revision.
-          if (!$revision->isDefaultRevision()) {
-            $revisions_to_delete[] = $vid;
-          // } else {
-          //    $this->io()->info(dt('Found duplicate revision @vid for node @nid, but it is the default revision. Skipping.', ['@vid' => $vid, '@nid' => $nid]));
-          }
+        if (isset($seen_hashes[$revision_hash])) {
+          // It's a duplicate of either the default revision or a previously seen revision.
+          $revisions_to_delete[] = $vid;
         } else {
-          $seen_revisions_data[$revision_hash] = $vid;
+          $seen_hashes[$revision_hash] = $vid;
         }
       }
 
