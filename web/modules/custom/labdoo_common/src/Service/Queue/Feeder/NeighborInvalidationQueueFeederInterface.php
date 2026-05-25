@@ -19,4 +19,12 @@ interface NeighborInvalidationQueueFeederInterface {
    */
   public function feedQueue(string $entityType, ?int $entityId = NULL, ?string $label = NULL): void;
 
+  /**
+   * Enqueues a node cache invalidation task.
+   *
+   * @param int $nid
+   *   The node ID.
+   */
+  public function invalidateNode(int $nid): void;
+
 }

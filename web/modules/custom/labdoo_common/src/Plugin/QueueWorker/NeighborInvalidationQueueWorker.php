@@ -109,6 +109,16 @@ class NeighborInvalidationQueueWorker extends QueueWorkerBase implements Contain
     $queueData = $this->checkData($data);
     $item = $queueData->getData();
 
+    $op = $item['op'] ?? 'neighbors';
+
+    if ($op === 'node') {
+      $nid = $item['nid'] ?? NULL;
+      if ($nid) {
+        $this->invalidateNodeTags($nid);
+      }
+      return;
+    }
+
     $entityType = $item['entity_type'] ?? NULL;
     $entityId = $item['entity_id'] ?? NULL;
     $label = $item['label'] ?? NULL;
@@ -130,6 +140,26 @@ class NeighborInvalidationQueueWorker extends QueueWorkerBase implements Contain
         $this->invalidateGenericNeighbors($entityId, 'hub', $this->hubRepository);
         break;
     }
+  }
+
+  /**
+   * Invalidate tags for a specific node.
+   *
+   * @param int $nid
+   *   The node ID.
+   */
+  protected function invalidateNodeTags(int $nid): void {
+    $tags = [
+      sprintf('node:%d', $nid),
+    ];
+
+    // For dootronics, we also have specific custom tags used in blocks.
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+    if ($node && $node->bundle() === 'dootronic') {
+      $tags[] = sprintf('dootronic:%d', $nid);
+    }
+
+    \Drupal::service('cache_tags.invalidator')->invalidateTags($tags);
   }
 
   /**

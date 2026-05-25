@@ -321,6 +321,11 @@ class DootripCompute implements DootripComputeInterface {
         $dootronic->get('field_dootrips')->appendItem($dootrip->id());
         $dootronic->save();
         \Drupal::entityTypeManager()->getStorage('node')->resetCache([$dootronic->id()]);
+        
+        // Invalidate dootronic cache.
+        if (\Drupal::hasService('labdoo_common.queue.feeder.neighbor_invalidation')) {
+          \Drupal::service('labdoo_common.queue.feeder.neighbor_invalidation')->invalidateNode((int) $dootronic->id());
+        }
       }
     }
 
@@ -345,6 +350,11 @@ class DootripCompute implements DootripComputeInterface {
             $dootrips->removeItem($index);
             $originalDootronic->save();
             \Drupal::entityTypeManager()->getStorage('node')->resetCache([$originalDootronic->id()]);
+
+            // Invalidate dootronic cache.
+            if (\Drupal::hasService('labdoo_common.queue.feeder.neighbor_invalidation')) {
+              \Drupal::service('labdoo_common.queue.feeder.neighbor_invalidation')->invalidateNode((int) $originalDootronic->id());
+            }
             break;
           }
         }

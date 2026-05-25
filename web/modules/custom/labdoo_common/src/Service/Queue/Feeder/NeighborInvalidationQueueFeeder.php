@@ -37,11 +37,34 @@ class NeighborInvalidationQueueFeeder implements NeighborInvalidationQueueFeeder
    */
   public function feedQueue(string $entityType, ?int $entityId = NULL, ?string $label = NULL): void {
     $item = [
+      'op' => 'neighbors',
       'entity_type' => $entityType,
       'entity_id' => $entityId,
       'label' => $label,
     ];
 
+    $this->enqueue($item);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function invalidateNode(int $nid): void {
+    $item = [
+      'op' => 'node',
+      'nid' => $nid,
+    ];
+
+    $this->enqueue($item);
+  }
+
+  /**
+   * Enqueues an item.
+   *
+   * @param array $item
+   *   The item data.
+   */
+  protected function enqueue(array $item): void {
     $queueData = new QueueDataModel();
     $queueData->setQueueId(self::QUEUE_ID);
     $queueData->setTimestamp(new \DateTime());
