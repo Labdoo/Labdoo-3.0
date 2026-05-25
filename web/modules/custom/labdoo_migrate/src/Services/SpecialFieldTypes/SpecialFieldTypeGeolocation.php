@@ -42,7 +42,7 @@ class SpecialFieldTypeGeolocation implements SpecialFieldTypeInterface {
     string $mainLangCode
   ) {
 
-    if ($value === NULL || $value === '') {
+    if ($value === NULL || $value === '' || $value === '0.000000,0.000000' || $value === '0,0') {
       return NULL;
     }
 

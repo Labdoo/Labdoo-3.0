@@ -284,11 +284,29 @@ class IntegrityCheckCommands extends DrushCommands {
       }
 
       // Special handling for file/image fields: compare URIs.
-      if ($destField === 'field_picture' && is_numeric($destValue) && is_string($sourceValue) && strpos($sourceValue, '://') !== FALSE) {
-        $file = $this->entityTypeManager->getStorage('file')->load($destValue);
-        if ($file instanceof \Drupal\file\FileInterface) {
-          $destValue = $file->getFileUri();
+      if (($destField === 'field_picture' || $destField === 'field_image') && ($destValue !== NULL && $destValue !== 0 && $destValue !== "0")) {
+        $destValues = is_array($destValue) ? $destValue : [$destValue];
+        $processedDestValues = [];
+        foreach ($destValues as $dv) {
+          if (is_numeric($dv) && $dv > 0) {
+            $file = $this->entityTypeManager->getStorage('file')->load($dv);
+            if ($file instanceof \Drupal\file\FileInterface) {
+              $processedDestValues[] = $file->getFileUri();
+            }
+            else {
+              $processedDestValues[] = $dv;
+            }
+          }
+          else {
+            $processedDestValues[] = $dv;
+          }
         }
+        $destValue = count($processedDestValues) === 1 ? $processedDestValues[0] : $processedDestValues;
+      }
+
+      // If dest is 0 or "0" for a file field, treat as NULL for comparison.
+      if (($destField === 'field_picture' || $destField === 'field_image') && ($destValue === 0 || $destValue === "0")) {
+        $destValue = NULL;
       }
 
       if (!$this->isEqual($sourceValue, $destValue)) {
@@ -350,10 +368,30 @@ class IntegrityCheckCommands extends DrushCommands {
 
     $cardinality = $entity->getFieldDefinition($fieldName)->getFieldStorageDefinition()->getCardinality();
     if ($cardinality == 1) {
-      return !empty($processedValues) ? $processedValues[0] : NULL;
+      if (empty($processedValues)) {
+        return NULL;
+      }
+      $value = $processedValues[0];
+      if (is_array($value) && count($value) === 1 && isset($value[0])) {
+        $value = $value[0];
+      }
+      return $value;
     }
 
-    return $processedValues;
+    // For multiple fields, flatten if we have nested arrays from single values.
+    $flattened = [];
+    foreach ($processedValues as $val) {
+      if (is_array($val) && !isset($val['latlon']) && !isset($val['lat'])) {
+        foreach ($val as $subVal) {
+          $flattened[] = $subVal;
+        }
+      }
+      else {
+        $flattened[] = $val;
+      }
+    }
+
+    return $flattened;
   }
 
   /**
@@ -376,10 +414,21 @@ class IntegrityCheckCommands extends DrushCommands {
 
     if (is_array($val1) && is_array($val2)) {
       if (count($val1) !== count($val2)) {
+        // Sort both arrays to be sure comparison is not order-dependent.
+        $s1 = $val1; $s2 = $val2;
+        sort($s1);
+        sort($s2);
+        if ($s1 === $s2) {
+          return TRUE;
+        }
         return FALSE;
       }
-      foreach ($val1 as $k => $v) {
-        if (!array_key_exists($k, $val2) || !$this->isEqual($v, $val2[$k])) {
+      // Sort both arrays.
+      $s1 = $val1; $s2 = $val2;
+      sort($s1);
+      sort($s2);
+      foreach ($s1 as $k => $v) {
+        if (!array_key_exists($k, $s2) || !$this->isEqual($v, $s2[$k])) {
           return FALSE;
         }
       }
@@ -392,6 +441,19 @@ class IntegrityCheckCommands extends DrushCommands {
       }
       if (is_array($val2) && count($val2) === 1 && $this->isEqual($val1, reset($val2))) {
         return TRUE;
+      }
+      // Special case for duplicates in source that are single in destination.
+      if (is_array($val1) && !is_array($val2)) {
+        $uniqueVal1 = array_unique($val1);
+        if (count($uniqueVal1) === 1 && $this->isEqual(reset($uniqueVal1), $val2)) {
+          return TRUE;
+        }
+      }
+      // Special case for single-value destination fields that might receive the first value of a multi-value source.
+      if (is_array($val1) && !is_array($val2) && !empty($val1)) {
+        if ($this->isEqual($val1[0], $val2)) {
+          return TRUE;
+        }
       }
       return FALSE;
     }

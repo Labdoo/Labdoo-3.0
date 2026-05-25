@@ -664,7 +664,14 @@ class DestinationRepository implements DestinationRepositoryInterface {
         }
       }
       else {
-        $accumulatedValues[$fieldName] = $fieldValue;
+        // For single-value fields, if we receive an array (multiple source values),
+        // take the first one.
+        if (is_array($fieldValue) && $this->checkMultiValue($fieldValue)) {
+          $accumulatedValues[$fieldName] = !empty($fieldValue) ? reset($fieldValue) : NULL;
+        }
+        else {
+          $accumulatedValues[$fieldName] = $fieldValue;
+        }
       }
     }
 

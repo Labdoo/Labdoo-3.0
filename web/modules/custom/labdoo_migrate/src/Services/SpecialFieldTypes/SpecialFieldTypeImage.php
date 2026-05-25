@@ -57,6 +57,10 @@ class SpecialFieldTypeImage implements SpecialFieldTypeInterface {
     string $mainLangCode
   ) {
 
+    if (empty($value) || $value === "0" || $value === 0) {
+      return [];
+    }
+
     if (!is_array($value)) {
       return $this->processSingleFile($value, $metadata, $entity);
     }
