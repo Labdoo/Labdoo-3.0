@@ -114,8 +114,8 @@ class CleanupCommands extends DrushCommands {
           // Check if it's the default revision. We should not delete the current/default revision.
           if (!$revision->isDefaultRevision()) {
             $revisions_to_delete[] = $vid;
-          } else {
-             $this->io()->info(dt('Found duplicate revision @vid for node @nid, but it is the default revision. Skipping.', ['@vid' => $vid, '@nid' => $nid]));
+          // } else {
+          //    $this->io()->info(dt('Found duplicate revision @vid for node @nid, but it is the default revision. Skipping.', ['@vid' => $vid, '@nid' => $nid]));
           }
         } else {
           $seen_revisions_data[$revision_hash] = $vid;
