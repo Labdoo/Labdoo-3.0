@@ -5,6 +5,7 @@ namespace Drupal\labdoo_common\Commands;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\node\NodeInterface;
 use Drush\Commands\DrushCommands;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 /**
  * Cleanup Drush commands.
@@ -51,32 +52,47 @@ class CleanupCommands extends DrushCommands {
     $dry_run = $options['dry-run'];
     $storage = $this->entityTypeManager->getStorage('node');
     
-    $query = $storage->getQuery()
-      ->condition('type', $node_type)
-      ->accessCheck(FALSE);
+    $db = \Drupal::database();
+    $query = $db->select('node_field_data', 'nfd');
+    $query->fields('nfd', ['nid']);
+    $query->condition('nfd.type', $node_type);
+    
+    // Join with node_field_revision to count revisions.
+    $query->join('node_field_revision', 'nfr', 'nfd.nid = nfr.nid');
+    $query->groupBy('nfd.nid');
+    $query->having('COUNT(nfr.vid) > 1');
 
     if (!empty($options['nids'])) {
       $nids_filter = explode(',', $options['nids']);
-      $query->condition('nid', $nids_filter, 'IN');
+      $query->condition('nfd.nid', $nids_filter, 'IN');
     }
 
-    $nids = $query->execute();
+    $nids = $query->execute()->fetchCol();
 
     if (empty($nids)) {
-      $this->io()->note(dt('No nodes found for type @type.', ['@type' => $node_type]));
+      $this->io()->note(dt('No nodes with multiple revisions found for type @type.', ['@type' => $node_type]));
       return;
     }
 
     $this->io()->title(dt('Processing duplicate revisions for type @type', ['@type' => $node_type]));
     $total_deleted = 0;
 
+    $progress_bar = new ProgressBar($this->output(), count($nids));
+    $progress_bar->setFormat('%current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
+    $progress_bar->start();
+
     foreach ($nids as $nid) {
-      $vids = $storage->revisionIds($storage->load($nid));
+      $progress_bar->advance();
+      $node = $storage->load($nid);
+      if (!$node) {
+        continue;
+      }
+      $vids = $storage->revisionIds($node);
       if (count($vids) <= 1) {
         continue;
       }
 
-      $this->io()->text(dt('Checking node @nid (@count revisions)...', ['@nid' => $nid, '@count' => count($vids)]));
+      // $this->io()->text(dt('Checking node @nid (@count revisions)...', ['@nid' => $nid, '@count' => count($vids)]));
       
       $revisions_to_delete = [];
       $seen_revisions_data = [];
@@ -99,7 +115,7 @@ class CleanupCommands extends DrushCommands {
           if (!$revision->isDefaultRevision()) {
             $revisions_to_delete[] = $vid;
           } else {
-             $this->io()->warning(dt('Found duplicate revision @vid for node @nid, but it is the default revision. Skipping.', ['@vid' => $vid, '@nid' => $nid]));
+             $this->io()->info(dt('Found duplicate revision @vid for node @nid, but it is the default revision. Skipping.', ['@vid' => $vid, '@nid' => $nid]));
           }
         } else {
           $seen_revisions_data[$revision_hash] = $vid;
@@ -107,17 +123,24 @@ class CleanupCommands extends DrushCommands {
       }
 
       if (!empty($revisions_to_delete)) {
+        // Clear progress bar to show deletion messages clearly if needed, 
+        // but since we might have many nodes, maybe it's better to just delete 
+        // and keep the progress bar moving. 
+        // If we want to show messages, we should use $progress_bar->clear() and $progress_bar->display().
         foreach ($revisions_to_delete as $vid_to_delete) {
           if ($dry_run) {
-            $this->io()->text(dt('  [DRY-RUN] Would delete duplicate revision @vid', ['@vid' => $vid_to_delete]));
+            // $this->io()->text(dt('  [DRY-RUN] Would delete duplicate revision @vid', ['@vid' => $vid_to_delete]));
           } else {
             $storage->deleteRevision($vid_to_delete);
-            $this->io()->text(dt('  Deleted duplicate revision @vid', ['@vid' => $vid_to_delete]));
+            // $this->io()->text(dt('  Deleted duplicate revision @vid', ['@vid' => $vid_to_delete]));
           }
           $total_deleted++;
         }
       }
     }
+
+    $progress_bar->finish();
+    $this->io()->newLine();
 
     if ($dry_run) {
       $this->io()->success(dt('Dry run completed. Found @count duplicate revisions.', ['@count' => $total_deleted]));
