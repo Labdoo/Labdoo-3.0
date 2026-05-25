@@ -51,6 +51,13 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
   protected bool $incremental = FALSE;
 
   /**
+   * The delete revisions mode.
+   *
+   * @var bool
+   */
+  protected bool $deleteRevisions = FALSE;
+
+  /**
    * The progress bar.
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
@@ -93,6 +100,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
    * @option body-field The field name in D7 that contains the body content (default: "body").
    * @option destination-type The content type in Drupal 10 (defaults to the same as "type").
    * @option incremental Whether to run this command in incremental mode (only if source and destination revision counts differ).
+   * @option delete-revisions Whether to delete all existing revisions before synchronization.
    */
   public function startSync(
     string $type,
@@ -103,6 +111,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
       'incremental' => FALSE,
       'body-field' => 'body',
       'destination-type' => NULL,
+      'delete-revisions' => FALSE,
     ]
   ): void {
     try {
@@ -196,6 +205,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
     $this->limit = (int) $options['limit'];
     $this->dryRun = (bool) $options['dry-run'];
     $this->incremental = (bool) $options['incremental'];
+    $this->deleteRevisions = (bool) $options['delete-revisions'];
   }
 
   /**

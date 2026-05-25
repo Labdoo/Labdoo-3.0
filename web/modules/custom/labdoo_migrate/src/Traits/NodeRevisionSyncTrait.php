@@ -36,7 +36,11 @@ trait NodeRevisionSyncTrait {
       return;
     }
 
-    if ($this->incremental) {
+    if ($this->deleteRevisions) {
+      $this->deleteAllRevisionsExceptDefault($destinationNode);
+    }
+
+    if ($this->incremental && !$this->deleteRevisions) {
       $destinationRevisionIds = $this->entityTypeManager
         ->getStorage('node')
         ->revisionIds($destinationNode);
@@ -65,7 +69,16 @@ trait NodeRevisionSyncTrait {
     $config = $this->configurationManager->getContentConfiguration($sourceContentType);
     $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
 
+    // Pre-load existing revisions in destination to avoid duplicates.
+    $existingD7Vids = $this->getExistingD7Revisions($destinationNode);
+
     foreach ($revisions as $revision) {
+      if (isset($existingD7Vids[$revision->vid])) {
+        if ($this->output()->isVerbose()) {
+          $this->logger->info(sprintf('Revision %d for node %d already exists in destination. Skipping.', $revision->vid, $nid));
+        }
+        continue;
+      }
       // Get revision metadata
       $revisionMetadata = [
         'nid' => $revision->nid,
@@ -114,7 +127,12 @@ trait NodeRevisionSyncTrait {
     // Set title and status
     $node->set('title', $metadata['title']);
     $node->set('status', $metadata['status']);
+    $node->set('created', $metadata['created']);
     $node->set('changed', $metadata['changed']);
+
+    if ($node instanceof \Drupal\Core\Entity\EntityChangedInterface) {
+      $node->setChangedTime($metadata['changed']);
+    }
 
     // Set field values from mapping
     foreach ($fieldData as $fieldName => $value) {
@@ -148,6 +166,30 @@ trait NodeRevisionSyncTrait {
     }
 
     $node->save();
+  }
+
+  /**
+   * Deletes all revisions except the default one.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node entity.
+   */
+  protected function deleteAllRevisionsExceptDefault(NodeInterface $node): void {
+    $storage = $this->entityTypeManager->getStorage('node');
+    $revisionIds = $storage->revisionIds($node);
+    $defaultVid = $node->getRevisionId();
+
+    foreach ($revisionIds as $vid) {
+      if ($vid == $defaultVid) {
+        continue;
+      }
+      if ($this->dryRun) {
+        $this->logger->info(sprintf('Dry-run: Would delete revision %d for node %d', $vid, $node->id()));
+      }
+      else {
+        $storage->deleteRevision($vid);
+      }
+    }
   }
 
   /**
@@ -193,6 +235,35 @@ trait NodeRevisionSyncTrait {
         }
       }
     }
+  }
+
+  /**
+   * Retrieves existing D7 vids for a node.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node entity.
+   *
+   * @return array
+   *   An array keyed by D7 vid with the D10 vid as value.
+   */
+  protected function getExistingD7Revisions(NodeInterface $node): array {
+    $storage = $this->entityTypeManager->getStorage('node');
+    $revisionIds = $storage->revisionIds($node);
+    $existing = [];
+
+    foreach ($revisionIds as $vid) {
+      /** @var \Drupal\node\NodeInterface $revision */
+      $revision = $storage->loadRevision($vid);
+      if (!$revision) {
+        continue;
+      }
+      $logMessage = $revision->getRevisionLogMessage() ?? '';
+      if (preg_match('/Imported from Drupal 7 revision (\d+)/', $logMessage, $matches)) {
+        $existing[$matches[1]] = $vid;
+      }
+    }
+
+    return $existing;
   }
 
 }
