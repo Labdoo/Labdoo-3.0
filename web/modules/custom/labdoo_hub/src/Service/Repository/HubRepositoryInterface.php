@@ -37,4 +37,14 @@ interface HubRepositoryInterface {
    */
   public function saveEntity(\Drupal\Core\Entity\EntityInterface $entity): void;
 
+  /**
+   * Invalidates the cache for a hub.
+   *
+   * @param int $hubId
+   *   The hub ID.
+   *
+   * @return void
+   */
+  public function invalidateCache(int $hubId): void;
+
 }

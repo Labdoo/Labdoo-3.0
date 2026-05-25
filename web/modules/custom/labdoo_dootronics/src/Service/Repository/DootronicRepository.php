@@ -775,6 +775,20 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * {@inheritdoc}
    */
+  public function invalidateCache(int $dootronicId): void {
+    $tag = sprintf('dootronic:%d', $dootronicId);
+
+    $event = new InvalidateCacheTagsEvent();
+    $event->setCacheTags([$tag]);
+    $this->eventDispatcher->dispatch(
+      $event,
+      InvalidateCacheTagsEvent::EVENT_NAME
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getStats(?int $userId = NULL): array {
     $query = $this->database->select('node_field_data', 'n');
     $query->condition('n.type', 'dootronic');

@@ -100,6 +100,7 @@ function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
     }
 
     __labdoo_edoovillage_enqueue_geocoding($entity);
+    __labdoo_edoovillage_invalidate_neighbors($entity);
   }
 }
 
@@ -140,7 +141,20 @@ function labdoo_edoovillage_entity_delete(EntityInterface $entity) {
     /** @var \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface $edoovillageCompute */
     $edoovillageCompute = \Drupal::service('labdoo_edoovillage.compute');
     $edoovillageCompute->enqueueRecompute($entity);
+    __labdoo_edoovillage_invalidate_neighbors($entity);
   }
+}
+
+/**
+ * Invalidate neighbors' cache via queue.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ */
+function __labdoo_edoovillage_invalidate_neighbors(EntityInterface $entity): void {
+  /** @var \Drupal\labdoo_common\Service\Queue\Feeder\NeighborInvalidationQueueFeederInterface $feeder */
+  $feeder = \Drupal::service('labdoo_common.queue.feeder.neighbor_invalidation');
+  $feeder->feedQueue('edoovillage', (int) $entity->id());
 }
 
 

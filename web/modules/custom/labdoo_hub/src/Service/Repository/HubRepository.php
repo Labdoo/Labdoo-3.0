@@ -3,6 +3,8 @@
 namespace Drupal\labdoo_hub\Service\Repository;
 
 use Drupal\Core\Database\Connection;
+use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Hub repository.
@@ -17,13 +19,26 @@ class HubRepository implements HubRepositoryInterface {
   protected Connection $database;
 
   /**
+   * The event dispatcher.
+   *
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
+   */
+  protected EventDispatcherInterface $eventDispatcher;
+
+  /**
    * HubRepository constructor.
    *
    * @param \Drupal\Core\Database\Connection $database
    *   The database connection.
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher
+   *   The event dispatcher.
    */
-  public function __construct(Connection $database) {
+  public function __construct(
+    Connection $database,
+    EventDispatcherInterface $eventDispatcher
+  ) {
     $this->database = $database;
+    $this->eventDispatcher = $eventDispatcher;
   }
 
   /**
@@ -70,6 +85,20 @@ class HubRepository implements HubRepositoryInterface {
    */
   public function saveEntity(\Drupal\Core\Entity\EntityInterface $entity): void {
     $entity->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function invalidateCache(int $hubId): void {
+    $tag = sprintf('hub:%d', $hubId);
+
+    $event = new InvalidateCacheTagsEvent();
+    $event->setCacheTags([$tag]);
+    $this->eventDispatcher->dispatch(
+      $event,
+      InvalidateCacheTagsEvent::EVENT_NAME
+    );
   }
 
 }

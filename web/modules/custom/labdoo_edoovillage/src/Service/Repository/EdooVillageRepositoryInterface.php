@@ -52,4 +52,14 @@ interface EdooVillageRepositoryInterface {
    */
   public function saveEntity(EntityInterface $entity): void;
 
+  /**
+   * Invalidates the cache for an edoovillage.
+   *
+   * @param int $edoovillageId
+   *   The edoovillage ID.
+   *
+   * @return void
+   */
+  public function invalidateCache(int $edoovillageId): void;
+
 }

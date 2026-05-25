@@ -260,4 +260,14 @@ interface DootronicRepositoryInterface {
    */
   public function getStats(?int $userId = NULL): array;
 
+  /**
+   * Invalidates the cache for a dootronic.
+   *
+   * @param int $dootronicId
+   *   The dootronic ID.
+   *
+   * @return void
+   */
+  public function invalidateCache(int $dootronicId): void;
+
 }

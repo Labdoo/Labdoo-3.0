@@ -39,3 +39,6 @@ services:
       - "@config.factory"
       - "@plugin.manager.geocoder.provider"
       - "@module_handler"
+  labdoo_common.queue.feeder.neighbor_invalidation:
+    class: Drupal\labdoo_common\Service\Queue\Feeder\NeighborInvalidationQueueFeeder
+    arguments: ['@queue_manager.helper']

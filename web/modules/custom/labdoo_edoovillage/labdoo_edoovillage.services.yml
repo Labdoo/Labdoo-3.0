@@ -9,7 +9,7 @@ services:
     arguments: ['@lock.persistent', '@database', '@labdoo_common.repository.common']
   labdoo_edoovillage.repository:
     class: Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepository
-    arguments: ['@labdoo_edoovillage.sequence_manager', '@database']
+    arguments: ['@labdoo_edoovillage.sequence_manager', '@database', '@event_dispatcher']
   labdoo_edoovillage.recompute_feeder:
     class: Drupal\labdoo_edoovillage\Service\Queue\Feeder\EdooVillageRecomputeQueueFeeder
     arguments: ['@queue']

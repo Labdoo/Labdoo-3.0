@@ -4,7 +4,9 @@ namespace Drupal\labdoo_edoovillage\Service\Repository;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Database\Connection;
+use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Drupal\labdoo_edoovillage\Service\SequenceManagerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * EdooVillage repository.
@@ -26,19 +28,30 @@ class EdooVillageRepository implements EdooVillageRepositoryInterface {
   protected Connection $database;
 
   /**
+   * The event dispatcher.
+   *
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
+   */
+  protected EventDispatcherInterface $eventDispatcher;
+
+  /**
    * EdooVillageRepository constructor.
    *
    * @param \Drupal\labdoo_edoovillage\Service\SequenceManagerInterface $sequenceManager
    *   The sequence manager.
    * @param \Drupal\Core\Database\Connection $database
    *   The database connection.
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher
+   *   The event dispatcher.
    */
   public function __construct(
     SequenceManagerInterface $sequenceManager,
-    Connection $database
+    Connection $database,
+    EventDispatcherInterface $eventDispatcher
   ) {
     $this->sequenceManager = $sequenceManager;
     $this->database = $database;
+    $this->eventDispatcher = $eventDispatcher;
   }
 
   /**
@@ -99,6 +112,20 @@ class EdooVillageRepository implements EdooVillageRepositoryInterface {
    */
   public function saveEntity(EntityInterface $entity): void {
     $entity->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function invalidateCache(int $edoovillageId): void {
+    $tag = sprintf('edoovillage:%d', $edoovillageId);
+
+    $event = new InvalidateCacheTagsEvent();
+    $event->setCacheTags([$tag]);
+    $this->eventDispatcher->dispatch(
+      $event,
+      InvalidateCacheTagsEvent::EVENT_NAME
+    );
   }
 
 }

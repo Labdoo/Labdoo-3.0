@@ -88,6 +88,7 @@ function labdoo_hub_entity_insert(EntityInterface $entity) {
       if (empty($entity->skip_geocoding_enqueue)) {
         $hubCompute->enqueueGeocoding($entity);
       }
+      __labdoo_hub_invalidate_neighbors($entity);
       return;
     }
     /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
@@ -100,6 +101,7 @@ function labdoo_hub_entity_insert(EntityInterface $entity) {
       $galleryCompute = \Drupal::service('labdoo_gallery.compute');
       $galleryCompute->enqueueGalleryCreateOrUpdate($entity);
     }
+    __labdoo_hub_invalidate_neighbors($entity);
   }
 }
 
@@ -137,7 +139,20 @@ function labdoo_hub_entity_delete(EntityInterface $entity) {
     /** @var \Drupal\labdoo_hub\Service\Compute\HubComputeInterface $hubCompute */
     $hubCompute = \Drupal::service('labdoo_hub.compute');
     $hubCompute->enqueueRecompute($entity);
+    __labdoo_hub_invalidate_neighbors($entity);
   }
+}
+
+/**
+ * Invalidate neighbors' cache via queue.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ */
+function __labdoo_hub_invalidate_neighbors(EntityInterface $entity): void {
+  /** @var \Drupal\labdoo_common\Service\Queue\Feeder\NeighborInvalidationQueueFeederInterface $feeder */
+  $feeder = \Drupal::service('labdoo_common.queue.feeder.neighbor_invalidation');
+  $feeder->feedQueue('hub', (int) $entity->id());
 }
 
 /**
