@@ -156,6 +156,15 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
             $field_revision_tables = $database->query("SHOW TABLES LIKE 'node_revision__%'")->fetchCol();
             $tables = array_merge($tables, $field_revision_tables);
 
+            // Pre-calculate the VIDs to keep (current default revisions).
+            $keep_vids = $database->select('node_field_data', 'nfd')
+              ->fields('nfd', ['vid'])
+              ->condition('type', $destinationType);
+            if ($this->nids !== NULL) {
+              $keep_vids->condition('nid', $nids_to_purge, 'IN');
+            }
+            $keep_vids_list = array_map('intval', $keep_vids->execute()->fetchCol());
+
             foreach ($tables as $table) {
               if ($database->schema()->tableExists($table)) {
                 $column = $database->schema()->fieldExists($table, 'revision_id') ? 'revision_id' : 'vid';
@@ -168,28 +177,20 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
                   $query->condition($nid_col, $nids_to_purge, 'IN');
                 }
                 else {
-                  // If we don't have specific NIDs, we MUST filter by type.
-                  // Since most revision tables don't have 'type', we use a subquery on NIDs of that type.
+                  // If we don't have specific NIDs, we MUST filter by NIDs of this type.
                   $query->condition($nid_col, $nids, 'IN');
                 }
 
-                // Subquery to get current vids to keep.
-                $keep_vids = $database->select('node_field_data', 'nfd')
-                  ->fields('nfd', ['vid'])
-                  ->condition('type', $destinationType);
-
-                if ($this->nids !== NULL) {
-                  $keep_vids->condition('nid', $nids_to_purge, 'IN');
-                }
-
-                $keep_vids_list = $keep_vids->execute()->fetchCol();
-
                 if (!empty($keep_vids_list)) {
+                  // IMPORTANT: Chunk the deletion if the list is too large to avoid SQL limits or performance hits.
+                  // But here we use it in a NOT IN, so it's better to stay within limits.
                   $query->condition($column, $keep_vids_list, 'NOT IN');
                 }
 
                 $num_deleted = $query->execute();
-                $this->logger->info(sprintf('Deleted %d rows from %s', $num_deleted, $table));
+                if ($num_deleted > 0) {
+                  $this->logger->info(sprintf('Deleted %d rows from %s', $num_deleted, $table));
+                }
               }
             }
           }
