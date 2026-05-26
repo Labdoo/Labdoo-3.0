@@ -59,6 +59,23 @@ class RevisionSourceRepository implements RevisionSourceRepositoryInterface {
   /**
    * {@inheritdoc}
    */
+  public function getCurrentRevisionId(int $nid): ?int {
+    $vid = $this->externalConnectionManager
+      ->setConnection()
+      ->select('node', 'n')
+      ->fields('n', ['vid'])
+      ->condition('nid', $nid)
+      ->execute()
+      ->fetchField();
+
+    $this->externalConnectionManager->restoreConnection();
+
+    return $vid ? (int) $vid : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getRevisionCountsByType(string $contentType): array {
     $query = $this->externalConnectionManager
       ->setConnection()

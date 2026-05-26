@@ -37,7 +37,12 @@ trait NodeRevisionSyncTrait {
     }
 
     if ($this->deleteRevisions) {
-      $this->deleteAllRevisionsExceptDefault($destinationNode);
+      if ($this->dryRun) {
+        $this->deleteAllRevisionsExceptDefault($destinationNode);
+      }
+      // If NOT dryRun, the mass deletion already happened in the command class.
+      // But we might want to ensure it's clean for THIS node if we are running nids only.
+      // However, startSync already handles it for the whole bundle or nids.
     }
 
     if ($this->incremental && !$this->deleteRevisions) {
@@ -72,6 +77,9 @@ trait NodeRevisionSyncTrait {
     // Pre-load existing revisions in destination to avoid duplicates.
     $existingD7Vids = $this->getExistingD7Revisions($destinationNode);
 
+    // Get the current revision ID in D7 to set it as default in D10.
+    $currentD7Vid = $this->revisionSourceRepository->getCurrentRevisionId($nid);
+
     foreach ($revisions as $revision) {
       if (isset($existingD7Vids[$revision->vid])) {
         if ($this->output()->isVerbose()) {
@@ -89,6 +97,7 @@ trait NodeRevisionSyncTrait {
         'created' => $revision->timestamp,
         'changed' => $revision->timestamp,
         'log' => $revision->log,
+        'is_default' => ($revision->vid == $currentD7Vid),
       ];
 
       // Get field data for this specific revision using mapping
@@ -123,6 +132,16 @@ trait NodeRevisionSyncTrait {
     $node->setRevisionLogMessage($metadata['log'] ?: 'Imported from Drupal 7 revision ' . $metadata['vid']);
     $node->setRevisionCreationTime($metadata['created']);
     $node->setRevisionUserId($metadata['uid']);
+
+    if (isset($metadata['is_default']) && $metadata['is_default']) {
+      $node->isDefaultRevision(TRUE);
+    }
+    else {
+      // If we are importing revisions in order, and this is not the one
+      // supposed to be default, we should mark it as non-default if possible.
+      // However, Drupal usually makes the latest saved revision the default one.
+      $node->isDefaultRevision(FALSE);
+    }
 
     // Set title and status
     $node->set('title', $metadata['title']);

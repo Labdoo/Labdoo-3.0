@@ -118,6 +118,81 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
       $this->setEnvironment($options);
       $bodyField = $options['body-field'];
 
+      if ($this->deleteRevisions && !$this->dryRun) {
+        $destinationType = $options['destination-type'] ?: $type;
+        $this->logger->notice(sprintf('Deleting all existing revisions for type "%s" (destination: "%s")...', $type, $destinationType));
+
+        $database = \Drupal::database();
+        // Get all nids for this type.
+        $nids = $this->entityTypeManager->getStorage('node')->getQuery()
+          ->condition('type', $destinationType)
+          ->accessCheck(FALSE)
+          ->execute();
+
+        if (!empty($nids)) {
+          if ($this->nids !== NULL) {
+            // If we have specific nids, only delete revisions for those.
+            $nids_to_purge = array_intersect($nids, $this->nids);
+          }
+          else {
+            $nids_to_purge = $nids;
+          }
+
+          if (empty($nids_to_purge)) {
+            $this->logger->notice('No nodes found to purge revisions.');
+          }
+          else {
+            // Identify revision tables.
+            $tables = [
+              'node_revision',
+              'node_field_revision',
+            ];
+            // Find all field revision tables.
+            $field_revision_tables = $database->query("SHOW TABLES LIKE 'node_revision__%'")->fetchCol();
+            $tables = array_merge($tables, $field_revision_tables);
+
+            foreach ($tables as $table) {
+              if ($database->schema()->tableExists($table)) {
+                $column = $database->schema()->fieldExists($table, 'revision_id') ? 'revision_id' : 'vid';
+                // We want to delete all revisions EXCEPT the ones currently marked as default in node_field_data.
+                $query = $database->delete($table);
+
+                if ($table === 'node_field_revision') {
+                  $query->condition('type', $destinationType);
+                }
+
+                if ($this->nids !== NULL) {
+                  $nid_col = $database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
+                  $query->condition($nid_col, $nids_to_purge, 'IN');
+                }
+
+                // Subquery to get current vids to keep.
+                $keep_vids = $database->select('node_field_data', 'nfd')
+                  ->fields('nfd', ['vid'])
+                  ->condition('type', $destinationType);
+
+                if ($this->nids !== NULL) {
+                  $keep_vids->condition('nid', $nids_to_purge, 'IN');
+                }
+
+                $keep_vids_list = $keep_vids->execute()->fetchCol();
+
+                if (!empty($keep_vids_list)) {
+                  $query->condition($column, $keep_vids_list, 'NOT IN');
+                  $num_deleted = $query->execute();
+                  $this->logger->info(sprintf('Deleted %d rows from %s', $num_deleted, $table));
+                }
+                else {
+                  // If for some reason there are no nodes, just truncate or delete all.
+                  $num_deleted = $query->execute();
+                  $this->logger->info(sprintf('Deleted %d rows from %s (no nodes found to keep)', $num_deleted, $table));
+                }
+              }
+            }
+          }
+        }
+      }
+
       $this->logger->notice(sprintf('Retrieving source entities IDs for type "%s"...', $type));
 
       if ($this->incremental && $this->nids === NULL) {
@@ -191,6 +266,9 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
     }
     catch (\Exception $e) {
       $this->logger->error($e->getMessage());
+    }
+    finally {
+      \Drupal::state()->delete('labdoo_migrate_is_running');
     }
   }
 
