@@ -130,9 +130,14 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
           ->execute();
 
         if (!empty($nids)) {
+          // Normalize NIDs to strings to ensure array_intersect works correctly.
+          $nids = array_map('strval', array_values($nids));
+
           if ($this->nids !== NULL) {
+            // Normalize input NIDs as well.
+            $input_nids = array_map('strval', $this->nids);
             // If we have specific nids, only delete revisions for those.
-            $nids_to_purge = array_intersect($nids, $this->nids);
+            $nids_to_purge = array_intersect($nids, $input_nids);
           }
           else {
             $nids_to_purge = $nids;
@@ -154,16 +159,18 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
             foreach ($tables as $table) {
               if ($database->schema()->tableExists($table)) {
                 $column = $database->schema()->fieldExists($table, 'revision_id') ? 'revision_id' : 'vid';
+                $nid_col = $database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
+
                 // We want to delete all revisions EXCEPT the ones currently marked as default in node_field_data.
                 $query = $database->delete($table);
 
-                if ($table === 'node_field_revision') {
-                  $query->condition('type', $destinationType);
-                }
-
                 if ($this->nids !== NULL) {
-                  $nid_col = $database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
                   $query->condition($nid_col, $nids_to_purge, 'IN');
+                }
+                else {
+                  // If we don't have specific NIDs, we MUST filter by type.
+                  // Since most revision tables don't have 'type', we use a subquery on NIDs of that type.
+                  $query->condition($nid_col, $nids, 'IN');
                 }
 
                 // Subquery to get current vids to keep.
@@ -179,14 +186,10 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
 
                 if (!empty($keep_vids_list)) {
                   $query->condition($column, $keep_vids_list, 'NOT IN');
-                  $num_deleted = $query->execute();
-                  $this->logger->info(sprintf('Deleted %d rows from %s', $num_deleted, $table));
                 }
-                else {
-                  // If for some reason there are no nodes, just truncate or delete all.
-                  $num_deleted = $query->execute();
-                  $this->logger->info(sprintf('Deleted %d rows from %s (no nodes found to keep)', $num_deleted, $table));
-                }
+
+                $num_deleted = $query->execute();
+                $this->logger->info(sprintf('Deleted %d rows from %s', $num_deleted, $table));
               }
             }
           }
