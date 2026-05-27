@@ -37,12 +37,7 @@ trait NodeRevisionSyncTrait {
     }
 
     if ($this->deleteRevisions) {
-      if ($this->dryRun) {
-        $this->deleteAllRevisionsExceptDefault($destinationNode);
-      }
-      // If NOT dryRun, the mass deletion already happened in the command class.
-      // But we might want to ensure it's clean for THIS node if we are running nids only.
-      // However, startSync already handles it for the whole bundle or nids.
+      $this->deleteAllRevisionsExceptDefault($destinationNode);
     }
 
     if ($this->incremental && !$this->deleteRevisions) {
@@ -77,8 +72,16 @@ trait NodeRevisionSyncTrait {
     // Pre-load existing revisions in destination to avoid duplicates.
     $existingD7Vids = $this->getExistingD7Revisions($destinationNode);
 
-    // Get the current revision ID in D7 to set it as default in D10.
-    $currentD7Vid = $this->revisionSourceRepository->getCurrentRevisionId($nid);
+    // Filter out duplicates from source revisions before processing.
+    $uniqueRevisions = [];
+    foreach ($revisions as $revision) {
+      if (!isset($uniqueRevisions[$revision->vid])) {
+        $uniqueRevisions[$revision->vid] = $revision;
+      }
+    }
+    // Re-index to ensure the loop works as expected if needed, 
+    // although foreach doesn't care about keys.
+    $revisions = array_values($uniqueRevisions);
 
     foreach ($revisions as $revision) {
       if (isset($existingD7Vids[$revision->vid])) {
@@ -97,7 +100,6 @@ trait NodeRevisionSyncTrait {
         'created' => $revision->timestamp,
         'changed' => $revision->timestamp,
         'log' => $revision->log,
-        'is_default' => ($revision->vid == $currentD7Vid),
       ];
 
       // Get field data for this specific revision using mapping
@@ -133,21 +135,25 @@ trait NodeRevisionSyncTrait {
     $node->setRevisionCreationTime($metadata['created']);
     $node->setRevisionUserId($metadata['uid']);
 
-    if (isset($metadata['is_default']) && $metadata['is_default']) {
-      $node->isDefaultRevision(TRUE);
-    }
-    else {
-      // If we are importing revisions in order, and this is not the one
-      // supposed to be default, we should mark it as non-default if possible.
-      // However, Drupal usually makes the latest saved revision the default one.
-      $node->isDefaultRevision(FALSE);
-    }
-
     // Set title and status
     $node->set('title', $metadata['title']);
     $node->set('status', $metadata['status']);
     $node->set('created', $metadata['created']);
     $node->set('changed', $metadata['changed']);
+
+    // Ensure is_default is handled.
+    // In Drupal 10, the last saved revision becomes the default one unless specified.
+    // Since we process revisions in reverse chronological order (newest first),
+    // we want the newest one imported to be the default.
+    // The first one we process is the newest D7 revision.
+    static $firstRevision = [];
+    if (!isset($firstRevision[$node->id()])) {
+      $node->isDefaultRevision(TRUE);
+      $firstRevision[$node->id()] = TRUE;
+    }
+    else {
+      $node->isDefaultRevision(FALSE);
+    }
 
     if ($node instanceof \Drupal\Core\Entity\EntityChangedInterface) {
       $node->setChangedTime($metadata['changed']);

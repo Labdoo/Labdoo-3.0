@@ -47,30 +47,13 @@ class RevisionSourceRepository implements RevisionSourceRepositoryInterface {
       ->select('node_revision', 'nr')
       ->fields('nr', ['vid', 'nid', 'uid', 'title', 'log', 'timestamp', 'status'])
       ->condition('nid', $nid)
-      ->orderBy('vid', 'ASC')
+      ->orderBy('vid', 'DESC')
       ->execute()
       ->fetchAll();
 
     $this->externalConnectionManager->restoreConnection();
 
     return $revisions;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCurrentRevisionId(int $nid): ?int {
-    $vid = $this->externalConnectionManager
-      ->setConnection()
-      ->select('node', 'n')
-      ->fields('n', ['vid'])
-      ->condition('nid', $nid)
-      ->execute()
-      ->fetchField();
-
-    $this->externalConnectionManager->restoreConnection();
-
-    return $vid ? (int) $vid : NULL;
   }
 
   /**

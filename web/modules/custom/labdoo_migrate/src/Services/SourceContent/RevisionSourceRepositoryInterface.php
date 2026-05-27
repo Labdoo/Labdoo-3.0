@@ -19,17 +19,6 @@ interface RevisionSourceRepositoryInterface {
   public function getRevisionsByNid(int $nid): array;
 
   /**
-   * Retrieves the current revision ID of a node from the source database.
-   *
-   * @param int $nid
-   *   The node ID.
-   *
-   * @return int|null
-   *   The current revision ID or NULL if not found.
-   */
-  public function getCurrentRevisionId(int $nid): ?int;
-
-  /**
    * Retrieves revision counts for all nodes of a specific type.
    *
    * @param string $contentType
