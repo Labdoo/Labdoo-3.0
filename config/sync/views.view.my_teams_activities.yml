@@ -745,7 +745,7 @@ display:
         options:
           query_comment: ''
           disable_sql_rewrite: false
-          distinct: false
+          distinct: true
           replica: false
           query_tags: {  }
       relationships:
@@ -827,6 +827,7 @@ display:
         title: 'My teams activities'
         description: ''
         weight: -47
+        enabled: false
         expanded: false
         menu_name: main
         parent: 'views_view:views.teams_activities.page_1'
@@ -834,7 +835,6 @@ display:
     cache_metadata:
       max-age: -1
       contexts:
-        - 'languages:language_content'
         - 'languages:language_interface'
         - url
         - url.query_args
