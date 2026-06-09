@@ -1599,6 +1599,7 @@ display:
         title: Dootrips
         description: ''
         weight: -48
+        enabled: false
         expanded: false
         menu_name: main
         parent: ''

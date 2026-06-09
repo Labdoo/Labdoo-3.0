@@ -1292,6 +1292,7 @@ display:
         title: Hubs
         description: ''
         weight: -46
+        enabled: false
         expanded: false
         menu_name: main
         parent: ''

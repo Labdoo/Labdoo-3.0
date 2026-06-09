@@ -518,6 +518,7 @@ display:
         title: 'List all teams'
         description: ''
         weight: -49
+        enabled: false
         expanded: false
         menu_name: main
         parent: 'views_view:views.teams_activities.page_1'

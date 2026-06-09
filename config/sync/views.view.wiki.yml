@@ -685,6 +685,7 @@ display:
         title: Wiki
         description: ''
         weight: -44
+        enabled: false
         expanded: false
         menu_name: main
         parent: ''
