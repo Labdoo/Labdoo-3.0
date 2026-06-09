@@ -20,17 +20,17 @@ definitions:
     expanded: false
     enabled: true
   labdoo_dootronics__clone_dootronics:
+    enabled: false
     menu_name: main
     parent: 'views_view:views.dootronics_dashboard.page_1'
     weight: -47
     expanded: false
-    enabled: true
   labdoo_dootronics__update_dootronics:
+    enabled: false
     menu_name: main
     parent: 'views_view:views.dootronics_dashboard.page_1'
     weight: -46
     expanded: false
-    enabled: true
   system__admin:
     menu_name: admin
     parent: ''
