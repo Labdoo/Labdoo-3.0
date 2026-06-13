@@ -42,3 +42,7 @@ services:
   labdoo_common.queue.feeder.neighbor_invalidation:
     class: Drupal\labdoo_common\Service\Queue\Feeder\NeighborInvalidationQueueFeeder
     arguments: ['@queue_manager.helper']
+  labdoo_common.route_subscriber:
+    class: Drupal\labdoo_common\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

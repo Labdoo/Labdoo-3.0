@@ -450,3 +450,15 @@ function labdoo_common_node_view(array &$build, EntityInterface $node, EntityVie
     ];
   }
 }
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function labdoo_common_library_info_alter(array &$libraries, string $extension) {
+  if ($extension !== 'geocoder' || !isset($libraries['geocoder']['js']['js/geocoder.drupal.js'])) {
+    return;
+  }
+
+  unset($libraries['geocoder']['js']['js/geocoder.drupal.js']);
+  $libraries['geocoder']['js']['/modules/custom/labdoo_common/js/geocoder.drupal.secure.js'] = [];
+}
