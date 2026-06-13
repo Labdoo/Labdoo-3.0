@@ -110,9 +110,10 @@ content:
         hidden: false
         disabled: true
       map_geocoder:
-        control: 0
+        control: 1
         settings:
-          providers: {  }
+          providers:
+            googlemaps: googlemaps
           min_terms: 4
           delay: 800
           options: ''
@@ -230,9 +231,10 @@ content:
         hidden: false
         disabled: true
       map_geocoder:
-        control: 0
+        control: 1
         settings:
-          providers: {  }
+          providers:
+            googlemaps: googlemaps
           min_terms: 4
           delay: 800
           options: ''
