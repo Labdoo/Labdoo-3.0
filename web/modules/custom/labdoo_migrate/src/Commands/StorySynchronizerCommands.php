@@ -352,6 +352,7 @@ class StorySynchronizerCommands extends DrushCommands {
           $newParagraph->set(
             'field_story_picture',
             [
+              'target_id' => $fid,
               'alt' => $section['picture']->field_story_picture_alt ?? '',
               'title' => $section['picture']->field_story_picture_title ?? '',
             ]
