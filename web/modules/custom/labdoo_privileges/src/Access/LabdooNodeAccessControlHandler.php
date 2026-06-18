@@ -114,7 +114,7 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
    *   TRUE if the entity belongs to one of the valid bundles, FALSE otherwise.
    */
   protected function isValidBundle(EntityInterface $node): bool {
-    return array_search($node->bundle(), array_keys(self::BUNDLES));
+    return array_key_exists($node->bundle(), self::BUNDLES);
   }
 
   /**
