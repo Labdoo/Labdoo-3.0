@@ -324,9 +324,9 @@ class StorySynchronizerCommands extends DrushCommands {
         if (
           !empty($section['picture'])
           && is_object($section['picture'])
-          && empty($section['picture']->uri)
-          && empty($section['picture']->name)
-          && empty($section['picture']->content)
+          && !empty($section['picture']->uri)
+          && !empty($section['picture']->name)
+          && !empty($section['picture']->content)
         ) {
           $file = $this->fileManager->createFile(
             $section['picture']->uri,
@@ -352,8 +352,8 @@ class StorySynchronizerCommands extends DrushCommands {
           $newParagraph->set(
             'field_story_picture',
             [
-              'alt' => $section['picture']->alt ?? '',
-              'title' => $section['picture']->title ?? '',
+              'alt' => $section['picture']->field_story_picture_alt ?? '',
+              'title' => $section['picture']->field_story_picture_title ?? '',
             ]
           );
         }
