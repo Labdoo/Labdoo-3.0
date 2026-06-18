@@ -52,6 +52,80 @@ function labdoo_dootrip_form_alter(&$form, FormStateInterface $form_state, $form
   ) {
     labdoo_common_set_active_countries($form, 'dootrip');
   }
+
+  if (
+    in_array($form_id, ['node_dootrip_form', 'node_dootrip_edit_form'], TRUE)
+    && isset($form['#validate'])
+  ) {
+    $form['#validate'][] = 'labdoo_dootrip_validate_date_order';
+  }
+}
+
+/**
+ * Validates dootrip departure/arrival date order.
+ */
+function labdoo_dootrip_validate_date_order(array &$form, FormStateInterface $form_state): void {
+  $userInput = $form_state->getUserInput();
+  $departureRawValue = !empty($departureRawValue) ? $departureRawValue : ($userInput['field_departure_date'] ?? NULL);
+  $arrivalRawValue = !empty($arrivalRawValue) ? $arrivalRawValue : ($userInput['field_arrival_date'] ?? NULL);
+  $departureDate = labdoo_dootrip_parse_date_value($departureRawValue);
+  $arrivalDate = labdoo_dootrip_parse_date_value($arrivalRawValue);
+
+  if ($departureDate !== NULL && $arrivalDate !== NULL && $departureDate > $arrivalDate) {
+    $form_state->setErrorByName('field_departure_date', t('Departure date cannot be later than arrival date.'));
+  }
+}
+
+/**
+ * Parses a datetime widget value into DateTimeImmutable.
+ */
+function labdoo_dootrip_parse_date_value($fieldValue): ?\DateTimeImmutable {
+  if (!is_array($fieldValue) || empty($fieldValue[0]['value'])) {
+    return NULL;
+  }
+
+  $value = $fieldValue[0]['value'];
+
+  if ($value instanceof \DateTimeInterface) {
+    try {
+      return new \DateTimeImmutable($value->format('Y-m-d H:i:s'), $value->getTimezone());
+    }
+    catch (\Exception $e) {
+      return NULL;
+    }
+  }
+
+  if (is_string($value) && $value !== '') {
+    try {
+      return new \DateTimeImmutable($value);
+    }
+    catch (\Exception $e) {
+      return NULL;
+    }
+  }
+
+  if (!is_array($value)) {
+    return NULL;
+  }
+
+  $date = trim((string) ($value['date'] ?? ''));
+  if ($date === '') {
+    return NULL;
+  }
+
+  $time = trim((string) ($value['time'] ?? '00:00:00'));
+
+  $dateTime = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date . ' ' . $time);
+  if ($dateTime instanceof \DateTimeImmutable) {
+    return $dateTime;
+  }
+
+  $dateTime = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
+  if ($dateTime instanceof \DateTimeImmutable) {
+    return $dateTime;
+  }
+
+  return NULL;
 }
 
 /**
