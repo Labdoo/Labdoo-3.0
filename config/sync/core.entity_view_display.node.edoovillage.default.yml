@@ -230,13 +230,6 @@ content:
     third_party_settings: {  }
     weight: 11
     region: content
-  field_edoo_additional_notif_em:
-    type: basic_string
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    weight: 8
-    region: content
   field_edoovillage_photo_album:
     type: entity_reference_entity_view
     label: above
@@ -985,6 +978,7 @@ content:
     weight: 0
     region: content
 hidden:
+  field_edoo_additional_notif_em: true
   field_project_summary: true
   field_semaphore: true
   field_status: true
