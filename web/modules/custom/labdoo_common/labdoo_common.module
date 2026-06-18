@@ -452,6 +452,13 @@ function labdoo_common_node_view(array &$build, EntityInterface $node, EntityVie
 }
 
 /**
+ * Implements hook_page_attachments().
+ */
+function labdoo_common_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'labdoo_common/media_library_admin';
+}
+
+/**
  * Implements hook_library_info_alter().
  */
 function labdoo_common_library_info_alter(array &$libraries, string $extension) {

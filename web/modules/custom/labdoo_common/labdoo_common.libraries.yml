@@ -7,3 +7,9 @@ auto_rotate_mini_missions:
     - core/drupal
     - core/drupal.ajax
     - core/once
+
+media_library_admin:
+  version: 1.x
+  css:
+    theme:
+      css/media-library-admin.css: {}
