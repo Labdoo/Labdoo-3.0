@@ -50,14 +50,14 @@ definitions:
     expanded: false
     enabled: true
   queue_manager__monitor__main:
-    enabled: false
     menu_name: main
     parent: 'menu_link_content:b2dded05-a50b-4ae8-8ac6-bb2fc717b392'
-    expanded: false
     weight: -65
-  labdoo_map__suspicious_locations:
+    expanded: false
     enabled: false
+  labdoo_map__suspicious_locations:
     menu_name: main
     parent: 'menu_link_content:b2dded05-a50b-4ae8-8ac6-bb2fc717b392'
     weight: -64
     expanded: false
+    enabled: false
