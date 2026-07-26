@@ -20,17 +20,17 @@ definitions:
     expanded: false
     enabled: true
   labdoo_dootronics__clone_dootronics:
-    enabled: false
     menu_name: main
     parent: 'views_view:views.dootronics_dashboard.page_1'
     weight: -47
     expanded: false
-  labdoo_dootronics__update_dootronics:
     enabled: false
+  labdoo_dootronics__update_dootronics:
     menu_name: main
     parent: 'views_view:views.dootronics_dashboard.page_1'
     weight: -46
     expanded: false
+    enabled: false
   system__admin:
     menu_name: admin
     parent: ''
@@ -49,3 +49,15 @@ definitions:
     weight: -41
     expanded: false
     enabled: true
+  queue_manager__monitor__main:
+    enabled: false
+    menu_name: main
+    parent: 'menu_link_content:b2dded05-a50b-4ae8-8ac6-bb2fc717b392'
+    expanded: false
+    weight: -65
+  labdoo_map__suspicious_locations:
+    enabled: false
+    menu_name: main
+    parent: 'menu_link_content:b2dded05-a50b-4ae8-8ac6-bb2fc717b392'
+    weight: -64
+    expanded: false

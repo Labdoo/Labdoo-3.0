@@ -876,7 +876,7 @@ display:
         type: normal
         title: 'Global actions'
         description: ''
-        weight: -49
+        weight: -73
         enabled: true
         expanded: false
         menu_name: main
@@ -885,7 +885,6 @@ display:
     cache_metadata:
       max-age: -1
       contexts:
-        - 'languages:language_content'
         - 'languages:language_interface'
         - url
         - url.query_args

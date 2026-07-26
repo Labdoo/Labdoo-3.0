@@ -680,11 +680,11 @@ content:
     weight: 1
     region: content
 hidden:
-  field_hub_additional_editors: true
   field_dootronics_completed: true
   field_dootronics_delivered: true
   field_dootronics_in_transit: true
   field_dootronics_needed: true
   field_dootronics_remaining: true
+  field_hub_additional_editors: true
   langcode: true
   search_api_excerpt: true

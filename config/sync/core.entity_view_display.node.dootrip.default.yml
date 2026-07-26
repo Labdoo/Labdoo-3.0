@@ -65,14 +65,14 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 20
+    weight: 16
     region: content
   field_comments:
     type: basic_string
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 17
+    weight: 19
     region: content
   field_departure_date:
     type: datetime_default
@@ -107,7 +107,7 @@ content:
       scale: 2
       prefix_suffix: true
     third_party_settings: {  }
-    weight: 14
+    weight: 15
     region: content
   field_dootrip_capacity:
     type: number_integer
@@ -124,7 +124,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 21
+    weight: 14
     region: content
   field_dootripper_s:
     type: entity_reference_label
@@ -141,7 +141,7 @@ content:
       thousand_separator: ''
       prefix_suffix: true
     third_party_settings: {  }
-    weight: 18
+    weight: 20
     region: content
   field_edoovillages_assigned:
     type: entity_reference_label
@@ -149,7 +149,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 16
+    weight: 18
     region: content
   field_hub:
     type: entity_reference_label
@@ -822,7 +822,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 15
+    weight: 17
     region: content
   field_status_dootrip:
     type: list_default
@@ -834,12 +834,12 @@ content:
   labdoo_dates:
     settings: {  }
     third_party_settings: {  }
-    weight: 100
+    weight: 22
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 19
+    weight: 21
     region: content
 hidden:
   field_announce_this_dootrip: true

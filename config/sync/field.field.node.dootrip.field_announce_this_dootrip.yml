@@ -10,7 +10,7 @@ field_name: field_announce_this_dootrip
 entity_type: node
 bundle: dootrip
 label: 'Announce this dootrip'
-description: ''
+description: 'Check this box if you would like other users who are managing schools in the destination country to receive an email notification. It is recommended that you don''t set this option if you already have dootronics (laptops, tablets, ...) assigned to your trip. If you still don''t have dootronics assigned to your trip, then you can select this option so that these other users can receive a notification about your trip and assign dootronics that you can carry. See the <a href="../../content/automatic-notifications-and-managing-your-dootrips" target="_blank">wiki page on dootrips notifications for more details</a>.'
 required: false
 translatable: false
 default_value: {  }
