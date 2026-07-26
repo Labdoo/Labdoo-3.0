@@ -57,6 +57,19 @@ function labdoo_dootrip_form_alter(&$form, FormStateInterface $form_state, $form
     in_array($form_id, ['node_dootrip_form', 'node_dootrip_edit_form'], TRUE)
     && isset($form['#validate'])
   ) {
+    if (
+      $form_id === 'node_dootrip_form'
+      && \Drupal::currentUser()->isAuthenticated()
+      && !$form_state->isSubmitted()
+      && empty($form_state->getUserInput()['field_dootripper_s'])
+      && isset($form['field_dootripper_s']['widget'][0]['target_id'])
+    ) {
+      $currentUser = \Drupal::entityTypeManager()->getStorage('user')->load(\Drupal::currentUser()->id());
+      if ($currentUser !== NULL) {
+        $form['field_dootripper_s']['widget'][0]['target_id']['#default_value'] = $currentUser;
+      }
+    }
+
     $form['#validate'][] = 'labdoo_dootrip_validate_date_order';
   }
 }
