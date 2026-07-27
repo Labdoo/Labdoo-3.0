@@ -12,7 +12,8 @@ label: 'Search content'
 index_id: default_index
 suggester_settings:
   server:
-    fields: {  }
+    fields:
+      - title
 suggester_weights: {  }
 suggester_limits: {  }
 search_settings:
