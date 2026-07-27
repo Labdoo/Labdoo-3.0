@@ -15,7 +15,8 @@ suggester_settings:
     fields:
       - title
 suggester_weights: {  }
-suggester_limits: {  }
+suggester_limits:
+  server: 5
 search_settings:
   'views:search_results':
     displays:
