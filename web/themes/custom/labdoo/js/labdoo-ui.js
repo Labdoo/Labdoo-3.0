@@ -14,6 +14,70 @@
                 const $close = $searchBlock.find('.search-overlay-close');
                 const $input = $overlay.find('input[type="text"]');
 
+                $overlay.find('input.form-autocomplete').each(function() {
+                    const $autocompleteInput = $(this);
+                    const instance = $autocompleteInput.data('ui-autocomplete');
+
+                    if (!instance || $autocompleteInput.data('labdooAutocompleteTuned')) {
+                        return;
+                    }
+
+                    const originalSource = $autocompleteInput.autocomplete('option', 'source');
+                    let pendingRequest = null;
+                    let requestInFlight = false;
+
+                    $autocompleteInput.autocomplete('option', 'minLength', 3);
+                    $autocompleteInput.autocomplete('option', 'delay', 450);
+
+                    $autocompleteInput.autocomplete('option', 'source', function(request, response) {
+                        if (pendingRequest && pendingRequest.readyState !== 4) {
+                            pendingRequest.abort();
+                            pendingRequest = null;
+                            requestInFlight = false;
+                        }
+
+                        if (requestInFlight) {
+                            return;
+                        }
+
+                        requestInFlight = true;
+
+                        const limitedResponse = (items) => {
+                            requestInFlight = false;
+                            if (Array.isArray(items)) {
+                                response(items.slice(0, 5));
+                                return;
+                            }
+                            response(items);
+                        };
+
+                        const sourceResult = originalSource.call(this, request, limitedResponse);
+                        const currentInstance = $(this).data('ui-autocomplete');
+                        const xhr = sourceResult && typeof sourceResult.abort === 'function'
+                            ? sourceResult
+                            : (currentInstance && currentInstance.xhr && typeof currentInstance.xhr.abort === 'function'
+                                ? currentInstance.xhr
+                                : null);
+
+                        if (!xhr) {
+                            requestInFlight = false;
+                            return;
+                        }
+
+                        pendingRequest = xhr;
+
+                        if (typeof xhr.always === 'function') {
+                            xhr.always(() => {
+                                if (pendingRequest === xhr) {
+                                    requestInFlight = false;
+                                }
+                            });
+                        }
+                    });
+
+                    $autocompleteInput.data('labdooAutocompleteTuned', true);
+                });
+
                 $trigger.on('click', function(e) {
                     e.preventDefault();
                     $overlay.addClass('active');
