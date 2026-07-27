@@ -22,7 +22,7 @@
                         return;
                     }
 
-                    const originalSource = $autocompleteInput.autocomplete('option', 'source');
+                    const originalSource = instance.source;
                     let pendingRequest = null;
                     let requestInFlight = false;
 
@@ -51,7 +51,12 @@
                             response(items);
                         };
 
-                        const sourceResult = originalSource.call(this, request, limitedResponse);
+                        if (typeof originalSource !== 'function') {
+                            requestInFlight = false;
+                            return;
+                        }
+
+                        const sourceResult = originalSource.call(instance, request, limitedResponse);
                         const currentInstance = $(this).data('ui-autocomplete');
                         const xhr = sourceResult && typeof sourceResult.abort === 'function'
                             ? sourceResult
