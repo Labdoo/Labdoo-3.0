@@ -398,7 +398,7 @@ display:
           group_type: group
           admin_label: ''
           plugin_id: search_api_fulltext
-          operator: or
+          operator: and
           value: ''
           group: 1
           exposed: true
@@ -417,8 +417,14 @@ display:
             remember_roles:
               authenticated: authenticated
               anonymous: '0'
-              content_editor: '0'
               administrator: '0'
+              superhub_manager: '0'
+              team_manager: '0'
+              edoovillage_manager: '0'
+              hub_manager: '0'
+              wiki_writer: '0'
+              laptop_manager: '0'
+              site_builder: '0'
             expose_fields: false
             placeholder: ''
             searched_fields_id: search_api_fulltext_searched_fields
