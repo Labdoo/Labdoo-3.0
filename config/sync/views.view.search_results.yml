@@ -336,18 +336,16 @@ display:
             multi_type: separator
             multi_separator: ', '
       pager:
-        type: full
+        type: mini
         options:
           offset: 0
           pagination_heading_level: h4
-          items_per_page: 50
+          items_per_page: 20
           total_pages: null
           id: 0
           tags:
             next: ››
             previous: ‹‹
-            first: '« First'
-            last: 'Last »'
           expose:
             items_per_page: false
             items_per_page_label: 'Items per page'
@@ -356,7 +354,6 @@ display:
             items_per_page_options_all_label: '- All -'
             offset: false
             offset_label: Offset
-          quantity: 9
       exposed_form:
         type: basic
         options:
@@ -387,7 +384,20 @@ display:
             value: 'There are no results to show. Try with another search criteria.'
             format: basic_html
           tokenize: false
-      sorts: {  }
+      sorts:
+        search_api_relevance:
+          id: search_api_relevance
+          table: search_api_index_default_index
+          field: search_api_relevance
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: search_api
+          order: DESC
+          expose:
+            label: ''
+            field_identifier: ''
+          exposed: false
       arguments: {  }
       filters:
         search_api_fulltext:
@@ -411,7 +421,7 @@ display:
             operator_limit_selection: false
             operator_list: {  }
             identifier: search_api_fulltext
-            required: false
+            required: true
             remember: false
             multiple: false
             remember_roles:
@@ -442,8 +452,10 @@ display:
             default_group_multiple: {  }
             group_items: {  }
           parse_mode: terms
-          min_length: null
-          fields: {  }
+          min_length: 2
+          fields:
+            - rendered_item
+            - title
       style:
         type: table
         options:
@@ -458,28 +470,28 @@ display:
           default: changed
           info:
             title:
-              sortable: true
+              sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
             type:
-              sortable: true
+              sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
             created:
-              sortable: true
+              sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
             changed:
-              sortable: true
+              sortable: false
               default_sort_order: desc
               align: ''
               separator: ''
