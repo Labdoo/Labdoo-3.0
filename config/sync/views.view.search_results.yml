@@ -467,7 +467,7 @@ display:
             type: type
             created: created
             changed: changed
-          default: changed
+          default: '-1'
           info:
             title:
               sortable: false
@@ -492,7 +492,7 @@ display:
               responsive: ''
             changed:
               sortable: false
-              default_sort_order: desc
+              default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
