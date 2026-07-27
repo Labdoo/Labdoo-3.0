@@ -1045,7 +1045,7 @@ display:
           group_type: group
           admin_label: 'field_hub: Content'
           plugin_id: standard
-          required: false
+          required: true
       use_ajax: false
       header: {  }
       footer: {  }

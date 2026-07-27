@@ -17,4 +17,4 @@ backend_config:
   phrase: bigram
   autocomplete:
     suggest_suffix: true
-    suggest_words: true
+    suggest_words: false
