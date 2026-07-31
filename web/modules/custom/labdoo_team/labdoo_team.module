@@ -11,6 +11,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Render\Element;
 use Drupal\comment\CommentInterface;
@@ -71,6 +72,58 @@ function labdoo_team_node_view(
   EntityViewDisplayInterface $display,
   $view_mode
 ) {
+  if ($node instanceof NodeInterface && $view_mode === 'full') {
+    $nodeType = $node->getType();
+    $conversationTypes = ['team_page', 'team_post', 'event'];
+    $taskTypes = ['team_task', 'task_team'];
+
+    if (in_array($nodeType, array_merge($conversationTypes, $taskTypes), TRUE)) {
+      /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
+      $membershipManager = \Drupal::service('labdoo_team.membership.manager');
+      $teamId = $membershipManager->getTeamIdFromNode($node);
+
+      if (is_numeric($teamId) && $node->access('update')) {
+        // Ensure these contextual messages are rebuilt on every reload.
+        \Drupal::service('page_cache_kill_switch')->trigger();
+        if (\Drupal::hasService('dynamic_page_cache_kill_switch')) {
+          \Drupal::service('dynamic_page_cache_kill_switch')->trigger();
+        }
+
+        $currentPath = \Drupal::service('path.current')->getPath();
+        $pathAlias = \Drupal::service('path_alias.manager')->getAliasByPath($currentPath);
+
+        if ($membershipManager->checkUserMembership((int) $teamId)) {
+          $iconPath = base_path() . 'themes/custom/labdoo/img/equation-2-alpha-small.png';
+          $items = [];
+          $items[] = '<li style="display:flex; align-items:flex-start; gap:8px; margin:0 0 6px 0;"><img src="' . $iconPath . '" width="60" style="flex:0 0 auto; margin-top:0;"> <span style="color: #c09853;">' . t('You are a member of this team.') . '</span></li>';
+
+          if (!preg_match('/activities/', $pathAlias)) {
+            if (in_array($nodeType, $conversationTypes, TRUE)) {
+              $items[] = '<li style="display:flex; align-items:flex-start; gap:8px; margin:0;"><img src="' . $iconPath . '" width="60" style="flex:0 0 auto; margin-top:0;"> <span style="color: #c09853;">' . t("If you want to change the list of people who will receive emails from this conversation, click on the 'Edit' tab below and modify the configuration under the 'Sharing options' section.") . '</span></li>';
+            }
+            elseif (in_array($nodeType, $taskTypes, TRUE)) {
+              $items[] = '<li style="display:flex; align-items:flex-start; gap:8px; margin:0;"><img src="' . $iconPath . '" width="60" style="flex:0 0 auto; margin-top:0;"> <span style="color: #c09853;">' . t("If you want to change the status of this task, click on the 'Edit' tab below") . '</span></li>';
+            }
+          }
+
+          $message = '<div class="messages messages--status" style="border:1px solid #f0e0b6; border-radius:4px; background:#fcf8e3; color:#c3842e; padding:14px"><ul style="list-style:none; margin:0; padding:0;">' . implode('', $items) . '</ul></div>';
+        }
+        else {
+          $message = t("You are not a member of this team. If you want to be part of this team, click on 'Subscribe to this team'.");
+        }
+
+        $build['team_membership_notice'] = [
+          '#type' => 'markup',
+          '#markup' => Markup::create($message),
+          '#weight' => -100,
+          '#cache' => [
+            'contexts' => ['user', 'url.path'],
+          ],
+        ];
+      }
+    }
+  }
+
   if ($node->getType() === 'team' && $view_mode === 'full') {
     $teamId = $node->id();
 
