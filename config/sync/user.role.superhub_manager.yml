@@ -59,5 +59,6 @@ permissions:
   - 'edit own labdoo_story content'
   - 'monitor queues'
   - 'revert labdoo_story revisions'
+  - 'use text format full_html'
   - 'view labdoo_story revisions'
   - 'view the administration theme'
