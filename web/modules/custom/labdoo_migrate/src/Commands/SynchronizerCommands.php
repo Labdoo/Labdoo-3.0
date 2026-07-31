@@ -140,6 +140,13 @@ class SynchronizerCommands extends DrushCommands {
   private bool $incremental = FALSE;
 
   /**
+   * Whether only the user profile picture must be synchronized.
+   *
+   * @var bool
+   */
+  private bool $profilePictureOnly = FALSE;
+
+  /**
    * Optional UNIX timestamp filter for source nodes.
    *
    * @var int|null
@@ -180,7 +187,7 @@ class SynchronizerCommands extends DrushCommands {
    * @param array $options
    *   Command options.
    *
-   * @command labdoo-synchronize-content content-type [nids=123,456,789] [limit=9] [mode=create|update] [override] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"] [incremental]
+   * @command labdoo-synchronize-content content-type [nids=123,456,789] [limit=9] [mode=create|update] [override] [dry-run] [from-date="YYYY-MM-DD HH:MM:SS"] [incremental] [profile-picture-only]
    * @aliases labdoo-sync
    * @usage labdoo-synchronize-content edoovillage
    *   Synchronizes the contents of the type "edoovillage".
@@ -193,6 +200,7 @@ class SynchronizerCommands extends DrushCommands {
    * @option from-date Date/time lower bound to filter source nodes by created/updated (format: "YYYY-MM-DD HH:MM:SS").
    * @option incremental Migrates only those entities that are in Drupal 7 but not in Drupal 10.
    * @option queue Whether to queue the items instead of processing them directly.
+   * @option profile-picture-only For user updates only, synchronizes only the profile picture (`user_picture`) field.
    */
   public function startSync(
     string $contentType,
@@ -205,6 +213,7 @@ class SynchronizerCommands extends DrushCommands {
       'from-date' => NULL,
       'incremental' => FALSE,
       'queue' => FALSE,
+      'profile-picture-only' => FALSE,
     ]
   ): void {
     try {
@@ -503,6 +512,23 @@ class SynchronizerCommands extends DrushCommands {
     $this->dryRun = $options['dry-run'];
     $this->overrideMode = $options['override'];
     $this->incremental = $options['incremental'];
+    $this->profilePictureOnly = !empty($options['profile-picture-only']);
+
+    if ($this->profilePictureOnly && $this->contentType !== 'user') {
+      $this->logger->error('Option "profile-picture-only" can only be used with content type "user".');
+      die;
+    }
+
+    if ($this->profilePictureOnly) {
+      $this->mapping = array_filter(
+        $this->mapping,
+        static fn($mapping): bool => in_array(
+          $mapping->getDestinationField()->getFieldName(),
+          ['uid', 'user_picture'],
+          TRUE
+        )
+      );
+    }
 
     // Parse from-date if provided.
     if (!empty($options['from-date'])) {
@@ -551,6 +577,7 @@ class SynchronizerCommands extends DrushCommands {
       . "Option dry-run: %s\n"
       . "Option from-date: %s\n"
       . "Option incremental: %s\n"
+      . "Option profile-picture-only: %s\n"
       . "=====================",
       $this->contentType,
       $this->create ? 'create' : 'update',
@@ -559,7 +586,8 @@ class SynchronizerCommands extends DrushCommands {
       $this->overrideMode ? 'true' : 'false',
       $this->dryRun ? 'true' : 'false',
       $options['from-date'] ?? 'none',
-      $this->incremental ? 'true' : 'false'
+      $this->incremental ? 'true' : 'false',
+      $this->profilePictureOnly ? 'true' : 'false'
     );
     $this->logger->notice($headerMessage);
   }
