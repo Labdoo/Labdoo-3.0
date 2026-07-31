@@ -163,6 +163,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
         $team->id(),
         $this->currentUser->id()
       ),
+      sprintf('node:%d', $team->id()),
     ];
 
     return [

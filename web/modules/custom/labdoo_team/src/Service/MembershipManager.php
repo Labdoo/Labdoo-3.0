@@ -4,6 +4,7 @@ namespace Drupal\labdoo_team\Service;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Link;
@@ -222,13 +223,19 @@ class MembershipManager {
    *   The ID of the user.
    */
   protected function clearCache(int $teamId, int $userId): void {
-    $tag = sprintf(
-      'team:%d:%d',
-      $teamId,
-      $userId
-    );
+    $cacheTags = [
+      sprintf(
+        'team:%d:%d',
+        $teamId,
+        $userId
+      ),
+      sprintf('node:%d', $teamId),
+    ];
+
+    Cache::invalidateTags($cacheTags);
+
     $event = new InvalidateCacheTagsEvent();
-    $event->setCacheTags([$tag]);
+    $event->setCacheTags($cacheTags);
     $this->eventDispatcher->dispatch(
       $event,
       InvalidateCacheTagsEvent::EVENT_NAME
