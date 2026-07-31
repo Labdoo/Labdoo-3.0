@@ -108,16 +108,30 @@ abstract class AbstractActionGenerator {
    * @return void
    */
   protected function setGeoData(array $location, &$city, &$country): void {
-    $lon = $location['lon'] ?? $location['lng'];
-    $geoData = NULL;
+    $fallbackCity = $location['city'] ?? NULL;
+    $fallbackCountry = $location['country'] ?? NULL;
 
-    if ($location['lat'] !== NULL && $lon !== NULL) {
-      $geoData = $this->reverseGeocode($location['lat'], $lon);
+    if (!empty($fallbackCity) && !empty($fallbackCountry)) {
+      $city = $fallbackCity;
+      $country = $fallbackCountry;
+      return;
     }
 
-    if ($geoData === NULL || $geoData['country'] === NULL) {
-      $city = 'unknown city';
-      $country = 'unknown country';
+    $lat = $location['lat'] ?? $location['latitude'] ?? NULL;
+    $lon = $location['lon'] ?? $location['lng'] ?? $location['longitude'] ?? NULL;
+    $geoData = NULL;
+
+    if ($lat !== NULL && $lon !== NULL) {
+      $geoData = $this->reverseGeocode((string) $lat, (string) $lon);
+    }
+
+    if (
+      $geoData === NULL
+      || empty($geoData['country'])
+      || !method_exists($geoData['country'], 'getName')
+    ) {
+      $city = $fallbackCity ?? 'unknown city';
+      $country = $fallbackCountry ?? 'unknown country';
     }
     else {
       $city = $geoData['city'];
@@ -200,7 +214,7 @@ abstract class AbstractActionGenerator {
       'body',
       [
         'value' => $body,
-        'format' => 'basic_html',
+        'format' => 'full_html',
       ]
     );
     $globalAction->set('field_edoovillage_action', $edooVillageId);
@@ -212,6 +226,36 @@ abstract class AbstractActionGenerator {
     if ($this->mustBeStreamed($city, $title)) {
       $globalAction->set('field_stream_it', TRUE);
     }
+  }
+
+  /**
+   * Creates the html body of a global action.
+   *
+   * @param int $nodeId
+   *   Node id.
+   * @param string $title
+   *   Action title.
+   * @param string $picture
+   *   Picture filename.
+   * @param int $width
+   *   Picture width.
+   *
+   * @return string
+   *   The html body.
+   */
+  protected function buildActionBody(
+    int $nodeId,
+    string $title,
+    string $picture,
+    int $width
+  ): string {
+    return sprintf(
+      '<a href="/node/%d">%s...</a><img src="/themes/custom/labdoo/img/%s" width="%d"></a>',
+      $nodeId,
+      $title,
+      $picture,
+      $width
+    );
   }
 
 }

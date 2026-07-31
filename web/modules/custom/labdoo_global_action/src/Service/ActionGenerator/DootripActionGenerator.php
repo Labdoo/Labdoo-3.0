@@ -27,7 +27,10 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
 
     $city = '';
     $country = '';
-    $location = $entity->hasField('field_destination_of_the_trip') ? $entity->get('field_destination_of_the_trip')->getValue() : [];
+    $location = $entity->hasField('field_origin_of_the_trip') ? $entity->get('field_origin_of_the_trip')->getValue() : [];
+    if (empty($location)) {
+      $location = $entity->hasField('field_destination_of_the_trip') ? $entity->get('field_destination_of_the_trip')->getValue() : [];
+    }
     if (empty($location)) {
       return;
     }
@@ -39,7 +42,9 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
     $this->setGeoData($location, $city, $country);
 
     $titleSplit = explode('- ', $entity->label());
-    $titlePart = $titleSplit[0] ?? $entity->label();
+    $titlePart = $titleSplit[1] ?? ($titleSplit[0] ?? $entity->label());
+
+    $dootronicId = ($entity->hasField('field_laptops') && !$entity->get('field_laptops')->isEmpty()) ? $entity->get('field_laptops')->target_id : NULL;
 
     // New Dootrip.
     if ($entity->original === NULL) {
@@ -49,7 +54,6 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
       // This Dootrip already exists.
       // Only report new activity if Dootronics have been added to it.
       $prevDootronicId = ($entity->original->hasField('field_laptops') && !$entity->original->get('field_laptops')->isEmpty()) ? $entity->original->get('field_laptops')->target_id : NULL;
-      $dootronicId = ($entity->hasField('field_laptops') && !$entity->get('field_laptops')->isEmpty()) ? $entity->get('field_laptops')->target_id : NULL;
       if ($prevDootronicId != NULL or $dootronicId == NULL) {
         return;
       }
@@ -57,16 +61,15 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
       $title = sprintf('Dootrip %s was updated', $titlePart);
     }
 
-    $edooVillage = $entity->hasField('field_edoovillages_assigned') ? $entity->get('field_edoovillages_assigned')->entity : NULL;
-    $edooVillageId = $edooVillage ? $edooVillage->id() : NULL;
-    $hub = $entity->hasField('field_hub') ? $entity->get('field_hub')->entity : NULL;
-    $hubId = $hub ? $hub->id() : NULL;
+    $edooVillageId = NULL;
+    $hubId = NULL;
+    if ($dootronicId !== NULL && $entity->hasField('field_laptops') && $entity->get('field_laptops')->entity !== NULL) {
+      $dootronic = $entity->get('field_laptops')->entity;
+      $edooVillageId = $dootronic->hasField('field_edoovillage_destination') ? $dootronic->get('field_edoovillage_destination')->target_id : NULL;
+      $hubId = $dootronic->hasField('field_hub_laptop') ? $dootronic->get('field_hub_laptop')->target_id : ($dootronic->hasField('field_hub') ? $dootronic->get('field_hub')->target_id : NULL);
+    }
 
-    $body = sprintf(
-      '<a href="/node/%d">%s... <img src="/profiles/labdoo/files/pictures/dootrip.png" width="30"></a>',
-      $entity->id(),
-      $title
-    );
+    $body = $this->buildActionBody((int) $entity->id(), $title, 'dootrip.png', 30);
 
     $this->setGlobalAttributes(
       $globalAction,

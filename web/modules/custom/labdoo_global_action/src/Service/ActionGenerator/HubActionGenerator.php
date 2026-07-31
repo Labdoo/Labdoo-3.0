@@ -36,11 +36,7 @@ class HubActionGenerator extends AbstractActionGenerator implements ActionGenera
       $country
     );
 
-    $body = sprintf(
-      '<a href="/node/%s">%s... <img src="/themes/custom/labdoo/img/hub.png" width="30"></a>',
-      $entity->id(),
-      $title
-    );
+    $body = $this->buildActionBody((int) $entity->id(), $title, 'hub.png', 30);
 
     $this->setGlobalAttributes(
       $globalAction,

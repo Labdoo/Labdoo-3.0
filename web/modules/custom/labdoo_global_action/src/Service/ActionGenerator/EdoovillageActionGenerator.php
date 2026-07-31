@@ -28,6 +28,9 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
     $city = '';
     $country = '';
     $location = $entity->hasField('field_location') ? ($entity->get('field_location')->getValue()[0] ?? []) : [];
+    if (empty($location) && $entity->hasField('field_locations')) {
+      $location = $entity->get('field_locations')->getValue()[0] ?? [];
+    }
     $this->setGeoData($location, $city, $country);
 
     $title = sprintf(
@@ -36,11 +39,7 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
       $country
     );
 
-    $body = sprintf(
-      '<a href="/node/%s">%s... <img src="/themes/custom/labdoo/img/edoovillage.png" width="30"></a>',
-      $entity->id(),
-      $title
-    );
+    $body = $this->buildActionBody((int) $entity->id(), $title, 'edoovillage.png', 30);
 
     $this->setGlobalAttributes(
       $globalAction,

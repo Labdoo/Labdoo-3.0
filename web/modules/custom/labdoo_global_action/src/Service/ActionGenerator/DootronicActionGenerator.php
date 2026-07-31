@@ -31,7 +31,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
     $this->setGeoData($location, $city, $country);
 
     // New Dootronic.
-    if ($entity->isNew()) {
+    if ($entity->original === NULL) {
       $this->tagGlobalAction(
         $entity,
         $globalAction,
@@ -39,6 +39,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $country,
         'was tagged',
         'laptop-simple.png',
+        20,
         $location
       );
 
@@ -65,6 +66,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
           $country,
           'was sanitized',
           'laptop-sanitized.png',
+          31,
           $location ?? ''
         );
 
@@ -101,6 +103,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $country,
         'was delivered to an edoovillage',
         'laptop-delivered.png',
+        31,
         $location ?? ''
       );
 
@@ -115,6 +118,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $country,
         'has started its journey to an edoovillage',
         'laptop-dootripped.png',
+        34,
         $location ?? ''
       );
 
@@ -129,6 +133,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $country,
         'has been recycled',
         'laptop-recycled.png',
+        27,
         $location ?? ''
       );
     }
@@ -174,6 +179,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
     string $country,
     string $action,
     string $picture,
+    int $pictureWidth,
     $location
   ): void {
     $title = sprintf(
@@ -184,11 +190,11 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
       $country
     );
 
-    $body = sprintf(
-      '<a href="/node/%s">%s... <img src="/themes/custom/labdoo/img/%s" width="31"></a>',
-      $entity->id(),
+    $body = $this->buildActionBody(
+      (int) $entity->id(),
       $title,
-      $picture
+      $picture,
+      $pictureWidth
     );
 
     $this->setGlobalAttributes(
@@ -197,7 +203,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
       $title,
       $body,
       $entity->hasField('field_edoovillage_destination') ? $entity->get('field_edoovillage_destination')->target_id : NULL,
-      $entity->hasField('field_hub') ? $entity->get('field_hub')->target_id : NULL,
+      $entity->hasField('field_hub_laptop') ? $entity->get('field_hub_laptop')->target_id : ($entity->hasField('field_hub') ? $entity->get('field_hub')->target_id : NULL),
       $entity->getOwner()->id(),
       $location,
       $city ?? '',
