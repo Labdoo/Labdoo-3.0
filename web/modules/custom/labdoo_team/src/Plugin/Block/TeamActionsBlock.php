@@ -94,18 +94,32 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
   public function build() {
     $team = $this->linkHelper->getActiveNode();
     if (!$this->isValidTeam($team)) {
-      $teamId = $this->linkHelper->getActiveNode('arg_0');
-      if (empty($teamId)) {
-        return [
-          '#markup' => '',
-        ];
+      if (
+        !empty($team)
+        && $team->hasField('field_team')
+        && !$team->get('field_team')->isEmpty()
+      ) {
+        $team = $team->get('field_team')->entity;
       }
 
-      $team = $this->commonRepository->loadEntity($teamId);
-      if (!$this->isValidTeam($team)) {
-        return [
-          '#markup' => '',
-        ];
+      if ($this->isValidTeam($team) && $team->bundle() === 'team_post') {
+        $team = $team->get('field_team')->entity;
+      }
+
+      if (empty($team) || $team->bundle() !== 'team') {
+        $teamId = $this->linkHelper->getActiveNode('arg_0');
+        if (empty($teamId)) {
+          return [
+            '#markup' => '',
+          ];
+        }
+
+        $team = $this->commonRepository->loadEntity($teamId);
+        if (!$this->isValidTeam($team)) {
+          return [
+            '#markup' => '',
+          ];
+        }
       }
     }
 
