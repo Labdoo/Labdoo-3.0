@@ -562,6 +562,9 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     foreach ($entities as $entity) {
       $sourceId = $entity->id();
+      if ($entity->hasField('original_entity_id') && !empty($entity->get('original_entity_id')->value)) {
+        $sourceId = (int) $entity->get('original_entity_id')->value;
+      }
       $processedEntities[$sourceId] = $entity;
     }
 
