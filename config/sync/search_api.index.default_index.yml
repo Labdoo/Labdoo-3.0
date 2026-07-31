@@ -8,6 +8,7 @@ dependencies:
     - field.storage.node.field_tags
     - search_api.server.default_server
   module:
+    - mini_wiki
     - node
     - user
 _core:
@@ -125,6 +126,10 @@ field_settings:
       module:
         - node
 datasource_settings:
+  'entity:mini_wiki_page':
+    languages:
+      default: true
+      selected: {  }
   'entity:node':
     bundles:
       default: true
@@ -241,6 +246,18 @@ processor_settings:
     fields:
       - rendered_item
       - title
+  type_boost:
+    weights:
+      preprocess_index: 0
+    boosts:
+      'entity:mini_wiki_page':
+        datasource_boost: 2.0
+      'entity:node':
+        datasource_boost: 1.0
+        bundle_boosts:
+          page: 1.3
+          team: 1.1
+          team_post: 1.2
 tracker_settings:
   default:
     indexing_order: fifo
