@@ -287,4 +287,141 @@
       });
     }
   };
+
+  Drupal.behaviors.labdooProximityOriginMap = {
+    attach: function (context) {
+      const exposedForms = once('labdoo-proximity-origin-map', '.views-exposed-form', context);
+
+      exposedForms.forEach(function (formEl) {
+        var $form = $(formEl);
+        var $latInput = $form.find('input[name*="[source_configuration][origin][lat]"]');
+        var $lonInput = $form.find('input[name*="[source_configuration][origin][lon]"]');
+
+        if (!$latInput.length || !$lonInput.length || typeof L === 'undefined') {
+          return;
+        }
+
+        var originContainer = $latInput.closest('.proximity-origin');
+        if (!originContainer.length) {
+          originContainer = $latInput.closest('.form-item').parent();
+        }
+
+        var mapWrapper = document.createElement('div');
+        mapWrapper.className = 'labdoo-proximity-origin-map-wrapper';
+
+        var mapTitle = document.createElement('div');
+        mapTitle.className = 'labdoo-proximity-origin-map-title';
+        mapTitle.textContent = Drupal.t('Selecciona el punto de origen en el mapa');
+
+        var mapCanvas = document.createElement('div');
+        mapCanvas.className = 'labdoo-proximity-origin-map';
+        mapCanvas.style.height = '260px';
+        mapCanvas.style.marginTop = '8px';
+        mapCanvas.style.border = '1px solid #d9d9d9';
+        mapCanvas.style.borderRadius = '4px';
+
+        mapWrapper.appendChild(mapTitle);
+        mapWrapper.appendChild(mapCanvas);
+
+        if (originContainer.length) {
+          originContainer.after(mapWrapper);
+        }
+        else {
+          formEl.appendChild(mapWrapper);
+        }
+
+        bindMapToOriginInputs(mapCanvas, $form, $latInput, $lonInput);
+      });
+
+      function bindMapToOriginInputs(mapCanvas, $form, $latInput, $lonInput) {
+        var defaultCenter = [20, 0];
+        var defaultZoom = 2;
+        var selectedZoom = 9;
+        var map = L.map(mapCanvas).setView(defaultCenter, defaultZoom);
+        var syncingInputs = false;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var originMarker;
+
+        function toFixedCoord(value) {
+          return Number(value).toFixed(6);
+        }
+
+        function isValidCoord(lat, lon) {
+          return !isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
+        }
+
+        function setOrigin(lat, lon, moveMap) {
+          if (!isValidCoord(lat, lon)) {
+            return;
+          }
+
+          var latValue = toFixedCoord(lat);
+          var lonValue = toFixedCoord(lon);
+
+          syncingInputs = true;
+          $latInput.val(latValue);
+          $lonInput.val(lonValue);
+          syncingInputs = false;
+
+          var summarySelector = '.proximity-origin-summary .geofield-lat-summary, .proximity-origin-summary .geofield-lon-summary';
+          if ($form.find(summarySelector).length) {
+            $form.find('.proximity-origin-summary .geofield-lat-summary').text(' ' + latValue);
+            $form.find('.proximity-origin-summary .geofield-lon-summary').text(' ' + lonValue);
+          }
+
+          if (!originMarker) {
+            originMarker = L.marker([lat, lon], {
+              draggable: true,
+              title: Drupal.t('Punto de origen')
+            }).addTo(map);
+
+            originMarker.on('dragend', function (event) {
+              var markerPosition = event.target.getLatLng();
+              setOrigin(markerPosition.lat, markerPosition.lng, false);
+            });
+          }
+          else {
+            originMarker.setLatLng([lat, lon]);
+          }
+
+          if (moveMap) {
+            map.setView([lat, lon], Math.max(map.getZoom(), selectedZoom));
+          }
+        }
+
+        function syncFromInputs() {
+          if (syncingInputs) {
+            return;
+          }
+
+          var inputLat = parseFloat($latInput.val());
+          var inputLon = parseFloat($lonInput.val());
+          if (isValidCoord(inputLat, inputLon)) {
+            setOrigin(inputLat, inputLon, true);
+          }
+        }
+
+        var initialLat = parseFloat($latInput.val());
+        var initialLon = parseFloat($lonInput.val());
+        if (isValidCoord(initialLat, initialLon)) {
+          setOrigin(initialLat, initialLon, true);
+        }
+
+        map.on('click', function (event) {
+          setOrigin(event.latlng.lat, event.latlng.lng, false);
+        });
+
+        $latInput.on('change input', syncFromInputs);
+        $lonInput.on('change input', syncFromInputs);
+
+        setTimeout(function () {
+          map.invalidateSize();
+        }, 100);
+      }
+    }
+  };
 })(jQuery, Drupal, once);

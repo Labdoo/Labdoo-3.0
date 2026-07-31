@@ -24,3 +24,17 @@ function labdoo_map_preprocess_field(&$variables) {
     }
   }
 }
+
+/**
+ * Implements hook_preprocess_views_view().
+ */
+function labdoo_map_preprocess_views_view(&$variables) {
+  if (empty($variables['view'])) {
+    return;
+  }
+
+  $view = $variables['view'];
+  if ($view->id() === 'labdoers' && $view->current_display === 'page_1') {
+    $variables['view_array']['#attached']['library'][] = 'labdoo/labdoo_map';
+  }
+}
