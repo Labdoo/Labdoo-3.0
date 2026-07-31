@@ -12,6 +12,7 @@ use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Render\Element;
 use Drupal\comment\CommentInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
@@ -270,8 +271,24 @@ function labdoo_team_entity_view_alter(array &$build, EntityInterface $entity, E
     $teamId = $membershipManager->getTeamIdFromNode($entity);
     if (!$membershipManager->canCommentOnTeamPost($teamId)) {
       if (isset($build['field_team_comments'])) {
+        // The comment default formatter nests the create form under the field's
+        // delta items (e.g. $build['field_team_comments'][0]['comment_form']).
+        // comment_preprocess_field() copies that element straight into the
+        // template variable ($variables['comment_form'] = $element[0]['comment_form'])
+        // and field--comment.html.twig renders the "Add new comment" <h2>
+        // heading whenever that variable is truthy. Setting #access = FALSE only
+        // blanks the form output while leaving the array non-empty (truthy), so
+        // the heading would remain. Replacing it with an empty array keeps the
+        // key present (no "undefined key" warning in comment_preprocess_field)
+        // while being falsy in Twig, so both the form and its heading disappear.
+        foreach (Element::children($build['field_team_comments']) as $delta) {
+          if (isset($build['field_team_comments'][$delta]['comment_form'])) {
+            $build['field_team_comments'][$delta]['comment_form'] = [];
+          }
+        }
+        // Handle the legacy direct path as well, just in case.
         if (isset($build['field_team_comments']['comment_form'])) {
-          $build['field_team_comments']['comment_form']['#access'] = FALSE;
+          $build['field_team_comments']['comment_form'] = [];
         }
       }
     }
