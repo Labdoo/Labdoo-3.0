@@ -14,6 +14,11 @@ use Symfony\Component\Console\Helper\ProgressBar;
 class MissingSequenceImportCommands extends DrushCommands {
 
   /**
+   * Batch size for import synchronization calls.
+   */
+  private const IMPORT_BATCH_SIZE = 200;
+
+  /**
    * Mapping between destination bundle and Drupal 7 source bundle.
    */
   private const BUNDLE_MAP = [
@@ -229,20 +234,12 @@ class MissingSequenceImportCommands extends DrushCommands {
    */
   protected function filterSourceByMissingNumbers(array $sourceSequenceMap, array $missingNumbers): array {
     $result = [];
-    $progressBar = $this->createProgressBar(count($missingNumbers), 'Matching missing numbers in Drupal 7');
-    $progressBar->start();
-
     foreach ($missingNumbers as $number) {
       if (!isset($sourceSequenceMap[$number])) {
-        $progressBar->advance();
         continue;
       }
       $result[$number] = $sourceSequenceMap[$number];
-      $progressBar->advance();
     }
-
-    $progressBar->finish();
-    $this->io()->newLine();
 
     return $result;
   }
@@ -294,22 +291,35 @@ class MissingSequenceImportCommands extends DrushCommands {
   protected function runSynchronization(string $sourceBundle, array $sourceNids): void {
     $this->io()->text(sprintf('Importing %d nodes for source type "%s"...', count($sourceNids), $sourceBundle));
 
-    $result = Drush::drush(
-      Drush::aliasManager()->getSelf(),
-      'labdoo-synchronize-content',
-      [$sourceBundle],
-      [
-        'nids' => implode(',', $sourceNids),
-        'mode' => 'create',
-      ]
-    )->run();
+    $progressBar = $this->createProgressBar(count($sourceNids), 'Importing nodes');
+    $progressBar->start();
 
-    if ($result === 0) {
-      $this->io()->success('Import finished successfully.');
-      return;
+    $chunks = array_chunk($sourceNids, self::IMPORT_BATCH_SIZE);
+    foreach ($chunks as $chunk) {
+      $result = Drush::drush(
+        Drush::aliasManager()->getSelf(),
+        'labdoo-synchronize-content',
+        [$sourceBundle],
+        [
+          'nids' => implode(',', $chunk),
+          'mode' => 'create',
+        ]
+      )->run();
+
+      if ($result !== 0) {
+        $progressBar->finish();
+        $this->io()->newLine();
+        $this->io()->error('Import failed for source type: ' . $sourceBundle);
+        return;
+      }
+
+      $progressBar->advance(count($chunk));
     }
 
-    $this->io()->error('Import failed for source type: ' . $sourceBundle);
+    $progressBar->finish();
+    $this->io()->newLine();
+
+    $this->io()->success('Import finished successfully.');
   }
 
 }
