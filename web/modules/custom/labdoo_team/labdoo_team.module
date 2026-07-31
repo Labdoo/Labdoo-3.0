@@ -250,7 +250,7 @@ function labdoo_team_node_links_alter(array &$links, NodeInterface $node, array 
   /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
   $membershipManager = \Drupal::service('labdoo_team.membership.manager');
   $teamId = $membershipManager->getTeamIdFromNode($node);
-  if (!$membershipManager->isAllowed($teamId)) {
+  if (!$membershipManager->canCommentOnTeamPost($teamId)) {
     // Standard comment link keys: comment__[field_name]
     foreach ($links as $key => $value) {
       if (strpos($key, 'comment__') === 0 && isset($links[$key]['#links']['comment-add'])) {
@@ -268,9 +268,11 @@ function labdoo_team_entity_view_alter(array &$build, EntityInterface $entity, E
     /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */
     $membershipManager = \Drupal::service('labdoo_team.membership.manager');
     $teamId = $membershipManager->getTeamIdFromNode($entity);
-    if (!$membershipManager->isAllowed($teamId)) {
+    if (!$membershipManager->canCommentOnTeamPost($teamId)) {
       if (isset($build['field_team_comments'])) {
-        $build['field_team_comments']['#access'] = FALSE;
+        if (isset($build['field_team_comments']['comment_form'])) {
+          $build['field_team_comments']['comment_form']['#access'] = FALSE;
+        }
       }
     }
   }
@@ -285,7 +287,7 @@ function labdoo_team_comment_links_alter(array &$links, CommentInterface $entity
   $node = $entity->getCommentedEntity();
   if ($node instanceof NodeInterface) {
     $teamId = $membershipManager->getTeamIdFromNode($node);
-    if (!$membershipManager->isAllowed($teamId)) {
+    if (!$membershipManager->canCommentOnTeamPost($teamId)) {
       if (isset($links['comment']['#links']['comment-reply'])) {
         unset($links['comment']['#links']['comment-reply']);
       }
