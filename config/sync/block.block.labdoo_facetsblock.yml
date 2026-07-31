@@ -4,12 +4,13 @@ status: true
 dependencies:
   module:
     - facets_block
+    - system
   theme:
     - labdoo
 id: labdoo_facetsblock
 theme: labdoo
 region: sidebar
-weight: -20
+weight: -21
 provider: null
 plugin: facets_block
 settings:

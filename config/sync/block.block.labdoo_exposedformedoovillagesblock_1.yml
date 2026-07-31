@@ -12,7 +12,7 @@ dependencies:
 id: labdoo_exposedformedoovillagesblock_1
 theme: labdoo
 region: sidebar
-weight: -19
+weight: -20
 provider: null
 plugin: 'views_exposed_filter_block:edoovillages-block_1'
 settings:
