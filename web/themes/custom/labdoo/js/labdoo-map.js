@@ -332,10 +332,6 @@
         var mapWrapper = document.createElement('div');
         mapWrapper.className = 'labdoo-proximity-origin-map-wrapper';
 
-        var mapTitle = document.createElement('div');
-        mapTitle.className = 'labdoo-proximity-origin-map-title';
-        mapTitle.textContent = Drupal.t('Selecciona el punto de origen en el mapa');
-
         var mapCanvas = document.createElement('div');
         mapCanvas.className = 'labdoo-proximity-origin-map';
         mapCanvas.style.height = '260px';
@@ -343,7 +339,6 @@
         mapCanvas.style.border = '1px solid #d9d9d9';
         mapCanvas.style.borderRadius = '4px';
 
-        mapWrapper.appendChild(mapTitle);
         mapWrapper.appendChild(mapCanvas);
 
         if (originContainer.length) {
