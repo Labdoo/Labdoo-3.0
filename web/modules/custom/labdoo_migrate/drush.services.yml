@@ -146,3 +146,11 @@ services:
       - '@entity_type.manager'
     tags:
       - { name: drush.command }
+
+  labdoo_migrate.commands.missing_sequence_import:
+    class: \Drupal\labdoo_migrate\Commands\MissingSequenceImportCommands
+    arguments:
+      - '@database'
+      - '@labdoo_migrate.database.external_connection_manager'
+    tags:
+      - { name: drush.command }
