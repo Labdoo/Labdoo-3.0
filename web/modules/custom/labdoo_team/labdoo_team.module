@@ -157,10 +157,10 @@ function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id
 
     if ($node instanceof NodeInterface) {
       $teamId = $membershipManager->getTeamIdFromNode($node);
-      if (!$membershipManager->isAllowed($teamId)) {
+      if (!$membershipManager->canCommentOnTeamPost($teamId)) {
         $form['#access'] = FALSE;
         if ($form_state->isSubmitted()) {
-          \Drupal::messenger()->addError(t('Only superhub managers can post in the Global Team.'));
+          \Drupal::messenger()->addError(t('You must be a member of this team to comment.'));
         }
       }
     }
@@ -235,7 +235,7 @@ function labdoo_team_comment_access(EntityInterface $entity, $operation, Account
 
     if ($node instanceof NodeInterface) {
       $teamId = $membershipManager->getTeamIdFromNode($node);
-      if (!$membershipManager->isAllowed($teamId, $account)) {
+      if (!$membershipManager->canCommentOnTeamPost($teamId, $account)) {
         return AccessResult::forbidden();
       }
     }

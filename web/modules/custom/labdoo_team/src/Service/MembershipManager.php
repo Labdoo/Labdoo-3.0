@@ -316,6 +316,81 @@ class MembershipManager {
   }
 
   /**
+   * Checks if a user belongs to a team.
+   *
+   * @param int|null $teamId
+   *   The team ID.
+   * @param \Drupal\Core\Session\AccountInterface|null $account
+   *   (Optional) The user account to check. Defaults to current user.
+   *
+   * @return bool
+   *   TRUE when user belongs to the team or team ID is empty, FALSE otherwise.
+   */
+  public function isMember(?int $teamId, AccountInterface $account = NULL): bool {
+    if (empty($teamId)) {
+      return TRUE;
+    }
+
+    if (!$account) {
+      $account = $this->currentUser;
+    }
+
+    $userId = (int) $account->id();
+    if ($userId <= 0) {
+      return FALSE;
+    }
+
+    try {
+      $team = $this->load($teamId);
+      if (
+        empty($team)
+        || $team->bundle() !== 'team'
+        || !$team->hasField('field_team_members')
+      ) {
+        return FALSE;
+      }
+
+      $members = $team->get('field_team_members')->getValue();
+      foreach ($members as $member) {
+        if ((int) $member['target_id'] === $userId) {
+          return TRUE;
+        }
+      }
+    }
+    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
+      $this->logger->error(
+        'Could not check team membership for user @uid in team @team_id: @error',
+        [
+          '@uid' => $userId,
+          '@team_id' => $teamId,
+          '@error' => $e->getMessage(),
+        ]
+      );
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Checks if a user can comment on a team post.
+   *
+   * @param int|null $teamId
+   *   The team ID.
+   * @param \Drupal\Core\Session\AccountInterface|null $account
+   *   (Optional) The user account to check. Defaults to current user.
+   *
+   * @return bool
+   *   TRUE if the user can comment, FALSE otherwise.
+   */
+  public function canCommentOnTeamPost(?int $teamId, AccountInterface $account = NULL): bool {
+    if (empty($teamId)) {
+      return TRUE;
+    }
+
+    return $this->isAllowed($teamId, $account) && $this->isMember($teamId, $account);
+  }
+
+  /**
    * Get the team ID from a node if it is a team post or task.
    *
    * @param \Drupal\node\NodeInterface $node
