@@ -24,3 +24,77 @@ function labdoo_preprocess_html(&$variables) {
 function labdoo_page_attachments_alter(&$page) {
   $page['#attached']['library'][] = 'labdoo/labdoo_ui';
 }
+
+/**
+ * Implements hook_preprocess_HOOK() for field.
+ */
+function labdoo_preprocess_field(&$variables) {
+  if (($variables['element']['#field_name'] ?? '') !== 'user_picture') {
+    return;
+  }
+
+  if (!empty($variables['items'])) {
+    return;
+  }
+
+  $variables['items'][] = [
+    'content' => labdoo_default_profile_picture_render_array(),
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for comment.
+ */
+function labdoo_preprocess_comment(&$variables) {
+  if (labdoo_has_real_user_picture($variables['user_picture'] ?? NULL)) {
+    return;
+  }
+
+  $variables['user_picture'] = labdoo_default_profile_picture_render_array();
+}
+
+/**
+ * Determines whether a comment already has a real user picture to render.
+ */
+function labdoo_has_real_user_picture($userPicture): bool {
+  if (empty($userPicture)) {
+    return FALSE;
+  }
+
+  if (is_string($userPicture)) {
+    return stripos($userPicture, '<img') !== FALSE;
+  }
+
+  if (!is_array($userPicture)) {
+    return FALSE;
+  }
+
+  if (!empty($userPicture['#items'])) {
+    return TRUE;
+  }
+
+  if (!empty($userPicture['#user'])
+    && $userPicture['#user'] instanceof \Drupal\user\UserInterface
+    && $userPicture['#user']->hasField('user_picture')) {
+    return !$userPicture['#user']->get('user_picture')->isEmpty();
+  }
+
+  return FALSE;
+}
+
+/**
+ * Returns render array for default profile picture.
+ */
+function labdoo_default_profile_picture_render_array(): array {
+  $defaultImagePath = base_path() . \Drupal::service('extension.list.theme')->getPath('labdoo') . '/img/act-5-small.png';
+
+  return [
+    '#type' => 'html_tag',
+    '#tag' => 'img',
+    '#attributes' => [
+      'src' => $defaultImagePath,
+      'alt' => t('Default profile picture'),
+      'loading' => 'lazy',
+    ],
+  ];
+}
