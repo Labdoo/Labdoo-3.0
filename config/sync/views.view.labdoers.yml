@@ -769,16 +769,13 @@ display:
         area:
           id: area
           table: views
-          field: area
+          field: result
           relationship: none
           group_type: group
           admin_label: ''
-          plugin_id: text
+          plugin_id: result
           empty: false
-          content:
-            value: '[You can see this table because you are a superhub user.]'
-            format: basic_html
-          tokenize: false
+          content: 'Displaying @start - @end of @total — [You can see this table because you are a superhub user.]'
       footer: {  }
       display_extenders: {  }
     cache_metadata:
