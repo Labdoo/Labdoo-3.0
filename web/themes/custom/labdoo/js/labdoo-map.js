@@ -306,6 +306,29 @@
           originContainer = $latInput.closest('.form-item').parent();
         }
 
+        $latInput.prop('readonly', true).attr('aria-readonly', 'true');
+        $lonInput.prop('readonly', true).attr('aria-readonly', 'true');
+        $form.addClass('labdoo-proximity-origin-compact');
+
+        if (originContainer.length) {
+          originContainer.addClass('labdoo-proximity-origin-container');
+
+          // Hide help text using robust selectors (Drupal markup varies by theme/module).
+          originContainer.find('.description, .form-item__description, .fieldset__description').addClass('labdoo-proximity-origin-help-hidden');
+
+          // Fallback: hide matching plain text description if classes differ.
+          originContainer.find('div, p, span').filter(function () {
+            return $(this).text().trim() === 'Value in decimal degrees. Use dot (.) as decimal separator.';
+          }).addClass('labdoo-proximity-origin-help-hidden');
+
+          // Mark the lat/lon wrappers regardless of exact wrapper class.
+          $latInput.closest('.js-form-item, .form-item').addClass('labdoo-proximity-origin-item');
+          $lonInput.closest('.js-form-item, .form-item').addClass('labdoo-proximity-origin-item');
+
+          // Keep the origin title in one line.
+          originContainer.find('.fieldset__legend, .fieldset-legend, legend, > label').addClass('labdoo-proximity-origin-nowrap');
+        }
+
         var mapWrapper = document.createElement('div');
         mapWrapper.className = 'labdoo-proximity-origin-map-wrapper';
 
@@ -316,7 +339,7 @@
         var mapCanvas = document.createElement('div');
         mapCanvas.className = 'labdoo-proximity-origin-map';
         mapCanvas.style.height = '260px';
-        mapCanvas.style.marginTop = '8px';
+        mapCanvas.style.marginTop = '4px';
         mapCanvas.style.border = '1px solid #d9d9d9';
         mapCanvas.style.borderRadius = '4px';
 

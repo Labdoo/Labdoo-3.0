@@ -17,3 +17,62 @@
     transform: scale(1.2);
     z-index: 1000 !important;
 }
+
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin {
+    margin-bottom: 6px;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-container {
+    margin-bottom: 6px;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin .fieldset__legend,
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin .fieldset-legend,
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin > label,
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-nowrap {
+    white-space: nowrap;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-item {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 10px;
+    margin-bottom: 6px;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-item:last-child {
+    margin-right: 0;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-help-hidden {
+    display: none;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin-input,
+.views-exposed-form.labdoo-proximity-origin-compact .geofield-latlon {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    row-gap: 6px;
+    align-items: flex-start;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin-input .js-form-item,
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin-input .form-item,
+.views-exposed-form.labdoo-proximity-origin-compact .geofield-latlon .js-form-item,
+.views-exposed-form.labdoo-proximity-origin-compact .geofield-latlon .form-item {
+    margin: 0;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin .description,
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin .form-item__description,
+.views-exposed-form.labdoo-proximity-origin-compact .proximity-origin .fieldset__description,
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-container .description,
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-container .form-item__description,
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-container .fieldset__description {
+    display: none;
+}
+
+.views-exposed-form.labdoo-proximity-origin-compact .labdoo-proximity-origin-map-title {
+    margin-bottom: 4px;
+}
