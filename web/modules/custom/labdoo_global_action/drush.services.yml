@@ -1,0 +1,6 @@
+services:
+  labdoo_global_action.commands:
+    class: \Drupal\labdoo_global_action\Commands\GlobalActionCommands
+    arguments: ['@entity_type.manager', '@labdoo_common.repository.global_action', '@database']
+    tags:
+      - { name: drush.command }
