@@ -6,6 +6,7 @@ use Drupal\Core\Database\Connection;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drush\Commands\DrushCommands;
 use Drush\Drush;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 /**
  * Commands to detect sequence gaps and import missing nodes from Drupal 7.
@@ -83,6 +84,10 @@ class MissingSequenceImportCommands extends DrushCommands {
       return;
     }
 
+    $bundlesProgress = $this->io()->createProgressBar(count($requestedBundles));
+    $bundlesProgress->setFormat('Processing bundles: %current%/%max% [%bar%] %percent:3s%%');
+    $bundlesProgress->start();
+
     foreach ($requestedBundles as $bundle) {
       $sourceBundle = self::BUNDLE_MAP[$bundle];
       $this->io()->section(sprintf('Bundle: %s (source: %s)', $bundle, $sourceBundle));
@@ -92,6 +97,7 @@ class MissingSequenceImportCommands extends DrushCommands {
 
       if (count($sequenceMap) < 2) {
         $this->io()->note('Not enough sequence values to calculate gaps.');
+        $bundlesProgress->advance();
         continue;
       }
 
@@ -102,6 +108,7 @@ class MissingSequenceImportCommands extends DrushCommands {
 
       if (empty($missingNumbers)) {
         $this->io()->success('No sequence gaps found.');
+        $bundlesProgress->advance();
         continue;
       }
 
@@ -113,6 +120,7 @@ class MissingSequenceImportCommands extends DrushCommands {
       $sourceMatches = $this->filterSourceByMissingNumbers($sourceSequenceMap, $missingNumbers);
       if (empty($sourceMatches)) {
         $this->io()->warning('No matching nodes found in Drupal 7 for these sequence numbers.');
+        $bundlesProgress->advance();
         continue;
       }
 
@@ -128,11 +136,16 @@ class MissingSequenceImportCommands extends DrushCommands {
       if ($dryRun) {
         $preview = implode(', ', array_slice($sourceNids, 0, 30));
         $this->io()->comment('Dry-run enabled. Would import source nids: ' . $preview . (count($sourceNids) > 30 ? ', ...' : ''));
+        $bundlesProgress->advance();
         continue;
       }
 
       $this->runSynchronization($sourceBundle, $sourceNids);
+      $bundlesProgress->advance();
     }
+
+    $bundlesProgress->finish();
+    $this->io()->newLine(2);
 
     $this->externalConnectionManager->restoreConnection();
   }
@@ -216,14 +229,32 @@ class MissingSequenceImportCommands extends DrushCommands {
    */
   protected function filterSourceByMissingNumbers(array $sourceSequenceMap, array $missingNumbers): array {
     $result = [];
+    $progressBar = $this->createProgressBar(count($missingNumbers), 'Matching missing numbers in Drupal 7');
+    $progressBar->start();
+
     foreach ($missingNumbers as $number) {
       if (!isset($sourceSequenceMap[$number])) {
+        $progressBar->advance();
         continue;
       }
       $result[$number] = $sourceSequenceMap[$number];
+      $progressBar->advance();
     }
 
+    $progressBar->finish();
+    $this->io()->newLine();
+
     return $result;
+  }
+
+  /**
+   * Creates a progress bar with a common format.
+   */
+  protected function createProgressBar(int $max, string $label): ProgressBar {
+    $progressBar = $this->io()->createProgressBar(max($max, 1));
+    $progressBar->setFormat(sprintf('%s: %%current%%/%%max%% [%%bar%%] %%percent:3s%%%%', $label));
+
+    return $progressBar;
   }
 
   /**
