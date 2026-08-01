@@ -108,7 +108,8 @@ class DootronicImageReferenceMigratorCommands extends DrushCommands {
           'field_d7_nid' => (int) $sourceNid,
         ]);
       }
-      else {
+
+      if (empty($destinationNodes)) {
         $titleCandidates = [
           str_pad((string) $sourceNid, 9, '0', STR_PAD_LEFT),
           (string) $sourceNid,
