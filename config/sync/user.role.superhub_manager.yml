@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - filter.format.full_html
     - node.type.book
     - node.type.dootrip
     - node.type.dootronic
@@ -12,10 +13,13 @@ dependencies:
   module:
     - eu_cookie_compliance
     - file
+    - filter
     - labdoo_dootronics
+    - labdoo_migrate
     - labdoo_user
     - mini_wiki
     - node
+    - queue_manager
     - quick_node_clone
     - system
 id: superhub_manager

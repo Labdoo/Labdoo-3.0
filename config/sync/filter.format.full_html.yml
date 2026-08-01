@@ -92,3 +92,5 @@ filters:
         media_library: media_library
       allowed_media_types:
         image: image
+        remote_video: remote_video
+        video: video
