@@ -458,6 +458,18 @@ display:
             - mini_wiki_label
             - rendered_item
             - title
+        title:
+          id: title
+          table: search_api_index_default_index
+          field: title
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: search_api_string
+          operator: '<>'
+          value: ''
+          group: 1
+          exposed: false
       style:
         type: table
         options:
