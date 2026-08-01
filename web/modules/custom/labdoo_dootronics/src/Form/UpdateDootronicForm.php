@@ -57,6 +57,12 @@ class UpdateDootronicForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $view_id = NULL, $display_id = NULL) {
+    $form['header_image'] = [
+      '#type' => 'markup',
+      '#markup' => '<div class="labdoo-dootronics-form-header"><img src="' . base_path() . 'themes/custom/labdoo/img/upload-image.png" alt="' . $this->t('Dootronics forms header image') . '"></div>',
+      '#weight' => -100,
+    ];
+
     $form['file'] = [
       '#type' => 'managed_file',
       '#title' => $this->t('File'),
