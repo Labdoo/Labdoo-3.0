@@ -51,6 +51,12 @@ class UserBrokenLinksController extends ControllerBase {
    * Custom access check.
    */
   public function access(AccountInterface $account, $user = NULL) {
+    $route_name = \Drupal::routeMatch()->getRouteName();
+
+    if ($route_name === 'labdoo_wiki.user_broken_links' && $user === NULL) {
+      return AccessResult::allowedIf($account->isAuthenticated());
+    }
+
     if ($user instanceof UserInterface) {
       return AccessResult::allowedIf(
         $account->id() == $user->id() ||
@@ -65,7 +71,15 @@ class UserBrokenLinksController extends ControllerBase {
    * Displays broken links for user's wiki pages.
    */
   public function brokenLinks(UserInterface $user = NULL): array {
-    $properties = ['parent_entity_type_id' => 'mini_wiki_page'];
+    if ($user === NULL && \Drupal::routeMatch()->getRouteName() === 'labdoo_wiki.user_broken_links') {
+      $current_user = $this->entityTypeManager
+        ->getStorage('user')
+        ->load($this->currentUser()->id());
+
+      if ($current_user instanceof UserInterface) {
+        $user = $current_user;
+      }
+    }
 
     if ($user) {
       $wiki_pages = $this->entityTypeManager
