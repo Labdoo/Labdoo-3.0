@@ -16,7 +16,7 @@
             <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png">{{ "Previous story"|t }}</a></div>
             {% endif %}
             {% if parent_link is not empty %}
-                <div class="action"><a href="{{ parent_link }}"><img class="icon" src="/themes/custom/labdoo/img/{{ parent_type }}.png">{{ "Go to edoovillage"|t }}</a></div>
+                <div class="action"><a href="{{ parent_link }}"><img class="icon" src="/themes/custom/labdoo/img/{{ parent_type }}.png">{{ parent_type == 'hub' ? 'Go to hub'|t : 'Go to edoovillage'|t }}</a></div>
             {% endif %}
             <div class="action"><strong>{{ 'Date it was created:'|t }}</strong> {{ created }}</div>
             <div class="action"><strong>{{ 'Date it was last updated:'|t }}</strong> {{ updated }}</div>
