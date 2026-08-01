@@ -88,7 +88,9 @@ class UserBrokenLinksController extends ControllerBase {
       ->getQuery()
       ->accessCheck(FALSE)
       ->condition('parent_entity_type_id', 'mini_wiki_page')
-      ->condition('status', 0) // 0 = broken, 1 = ok
+      // `status` is the entity published flag, not HTTP health.
+      // Treat as broken links without a successful 2xx/3xx response code.
+      ->notExists('code')
       ->sort('last_check', 'DESC');
 
     if ($entity_ids !== NULL) {

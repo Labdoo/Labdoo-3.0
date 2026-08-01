@@ -1,0 +1,30 @@
+diff --git a/src/LinkExtractorBatch.php b/src/LinkExtractorBatch.php
+index 9ca9c44..b4de76a 100644
+--- a/src/LinkExtractorBatch.php
++++ b/src/LinkExtractorBatch.php
+@@ -71,6 +71,15 @@ class LinkExtractorBatch {
+       ->entityTypeManager
+       ->getStorage('field_config')
+       ->loadMultiple();
++
++    // Include configurable base-field overrides (bundle-specific base fields).
++    // They can also store linkchecker third-party settings.
++    $baseFieldOverrides = $this
++      ->entityTypeManager
++      ->getStorage('base_field_override')
++      ->loadMultiple();
++
++    $fieldConfigs = array_merge($fieldConfigs, $baseFieldOverrides);
+     $entityTypes = [];
+ 
+     /** @var \Drupal\Core\Field\FieldConfigInterface $config */
+@@ -286,8 +295,8 @@ class LinkExtractorBatch {
+ 
+     $query->fields('base', [$entityType->getKey('id')]);
+-    if (!empty($bundle)) {
+-      $query->condition('base.' . $entityType->getKey('bundle'), $bundle);
++    if (!empty($bundle) && $entityType->hasKey('bundle')) {
++      $query->condition('base.' . $entityType->getKey('bundle'), $bundle);
+     }
+ 
+     $query->orderBy('base.' . $entityType->getKey('id'));

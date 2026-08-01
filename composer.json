@@ -193,6 +193,9 @@
             },
             "drupal/geocoder": {
                 "Fix TypeError in reverse() method for PHP 8+": "patches/geocoder-fix-type-error-reverse.patch"
+            },
+            "drupal/linkchecker": {
+                "Include base field overrides when building extraction targets": "patches/linkchecker-include-base-field-overrides-in-cron-extraction.patch"
             }
         }
     }
