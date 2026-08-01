@@ -154,3 +154,12 @@ services:
       - '@labdoo_migrate.database.external_connection_manager'
     tags:
       - { name: drush.command }
+
+  labdoo_migrate.commands.dootronic_image_reference_migrator:
+    class: \Drupal\labdoo_migrate\Commands\DootronicImageReferenceMigratorCommands
+    arguments:
+      - '@labdoo_migrate.database.external_connection_manager'
+      - '@entity_type.manager'
+      - '@file.repository'
+    tags:
+      - { name: drush.command }
