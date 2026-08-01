@@ -1,5 +1,5 @@
 labdoo_wiki.user_broken_links:
-  path: '/my-broken-links'
+  path: '/admin/my-broken-links'
   defaults:
     _controller: '\Drupal\labdoo_wiki\Controller\UserBrokenLinksController::brokenLinks'
     _title: 'My Wiki Pages - Broken Links'

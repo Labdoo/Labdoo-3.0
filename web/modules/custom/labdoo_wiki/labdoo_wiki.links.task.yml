@@ -1,5 +1,5 @@
 labdoo_wiki.user_broken_links:
   route_name: labdoo_wiki.user_broken_links
-  base_route: entity.user.canonical
+  base_route: labdoo_wiki.user_broken_links
   title: 'My broken links'
   weight: 50
