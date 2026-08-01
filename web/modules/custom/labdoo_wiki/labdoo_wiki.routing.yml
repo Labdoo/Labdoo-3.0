@@ -5,11 +5,6 @@ labdoo_wiki.user_broken_links:
     _title: 'My Wiki Pages - Broken Links'
   requirements:
     _custom_access: '\Drupal\labdoo_wiki\Controller\UserBrokenLinksController::access'
-    user: \d+
-  options:
-    parameters:
-      user:
-        type: entity:user
 
 labdoo_wiki.all_broken_links:
   path: '/admin/reports/labdoo-wiki/broken-links'
