@@ -5,6 +5,7 @@ namespace Drupal\labdoo_migrate\Commands;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\file\FileRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
+use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -19,6 +20,7 @@ class DootronicImageReferenceMigratorCommands extends DrushCommands {
     protected ConnectionManagerInterface $externalConnectionManager,
     protected EntityTypeManagerInterface $entityTypeManager,
     protected FileRepositoryInterface $fileRepository,
+    protected MigrationTrackerInterface $migrationTracker,
   ) {
     parent::__construct();
   }
@@ -95,6 +97,7 @@ class DootronicImageReferenceMigratorCommands extends DrushCommands {
     $missingDestination = 0;
     $missingSourceImage = 0;
     $missingFileEntity = 0;
+    $matchedByTracker = 0;
     $matchedByTitle = 0;
 
     $progress = $this->io()->createProgressBar(count($sourceRows));
@@ -102,11 +105,23 @@ class DootronicImageReferenceMigratorCommands extends DrushCommands {
 
     foreach ($sourceRows as $sourceNid => $sourceRow) {
       $destinationNodes = [];
+
+      $trackedDestinationId = $this->migrationTracker->getDestinationIdBySourceId('node', (int) $sourceNid);
+      if (!empty($trackedDestinationId)) {
+        $trackedDestinationNode = $destinationStorage->load((int) $trackedDestinationId);
+        if ($trackedDestinationNode !== NULL && $trackedDestinationNode->bundle() === 'dootronic') {
+          $destinationNodes = [$trackedDestinationNode];
+          $matchedByTracker++;
+        }
+      }
+
       if ($canMatchByD7Nid) {
-        $destinationNodes = $destinationStorage->loadByProperties([
-          'type' => 'dootronic',
-          'field_d7_nid' => (int) $sourceNid,
-        ]);
+        if (empty($destinationNodes)) {
+          $destinationNodes = $destinationStorage->loadByProperties([
+            'type' => 'dootronic',
+            'field_d7_nid' => (int) $sourceNid,
+          ]);
+        }
       }
 
       if (empty($destinationNodes)) {
@@ -201,12 +216,13 @@ class DootronicImageReferenceMigratorCommands extends DrushCommands {
     $progress->finish();
     $this->io()->newLine(2);
     $this->io()->success(sprintf(
-      'Done. Updated: %d, Skipped: %d, Missing destination: %d, Missing source image: %d, Missing file entity: %d, Title matches: %d',
+      'Done. Updated: %d, Skipped: %d, Missing destination: %d, Missing source image: %d, Missing file entity: %d, Tracker matches: %d, Title matches: %d',
       $updated,
       $skipped,
       $missingDestination,
       $missingSourceImage,
       $missingFileEntity,
+      $matchedByTracker,
       $matchedByTitle
     ));
   }
