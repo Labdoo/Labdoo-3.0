@@ -51,6 +51,23 @@ field_settings:
     dependencies:
       config:
         - field.storage.node.field_tags
+  mini_wiki_body:
+    label: 'Wiki body'
+    datasource_id: 'entity:mini_wiki_page'
+    property_path: body
+    type: text
+    dependencies:
+      module:
+        - mini_wiki
+  mini_wiki_label:
+    label: 'Wiki title'
+    datasource_id: 'entity:mini_wiki_page'
+    property_path: label
+    type: text
+    boost: 8.0
+    dependencies:
+      module:
+        - mini_wiki
   node_grants:
     label: 'Node access information'
     property_path: search_api_node_grants
@@ -174,6 +191,8 @@ processor_settings:
       preprocess_query: -48
     all_fields: false
     fields:
+      - mini_wiki_body
+      - mini_wiki_label
       - rendered_item
       - title
   language_with_fallback: {  }
@@ -187,6 +206,8 @@ processor_settings:
       preprocess_query: -44
     all_fields: false
     fields:
+      - mini_wiki_body
+      - mini_wiki_label
       - rendered_item
       - title
     stopwords:
@@ -232,6 +253,8 @@ processor_settings:
       preprocess_query: -45
     all_fields: false
     fields:
+      - mini_wiki_body
+      - mini_wiki_label
       - rendered_item
       - title
     spaces: ''
@@ -244,6 +267,8 @@ processor_settings:
       preprocess_query: -47
     all_fields: false
     fields:
+      - mini_wiki_body
+      - mini_wiki_label
       - rendered_item
       - title
   type_boost:

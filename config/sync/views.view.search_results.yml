@@ -454,6 +454,8 @@ display:
           parse_mode: terms
           min_length: 3
           fields:
+            - mini_wiki_body
+            - mini_wiki_label
             - rendered_item
             - title
       style:
