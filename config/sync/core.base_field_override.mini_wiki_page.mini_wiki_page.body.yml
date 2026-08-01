@@ -1,0 +1,25 @@
+uuid: d55c0833-4419-4fb4-bd91-c1ff6dd43aac
+langcode: en
+status: true
+dependencies:
+  module:
+    - linkchecker
+    - mini_wiki
+    - text
+third_party_settings:
+  linkchecker:
+    scan: true
+    extractor: html_link_extractor
+id: mini_wiki_page.mini_wiki_page.body
+field_name: body
+entity_type: mini_wiki_page
+bundle: mini_wiki_page
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long
