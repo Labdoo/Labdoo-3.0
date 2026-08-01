@@ -108,6 +108,9 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
 
       if (empty($team) || $team->bundle() !== 'team') {
         $teamId = $this->linkHelper->getActiveNode('arg_0');
+        if (empty($teamId) || !is_numeric($teamId)) {
+          $teamId = $this->linkHelper->getActiveNode('arg_1');
+        }
         if (empty($teamId)) {
           return [
             '#markup' => '',
