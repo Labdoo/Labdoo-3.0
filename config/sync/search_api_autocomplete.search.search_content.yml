@@ -14,6 +14,7 @@ suggester_settings:
   server:
     fields:
       - title
+      - mini_wiki_label
 suggester_weights: {  }
 suggester_limits:
   server: 5

@@ -472,3 +472,104 @@ function labdoo_common_library_info_alter(array &$libraries, string $extension) 
     $libraries['geocoder']['js']['/modules/custom/labdoo_common/js/geofield_map.geocoder.secure.js'] = [];
   }
 }
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function labdoo_common_views_pre_render(\Drupal\views\ViewExecutable $view) {
+  if ($view->id() !== 'search_results') {
+    return;
+  }
+
+  foreach ($view->result as $row) {
+    if (!isset($row->_object) || !is_object($row->_object) || !method_exists($row->_object, 'getValue')) {
+      continue;
+    }
+
+    $entity = $row->_object->getValue();
+    if (!$entity) {
+      continue;
+    }
+
+    // If the entity is a Node and its title is empty, construct a beautiful title.
+    if ($entity instanceof \Drupal\node\NodeInterface && $entity->getTitle() === '') {
+      $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $entity->id());
+      $computed_title = '';
+      if ($alias) {
+        $bundle = $entity->bundle();
+        if (preg_match('/' . preg_quote($bundle, '/') . '-([0-9]+)-(.*)/', $alias, $matches)) {
+          $num = $matches[1];
+          $parts = explode('-', $matches[2]);
+          $formatted_parts = array_map('ucfirst', $parts);
+          $computed_title = ucfirst($bundle) . ' #' . $num . ' - ' . implode(' ', $formatted_parts);
+        }
+        elseif (preg_match('/' . preg_quote($bundle, '/') . '-(.*)/', $alias, $matches)) {
+          $parts = explode('-', $matches[1]);
+          $formatted_parts = array_map('ucfirst', $parts);
+          $computed_title = ucfirst($bundle) . ': ' . implode(' ', $formatted_parts);
+        }
+      }
+      if ($computed_title === '') {
+        $computed_title = ucfirst($entity->bundle()) . ' #' . $entity->id();
+      }
+      $entity->setTitle($computed_title);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ */
+function labdoo_common_preprocess_views_view_field(&$variables) {
+  $view = $variables['view'];
+  if ($view->id() !== 'search_results') {
+    return;
+  }
+
+  $field = $variables['field'];
+  $row = $variables['row'];
+
+  if (!isset($row->_object) || !is_object($row->_object) || !method_exists($row->_object, 'getValue')) {
+    return;
+  }
+
+  $entity = $row->_object->getValue();
+  if (!$entity) {
+    return;
+  }
+
+  // Handle mini_wiki_page specific fields: type, created, changed.
+  if ($entity->getEntityTypeId() === 'mini_wiki_page') {
+    if ($field->field === 'type') {
+      $variables['output'] = \Drupal\Core\Render\Markup::create((string) t('Wiki Page'));
+    }
+    elseif ($field->field === 'created') {
+      $created_time = NULL;
+      if (method_exists($entity, 'getCreatedTime')) {
+        $created_time = $entity->getCreatedTime();
+      }
+      elseif ($entity->hasField('created') && !$entity->get('created')->isEmpty()) {
+        $created_time = (int) $entity->get('created')->value;
+      }
+
+      if ($created_time) {
+        $formatted = \Drupal::service('date.formatter')->format($created_time, 'medium');
+        $variables['output'] = \Drupal\Core\Render\Markup::create($formatted);
+      }
+    }
+    elseif ($field->field === 'changed') {
+      $changed_time = NULL;
+      if (method_exists($entity, 'getChangedTime')) {
+        $changed_time = $entity->getChangedTime();
+      }
+      elseif ($entity->hasField('changed') && !$entity->get('changed')->isEmpty()) {
+        $changed_time = (int) $entity->get('changed')->value;
+      }
+
+      if ($changed_time) {
+        $formatted = \Drupal::service('date.formatter')->format($changed_time, 'medium');
+        $variables['output'] = \Drupal\Core\Render\Markup::create($formatted);
+      }
+    }
+  }
+}
