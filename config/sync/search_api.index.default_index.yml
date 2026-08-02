@@ -56,6 +56,7 @@ field_settings:
     datasource_id: 'entity:mini_wiki_page'
     property_path: body
     type: text
+    boost: 5.0
     dependencies:
       module:
         - mini_wiki
@@ -79,10 +80,13 @@ field_settings:
     label: 'Rendered item'
     property_path: rendered_item
     type: text
+    boost: 5.0
     configuration:
       roles:
         - anonymous
       view_mode:
+        'entity:mini_wiki_page':
+          mini_wiki_page: default
         'entity:node':
           action: teaser
           article: search_index
