@@ -32,6 +32,7 @@ class LabdooMapBlock extends BlockBase {
         'edoovillage' => $this->t('Edoovillages'),
         'hub' => $this->t('Hubs'),
         'dootrip' => $this->t('Dootrips'),
+        'labdooer' => $this->t('Labdooers'),
       ],
       '#default_value' => $config['map_type'] ?? 'dootronic',
     ];

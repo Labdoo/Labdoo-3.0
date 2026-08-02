@@ -113,11 +113,15 @@
           // Use absolute path for API
           var apiUrl = '/api/map-points/' + type;
 
+          var getPopupUrl = function(pointId) {
+            return (type === 'labdooer' || type === 'user') ? '/user/' + pointId : '/node/' + pointId;
+          };
+
           $.getJSON(apiUrl, function (data) {
             $.each(data, function (index, point) {
               if (point.lat && point.lon) {
                 var marker = L.marker([point.lat, point.lon])
-                  .bindPopup('<a href="/node/' + point.id + '">' + point.title + '</a>');
+                  .bindPopup('<a href="' + getPopupUrl(point.id) + '">' + point.title + '</a>');
                 markers.addLayer(marker);
               }
             });
@@ -137,7 +141,7 @@
                  $.each(data, function (index, point) {
                    if (point.lat && point.lon) {
                      var marker = L.marker([point.lat, point.lon])
-                       .bindPopup('<a href="/node/' + point.id + '">' + point.title + '</a>');
+                       .bindPopup('<a href="' + getPopupUrl(point.id) + '">' + point.title + '</a>');
                      markers.addLayer(marker);
                    }
                  });

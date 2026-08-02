@@ -1,0 +1,26 @@
+uuid: 8980998c-6161-408c-929e-fe2cf63104e7
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_map
+    - system
+  theme:
+    - labdoo
+id: labdoo_labdooers_map
+theme: labdoo
+region: content
+weight: -13
+provider: null
+plugin: labdoo_map_block
+settings:
+  id: labdoo_map_block
+  label: 'Labdooers Map'
+  label_display: '0'
+  provider: labdoo_map
+  map_type: labdooer
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: "/labdooers\r\n/labdoers"

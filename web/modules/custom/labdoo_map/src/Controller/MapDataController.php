@@ -79,6 +79,37 @@ class MapDataController extends ControllerBase {
   public function getMapPoints($type) {
     $points = [];
     
+    if ($type === 'labdooer') {
+      $lat_col = 'field_locations_lat';
+      $lon_col = 'field_locations_lon';
+
+      $query = $this->database->select('users_field_data', 'u');
+      $query->join('user__field_locations', 'l', 'u.uid = l.entity_id');
+      $query->fields('u', ['uid', 'name']);
+      $query->fields('l', [$lat_col, $lon_col]);
+      $query->condition('u.status', 1);
+      $query->isNotNull('l.' . $lat_col);
+      $query->isNotNull('l.' . $lon_col);
+      $query->condition('l.' . $lat_col, 0, '!=');
+      $query->condition('l.' . $lon_col, 0, '!=');
+      $query->condition('l.' . $lat_col, 77.75, '<=');
+      $query->condition('l.' . $lat_col, -56.7, '>=');
+      $query->condition('l.' . $lat_col, [40.416775, 41.385064, -73.989308, -69.021414], 'NOT IN');
+
+      $results = $query->execute();
+
+      while ($row = $results->fetchObject()) {
+        $points[] = [
+          'lat' => (float) $row->{$lat_col},
+          'lon' => (float) $row->{$lon_col},
+          'id' => (int) $row->uid,
+          'title' => $row->name,
+        ];
+      }
+
+      return new JsonResponse($points);
+    }
+    
     // Map types to their respective location fields.
     $field_map = [
       'dootronic' => 'field_location',
