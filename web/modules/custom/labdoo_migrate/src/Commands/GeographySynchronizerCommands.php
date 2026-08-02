@@ -8,7 +8,6 @@ use Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInter
 use Drupal\labdoo_migrate\Services\Mapper\MapperInterface;
 use Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Helper\ProgressBar;
 
 /**
  * Geography synchronization commands.
@@ -19,6 +18,31 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * @link http://natiboo.es
  */
 class GeographySynchronizerCommands extends DrushCommands {
+
+  /**
+   * Supported aliases for source types.
+   */
+  private const SOURCE_TYPE_ALIASES = [
+    'dootronic' => 'laptop',
+    'dootronics' => 'laptop',
+    'laptop' => 'laptop',
+    'dootrip' => 'dootrip',
+    'dootrips' => 'dootrip',
+    'edoovillage' => 'edoovillage',
+    'edoovillages' => 'edoovillage',
+    'hub' => 'hub',
+    'hubs' => 'hub',
+  ];
+
+  /**
+   * Default set of content types to synchronize.
+   */
+  private const DEFAULT_SYNC_TYPES = [
+    'dootronic',
+    'dootrip',
+    'edoovillage',
+    'hub',
+  ];
 
   /**
    * The fields to synchronize.
@@ -63,6 +87,7 @@ class GeographySynchronizerCommands extends DrushCommands {
    * @option limit Limits the execution to the given elements.
    * @option dry-run Whether to run this command in dry-run mode.
    * @option force Force synchronization even if fields are already filled.
+   * @option nids Comma-separated list of Drupal 7 nids to synchronize.
    */
   public function syncGeography(
     string $sourceType,
@@ -70,24 +95,88 @@ class GeographySynchronizerCommands extends DrushCommands {
       'limit' => -1,
       'dry-run' => FALSE,
       'force' => FALSE,
+      'nids' => '',
     ]
   ): void {
+    $this->syncGeographyType($sourceType, $options);
+  }
+
+  /**
+   * Synchronizes geographic information for the main content types.
+   *
+   * @command labdoo-sync-geography-all
+   * @aliases labdoo-sync-geo-all
+   * @usage labdoo-sync-geography-all
+   *   Synchronizes geography for dootronic, dootrip, edoovillage and hub.
+   *
+   * @option types Comma-separated list of types (dootronic, dootrip, edoovillage, hub).
+   * @option limit Limits the execution to the given elements (per type).
+   * @option dry-run Whether to run this command in dry-run mode.
+   * @option force Force synchronization even if fields are already filled.
+   * @option nids Comma-separated list of Drupal 7 nids to synchronize.
+   */
+  public function syncGeographyAll(array $options = [
+    'types' => '',
+    'limit' => -1,
+    'dry-run' => FALSE,
+    'force' => FALSE,
+    'nids' => '',
+  ]): void {
+    $requestedTypes = empty($options['types'])
+      ? self::DEFAULT_SYNC_TYPES
+      : array_map('trim', explode(',', (string) $options['types']));
+
+    $types = array_values(array_filter($requestedTypes, static fn(string $type): bool => $type !== ''));
+    if (empty($types)) {
+      $this->logger->warning('No valid content types were provided.');
+      return;
+    }
+
+    foreach ($types as $type) {
+      $this->syncGeographyType($type, $options);
+    }
+  }
+
+  /**
+   * Synchronize geographic information for a source type.
+   */
+  private function syncGeographyType(string $sourceType, array $options): void {
+    $normalizedType = $this->normalizeSourceType($sourceType);
+    if ($normalizedType === NULL) {
+      $this->logger->warning(sprintf('Unsupported source type "%s".', $sourceType));
+      return;
+    }
+
+    $options += [
+      'limit' => -1,
+      'dry-run' => FALSE,
+      'force' => FALSE,
+      'nids' => '',
+    ];
+
+    $this->doSyncGeography($normalizedType, $sourceType, $options);
+  }
+
+  /**
+   * Performs the synchronization.
+   */
+  private function doSyncGeography(string $normalizedType, string $inputType, array $options): void {
     try {
       $startTime = microtime(TRUE);
-      $this->logger->notice(sprintf('Starting geographic synchronization for type "%s"...', $sourceType));
+      $this->logger->notice(sprintf('Starting geographic synchronization for type "%s" (source "%s")...', $inputType, $normalizedType));
 
       // 1. Get the mapping
-      $config = $this->configurationManager->getContentConfiguration($sourceType);
+      $config = $this->configurationManager->getContentConfiguration($normalizedType);
       $mapping = $this->fieldsMapper->buildMapping($config->getFieldsMapping());
       
       // 2. Filter mapping to keep only geographic fields
       $geoMapping = array_filter($mapping, function ($mappingModel) {
         $destField = $mappingModel->getDestinationField()->getFieldName();
-        return in_array($destField, self::GEOGRAPHIC_FIELDS);
+        return in_array($destField, self::GEOGRAPHIC_FIELDS, TRUE);
       });
 
       if (empty($geoMapping)) {
-        $this->logger->error(sprintf('No geographic fields defined in mapping for type "%s".', $sourceType));
+        $this->logger->error(sprintf('No geographic fields defined in mapping for type "%s".', $inputType));
         return;
       }
 
@@ -95,7 +184,11 @@ class GeographySynchronizerCommands extends DrushCommands {
 
       // 3. Get source entities
       $limit = (int) $options['limit'];
-      $sourceEntityIds = $this->sourceRepository->getNodesByType($sourceType, $geoMapping);
+      $sourceEntityIds = $this->sourceRepository->getNodesByType($normalizedType, $geoMapping);
+      $selectedNids = $this->extractSelectedNids((string) ($options['nids'] ?? ''));
+      if (!empty($selectedNids)) {
+        $sourceEntityIds = array_values(array_intersect($sourceEntityIds, $selectedNids));
+      }
       if ($limit > 0) {
         $sourceEntityIds = array_slice($sourceEntityIds, 0, $limit);
       }
@@ -130,7 +223,7 @@ class GeographySynchronizerCommands extends DrushCommands {
       });
 
       if (empty($geoMapping)) {
-        $this->logger->warning(sprintf('None of the geographic fields exist on the destination entities for type "%s".', $sourceType));
+        $this->logger->warning(sprintf('None of the geographic fields exist on the destination entities for type "%s".', $inputType));
         return;
       }
 
@@ -158,7 +251,7 @@ class GeographySynchronizerCommands extends DrushCommands {
       // 6. Perform the update
       $this->destinationRepository->setOverrideMode(TRUE); // Allow updating existing fields
       $updatedCount = $this->destinationRepository->updateEntities(
-        $this->sourceRepository->getEntities($sourceType, $geoMapping, array_keys($destinationEntities)),
+        $this->sourceRepository->getEntities($normalizedType, $geoMapping, array_keys($destinationEntities)),
         $geoMapping,
         $destinationEntities,
         $options['dry-run']
@@ -167,10 +260,11 @@ class GeographySynchronizerCommands extends DrushCommands {
       $timeElapsedSeconds = microtime(TRUE) - $startTime;
       $this->logger->notice(sprintf(
         "\n\nGEOGRAPHIC SYNCHRONIZATION COMPLETED:\n" .
-        "-- Type: %s.\n" .
+        "-- Type: %s (source %s).\n" .
         "-- Time elapsed: %s.\n" .
         "-- %d entities updated.",
-        $sourceType,
+        $inputType,
+        $normalizedType,
         gmdate("H:i:s", $timeElapsedSeconds),
         $updatedCount
       ));
@@ -178,5 +272,30 @@ class GeographySynchronizerCommands extends DrushCommands {
     catch (\Exception $e) {
       $this->logger->error($e->getMessage());
     }
+  }
+
+  /**
+   * Normalizes source type aliases.
+   */
+  private function normalizeSourceType(string $sourceType): ?string {
+    $normalizedInput = strtolower(trim($sourceType));
+
+    return self::SOURCE_TYPE_ALIASES[$normalizedInput] ?? NULL;
+  }
+
+  /**
+   * Extracts selected nids from a comma-separated value.
+   */
+  private function extractSelectedNids(string $nids): array {
+    if ($nids === '') {
+      return [];
+    }
+
+    $parsedNids = array_map(
+      static fn(string $nid): int => (int) trim($nid),
+      explode(',', $nids)
+    );
+
+    return array_values(array_filter($parsedNids, static fn(int $nid): bool => $nid > 0));
   }
 }
