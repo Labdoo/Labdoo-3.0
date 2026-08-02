@@ -1,11 +1,29 @@
-.messages
-  border-radius: 0 !important
-  .messages__header
-    h2
-      color: white
+.messages-list
+  .messages-list__item.messages
+    border-radius: 0 !important
 
-  &.messages--warning
-    background: #dda800 !important
+    .messages__header
+      h2
+        color: inherit !important
+
+    &.messages--status
+      background: #fcf8e3 !important
+      color: #c09853 !important
+      border: 1px solid #fbeed5 !important
+
+    &.messages--warning
+      background: #ff8741 !important
+      color: #5a2400 !important
+      border: 1px solid #e56a1f !important
+      a
+        color: darken(#5a2400, 10%) !important
+        text-decoration: underline
+        font-weight: bold
+
+    &.messages--error
+      background: #fef5f1 !important
+      color: #8c2e0b !important
+      border: 1px solid #ed541d !important
 
 .alert
   padding: 15px
@@ -21,17 +39,22 @@
   background-color: #fcf8e3
   border-color: #fbeed5
   color: #c09853
+
+.alert-warning
+  background-color: #fff3cd
+  border-color: #ffeeba
+  color: #856404
   a
-    color: darken(#c09853, 10%)
+    color: darken(#856404, 10%)
     text-decoration: underline
     font-weight: bold
 
-.alert-warning
-  background-color: #d9edf7
-  border-color: #bce8f1
-  color: #31708f
+.alert-danger
+  background-color: #f2dede
+  border-color: #eed3d7
+  color: #b94a48
   a
-    color: darken(#31708f, 10%)
+    color: darken(#b94a48, 10%)
     text-decoration: underline
     font-weight: bold
 
