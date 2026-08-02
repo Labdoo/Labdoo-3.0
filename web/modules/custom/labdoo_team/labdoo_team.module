@@ -109,7 +109,7 @@ function labdoo_team_node_view(
           $message = '<div class="messages messages--status" style="border:1px solid #f0e0b6; border-radius:4px; background:#fcf8e3; color:#c3842e; padding:14px"><ul style="list-style:none; margin:0; padding:0;">' . implode('', $items) . '</ul></div>';
         }
         else {
-          $message = t("You are not a member of this team. If you want to be part of this team, click on 'Subscribe to this team'.");
+          $message = '<div class="messages messages--status" style="border:1px solid #f0e0b6; border-radius:4px; background:#fcf8e3; color:#c3842e; padding:14px"><ul style="list-style:none; margin:0; padding:0;">You are not a member of this team. If you want to be part of this team, click on \'Subscribe to this team\'.</div>';
         }
 
         $build['team_membership_notice'] = [
@@ -118,6 +118,10 @@ function labdoo_team_node_view(
           '#weight' => -100,
           '#cache' => [
             'contexts' => ['user', 'url.path'],
+            'tags' => [
+              sprintf('team:%d:%d', (int) $teamId, (int) \Drupal::currentUser()->id()),
+              sprintf('node:%d', (int) $teamId),
+            ],
           ],
         ];
       }
@@ -146,6 +150,13 @@ function labdoo_team_node_view(
       '#type' => 'markup',
       '#markup' => $link->toString(),
       '#weight' => 100,
+      '#cache' => [
+        'contexts' => ['user', 'url.path'],
+        'tags' => [
+          sprintf('team:%d:%d', (int) $teamId, (int) \Drupal::currentUser()->id()),
+          sprintf('node:%d', (int) $teamId),
+        ],
+      ],
     ];
   }
 }
