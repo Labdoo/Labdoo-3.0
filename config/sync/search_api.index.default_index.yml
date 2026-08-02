@@ -35,6 +35,14 @@ field_settings:
     dependencies:
       module:
         - node
+  changed_1:
+    label: Changed
+    datasource_id: 'entity:mini_wiki_page'
+    property_path: changed
+    type: date
+    dependencies:
+      module:
+        - mini_wiki
   created:
     label: 'Authored on'
     datasource_id: 'entity:node'
@@ -43,6 +51,18 @@ field_settings:
     dependencies:
       module:
         - node
+  created_1:
+    label: 'Authored on'
+    datasource_id: 'entity:mini_wiki_page'
+    property_path: created
+    type: date
+    dependencies:
+      module:
+        - mini_wiki
+  entity_type:
+    label: 'Entity type'
+    property_path: search_api_entity_type
+    type: string
   field_tags:
     label: Tags
     datasource_id: 'entity:node'
