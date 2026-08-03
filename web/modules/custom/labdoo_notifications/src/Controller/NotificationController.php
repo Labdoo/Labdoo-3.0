@@ -157,7 +157,8 @@ class NotificationController extends ControllerBase {
     ];
 
     // If the theme hook is not defined, fall back to a simple markup.
-    if (!$this->moduleHandler()->moduleExists('labdoo_notifications') || !$this->themeManager()->themeExists('notification_email')) {
+    $themeRegistry = \Drupal::service('theme.registry')->get();
+    if (!$this->moduleHandler()->moduleExists('labdoo_notifications') || !isset($themeRegistry['notification_email'])) {
       $build = [
         '#markup' => '<h2>' . $subject . '</h2><div>' . $body . '</div>',
       ];
