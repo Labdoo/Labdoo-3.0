@@ -196,6 +196,10 @@ class EmailProcessor {
    *   The email body to process.
    */
   public function processParameters(array $params, string &$body): void {
+    if (empty($params['CONTACT_EMAIL'])) {
+      $params['CONTACT_EMAIL'] = $this->configFactory->get('system.site')->get('mail');
+    }
+
     if (strpos($body, '[LANGUAGE_MENU]') !== FALSE) {
       $supportedLanguages = [
         "ca" => "Catalan", 
