@@ -234,6 +234,13 @@ class NotificationManager {
       return;
     }
 
+    if ($eventType === 'presave') {
+      if ($node->isNew() || !$this->hasDootripChanged($node)) {
+        return;
+      }
+      $eventType = 'update';
+    }
+
     $langCode = $this->getUserPreferredLanguage($node);
     $emailParams = ['type' => 'DOOTRIP_EVENT'];
 
@@ -310,6 +317,7 @@ class NotificationManager {
       'DESTINATION' => $destination,
       'type' => 'dootrip',
       'id' => $dootripId,
+      'event_type' => $eventType,
     ];
 
     // Process the subject and body
@@ -560,6 +568,48 @@ class NotificationManager {
 
     $emails = array_filter(array_unique($emails));
     return $emails ? ',' . implode(',', $emails) : '';
+  }
+
+  /**
+   * Checks if any of the significant fields of a dootrip have changed.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $node
+   *   The dootrip node.
+   *
+   * @return bool
+   *   TRUE if changed, FALSE otherwise.
+   */
+  protected function hasDootripChanged(EntityInterface $node): bool {
+    if (empty($node->original)) {
+      return TRUE;
+    }
+
+    if ($node->label() !== $node->original->label()) {
+      return TRUE;
+    }
+
+    $fields_to_check = [
+      'field_arrival_date',
+      'field_departure_date',
+      'field_origin_of_the_trip',
+      'field_origin',
+      'field_destination_of_the_trip',
+      'field_destination',
+      'field_locations',
+      'field_status_dootrip',
+    ];
+
+    foreach ($fields_to_check as $field) {
+      if ($node->hasField($field) && $node->original->hasField($field)) {
+        $val1 = !$node->get($field)->isEmpty() ? serialize($node->get($field)->getValue()) : '';
+        $val2 = !$node->original->get($field)->isEmpty() ? serialize($node->original->get($field)->getValue()) : '';
+        if ($val1 !== $val2) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
   }
 
   /**
