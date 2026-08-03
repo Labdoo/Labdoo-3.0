@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_notifications\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\node\Entity\Node;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -159,7 +160,22 @@ class NotificationController extends ControllerBase {
         break;
 
       case 'dootronic':
-        $templateId = 'laptop_updated';
+        $laptopStatus = $request->query->get('LAPTOP_STATUS');
+        $node = Node::load($id);
+        if (empty($laptopStatus) && $node && $node->bundle() === 'dootronic') {
+          $laptopStatus = $node->hasField('field_dootronic_status') ? $node->get('field_dootronic_status')->value : NULL;
+        }
+
+        if ($laptopStatus === 'S0') {
+          $templateId = 'laptop_tagged';
+        }
+        elseif ($laptopStatus === 'S4') {
+          $templateId = 'laptop_delivered';
+        }
+        else {
+          $templateId = 'laptop_updated';
+        }
+
         if (empty($params['LAPTOP_ID'])) {
           $params['LAPTOP_ID'] = $id;
         }
@@ -168,7 +184,6 @@ class NotificationController extends ControllerBase {
         }
 
         // Load the node to populate ID and STATUS robustly if they are missing
-        $node = \Drupal\node\Entity\Node::load($id);
         if ($node && $node->bundle() === 'dootronic') {
           if (empty($params['ID'])) {
             $params['ID'] = $node->label();
@@ -184,6 +199,14 @@ class NotificationController extends ControllerBase {
             }
             $params['STATUS'] = $statusLabel;
           }
+          if (empty($params['EDOOVILLAGE_URL'])) {
+            $edoovillageUrl = '';
+            if ($node->hasField('field_edoovillage') && !$node->get('field_edoovillage')->isEmpty()) {
+              $edoovillageId = $node->get('field_edoovillage')->target_id;
+              $edoovillageUrl = \Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $edoovillageId], ['absolute' => TRUE])->toString();
+            }
+            $params['EDOOVILLAGE_URL'] = $edoovillageUrl;
+          }
         }
 
         // Fallbacks in case the node could not be loaded or fields were empty
@@ -192,6 +215,9 @@ class NotificationController extends ControllerBase {
         }
         if (empty($params['STATUS'])) {
           $params['STATUS'] = $params['LAPTOP_STATUS'] ?? '';
+        }
+        if (empty($params['EDOOVILLAGE_URL'])) {
+          $params['EDOOVILLAGE_URL'] = '';
         }
         break;
 

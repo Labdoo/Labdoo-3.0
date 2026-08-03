@@ -183,6 +183,12 @@ class NotificationManager {
       }
     }
 
+    $edoovillageUrl = '';
+    if ($node->hasField('field_edoovillage') && !$node->get('field_edoovillage')->isEmpty()) {
+      $edoovillageId = $node->get('field_edoovillage')->target_id;
+      $edoovillageUrl = Url::fromRoute('entity.node.canonical', ['node' => $edoovillageId], ['absolute' => TRUE])->toString();
+    }
+
     // Prepare email parameters
     $params = [
       'LAPTOP_ID' => $laptopId,
@@ -191,6 +197,7 @@ class NotificationManager {
       'LAPTOP_STATUS' => $status,
       'ID' => $laptopTitle,
       'STATUS' => $statusLabel,
+      'EDOOVILLAGE_URL' => $edoovillageUrl,
       'type' => 'dootronic',
       'id' => $laptopId,
     ];
