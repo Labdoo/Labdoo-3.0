@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 'Ձեր անունը'
+      email_address:
+        '#title': 'Էլ. փոստի հասցե'
+        '#confirm__title': 'Հաստատել էլ. փոստը'
+      country:
+        '#title': Երկիր
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'Կապ հաստատելու պատճառը'
+        '#options':
+          contact@labdoo.org: Գլոբալ
+          Labdoo-DACH@Labdoo.org: 'Գերմանիա, Շվեյցարիա և Ավստրիա տարածաշրջան'
+      subject:
+        '#title': Թեմա
+      message:
+        '#title': Հաղորդագրություն
+      copy:
+        '#title': 'Ուղարկել ինձ այս հաղորդագրության պատճենը'

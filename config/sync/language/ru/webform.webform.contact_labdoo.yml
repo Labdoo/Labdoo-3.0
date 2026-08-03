@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 'Ваше имя'
+      email_address:
+        '#title': 'Адрес электронной почты'
+        '#confirm__title': 'Подтвердите адрес электронной почты'
+      country:
+        '#title': Страна
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'Причина обращения'
+        '#options':
+          contact@labdoo.org: Глобальный
+          Labdoo-DACH@Labdoo.org: 'Регион Германия, Швейцария, Австрия'
+      subject:
+        '#title': Тема
+      message:
+        '#title': Сообщение
+      copy:
+        '#title': 'Отправить мне копию этого сообщения'

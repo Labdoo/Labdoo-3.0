@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': お名前
+      email_address:
+        '#title': メールアドレス
+        '#confirm__title': メールアドレスの確認
+      country:
+        '#title': 国
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': お問い合わせの理由
+        '#options':
+          contact@labdoo.org: グローバル
+          Labdoo-DACH@Labdoo.org: ドイツ、スイス、オーストリア地域
+      subject:
+        '#title': 件名
+      message:
+        '#title': メッセージ
+      copy:
+        '#title': このメッセージのコピーを受け取る

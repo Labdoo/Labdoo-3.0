@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 您的姓名
+      email_address:
+        '#title': 电子邮箱地址
+        '#confirm__title': 确认电子邮箱
+      country:
+        '#title': 国家/地区
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': '联系 Labdoo.org 的原因'
+        '#options':
+          contact@labdoo.org: 全球
+          Labdoo-DACH@Labdoo.org: 德国、瑞士、奥地利地区
+      subject:
+        '#title': 主题
+      message:
+        '#title': 留言内容
+      copy:
+        '#title': 发送此邮件的副本给我

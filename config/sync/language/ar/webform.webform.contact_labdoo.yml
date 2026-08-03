@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': الاسم
+      email_address:
+        '#title': 'البريد الإلكتروني'
+        '#confirm__title': 'تأكيد البريد الإلكتروني'
+      country:
+        '#title': البلد
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'سبب الاتصال'
+        '#options':
+          contact@labdoo.org: عالمي
+          Labdoo-DACH@Labdoo.org: 'منطقة ألمانيا وسويسرا والنمسا'
+      subject:
+        '#title': الموضوع
+      message:
+        '#title': الرسالة
+      copy:
+        '#title': 'أرسل لي نسخة من هذه الرسالة'

@@ -1,0 +1,25 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      flexbox:
+        contact_form:
+          name:
+            '#title': 'Su nombre'
+          email_address:
+            '#title': 'Dirección de correo electrónico'
+            '#confirm__title': 'Confirmar correo electrónico'
+          country:
+            '#title': País
+          the_reason_you_are_contacting_labdoo_org:
+            '#title': 'Motivo del contacto'
+            '#options':
+              1: 'Quiero contribuir con un dispositivo (portátil, tableta, teléfono móvil, etc.)'
+              2: 'Quiero contribuir con un viaje (dootrip)'
+              3: 'Quiero convertirme en voluntario de Labdoo (labdooer)'
+              4: 'Quiero solicitar portátiles o tabletas para mi proyecto educativo (edoovillage)'
+              5: 'Solo quiero enviar un mensaje a Labdoo.org'
+          message:
+            '#title': Mensaje
+          copy:
+            '#title': 'Enviarme una copia de este mensaje'

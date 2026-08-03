@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 'Jina lako'
+      email_address:
+        '#title': 'Anwani ya barua pepe'
+        '#confirm__title': 'Thibitisha barua pepe'
+      country:
+        '#title': Nchi
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'Sababu ya kuwasiliana'
+        '#options':
+          contact@labdoo.org: 'Kote ulimwenguni'
+          Labdoo-DACH@Labdoo.org: 'Mkoa wa Ujerumani, Uswisi, Austria'
+      subject:
+        '#title': Somo
+      message:
+        '#title': Ujumbe
+      copy:
+        '#title': 'Nitumie nakala ya ujumbe huu'

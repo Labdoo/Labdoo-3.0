@@ -1,27 +1,28 @@
-<img src="https://platform.labdoo.org/profiles/labdoo/files/pictures/footer-acts.png" width="800"/>
+<img src="https://platform.labdoo.org/themes/custom/labdoo/img/footer-acts.png" width="800"/>
 
 [LANGUAGE_MENU]
 
-<p>Liebe Helferin, lieber Helfer,</p>
+Liebe Helferin, lieber Helfer,
 
-<p>Du erhältst diese E-Mail, weil eine mit dir verknüpfte IT-Spende registriert ("getagged") wurde.</p>
+Du erhältst diese E-Mail, weil eine mit dir verknüpfte IT-Spende registriert ("getagged") wurde.
 
-<p>Die Labdoo-Nummer (ID) deines Gerätes ist [ID] und dessen aktueller Status ist: [STATUS].</p>
+Die Labdoo-Nummer (ID) deines Gerätes ist [ID] und dessen aktueller Status ist: [STATUS].  
 
-<p>Dies bedeutet, es ist jetzt einen Schritt näher an einem "Edoovillage" (einer Schule oder einem Jugendprojekt), wo es den Kindern den Zugang zu Bildung ermöglichen wird. Sollte das Gerät noch in der technischen Prüfung sein, kann in seltenen Fällen ein Recycling nötig werden, wenn das Gerät nicht unsere Mindestanforderungen erfüllt oder nicht reparabel ist. Im Fall einer Reparatur durch einen Labdoo-Helfer bitten wir um etwas Geduld.</p>
+Dies bedeutet, es ist jetzt einen Schritt näher an einem "Edoovillage" (einer Schule oder einem Jugendprojekt), wo es den Kindern den Zugang zu Bildung ermöglichen wird. Sollte das Gerät noch in der technischen Prüfung sein, kann in seltenen Fällen ein Recycling nötig werden, wenn das Gerät nicht unsere Mindestanforderungen erfüllt oder nicht reparabel ist. Im Fall einer Reparatur durch einen Labdoo-Helfer bitten wir um etwas Geduld.
 
-<p>Damit wollen wir Elektroschrott vermeiden bzw. sinnvoll recyclen. In jedem Fall ist deine IT-Spende ein wichtiger Beitrag zur Überwindung des "digitalen Graben" und zur Vermeidung von Elektroschrott.</p>
+Damit wollen wir Elektroschrott vermeiden bzw. sinnvoll recyclen. In jedem Fall ist deine IT-Spende ein wichtiger Beitrag zur Überwindung des "digitalen Graben" und zur Vermeidung von Elektroschrott.
 
-<p>Bitte prüfe den Status des Gerätes hier: [LAPTOP_URL]</p>
+Bitte prüfe den Status des Gerätes hier: [LAPTOP_URL]
 
-<p>Wenn die Angaben nicht korrekt sein sollten, hast du die Möglichkeit, dies zu ändern und zu korrigieren. Oder teile uns dies per E-Mail an [CONTACT_EMAIL] mit. Dies hilft uns, die Datenbasis so aktuell wie möglich zu halten.</p>
+Wenn die Angaben nicht korrekt sein sollten, hast du die Möglichkeit, dies zu ändern und zu korrigieren. Oder teile uns dies per E-Mail an [CONTACT_EMAIL] mit. Dies hilft uns, die Datenbasis so aktuell wie möglich zu halten.
 
-<p>Mit Hilfe der Labdoo-Tools im Dashboard ("Übersicht") kannst du weiter dazu beitragen z.B. eine IT-Spende zu einem Bildungsprojekt ("Edoovillage") zu bringen: [DASHBOARD_URL]</p>
+Mit Hilfe der Labdoo-Tools im Dashboard ("Übersicht") kannst du weiter dazu beitragen z.B. eine IT-Spende zu einem Bildungsprojekt ("Edoovillage") zu bringen: [DASHBOARD_URL] 
 
-<p>Vielen Dank, dass du mit deiner Mini-Mission dazu beiträgst, Kindern mit einer IT-Spende voller Lernsoftware und Lerninhalte Bildungschancen in einem Edoovillage zu eröffnen. Gemeinsam können wir helfen, den "digitalen Graben" zu überwinden.</p>
+Vielen Dank, dass du mit deiner Mini-Mission dazu beiträgst, Kindern mit einer IT-Spende voller Lernsoftware und Lerninhalte Bildungschancen in einem Edoovillage zu eröffnen. Gemeinsam können wir helfen, den "digitalen Graben" zu überwinden.
 
-<p>Das Labdoo-Team<br>
-www.labdoo.de</p>
-<img src="https://platform.labdoo.org/profiles/labdoo/files/pictures/equation-2-alpha-smaller.png" width="100"/>
+Das Labdoo-Team
+www.labdoo.de
+<img src="https://platform.labdoo.org/themes/custom/labdoo/img/equation-2-alpha-smaller.png" width="100"/>
 
-<p># Solltest du diese E-Mail versehentlich erhalten haben oder falls du keine weiteren, solche E-Mails erhalten möchtest, schicke bitte eine Mail an [CONTACT_EMAIL]</p>
+# Solltest du diese E-Mail versehentlich erhalten haben oder falls du keine weiteren, solche E-Mails erhalten möchtest, schicke bitte eine Mail an [CONTACT_EMAIL]
+

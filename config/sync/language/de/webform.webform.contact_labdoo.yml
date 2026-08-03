@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 'Ihr Name'
+      email_address:
+        '#title': E-Mail-Adresse
+        '#confirm__title': 'E-Mail-Adresse bestätigen'
+      country:
+        '#title': Land
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'Grund der Kontaktaufnahme'
+        '#options':
+          contact@labdoo.org: Global
+          Labdoo-DACH@Labdoo.org: 'Region Deutschland, Schweiz und Österreich'
+      subject:
+        '#title': Betreff
+      message:
+        '#title': Nachricht
+      copy:
+        '#title': 'Schicken Sie mir eine Kopie dieser Nachricht'

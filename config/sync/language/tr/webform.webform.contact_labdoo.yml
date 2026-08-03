@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': Adınız
+      email_address:
+        '#title': 'E-posta adresi'
+        '#confirm__title': 'E-postayı onayla'
+      country:
+        '#title': Ülke
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'İletişime geçme nedeni'
+        '#options':
+          contact@labdoo.org: Küresel
+          Labdoo-DACH@Labdoo.org: 'Almanya, İsviçre, Avusturya Bölgesi'
+      subject:
+        '#title': Konu
+      message:
+        '#title': Mesaj
+      copy:
+        '#title': 'Bu mesajın bir kopyasını bana gönder'

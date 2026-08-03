@@ -1,19 +1,19 @@
-<img src="https://platform.labdoo.org/profiles/labdoo/files/pictures/footer-acts.png" width="800"/>
+<img src="https://platform.labdoo.org/themes/custom/labdoo/img/footer-acts.png" width="800"/>
 
-<p>A user from your superhub region has sent you a message:</p>
+A user from your superhub region has sent you a message:
 
-<p>---<br>
-User's name: [USERNAME]<br>
-User's email address: [USEREMAIL]<br>
-User's country: [COUNTRY]<br>
-User's city: [CITY]<br>
-Reason for contacting you: [REASON]<br>
-Campaign: [CAMPAIGN]<br>
-Message:<br>
-"[MESSAGE]"<br>
----</p>
+---
+User's name: [USERNAME]
+User's email address: [USEREMAIL]
+User's country: [COUNTRY]
+User's city: [CITY]
+Reason for contacting you: [REASON]
+Campaign: [CAMPAIGN]
+Message:
+"[MESSAGE]"
+---
 
-<p>The Labdoo Team | platform.labdoo.org</p>
-<img src="https://platform.labdoo.org/profiles/labdoo/files/pictures/equation-2-alpha-smaller.png" width="100"/>
+The Labdoo Team | platform.labdoo.org
+<img src="https://platform.labdoo.org/themes/custom/labdoo/img/equation-2-alpha-smaller.png" width="100"/>
 
-<p># If you think you have received this email by mistake, email us at [CONTACT_EMAIL]</p>
+# If you think you have received this email by mistake, email us at [CONTACT_EMAIL] 

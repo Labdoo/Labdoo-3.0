@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 'Numele dumneavoastră'
+      email_address:
+        '#title': 'Adresă de e-mail'
+        '#confirm__title': 'Confirmă e-mail'
+      country:
+        '#title': Țară
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'Motivul contactării'
+        '#options':
+          contact@labdoo.org: Global
+          Labdoo-DACH@Labdoo.org: 'Regiunea Germania, Elveția, Austria'
+      subject:
+        '#title': Subiect
+      message:
+        '#title': Mesaj
+      copy:
+        '#title': 'Trimite-mi o copie a acestui mesaj'

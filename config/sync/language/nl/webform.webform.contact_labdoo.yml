@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 'Uw naam'
+      email_address:
+        '#title': E-mailadres
+        '#confirm__title': 'Bevestig e-mailadres'
+      country:
+        '#title': Land
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'De reden dat u contact opneemt met Labdoo.org'
+        '#options':
+          contact@labdoo.org: Globaal
+          Labdoo-DACH@Labdoo.org: 'Duitsland, Zwitserland, Oostenrijk Regio'
+      subject:
+        '#title': Onderwerp
+      message:
+        '#title': Bericht
+      copy:
+        '#title': 'Stuur mij een kopie van dit bericht'

@@ -135,6 +135,70 @@ function labdoo_notifications_mail_alter(&$message) {
     \Drupal::logger('labdoo_notifications')->warning('Trying to send a message without a \'to\' field');
     $message['send'] = FALSE;
   }
+
+  // Redirect all outgoing emails to the test email address if test mode is enabled.
+  $config = \Drupal::config('labdoo_notifications.settings');
+  if ($config->get('test_mode') && !empty($config->get('test_email'))) {
+    $test_email = $config->get('test_email');
+
+    // Log the redirection of the email.
+    \Drupal::logger('labdoo_notifications')->notice('Test mode is active. Redirecting email "@id" from "@original_to" to "@test_email".', [
+      '@id' => $message['id'],
+      '@original_to' => $message['to'],
+      '@test_email' => $test_email,
+    ]);
+
+    // Check if the message is HTML.
+    $is_html = FALSE;
+    if (isset($message['headers']['Content-Type']) && strpos($message['headers']['Content-Type'], 'text/html') !== FALSE) {
+      $is_html = TRUE;
+    }
+    elseif (isset($message['params']['html']) && $message['params']['html']) {
+      $is_html = TRUE;
+    }
+    else {
+      // Check if body content looks like HTML
+      $body_str = is_array($message['body']) ? implode('', $message['body']) : (string) $message['body'];
+      if (preg_match('/<[a-z][\s\S]*>/i', $body_str)) {
+        $is_html = TRUE;
+      }
+    }
+
+    // Prepend a test header/note to the message body if not already present.
+    $original_to = $message['to'];
+    $body_str = is_array($message['body']) ? implode('', $message['body']) : (string) $message['body'];
+
+    if (strpos($body_str, '**TEST MODE ENABLED**') === FALSE) {
+      if ($is_html) {
+        $header_text = "<strong>**TEST MODE ENABLED**</strong><br />" .
+                      "Original To: " . htmlspecialchars($original_to, ENT_QUOTES, 'UTF-8') . "<br />" .
+                      "-----------------------------------<br /><br />";
+      }
+      else {
+        $header_text = "**TEST MODE ENABLED**\n" .
+                      "Original To: $original_to\n" .
+                      "-----------------------------------\n\n";
+      }
+
+      if (is_array($message['body'])) {
+        array_unshift($message['body'], $header_text);
+      }
+      else {
+        $message['body'] = $header_text . $message['body'];
+      }
+    }
+
+    // Set the recipient to the test email address.
+    $message['to'] = $test_email;
+
+    // Clear CC and BCC headers to prevent emails from going to real addresses.
+    if (isset($message['headers']['Cc'])) {
+      unset($message['headers']['Cc']);
+    }
+    if (isset($message['headers']['Bcc'])) {
+      unset($message['headers']['Bcc']);
+    }
+  }
 }
 
 /**
@@ -187,4 +251,179 @@ function labdoo_notifications_cron() {
       }
     }
   }
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function labdoo_notifications_token_info() {
+  $info = [];
+  $info['types']['labdoo_notifications'] = [
+    'name' => t('Labdoo Notifications'),
+    'description' => t('Tokens for Labdoo notification templates.'),
+  ];
+  $info['tokens']['labdoo_notifications']['contact_subject'] = [
+    'name' => t('Contact Form Submitted Subject'),
+    'description' => t('Translated subject for contact form submission autoreply.'),
+  ];
+  $info['tokens']['labdoo_notifications']['contact_body'] = [
+    'name' => t('Contact Form Submitted Body'),
+    'description' => t('Translated body for contact form submission autoreply.'),
+  ];
+  $info['tokens']['labdoo_notifications']['contact_shub_subject'] = [
+    'name' => t('Contact Form Submitted Shub Subject'),
+    'description' => t('Translated subject for contact form submission admin/superhub notification.'),
+  ];
+  $info['tokens']['labdoo_notifications']['contact_shub_body'] = [
+    'name' => t('Contact Form Submitted Shub Body'),
+    'description' => t('Translated body for contact form submission admin/superhub notification.'),
+  ];
+  $info['tokens']['labdoo_notifications']['contact_shub_to_mail'] = [
+    'name' => t('Contact Form Admin Destination Email'),
+    'description' => t('Resolves to Labdoo-DACH@Labdoo.org for DACH region, otherwise contact@labdoo.org.'),
+  ];
+  return $info;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function labdoo_notifications_tokens($type, $tokens, array $data = [], array $options = []) {
+  $replacements = [];
+
+  if ($type === 'labdoo_notifications') {
+    /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
+    $webform_submission = $data['webform_submission'] ?? NULL;
+
+    // Get current interface language
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+
+    /** @var \Drupal\labdoo_notifications\Service\EmailProcessor $email_processor */
+    $email_processor = \Drupal::service('labdoo_notifications.email_processor');
+
+    // Build the parameters map to replace custom placeholders in our flat .email templates
+    $params = [
+      'NAME' => '',
+      'EMAIL' => '',
+      'SUBJECT' => '',
+      'MESSAGE' => '',
+      'REASON' => '',
+      'USERNAME' => '',
+      'USEREMAIL' => '',
+      'COUNTRY' => '',
+      'CITY' => '',
+      'CAMPAIGN' => '',
+      'CONTACT_EMAIL' => \Drupal::configFactory()->get('system.site')->get('mail'),
+    ];
+
+    if ($webform_submission) {
+      $values = $webform_submission->getData();
+      
+      $country_field = $values['country'] ?? '';
+      $country_val = is_array($country_field) ? ($country_field['country'] ?? '') : $country_field;
+      
+      $reason_val = $values['the_reason_you_are_contacting_labdoo_org'] ?? $values['category'] ?? '';
+      
+      $params['NAME'] = $values['name'] ?? '';
+      $params['EMAIL'] = $values['email_address'] ?? '';
+      $params['SUBJECT'] = $values['subject'] ?? '';
+      $params['MESSAGE'] = $values['message'] ?? '';
+      $params['REASON'] = $reason_val;
+      $params['USERNAME'] = $values['name'] ?? '';
+      $params['USEREMAIL'] = $values['email_address'] ?? '';
+      $params['COUNTRY'] = $country_val;
+      $params['CITY'] = $values['city'] ?? '';
+      $params['CAMPAIGN'] = $values['campaign'] ?? '';
+
+      // Get translated reason/category label
+      $webform = $webform_submission->getWebform();
+      if ($webform) {
+        $element = $webform->getElement('the_reason_you_are_contacting_labdoo_org') ?? $webform->getElement('category');
+        if ($element && isset($element['#options'])) {
+          $options_list = $element['#options'];
+          if (isset($options_list[$reason_val])) {
+            $params['REASON'] = (string) $options_list[$reason_val];
+          }
+        }
+      }
+    }
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'contact_shub_to_mail':
+          // Resolve destination email based on country
+          $to_email = 'contact@labdoo.org';
+          if ($webform_submission) {
+            $values = $webform_submission->getData();
+            $country_field = $values['country'] ?? '';
+            $country_val = is_array($country_field) ? ($country_field['country'] ?? '') : $country_field;
+            
+            // Normalize country value to uppercase ISO code or check if it contains DACH country names
+            // Germany (DE/Deutschland/Germany), Austria (AT/Österreich/Austria), Switzerland (CH/Schweiz/Switzerland)
+            $country_lower = mb_strtolower((string) $country_val);
+            if (
+              $country_lower === 'de' || 
+              $country_lower === 'at' || 
+              $country_lower === 'ch' || 
+              strpos($country_lower, 'germany') !== FALSE || 
+              strpos($country_lower, 'deutschland') !== FALSE || 
+              strpos($country_lower, 'austria') !== FALSE || 
+              strpos($country_lower, 'österreich') !== FALSE || 
+              strpos($country_lower, 'switzerland') !== FALSE || 
+              strpos($country_lower, 'schweiz') !== FALSE
+            ) {
+              $to_email = 'Labdoo-DACH@Labdoo.org';
+            }
+          }
+          $replacements[$original] = $to_email;
+          break;
+
+        case 'contact_subject':
+          $template = $email_processor->loadTemplate($langcode, 'contact_form_submitted_subject');
+          if (empty($template)) {
+            $template = $email_processor->loadTemplate('en', 'contact_form_submitted_subject');
+          }
+          if ($template) {
+            $email_processor->processParameters($params, $template);
+            $replacements[$original] = $template;
+          }
+          break;
+
+        case 'contact_body':
+          $template = $email_processor->loadTemplate($langcode, 'contact_form_submitted_body');
+          if (empty($template)) {
+            $template = $email_processor->loadTemplate('en', 'contact_form_submitted_body');
+          }
+          if ($template) {
+            $email_processor->processParameters($params, $template);
+            $replacements[$original] = nl2br($template);
+          }
+          break;
+
+        case 'contact_shub_subject':
+          $template = $email_processor->loadTemplate($langcode, 'contact_form_submitted_shub_subject');
+          if (empty($template)) {
+            $template = $email_processor->loadTemplate('en', 'contact_form_submitted_shub_subject');
+          }
+          if ($template) {
+            $email_processor->processParameters($params, $template);
+            $replacements[$original] = $template;
+          }
+          break;
+
+        case 'contact_shub_body':
+          $template = $email_processor->loadTemplate($langcode, 'contact_form_submitted_shub_body');
+          if (empty($template)) {
+            $template = $email_processor->loadTemplate('en', 'contact_form_submitted_shub_body');
+          }
+          if ($template) {
+            $email_processor->processParameters($params, $template);
+            $replacements[$original] = nl2br($template);
+          }
+          break;
+      }
+    }
+  }
+
+  return $replacements;
 }

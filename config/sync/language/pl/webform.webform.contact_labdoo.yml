@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 'Twoje imię'
+      email_address:
+        '#title': 'Adres e-mail'
+        '#confirm__title': 'Potwierdź e-mail'
+      country:
+        '#title': Kraj
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'Powód kontaktu'
+        '#options':
+          contact@labdoo.org: Globalny
+          Labdoo-DACH@Labdoo.org: 'Region Niemcy, Szwajcaria, Austria'
+      subject:
+        '#title': Temat
+      message:
+        '#title': Wiadomość
+      copy:
+        '#title': 'Wyślij mi kopię tej wiadomości'

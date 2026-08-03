@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 'Vaše ime'
+      email_address:
+        '#title': 'E-mail adresa'
+        '#confirm__title': 'Potvrdite e-mail'
+      country:
+        '#title': Država
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': 'Razlog kontaktiranja'
+        '#options':
+          contact@labdoo.org: Globalno
+          Labdoo-DACH@Labdoo.org: 'Regija Nemačka, Švajcarska, Austrija'
+      subject:
+        '#title': Predmet
+      message:
+        '#title': Poruka
+      copy:
+        '#title': 'Pošalji mi kopiju ove poruke'

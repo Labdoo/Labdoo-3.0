@@ -247,15 +247,6 @@ class ContactForm extends FormBase {
     $values = $form_state->getValues();
     $langCode = $this->languageManager->getCurrentLanguage()->getId();
 
-    // Load email templates.
-    $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'contact_form_submitted_subject');
-    $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'contact_form_submitted_body');
-
-    if (empty($subjectTemplate) || empty($bodyTemplate)) {
-      $this->messenger()->addError($this->t('Could not send the contact form due to a system error. Please try again later.'));
-      return;
-    }
-
     // Prepare email parameters.
     $params = [
       'NAME' => $values['name'],
@@ -263,29 +254,51 @@ class ContactForm extends FormBase {
       'SUBJECT' => $values['subject'],
       'MESSAGE' => $values['message'],
       'REASON' => $this->getContactReasons()[$values['contact_reason']],
+      'USERNAME' => $values['name'],
+      'USEREMAIL' => $values['email'],
+      'COUNTRY' => '',
+      'CITY' => '',
+      'CAMPAIGN' => '',
+      'CONTACT_EMAIL' => $this->configFactory->get('system.site')->get('mail'),
     ];
 
-    // Process the subject and body.
-    $subject = $subjectTemplate;
-    $body = $bodyTemplate;
-    $this->emailProcessor->processParameters($params, $subject);
-    $this->emailProcessor->processParameters($params, $body);
-
-    // Send the email.
-    $emailParams = [
-      'subject' => $subject,
-      'body' => $body,
-      'to' => $this->configFactory->get('system.site')->get('mail'),
-      'headers' => [
-        'Reply-To' => $values['email'],
-      ],
-    ];
-
-    $this->emailProcessor->sendEmail($emailParams);
-
-    // Send the confirmation email to the user.
+    // Send the administrator / superhub notification.
     $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'contact_form_submitted_shub_subject');
     $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'contact_form_submitted_shub_body');
+
+    if (empty($subjectTemplate) || empty($bodyTemplate)) {
+      // Fallback to default/english if current language template is not found.
+      $subjectTemplate = $this->emailProcessor->loadTemplate('en', 'contact_form_submitted_shub_subject');
+      $bodyTemplate = $this->emailProcessor->loadTemplate('en', 'contact_form_submitted_shub_body');
+    }
+
+    if (!empty($subjectTemplate) && !empty($bodyTemplate)) {
+      $subject = $subjectTemplate;
+      $body = $bodyTemplate;
+      $this->emailProcessor->processParameters($params, $subject);
+      $this->emailProcessor->processParameters($params, $body);
+
+      $emailParams = [
+        'subject' => $subject,
+        'body' => $body,
+        'to' => $this->configFactory->get('system.site')->get('mail'),
+        'headers' => [
+          'Reply-To' => $values['email'],
+        ],
+      ];
+
+      $this->emailProcessor->sendEmail($emailParams);
+    }
+
+    // Send the auto-reply confirmation email to the user.
+    $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'contact_form_submitted_subject');
+    $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'contact_form_submitted_body');
+
+    if (empty($subjectTemplate) || empty($bodyTemplate)) {
+      // Fallback to default/english if current language template is not found.
+      $subjectTemplate = $this->emailProcessor->loadTemplate('en', 'contact_form_submitted_subject');
+      $bodyTemplate = $this->emailProcessor->loadTemplate('en', 'contact_form_submitted_body');
+    }
 
     if (!empty($subjectTemplate) && !empty($bodyTemplate)) {
       $subject = $subjectTemplate;

@@ -1,0 +1,22 @@
+id: contact_labdoo
+elements: |
+  flexbox:
+    contact_form:
+      name:
+        '#title': 您的姓名
+      email_address:
+        '#title': 電子郵件地址
+        '#confirm__title': 確認電子郵件
+      country:
+        '#title': 國家
+      the_reason_you_are_contacting_labdoo_org:
+        '#title': '聯絡 Labdoo.org 的原因'
+        '#options':
+          contact@labdoo.org: 全球
+          Labdoo-DACH@Labdoo.org: 德國、瑞士、奧地利地區
+      subject:
+        '#title': 主題
+      message:
+        '#title': 訊息
+      copy:
+        '#title': 傳送此訊息的複本給我
