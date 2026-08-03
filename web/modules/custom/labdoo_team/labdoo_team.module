@@ -75,7 +75,7 @@ function labdoo_team_node_view(
   if ($node instanceof NodeInterface && $view_mode === 'full') {
     $nodeType = $node->getType();
     $conversationTypes = ['team_post', 'event'];
-    $taskTypes = ['team_task', 'task_team'];
+    $taskTypes = ['task_team'];
 
     if (in_array($nodeType, array_merge($conversationTypes, $taskTypes), TRUE)) {
       /** @var \Drupal\labdoo_team\Service\MembershipManager $membershipManager */

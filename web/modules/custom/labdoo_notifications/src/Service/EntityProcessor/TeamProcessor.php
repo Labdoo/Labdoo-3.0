@@ -42,7 +42,7 @@ class TeamProcessor implements EntityProcessorInterface {
     }
 
     $bundle = $entity->bundle();
-    if (!in_array($bundle, ['event', 'team_task', 'team_post'])) {
+    if (!in_array($bundle, ['event', 'task_team', 'team_post'])) {
       return;
     }
 

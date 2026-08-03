@@ -382,7 +382,7 @@ class NotificationManager {
         $activityType = 'event';
         $activityBody = $node->hasField('body') ? $node->get('body')->value : '';
         break;
-      case 'team_task':
+      case 'task_team':
         if ($comment === NULL) {
           $activityType = 'task';
           $activityBody = $node->hasField('body') ? $node->get('body')->value : '';

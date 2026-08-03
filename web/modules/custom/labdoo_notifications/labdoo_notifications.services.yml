@@ -50,7 +50,7 @@ services:
     tags:
       - { name: 'labdoo_notifications.entity_processor' }
 
-  labdoo_notifications.entity_processor.team_task:
+  labdoo_notifications.entity_processor.task_team:
     class: Drupal\labdoo_notifications\Service\EntityProcessor\TeamProcessor
     arguments:
       - '@labdoo_notifications.notification_manager'
