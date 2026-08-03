@@ -7,6 +7,7 @@ use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\Core\Database\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\views\Views;
 
 /**
  * Provides map data for dashboards.
@@ -83,11 +84,36 @@ class MapDataController extends ControllerBase {
       $lat_col = 'field_locations_lat';
       $lon_col = 'field_locations_lon';
 
+      // Load user IDs matching current search filters from the "labdoers" view.
+      $uids = [];
+      $view = Views::getView('labdoers');
+      if ($view) {
+        $view->setDisplay('page_1');
+        $request = \Drupal::request();
+        $viewArgs = $request->query->all();
+        $view->setExposedInput($viewArgs);
+        $view->setItemsPerPage(0);
+        $view->build();
+        
+        $query_view = $view->query->query();
+        $results = $query_view->execute();
+        while ($row = $results->fetchAssoc()) {
+          if (isset($row['uid'])) {
+            $uids[] = (int) $row['uid'];
+          }
+        }
+      }
+
+      if (empty($uids)) {
+        return new JsonResponse([]);
+      }
+
       $query = $this->database->select('users_field_data', 'u');
       $query->join('user__field_locations', 'l', 'u.uid = l.entity_id');
       $query->fields('u', ['uid', 'name']);
       $query->fields('l', [$lat_col, $lon_col]);
       $query->condition('u.status', 1);
+      $query->condition('u.uid', $uids, 'IN');
       $query->isNotNull('l.' . $lat_col);
       $query->isNotNull('l.' . $lon_col);
       $query->condition('l.' . $lat_col, 0, '!=');

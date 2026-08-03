@@ -110,8 +110,8 @@
 
           var markers = L.markerClusterGroup();
 
-          // Use absolute path for API
-          var apiUrl = '/api/map-points/' + type;
+          // Use absolute path for API and append query parameters to support filtering.
+          var apiUrl = '/api/map-points/' + type + window.location.search;
 
           var getPopupUrl = function(pointId) {
             return (type === 'labdooer' || type === 'user') ? '/user/' + pointId : '/node/' + pointId;
