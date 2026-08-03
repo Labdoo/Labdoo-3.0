@@ -78,11 +78,60 @@ class NotificationController extends ControllerBase {
    */
   public function displayNotificationEmail(): array {
     $request = $this->requestStack->getCurrentRequest();
+
+    // Normalize query parameters to handle potential "amp;" prefixes from HTML-encoded URLs.
+    foreach ($request->query->all() as $key => $value) {
+      if (strpos($key, 'amp;') === 0) {
+        $cleanKey = substr($key, 4);
+        if (!$request->query->has($cleanKey)) {
+          $request->query->set($cleanKey, $value);
+        }
+      }
+    }
+
     $langCode = $request->query->get('language') ?: $this->languageManager->getCurrentLanguage()->getId();
 
     // Get parameters from the request.
     $type = $request->query->get('type');
     $id = $request->query->get('id');
+
+    // Fallback detection from query parameters if type or id is missing.
+    if (empty($type)) {
+      if ($request->query->has('LAPTOP_ID')) {
+        $type = 'dootronic';
+        $id = $request->query->get('LAPTOP_ID');
+      }
+      elseif ($request->query->has('DOOTRIP_ID')) {
+        $type = 'dootrip';
+        $id = $request->query->get('DOOTRIP_ID');
+      }
+      elseif ($request->query->has('EMAIL') || $request->query->has('CONTACT_EMAIL')) {
+        $type = 'contact';
+      }
+      elseif ($request->query->has('ACTIVITY_URL')) {
+        $type = 'team';
+        $activityUrl = $request->query->get('ACTIVITY_URL');
+        if (preg_match('/node\/(\d+)/', $activityUrl, $matches)) {
+          $id = $matches[1];
+        }
+      }
+      elseif ($request->query->has('USER_URL')) {
+        $type = 'user';
+        $userUrl = $request->query->get('USER_URL');
+        if (preg_match('/(?:node|user)\/(\d+)/', $userUrl, $matches)) {
+          $id = $matches[1];
+        }
+      }
+    }
+
+    if (empty($id)) {
+      if ($type === 'dootronic' && $request->query->has('LAPTOP_ID')) {
+        $id = $request->query->get('LAPTOP_ID');
+      }
+      elseif ($type === 'dootrip' && $request->query->has('DOOTRIP_ID')) {
+        $id = $request->query->get('DOOTRIP_ID');
+      }
+    }
 
     if (empty($type) || ($type !== 'contact' && empty($id))) {
       return [
@@ -94,34 +143,53 @@ class NotificationController extends ControllerBase {
     $templateId = '';
     $params = [];
 
+    // Initialize $params with all uppercase query parameter keys to cover everything passed in.
+    foreach ($request->query->all() as $key => $value) {
+      $params[strtoupper($key)] = $value;
+    }
+
     switch ($type) {
       case 'contact':
         $templateId = 'contact_form_submitted';
         foreach (['NAME', 'EMAIL', 'SUBJECT', 'MESSAGE', 'REASON', 'USERNAME', 'USEREMAIL', 'COUNTRY', 'CITY', 'CAMPAIGN'] as $paramName) {
-          $params[$paramName] = $request->query->get($paramName) ?? $request->query->get(strtolower($paramName)) ?? '';
+          if (!isset($params[$paramName])) {
+            $params[$paramName] = $request->query->get($paramName) ?? $request->query->get(strtolower($paramName)) ?? '';
+          }
         }
         break;
 
-      case 'laptop':
+      case 'dootronic':
         $templateId = 'laptop_updated';
-        $params['LAPTOP_ID'] = $id;
-        $params['LAPTOP_URL'] = $this->getBaseUrl() . '/node/' . $id;
+        if (empty($params['LAPTOP_ID'])) {
+          $params['LAPTOP_ID'] = $id;
+        }
+        if (empty($params['LAPTOP_URL'])) {
+          $params['LAPTOP_URL'] = $this->getBaseUrl() . '/node/' . $id;
+        }
         break;
 
       case 'dootrip':
         $templateId = 'dootrip_added';
-        $params['DOOTRIP_ID'] = $id;
-        $params['DOOTRIP_URL'] = $this->getBaseUrl() . '/node/' . $id;
+        if (empty($params['DOOTRIP_ID'])) {
+          $params['DOOTRIP_ID'] = $id;
+        }
+        if (empty($params['DOOTRIP_URL'])) {
+          $params['DOOTRIP_URL'] = $this->getBaseUrl() . '/node/' . $id;
+        }
         break;
 
       case 'team':
         $templateId = 'team_activity';
-        $params['ACTIVITY_URL'] = $this->getBaseUrl() . '/node/' . $id;
+        if (empty($params['ACTIVITY_URL'])) {
+          $params['ACTIVITY_URL'] = $this->getBaseUrl() . '/node/' . $id;
+        }
         break;
 
       case 'user':
         $templateId = 'user_created';
-        $params['USER_URL'] = $this->getBaseUrl() . '/user/' . $id;
+        if (empty($params['USER_URL'])) {
+          $params['USER_URL'] = $this->getBaseUrl() . '/user/' . $id;
+        }
         break;
 
       default:

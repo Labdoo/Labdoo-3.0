@@ -36,12 +36,12 @@ class LaptopProcessor implements EntityProcessorInterface {
    * {@inheritdoc}
    */
   public function process(EntityInterface $entity, string $operation, $comment = null): void {
-    if ($entity->getEntityTypeId() !== 'node' || $entity->bundle() !== 'laptop') {
+    if ($entity->getEntityTypeId() !== 'node' || $entity->bundle() !== 'dootronic') {
       return;
     }
 
     // Send laptop event notification.
-    $this->notificationManager->sendLaptopEventEmail($entity);
+    $this->notificationManager->sendLaptopEventEmail($entity, $operation);
   }
 
 }

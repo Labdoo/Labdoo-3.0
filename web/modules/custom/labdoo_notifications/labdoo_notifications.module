@@ -53,13 +53,6 @@ function labdoo_notifications_node_presave(EntityInterface $node) {
     return;
   }
 
-  // Process laptop notifications.
-  if ($node->getType() === 'laptop') {
-    /** @var Drupal\labdoo_notifications\Service\EntityProcessor\ $processor */
-    $processor = \Drupal::service('labdoo_notifications.entity_processor.laptop');
-    $processor->process($node, 'presave', NULL);
-  }
-
   // Process dootrip notifications.
   if ($node->getType() === 'dootrip') {
     /** @var Drupal\labdoo_notifications\Service\EntityProcessor\ $processor */
@@ -74,6 +67,13 @@ function labdoo_notifications_node_presave(EntityInterface $node) {
 function labdoo_notifications_node_insert(EntityInterface $node) {
   if (!$node instanceof NodeInterface || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
     return;
+  }
+
+  // Process laptop notifications.
+  if ($node->getType() === 'dootronic') {
+    /** @var Drupal\labdoo_notifications\Service\EntityProcessor\LaptopProcessor $processor */
+    $processor = \Drupal::service('labdoo_notifications.entity_processor.laptop');
+    $processor->process($node, 'insert', NULL);
   }
 
   // Process dootrip notifications.
@@ -91,6 +91,22 @@ function labdoo_notifications_node_insert(EntityInterface $node) {
   if (in_array($node->getType(), ['team_page', 'event', 'team_task'])) {
     $processor = \Drupal::service("labdoo_notifications.entity_processor.{$node->getType()}");
     $processor->process($node, 'insert', NULL);
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function labdoo_notifications_node_update(EntityInterface $node) {
+  if (!$node instanceof NodeInterface || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
+    return;
+  }
+
+  // Process laptop notifications.
+  if ($node->getType() === 'dootronic') {
+    /** @var Drupal\labdoo_notifications\Service\EntityProcessor\LaptopProcessor $processor */
+    $processor = \Drupal::service('labdoo_notifications.entity_processor.laptop');
+    $processor->process($node, 'update', NULL);
   }
 }
 

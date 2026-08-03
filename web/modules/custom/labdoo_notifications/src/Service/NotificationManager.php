@@ -76,16 +76,18 @@ class NotificationManager {
    *
    * @param \Drupal\Core\Entity\EntityInterface $node
    *   The laptop node.
+   * @param string $operation
+   *   The operation being performed ('presave', 'insert', 'update').
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function sendLaptopEventEmail(EntityInterface $node): void {
+  public function sendLaptopEventEmail(EntityInterface $node, string $operation = 'presave'): void {
     if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
       return;
     }
 
-    if ($node->getEntityTypeId() !== 'node' || $node->bundle() !== 'laptop') {
+    if ($node->getEntityTypeId() !== 'node' || $node->bundle() !== 'dootronic') {
       return;
     }
 
@@ -93,17 +95,17 @@ class NotificationManager {
     $emailParams = ['type' => 'LAPTOP_EVENT'];
 
     // Determine the event type based on the laptop status.
-    $status = $node->hasField('field_status') ? $node->get('field_status')->value : NULL;
-    $isNew = $node->isNew();
-    $isUpdated = !$isNew && $node->hasField('field_status') && !empty($node->original) && $node->get('field_status')->value != $node->original->get('field_status')->value;
+    $status = $node->hasField('field_dootronic_status') ? $node->get('field_dootronic_status')->value : NULL;
+    $isNew = $operation === 'insert' || ($operation === 'presave' && $node->isNew());
+    $isUpdated = ($operation === 'update' || ($operation === 'presave' && !$node->isNew())) && $node->hasField('field_dootronic_status') && !empty($node->original) && $node->get('field_dootronic_status')->value != $node->original->get('field_dootronic_status')->value;
 
-    if ($isNew && $status == 'Tagged') {
+    if ($isNew && $status == 'S0') {
       // New laptop tagged
       $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_tagged_subject');
       $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_tagged_body');
       $eventType = 'tagged';
     }
-    elseif ($status == 'Delivered' && $isUpdated) {
+    elseif ($status == 'S4' && $isUpdated) {
       // Laptop delivered
       $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_delivered_subject');
       $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_delivered_body');
@@ -178,6 +180,8 @@ class NotificationManager {
       'LAPTOP_TITLE' => $laptopTitle,
       'LAPTOP_URL' => $laptopUrl,
       'LAPTOP_STATUS' => $status,
+      'type' => 'dootronic',
+      'id' => $laptopId,
     ];
 
     // Process the subject and body
@@ -286,6 +290,8 @@ class NotificationManager {
       'DOOTRIP_URL' => $dootripUrl,
       'ORIGIN' => $origin,
       'DESTINATION' => $destination,
+      'type' => 'dootrip',
+      'id' => $dootripId,
     ];
 
     // Process the subject and body
@@ -407,6 +413,8 @@ class NotificationManager {
       'ACTIVITY_URL' => $activityUrl,
       'TEAMS_MGM_URL' => $teamsMgmUrl,
       'USERNAME' => $this->currentUser->getDisplayName(),
+      'type' => 'team',
+      'id' => $node->id(),
     ];
 
     // Process the subject and body
@@ -459,6 +467,8 @@ class NotificationManager {
       'USERNAME' => $userName,
       'USER_MAIL' => $userMail,
       'USER_URL' => $userUrl,
+      'type' => 'user',
+      'id' => $userId,
     ];
 
     // Process the subject and body
