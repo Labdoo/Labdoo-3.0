@@ -1,0 +1,23 @@
+uuid: b0aa08c7-79ef-4221-a2e2-17045e2d2985
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_expired
+    - node.type.dootrip
+id: node.dootrip.field_expired
+field_name: field_expired
+entity_type: node
+bundle: dootrip
+label: Expired
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

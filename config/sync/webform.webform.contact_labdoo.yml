@@ -257,9 +257,9 @@ access:
 handlers:
   admin_notification:
     id: email
+    handler_id: admin_notification
     label: 'Admin Notification'
     notes: ''
-    handler_id: admin_notification
     status: true
     conditions: {  }
     weight: 0
@@ -268,32 +268,32 @@ handlers:
         - completed
       to_mail: '[labdoo_notifications:contact_shub_to_mail]'
       to_options: {  }
-      cc_mail: ''
-      cc_options: {  }
       bcc_mail: ''
       bcc_options: {  }
+      cc_mail: ''
+      cc_options: {  }
       from_mail: _default
       from_options: {  }
       from_name: _default
-      subject: '[labdoo_notifications:contact_shub_subject]'
-      body: '[labdoo_notifications:contact_shub_body]'
-      html: true
-      attachments: false
-      debug: false
       reply_to: ''
       return_path: ''
       sender_mail: ''
       sender_name: ''
-      theme_name: ''
+      subject: '[labdoo_notifications:contact_shub_subject]'
+      body: '[labdoo_notifications:contact_shub_body]'
       excluded_elements: {  }
       ignore_access: false
+      html: true
+      attachments: false
+      theme_name: ''
+      debug: false
       force_utf8: false
       theme: ''
   autoreply:
     id: email
-    label: 'Autoreply'
-    notes: ''
     handler_id: autoreply
+    label: Autoreply
+    notes: ''
     status: true
     conditions: {  }
     weight: 1
@@ -302,25 +302,25 @@ handlers:
         - completed
       to_mail: '[webform_submission:values:email_address]'
       to_options: {  }
-      cc_mail: ''
-      cc_options: {  }
       bcc_mail: ''
       bcc_options: {  }
+      cc_mail: ''
+      cc_options: {  }
       from_mail: _default
       from_options: {  }
       from_name: _default
-      subject: '[labdoo_notifications:contact_subject]'
-      body: '[labdoo_notifications:contact_body]'
-      html: true
-      attachments: false
-      debug: false
       reply_to: ''
       return_path: ''
       sender_mail: ''
       sender_name: ''
-      theme_name: ''
+      subject: '[labdoo_notifications:contact_subject]'
+      body: '[labdoo_notifications:contact_body]'
       excluded_elements: {  }
       ignore_access: false
+      html: true
+      attachments: false
+      theme_name: ''
+      debug: false
       force_utf8: false
       theme: ''
 variants: {  }

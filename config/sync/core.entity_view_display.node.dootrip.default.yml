@@ -20,6 +20,7 @@ dependencies:
     - field.field.node.dootrip.field_edoo_additional_editors
     - field.field.node.dootrip.field_edoo_additional_notif_em
     - field.field.node.dootrip.field_edoovillages_assigned
+    - field.field.node.dootrip.field_expired
     - field.field.node.dootrip.field_full
     - field.field.node.dootrip.field_hub
     - field.field.node.dootrip.field_laptops
@@ -847,6 +848,7 @@ hidden:
   field_dootronics_in_transit: true
   field_edoo_additional_editors: true
   field_edoo_additional_notif_em: true
+  field_expired: true
   field_full: true
   langcode: true
   search_api_excerpt: true
