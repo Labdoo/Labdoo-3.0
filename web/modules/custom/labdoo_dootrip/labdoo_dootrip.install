@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Labdoo Dootrip module.
+ */
+
+use Drupal\Core\Cache\Cache;
+
+/**
+ * Initialize field_expired to 0 for all dootrips.
+ */
+function labdoo_dootrip_update_9001() {
+  // Set field_expired to 0 for all existing dootrip nodes.
+  $database = \Drupal::database();
+
+  // Insert missing records in bulk.
+  $database->query("
+    INSERT INTO {node__field_expired} (bundle, deleted, entity_id, revision_id, langcode, delta, field_expired_value)
+    SELECT 'dootrip', 0, n.nid, n.vid, n.langcode, 0, 0
+    FROM {node_field_data} n
+    LEFT JOIN {node__field_expired} fe ON fe.entity_id = n.nid AND fe.langcode = n.langcode
+    WHERE n.type = 'dootrip' AND fe.entity_id IS NULL
+  ");
+
+  $database->query("
+    INSERT INTO {node_revision__field_expired} (bundle, deleted, entity_id, revision_id, langcode, delta, field_expired_value)
+    SELECT 'dootrip', 0, n.nid, n.vid, n.langcode, 0, 0
+    FROM {node_field_revision} n
+    LEFT JOIN {node_revision__field_expired} fe ON fe.entity_id = n.nid AND fe.revision_id = n.vid AND fe.langcode = n.langcode
+    WHERE n.nid IN (SELECT nid FROM {node_field_data} WHERE type = 'dootrip') AND fe.entity_id IS NULL
+  ");
+
+  // Update existing records to 0.
+  $database->query("
+    UPDATE {node__field_expired}
+    SET field_expired_value = 0
+    WHERE bundle = 'dootrip'
+  ");
+
+  $database->query("
+    UPDATE {node_revision__field_expired}
+    SET field_expired_value = 0
+    WHERE bundle = 'dootrip'
+  ");
+
+  // Invalidate caches.
+  Cache::invalidateTags(['node_list:dootrip', 'node:dootrip']);
+
+  return t('Field field_expired configuration imported and initialized to 0 for all dootrips.');
+}
