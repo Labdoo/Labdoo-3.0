@@ -222,7 +222,20 @@ class NotificationController extends ControllerBase {
         break;
 
       case 'dootrip':
-        $templateId = 'dootrip_added';
+        $eventType = $request->query->get('event_type') ?: $request->query->get('EVENT_TYPE') ?: 'insert';
+        if ($eventType === 'update') {
+          $templateId = 'dootrip_updated';
+        }
+        elseif ($eventType === 'expired') {
+          $templateId = 'dootrip_expired';
+        }
+        elseif ($eventType === 'announce') {
+          $templateId = 'dootrip_announce';
+        }
+        else {
+          $templateId = 'dootrip_added';
+        }
+
         if (empty($params['DOOTRIP_ID'])) {
           $params['DOOTRIP_ID'] = $id;
         }
