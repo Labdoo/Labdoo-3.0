@@ -174,12 +174,23 @@ class NotificationManager {
       $emailsList .= ', ' . $author->getEmail();
     }
 
+    // Get status label
+    $statusLabel = $status;
+    if ($node->hasField('field_dootronic_status') && !$node->get('field_dootronic_status')->isEmpty()) {
+      $allowed_values = $node->getFieldDefinition('field_dootronic_status')->getSetting('allowed_values');
+      if (isset($allowed_values[$status])) {
+        $statusLabel = $allowed_values[$status];
+      }
+    }
+
     // Prepare email parameters
     $params = [
       'LAPTOP_ID' => $laptopId,
       'LAPTOP_TITLE' => $laptopTitle,
       'LAPTOP_URL' => $laptopUrl,
       'LAPTOP_STATUS' => $status,
+      'ID' => $laptopTitle,
+      'STATUS' => $statusLabel,
       'type' => 'dootronic',
       'id' => $laptopId,
     ];

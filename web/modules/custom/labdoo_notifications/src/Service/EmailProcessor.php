@@ -200,6 +200,27 @@ class EmailProcessor {
       $params['CONTACT_EMAIL'] = $this->configFactory->get('system.site')->get('mail');
     }
 
+    if (empty($params['DASHBOARD_URL'])) {
+      // Determine the dynamic base URL of the site to replace the production host.
+      $host = '';
+      try {
+        if (\Drupal::hasRequest()) {
+          $host = \Drupal::request()->getSchemeAndHttpHost();
+        }
+      }
+      catch (\Exception $e) {
+        // Ignore exceptions if request is not available.
+      }
+      if (empty($host) || strpos($host, 'http') !== 0) {
+        global $base_url;
+        $host = $base_url;
+      }
+      if (empty($host) || strpos($host, 'http') !== 0) {
+        $host = 'https://platform.labdoo.org';
+      }
+      $params['DASHBOARD_URL'] = $host . '/content/getting-started';
+    }
+
     if (strpos($body, '[LANGUAGE_MENU]') !== FALSE) {
       $supportedLanguages = [
         "ca" => "Catalan", 

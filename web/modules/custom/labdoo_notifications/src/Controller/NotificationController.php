@@ -166,6 +166,33 @@ class NotificationController extends ControllerBase {
         if (empty($params['LAPTOP_URL'])) {
           $params['LAPTOP_URL'] = $this->getBaseUrl() . '/node/' . $id;
         }
+
+        // Load the node to populate ID and STATUS robustly if they are missing
+        $node = \Drupal\node\Entity\Node::load($id);
+        if ($node && $node->bundle() === 'dootronic') {
+          if (empty($params['ID'])) {
+            $params['ID'] = $node->label();
+          }
+          if (empty($params['STATUS'])) {
+            $statusVal = $node->hasField('field_dootronic_status') ? $node->get('field_dootronic_status')->value : NULL;
+            $statusLabel = $statusVal;
+            if ($node->hasField('field_dootronic_status') && !$node->get('field_dootronic_status')->isEmpty()) {
+              $allowed_values = $node->getFieldDefinition('field_dootronic_status')->getSetting('allowed_values');
+              if (isset($allowed_values[$statusVal])) {
+                $statusLabel = $allowed_values[$statusVal];
+              }
+            }
+            $params['STATUS'] = $statusLabel;
+          }
+        }
+
+        // Fallbacks in case the node could not be loaded or fields were empty
+        if (empty($params['ID'])) {
+          $params['ID'] = $params['LAPTOP_TITLE'] ?? '';
+        }
+        if (empty($params['STATUS'])) {
+          $params['STATUS'] = $params['LAPTOP_STATUS'] ?? '';
+        }
         break;
 
       case 'dootrip':
