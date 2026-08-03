@@ -5,6 +5,7 @@ namespace Drupal\labdoo_dootronics\Service\Compute;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Drupal\labdoo_dootronics\Exception\LockException;
 use Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface;
@@ -24,6 +25,34 @@ use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
  * @property \Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface $recomputeQueueFeeder
  */
 class DootronicCompute implements DootronicComputeInterface {
+
+  /**
+   * The common repository instance.
+   *
+   * @var \Drupal\labdoo_common\Service\Repository\CommonRepository
+   */
+  protected CommonRepository $commonRepository;
+
+  /**
+   * The dootronic repository instance.
+   *
+   * @var \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface
+   */
+  protected DootronicRepositoryInterface $dootronicRepository;
+
+  /**
+   * The recompute queue feeder instance.
+   *
+   * @var \Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface
+   */
+  protected QueueFeederInterface $recomputeQueueFeeder;
+
+  /**
+   * The logger channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected LoggerChannelInterface $logger;
 
   /**
    * Class constructor.
