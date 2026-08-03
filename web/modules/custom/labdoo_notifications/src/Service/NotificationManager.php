@@ -240,20 +240,20 @@ class NotificationManager {
     // Determine the template based on the event type
     switch ($eventType) {
       case 'insert':
-        $subjectTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_added_subject') : NULL;
-        $bodyTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_added_body') : NULL;
+        $subjectTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_added_subject');
+        $bodyTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_added_body');
         break;
       case 'update':
-        $subjectTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_updated_subject') : NULL;
-        $bodyTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_updated_body') : NULL;
+        $subjectTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_updated_subject');
+        $bodyTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_updated_body');
         break;
       case 'expired':
-        $subjectTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_expired_subject') : NULL;
-        $bodyTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_expired_body') : NULL;
+        $subjectTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_expired_subject');
+        $bodyTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_expired_body');
         break;
       case 'announce':
-        $subjectTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_announce_subject') : NULL;
-        $bodyTemplate = $this->emailProcessor ? $this->emailProcessor->loadTemplate($langCode, 'dootrip_announce_body') : NULL;
+        $subjectTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_announce_subject');
+        $bodyTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_announce_body');
         break;
       default:
         return;
