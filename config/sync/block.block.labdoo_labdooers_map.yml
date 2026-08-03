@@ -10,7 +10,7 @@ dependencies:
 id: labdoo_labdooers_map
 theme: labdoo
 region: content
-weight: -13
+weight: -14
 provider: null
 plugin: labdoo_map_block
 settings:

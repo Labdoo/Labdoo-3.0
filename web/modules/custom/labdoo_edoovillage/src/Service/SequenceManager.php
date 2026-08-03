@@ -4,7 +4,6 @@ namespace Drupal\labdoo_edoovillage\Service;
 
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Lock\LockBackendInterface;
-use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Drupal\labdoo_dootronics\Exception\LockException;
 
 /**
@@ -16,6 +15,16 @@ class SequenceManager implements SequenceManagerInterface {
    * Lock key.
    */
   private const LOCK_KEY = 'labdoo.edoovillage.id';
+
+  /**
+   * Lock timeout in seconds.
+   */
+  private const LOCK_TIMEOUT = 15;
+
+  /**
+   * Max time to wait for an existing lock to be released.
+   */
+  private const LOCK_WAIT_TIMEOUT = 5;
 
   /**
    * The lock API.
@@ -31,12 +40,6 @@ class SequenceManager implements SequenceManagerInterface {
    */
   private Connection $database;
 
-  /**
-   * The common repository.
-   *
-   * @var \Drupal\labdoo_common\Service\Repository\CommonRepository
-   */
-  private CommonRepository $commonRepository;
 
   /**
    * SequenceManager constructor.
@@ -45,25 +48,27 @@ class SequenceManager implements SequenceManagerInterface {
    *   The lock API.
    * @param \Drupal\Core\Database\Connection $database
    *   The database connection.
-   * @param \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository
-   *   The common repository.
    */
   public function __construct(
     LockBackendInterface $lock,
-    Connection $database,
-    CommonRepository $commonRepository
+    Connection $database
   ) {
     $this->lock = $lock;
     $this->database = $database;
-    $this->commonRepository = $commonRepository;
   }
 
   /**
    * {@inheritDoc}
    */
   public function get(): int {
-    if (!$this->lock->acquire(self::LOCK_KEY, 360)) {
-      throw new LockException(self::LOCK_KEY);
+    if (!$this->lock->acquire(self::LOCK_KEY, self::LOCK_TIMEOUT)) {
+      // Another process may be creating/cloning an edoovillage at the same time.
+      // Wait briefly and retry once before failing.
+      $this->lock->wait(self::LOCK_KEY, self::LOCK_WAIT_TIMEOUT);
+
+      if (!$this->lock->acquire(self::LOCK_KEY, self::LOCK_TIMEOUT)) {
+        throw new LockException(self::LOCK_KEY);
+      }
     }
 
     return $this->findFirstAvailableTitleId();
@@ -90,22 +95,16 @@ class SequenceManager implements SequenceManagerInterface {
     $query = $this->database->select('node_field_data', 'n')
       ->fields('n', ['title'])
       ->condition('n.type', 'edoovillage')
+      ->condition('n.title', 'Edoovillage #%', 'LIKE')
       ->orderBy('n.title', 'ASC');
 
     $result = $query->execute();
 
-    $totalNumEdoovillages = $this->commonRepository->getBundleCount('edoovillage');
-
     $edoovillageIds = [];
     while (($title = $result->fetchField()) !== FALSE) {
-      $edoovillageWords = explode(' ', $title);
-      // Skip edoovillages that don't follow the "Edoovillage #ID" pattern.
-      if (!isset($edoovillageWords[1]) || $edoovillageWords[0] !== "Edoovillage") {
-        continue;
-      }
-      $edoovillageNumber = explode('#', $edoovillageWords[1]);
-      if (isset($edoovillageNumber[1])) {
-        $edoovillageIds[] = (int) $edoovillageNumber[1];
+      // Extract numeric IDs from titles that contain "#<number>".
+      if (preg_match('/#(\d+)/', (string) $title, $matches)) {
+        $edoovillageIds[] = (int) $matches[1];
       }
     }
 
@@ -131,18 +130,9 @@ class SequenceManager implements SequenceManagerInterface {
       $potentialId++;
     }
 
-    // If no IDs were found in any of the edoovillage titles, it means this is
-    // the first edoovillage to be saved using the ID notation.
+    // If no IDs were found in any of the edoovillage titles, start from 1.
     if (!$potentialId) {
-      return $totalNumEdoovillages + 1;
-    }
-
-    // If the potential ID is larger than the total number of edoovillages,
-    // this means that we deleted an edoovillage which did not have an ID.
-    // Thus we should assign an ID just one number smaller than the smallest ID
-    // we currently have, expanding the ID set from the left rather than from the right.
-    if ($potentialId > $totalNumEdoovillages + 1) {
-      return $smallestId - 1;
+      return 1;
     }
 
     return $potentialId;

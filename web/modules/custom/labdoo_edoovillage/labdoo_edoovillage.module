@@ -28,6 +28,17 @@ function labdoo_edoovillage_theme() {
       ],
       'template' => 'block--edoovillage-chart-block',
     ],
+    'edoovillage_node_chart_block_block' => [
+      'variables' => [
+        'needed' => NULL,
+        'tagged' => NULL,
+        'in_transit' => NULL,
+        'delivered_working' => NULL,
+        'delivered_broken' => NULL,
+        'recycled' => NULL,
+      ],
+      'template' => 'block--edoovillage-node-chart-block',
+    ],
     'edoovillage_actions_block_block' => [
       'variables' => [
         'data_link' => '',
@@ -208,4 +219,20 @@ function __labdoo_edoovillage_enqueue_geocoding(EntityInterface $entity): void {
       }
     }
   }
+}
+
+/**
+ * Calculates the demand (number of laptops needed) for a given edoovillage node.
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The edoovillage node.
+ *
+ * @return int
+ *   The demand/laptops needed.
+ */
+function labdoo_get_demand(\Drupal\node\NodeInterface $node): int {
+  if ($node->bundle() === 'edoovillage' && $node->hasField('field_number_of_laptops_needed')) {
+    return (int) $node->get('field_number_of_laptops_needed')->value;
+  }
+  return 0;
 }

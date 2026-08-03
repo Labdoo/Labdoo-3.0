@@ -1,0 +1,28 @@
+uuid: 1bf70c8c-76f9-4e56-97e3-3a669426d875
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_edoovillage
+    - node
+  theme:
+    - labdoo
+id: labdoo_edoovillagenodechart
+theme: labdoo
+region: content
+weight: -17
+provider: null
+plugin: edoovillage_node_chart_block_block
+settings:
+  id: edoovillage_node_chart_block_block
+  label: 'EdooVillage node chart'
+  label_display: '0'
+  provider: labdoo_edoovillage
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      edoovillage: edoovillage

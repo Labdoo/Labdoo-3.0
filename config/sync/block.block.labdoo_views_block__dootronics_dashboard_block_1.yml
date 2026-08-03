@@ -10,7 +10,7 @@ dependencies:
 id: labdoo_views_block__dootronics_dashboard_block_1
 theme: labdoo
 region: content
-weight: -13
+weight: -15
 provider: null
 plugin: labdoo_map_block
 settings:

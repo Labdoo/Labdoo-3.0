@@ -6,7 +6,7 @@ services:
     class: Drupal\labdoo_edoovillage\Service\Permission\DootronicPermissionChecker
   labdoo_edoovillage.sequence_manager:
     class: Drupal\labdoo_edoovillage\Service\SequenceManager
-    arguments: ['@lock.persistent', '@database', '@labdoo_common.repository.common']
+    arguments: ['@lock.persistent', '@database']
   labdoo_edoovillage.repository:
     class: Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepository
     arguments: ['@labdoo_edoovillage.sequence_manager', '@database', '@event_dispatcher']
