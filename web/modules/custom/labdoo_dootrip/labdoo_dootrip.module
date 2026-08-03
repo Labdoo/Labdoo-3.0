@@ -202,6 +202,7 @@ function labdoo_dootrip_entity_presave(EntityInterface $entity) {
 
   /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
   $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
+  $dootripCompute->setDootripTitle($entity);
   $dootripCompute->computeWeight($entity);
   $dootripCompute->computeCo2Savings($entity);
   $dootripCompute->computeDistance($entity);

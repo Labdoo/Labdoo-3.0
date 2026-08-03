@@ -149,11 +149,50 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
         }
 
         // Extract city (locality or admin area).
-        $result['city'] = $address->getLocality() ?: $address->getAdminLevels()->get(2)->getName() ?: '';
+        $adminLevels = $address->getAdminLevels();
+        $result['city'] = $address->getLocality() ?: ($adminLevels->has(2) ? $adminLevels->get(2)->getName() : '') ?: '';
       }
     }
     catch (\Exception $e) {
-      \Drupal::logger('labdoo_edoovillage')->error('Failed to reverse geocode coordinates using geocoder service: @message', ['@message' => $e->getMessage()]);
+      $msg = $e->getMessage();
+      \Drupal::logger('labdoo_edoovillage')->warning('Google Maps reverse geocode failed: @message. Trying fallback Nominatim API...', ['@message' => $msg]);
+
+      // Fallback to Nominatim OpenStreetMap API
+      try {
+        $client = \Drupal::httpClient();
+        $response = $client->get("https://nominatim.openstreetmap.org/reverse?lat={$lat}&lon={$lon}&format=json", [
+          'headers' => [
+            'User-Agent' => 'Labdoo Geocoding Fallback Bot',
+          ],
+        ]);
+        if ($response->getStatusCode() === 200) {
+          $data = json_decode((string) $response->getBody(), TRUE);
+          if (!empty($data['address'])) {
+            $addr = $data['address'];
+            if (!empty($addr['country_code'])) {
+              $result['country_code'] = strtoupper($addr['country_code']);
+            }
+            $result['city'] = $addr['city'] ?? $addr['town'] ?? $addr['village'] ?? $addr['hamlet'] ?? $addr['municipality'] ?? $addr['suburb'] ?? '';
+          }
+        }
+      }
+      catch (\Exception $fallbackException) {
+        \Drupal::logger('labdoo_edoovillage')->error('Fallback Nominatim reverse geocode failed: @message', ['@message' => $fallbackException->getMessage()]);
+
+        // Circuit Breaker: If API is blocked (403) or rate limited (429), suspend queue.
+        if (
+          strpos($msg, 'Access Not Configured') !== FALSE ||
+          strpos($msg, 'API keys with referer restrictions') !== FALSE ||
+          strpos($msg, '403') !== FALSE ||
+          strpos($msg, '429') !== FALSE ||
+          strpos($msg, 'QuotaExceeded') !== FALSE
+        ) {
+          throw new \Drupal\Core\Queue\SuspendQueueException('Google Maps API Error: ' . $msg);
+        }
+
+        // Re-throw to ensure the queue item is not deleted for other transient errors.
+        throw $e;
+      }
     }
 
     return $result;

@@ -1,7 +1,7 @@
 status: 1
 pattern: ''
 escape: false
-preserve_titles: false
+preserve_titles: true
 save: false
 chunk: 50
 dependencies:

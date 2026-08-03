@@ -511,4 +511,103 @@ class DootripCompute implements DootripComputeInterface {
     $totalCo2SavingsQueueFeeder->recompute();
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public function setDootripTitle(EntityInterface $entity): void {
+    if ($entity->bundle() !== 'dootrip') {
+      return;
+    }
+
+    $title = $entity->getTitle();
+
+    $extractedId = NULL;
+    if ($title && preg_match('/Dootrip\s+#(\d+)/i', $title, $matches)) {
+      $extractedId = (int) $matches[1];
+    }
+
+    $suffix = '';
+    if (!$entity->isNew()) {
+      $originalTitle = isset($entity->original) ? $entity->original->getTitle() : '';
+      $originalId = NULL;
+      if ($originalTitle && preg_match('/Dootrip\s+#(\d+)(.*)/i', $originalTitle, $matches)) {
+        $originalId = (int) $matches[1];
+        $suffix = $matches[2];
+      }
+
+      if ($originalId !== NULL) {
+        $id = $originalId;
+      }
+      elseif ($extractedId !== NULL) {
+        $id = $extractedId;
+      }
+      else {
+        $id = (int) $entity->id();
+      }
+    }
+    else {
+      $id = $this->allocateNewId();
+    }
+
+    $formattedId = sprintf('%09d', $id);
+    $expectedBase = 'Dootrip #' . $formattedId;
+
+    if ($title && preg_match('/^Dootrip\s+#' . $formattedId . '\s+-\s+from/i', $title)) {
+      return;
+    }
+
+    if ($title && strcasecmp(trim($title), $expectedBase) === 0) {
+      if (!empty($suffix)) {
+        $entity->setTitle($expectedBase . $suffix);
+        return;
+      }
+      return;
+    }
+
+    $entity->setTitle($expectedBase . $suffix);
+  }
+
+  /**
+   * Allocates a new dootrip ID.
+   *
+   * @return int
+   *   The next available sequential ID.
+   */
+  private function allocateNewId(): int {
+    $lock_key = 'labdoo.dootrip.id';
+    $lock = \Drupal::lock();
+    if (!$lock->acquire($lock_key, 30)) {
+      throw new \Exception('Could not acquire lock for dootrip ID sequence.');
+    }
+
+    $query = $this->database->select('node_field_data', 'n')
+      ->fields('n', ['title'])
+      ->condition('n.type', 'dootrip')
+      ->condition('n.title', 'Dootrip #%', 'LIKE')
+      ->orderBy('n.title', 'ASC');
+
+    $result = $query->execute();
+
+    $dootripIds = [];
+    while (($title = $result->fetchField()) !== FALSE) {
+      if (preg_match('/#(\d+)/', (string) $title, $matches)) {
+        $dootripIds[] = (int) $matches[1];
+      }
+    }
+
+    sort($dootripIds);
+    $dootripIds = array_unique($dootripIds);
+
+    $potentialId = 1;
+    foreach ($dootripIds as $thisId) {
+      if ($potentialId < $thisId) {
+        break;
+      }
+      $potentialId = $thisId + 1;
+    }
+
+    $lock->release($lock_key);
+    return $potentialId;
+  }
+
 }

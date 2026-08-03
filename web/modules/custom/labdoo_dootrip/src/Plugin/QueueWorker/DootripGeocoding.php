@@ -91,6 +91,10 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
       && $node->bundle() === 'dootrip'
     ) {
       $modified = FALSE;
+      $originCity = '';
+      $originCountry = '';
+      $destinationCity = '';
+      $destinationCountry = '';
 
       // Process Origin
       if ($node->hasField('field_origin_of_the_trip') && !$node->get('field_origin_of_the_trip')->isEmpty()) {
@@ -98,12 +102,17 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
         if (isset($originData['lat']) && isset($originData['lon'])) {
           if (abs((float)$originData['lat']) > 0.1 || abs((float)$originData['lon']) > 0.1) {
             $coordinatesData = $this->reverseLookupCoordinates((float)$originData['lat'], (float)$originData['lon']);
-            // We can log or extend this if fields are added later.
             if (!empty($coordinatesData['country_code'])) {
+              $originCountryCode = $coordinatesData['country_code'];
+              $countryManager = \Drupal::service('country_manager');
+              $countries = $countryManager->getList();
+              $originCountry = isset($countries[$originCountryCode]) ? (string) $countries[$originCountryCode] : $originCountryCode;
+              $originCity = $coordinatesData['city'];
+
               \Drupal::logger('labdoo_dootrip')->info('Geocoded origin for dootrip @nid: @country, @city', [
                 '@nid' => $nid,
-                '@country' => $coordinatesData['country_code'],
-                '@city' => $coordinatesData['city'],
+                '@country' => $originCountry,
+                '@city' => $originCity,
               ]);
             }
           }
@@ -117,14 +126,60 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
           if (abs((float)$destinationData['lat']) > 0.1 || abs((float)$destinationData['lon']) > 0.1) {
             $coordinatesData = $this->reverseLookupCoordinates((float)$destinationData['lat'], (float)$destinationData['lon']);
             if (!empty($coordinatesData['country_code'])) {
+              $destinationCountryCode = $coordinatesData['country_code'];
+              $countryManager = \Drupal::service('country_manager');
+              $countries = $countryManager->getList();
+              $destinationCountry = isset($countries[$destinationCountryCode]) ? (string) $countries[$destinationCountryCode] : $destinationCountryCode;
+              $destinationCity = $coordinatesData['city'];
+
               \Drupal::logger('labdoo_dootrip')->info('Geocoded destination for dootrip @nid: @country, @city', [
                 '@nid' => $nid,
-                '@country' => $coordinatesData['country_code'],
-                '@city' => $coordinatesData['city'],
+                '@country' => $destinationCountry,
+                '@city' => $destinationCity,
               ]);
             }
           }
         }
+      }
+
+      $title = $node->getTitle();
+      $extractedId = NULL;
+      if ($title && preg_match('/Dootrip\s+#(\d+)/i', $title, $matches)) {
+        $extractedId = (int) $matches[1];
+      }
+      if ($extractedId === NULL) {
+        $extractedId = (int) $node->id();
+      }
+
+      $prefix = 'Dootrip #' . sprintf('%09d', $extractedId);
+      $suffix = '';
+      if (!empty($originCity) || !empty($originCountry)) {
+        $origin_text = '';
+        if (!empty($originCity) && !empty($originCountry)) {
+          $origin_text = "$originCity ($originCountry)";
+        } elseif (!empty($originCountry)) {
+          $origin_text = $originCountry;
+        } else {
+          $origin_text = $originCity;
+        }
+        $suffix .= " - from $origin_text";
+      }
+      if (!empty($destinationCity) || !empty($destinationCountry)) {
+        $destination_text = '';
+        if (!empty($destinationCity) && !empty($destinationCountry)) {
+          $destination_text = "$destinationCity ($destinationCountry)";
+        } elseif (!empty($destinationCountry)) {
+          $destination_text = $destinationCountry;
+        } else {
+          $destination_text = $destinationCity;
+        }
+        $suffix .= " to $destination_text";
+      }
+
+      $newTitle = $prefix . $suffix;
+      if ($title !== $newTitle) {
+        $node->setTitle($newTitle);
+        $modified = TRUE;
       }
 
       if ($modified) {
@@ -161,26 +216,50 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
         }
 
         // Extract city (locality or admin area).
-        $result['city'] = $address->getLocality() ?: $address->getAdminLevels()->get(2)->getName() ?: '';
+        $adminLevels = $address->getAdminLevels();
+        $result['city'] = $address->getLocality() ?: ($adminLevels->has(2) ? $adminLevels->get(2)->getName() : '') ?: '';
       }
     }
     catch (\Exception $e) {
       $msg = $e->getMessage();
-      \Drupal::logger('labdoo_dootrip')->error('Failed to reverse geocode dootrip coordinates: @message', ['@message' => $msg]);
+      \Drupal::logger('labdoo_dootrip')->warning('Google Maps reverse geocode failed: @message. Trying fallback Nominatim API...', ['@message' => $msg]);
 
-      // Circuit Breaker: If API is blocked (403) or rate limited (429), suspend queue.
-      if (
-        strpos($msg, 'Access Not Configured') !== FALSE || 
-        strpos($msg, 'API keys with referer restrictions') !== FALSE ||
-        strpos($msg, '403') !== FALSE ||
-        strpos($msg, '429') !== FALSE ||
-        strpos($msg, 'QuotaExceeded') !== FALSE
-      ) {
-        throw new \Drupal\Core\Queue\SuspendQueueException('Google Maps API Error: ' . $msg);
+      // Fallback to Nominatim OpenStreetMap API
+      try {
+        $client = \Drupal::httpClient();
+        $response = $client->get("https://nominatim.openstreetmap.org/reverse?lat={$lat}&lon={$lon}&format=json", [
+          'headers' => [
+            'User-Agent' => 'Labdoo Geocoding Fallback Bot',
+          ],
+        ]);
+        if ($response->getStatusCode() === 200) {
+          $data = json_decode((string) $response->getBody(), TRUE);
+          if (!empty($data['address'])) {
+            $addr = $data['address'];
+            if (!empty($addr['country_code'])) {
+              $result['country_code'] = strtoupper($addr['country_code']);
+            }
+            $result['city'] = $addr['city'] ?? $addr['town'] ?? $addr['village'] ?? $addr['hamlet'] ?? $addr['municipality'] ?? $addr['suburb'] ?? '';
+          }
+        }
       }
-      
-      // Re-throw to ensure the queue item is not deleted for other transient errors.
-      throw $e;
+      catch (\Exception $fallbackException) {
+        \Drupal::logger('labdoo_dootrip')->error('Fallback Nominatim reverse geocode failed: @message', ['@message' => $fallbackException->getMessage()]);
+
+        // Circuit Breaker: If API is blocked (403) or rate limited (429), suspend queue.
+        if (
+          strpos($msg, 'Access Not Configured') !== FALSE ||
+          strpos($msg, 'API keys with referer restrictions') !== FALSE ||
+          strpos($msg, '403') !== FALSE ||
+          strpos($msg, '429') !== FALSE ||
+          strpos($msg, 'QuotaExceeded') !== FALSE
+        ) {
+          throw new \Drupal\Core\Queue\SuspendQueueException('Google Maps API Error: ' . $msg);
+        }
+
+        // Re-throw to ensure the queue item is not deleted for other transient errors.
+        throw $e;
+      }
     }
 
     return $result;

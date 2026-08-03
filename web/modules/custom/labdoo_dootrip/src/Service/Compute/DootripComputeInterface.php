@@ -109,4 +109,12 @@ interface DootripComputeInterface {
    */
   public function enqueueTotalCo2SavingsRecompute(): void;
 
+  /**
+   * Sets the title for the dootrip.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The dootrip entity.
+   */
+  public function setDootripTitle(EntityInterface $entity): void;
+
 }
