@@ -199,6 +199,42 @@ function labdoo_notifications_mail_alter(&$message) {
       unset($message['headers']['Bcc']);
     }
   }
+
+  // Dynamically replace the production host with the current site's real host.
+  $host = '';
+  try {
+    if (\Drupal::hasRequest()) {
+      $host = \Drupal::request()->getSchemeAndHttpHost();
+    }
+  }
+  catch (\Exception $e) {
+    // Ignore exceptions.
+  }
+  if (empty($host) || strpos($host, 'http') !== 0) {
+    global $base_url;
+    $host = $base_url;
+  }
+  if (empty($host) || strpos($host, 'http') !== 0) {
+    $host = 'https://platform.labdoo.org';
+  }
+
+  if (!empty($host) && $host !== 'https://platform.labdoo.org') {
+    if (!empty($message['subject'])) {
+      $message['subject'] = str_replace('https://platform.labdoo.org', $host, $message['subject']);
+    }
+    if (!empty($message['body'])) {
+      if (is_array($message['body'])) {
+        foreach ($message['body'] as $key => $body_part) {
+          if (is_string($body_part)) {
+            $message['body'][$key] = str_replace('https://platform.labdoo.org', $host, $body_part);
+          }
+        }
+      }
+      elseif (is_string($message['body'])) {
+        $message['body'] = str_replace('https://platform.labdoo.org', $host, $message['body']);
+      }
+    }
+  }
 }
 
 /**
@@ -332,8 +368,20 @@ function labdoo_notifications_tokens($type, $tokens, array $data = [], array $op
       $params['USERNAME'] = $values['name'] ?? '';
       $params['USEREMAIL'] = $values['email_address'] ?? '';
       $params['COUNTRY'] = $country_val;
-      $params['CITY'] = $values['city'] ?? '';
-      $params['CAMPAIGN'] = $values['campaign'] ?? '';
+
+      // Extract city from country address field array or top-level element.
+      $city_val = $values['city'] ?? '';
+      if (empty($city_val) && is_array($country_field)) {
+        $city_val = $country_field['city'] ?? '';
+      }
+      $params['CITY'] = $city_val;
+
+      // Clean campaign parameter if it was not resolved in URL (leaves token string).
+      $campaign_val = $values['campaign'] ?? '';
+      if (strpos($campaign_val, '[') !== FALSE) {
+        $campaign_val = '';
+      }
+      $params['CAMPAIGN'] = $campaign_val;
 
       // Get translated reason/category label
       $webform = $webform_submission->getWebform();
@@ -395,6 +443,97 @@ function labdoo_notifications_tokens($type, $tokens, array $data = [], array $op
             $template = $email_processor->loadTemplate('en', 'contact_form_submitted_body');
           }
           if ($template) {
+            $values = $webform_submission ? $webform_submission->getData() : [];
+            $has_copy = !empty($values['copy']);
+
+            if (!$has_copy) {
+              // Remove the entire "This is the message..." coletilla block if no copy is requested.
+              $pattern = '/(?:Diese Nachricht haben wir von Ihnen erhalten:\s*This is the message that you sent us:|This is the message that you sent us:|Este es el mensaje que nos enviaste:|Ci-dessous, le message que vous nous avez envoyé:|Dit is het bericht die je naar ons hebt verstuurd:|以下是您發送給我們的信息：|[^\n]+)\s*\-\-\-+\s*"?\[MESSAGE\]"?\s*\-\-\-+/u';
+              $template = preg_replace($pattern, '', $template);
+            }
+            else {
+              // If copy is requested, replace "[MESSAGE]" with a nicely formatted localized full submission details block.
+              $labels = [
+                'en' => [
+                  'name' => 'Name',
+                  'email' => 'Email address',
+                  'country' => 'Country',
+                  'city' => 'City',
+                  'reason' => 'Reason for contacting',
+                  'campaign' => 'Campaign',
+                  'subject' => 'Subject',
+                  'message' => 'Message',
+                ],
+                'es' => [
+                  'name' => 'Nombre',
+                  'email' => 'Dirección de correo electrónico',
+                  'country' => 'País',
+                  'city' => 'Ciudad',
+                  'reason' => 'Motivo del contacto',
+                  'campaign' => 'Campaña',
+                  'subject' => 'Asunto',
+                  'message' => 'Mensaje',
+                ],
+                'de' => [
+                  'name' => 'Name',
+                  'email' => 'E-Mail-Adresse',
+                  'country' => 'Land',
+                  'city' => 'Stadt',
+                  'reason' => 'Grund für die Kontaktaufnahme',
+                  'campaign' => 'Kampagne',
+                  'subject' => 'Betreff',
+                  'message' => 'Nachricht',
+                ],
+                'fr' => [
+                  'name' => 'Nom',
+                  'email' => 'Adresse e-mail',
+                  'country' => 'Pays',
+                  'city' => 'Ville',
+                  'reason' => 'Motif du contact',
+                  'campaign' => 'Campagne',
+                  'subject' => 'Sujet',
+                  'message' => 'Message',
+                ],
+                'nl' => [
+                  'name' => 'Naam',
+                  'email' => 'E-mailadres',
+                  'country' => 'Land',
+                  'city' => 'Stad',
+                  'reason' => 'Reden voor contact',
+                  'campaign' => 'Campagne',
+                  'subject' => 'Onderwerp',
+                  'message' => 'Bericht',
+                ],
+                'zh-hant' => [
+                  'name' => '姓名',
+                  'email' => '電子郵件地址',
+                  'country' => '國家',
+                  'city' => '城市',
+                  'reason' => '聯絡原因',
+                  'campaign' => '活動',
+                  'subject' => '主題',
+                  'message' => '訊息',
+                ],
+              ];
+              $lang = isset($labels[$langcode]) ? $langcode : 'en';
+              $lbl = $labels[$lang];
+
+              $full_details = "";
+              $full_details .= "{$lbl['name']}: " . ($params['NAME'] ?? '') . "\n";
+              $full_details .= "{$lbl['email']}: " . ($params['EMAIL'] ?? '') . "\n";
+              $full_details .= "{$lbl['country']}: " . ($params['COUNTRY'] ?? '') . "\n";
+              $full_details .= "{$lbl['city']}: " . ($params['CITY'] ?? '') . "\n";
+              $full_details .= "{$lbl['reason']}: " . ($params['REASON'] ?? '') . "\n";
+              if (!empty($params['CAMPAIGN'])) {
+                $full_details .= "{$lbl['campaign']}: " . $params['CAMPAIGN'] . "\n";
+              }
+              $full_details .= "{$lbl['subject']}: " . ($params['SUBJECT'] ?? '') . "\n";
+              $full_details .= "{$lbl['message']}:\n\"" . ($params['MESSAGE'] ?? '') . "\"";
+
+              $template = str_replace('"[MESSAGE]"', $full_details, $template);
+              $template = str_replace('[MESSAGE]', $full_details, $template);
+            }
+
             $email_processor->processParameters($params, $template);
             $replacements[$original] = nl2br($template);
           }

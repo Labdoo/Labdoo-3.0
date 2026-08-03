@@ -78,13 +78,13 @@ class NotificationController extends ControllerBase {
    */
   public function displayNotificationEmail(): array {
     $request = $this->requestStack->getCurrentRequest();
-    $langCode = $this->languageManager->getCurrentLanguage()->getId();
+    $langCode = $request->query->get('language') ?: $this->languageManager->getCurrentLanguage()->getId();
 
     // Get parameters from the request.
     $type = $request->query->get('type');
     $id = $request->query->get('id');
 
-    if (empty($type) || empty($id)) {
+    if (empty($type) || ($type !== 'contact' && empty($id))) {
       return [
         '#markup' => $this->t('Missing parameters.'),
       ];
@@ -95,6 +95,13 @@ class NotificationController extends ControllerBase {
     $params = [];
 
     switch ($type) {
+      case 'contact':
+        $templateId = 'contact_form_submitted';
+        foreach (['NAME', 'EMAIL', 'SUBJECT', 'MESSAGE', 'REASON', 'USERNAME', 'USEREMAIL', 'COUNTRY', 'CITY', 'CAMPAIGN'] as $paramName) {
+          $params[$paramName] = $request->query->get($paramName) ?? $request->query->get(strtolower($paramName)) ?? '';
+        }
+        break;
+
       case 'laptop':
         $templateId = 'laptop_updated';
         $params['LAPTOP_ID'] = $id;

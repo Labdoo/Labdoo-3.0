@@ -196,8 +196,64 @@ class EmailProcessor {
    *   The email body to process.
    */
   public function processParameters(array $params, string &$body): void {
+    if (strpos($body, '[LANGUAGE_MENU]') !== FALSE) {
+      $supportedLanguages = [
+        "ca" => "Catalan", 
+        "zh-hant" => "Chinese",
+        "de" => "Deutsch", 
+        "en" => "English", 
+        "fr" => "French", 
+        "nl" => "Nederlands", 
+        "es" => "Spanish",
+      ];
+
+      // Build first the language switchers on the header of the email
+      // All parameters are part of the hyperlink for each language switch
+      $langParamsBase = $params;
+      if (!isset($langParamsBase['type']) && isset($params['EMAIL'])) {
+        $langParamsBase['type'] = 'contact';
+      }
+
+      $htmlCode  = "<hr/>" . t("View this message in other languages:");
+      $htmlCode .= "<br/>";
+
+      // Build each language switcher
+      foreach ($supportedLanguages as $code => $language) {
+        $langParams = $langParamsBase;
+        $langParams['language'] = $code;
+        $urlParams = "?" . http_build_query($langParams);
+        $htmlCode .= "<a href='https://platform.labdoo.org/content/notification-email" . $urlParams . "'>$language</a> | "; 
+      }
+      $htmlCode = substr($htmlCode, 0, -2);
+      $htmlCode .= "<hr/>";
+
+      $body = str_replace("[LANGUAGE_MENU]", $htmlCode, $body);
+    }
+
     foreach ($params as $key => $value) {
       $body = str_replace("[$key]", $value, $body);
+    }
+
+    // Determine the dynamic base URL of the site to replace the production host.
+    $host = '';
+    try {
+      if (\Drupal::hasRequest()) {
+        $host = \Drupal::request()->getSchemeAndHttpHost();
+      }
+    }
+    catch (\Exception $e) {
+      // Ignore exceptions if request is not available.
+    }
+    if (empty($host) || strpos($host, 'http') !== 0) {
+      global $base_url;
+      $host = $base_url;
+    }
+    if (empty($host) || strpos($host, 'http') !== 0) {
+      $host = 'https://platform.labdoo.org';
+    }
+
+    if (!empty($host) && $host !== 'https://platform.labdoo.org') {
+      $body = str_replace('https://platform.labdoo.org', $host, $body);
     }
   }
 
