@@ -155,6 +155,15 @@ services:
     tags:
       - { name: drush.command }
 
+  labdoo_migrate.commands.dootrip_title_migrate:
+    class: \Drupal\labdoo_migrate\Commands\DootripTitleMigratorCommands
+    arguments:
+      - '@database'
+      - '@labdoo_migrate.database.external_connection_manager'
+      - '@entity_type.manager'
+    tags:
+      - { name: drush.command }
+
   labdoo_migrate.commands.dootronic_image_reference_migrator:
     class: \Drupal\labdoo_migrate\Commands\DootronicImageReferenceMigratorCommands
     arguments:
