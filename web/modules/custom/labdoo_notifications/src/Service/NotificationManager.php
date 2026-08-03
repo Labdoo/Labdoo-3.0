@@ -368,7 +368,7 @@ class NotificationManager {
     $activityBody = '';
 
     switch ($bundle) {
-      case 'team_page':
+      case 'team_post':
         if ($comment === NULL) {
           $activityType = 'conversation';
           $activityBody = $node->hasField('body') ? $node->get('body')->value : '';
@@ -398,7 +398,7 @@ class NotificationManager {
 
     $activityTitle = $node->label();
     $activityUrl = Url::fromRoute('entity.node.canonical', ['node' => $node->id()], ['absolute' => TRUE])->toString();
-    $teamsMgmUrl = Url::fromRoute('<front>', [], ['absolute' => TRUE])->toString() . 'my-teams';
+    $teamsMgmUrl = Url::fromUserInput('/my-teams', ['absolute' => TRUE])->toString();
 
     // Get team information
     $teamName = '';

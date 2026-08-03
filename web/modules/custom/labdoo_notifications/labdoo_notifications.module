@@ -88,7 +88,7 @@ function labdoo_notifications_node_insert(EntityInterface $node) {
   }
 
   // Process team-related notifications.
-  if (in_array($node->getType(), ['team_page', 'event', 'team_task'])) {
+  if (in_array($node->getType(), ['event', 'team_task', 'team_post'])) {
     $processor = \Drupal::service("labdoo_notifications.entity_processor.{$node->getType()}");
     $processor->process($node, 'insert', NULL);
   }
@@ -120,7 +120,7 @@ function labdoo_notifications_comment_insert(CommentInterface $comment) {
   }
 
   // Process team-related notifications for comments.
-  if (in_array($entity->getType(), ['team_page', 'event', 'team_task'])) {
+  if (in_array($entity->getType(), ['event', 'team_task', 'team_post'])) {
     $processor = \Drupal::service("labdoo_notifications.entity_processor.{$entity->getType()}");
     $processor->process($entity, 'insert', $comment);
   }
