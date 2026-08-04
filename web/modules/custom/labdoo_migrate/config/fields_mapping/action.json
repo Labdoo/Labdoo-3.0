@@ -29,7 +29,11 @@
         ]
       },
       "destination": {
-        "field": "field_country"
+        "field": "field_address",
+        "special_type": "address_component",
+        "metadata": {
+          "component": "country_code"
+        }
       }
     },
     {
@@ -56,7 +60,11 @@
         ]
       },
       "destination": {
-        "field": "field_city"
+        "field": "field_address",
+        "special_type": "address_component",
+        "metadata": {
+          "component": "locality"
+        }
       }
     },
     {
@@ -83,7 +91,11 @@
         ]
       },
       "destination": {
-        "field": "field_postal_code"
+        "field": "field_address",
+        "special_type": "address_component",
+        "metadata": {
+          "component": "postal_code"
+        }
       }
     },
     {
@@ -110,7 +122,11 @@
         ]
       },
       "destination": {
-        "field": "field_address"
+        "field": "field_address",
+        "special_type": "address_component",
+        "metadata": {
+          "component": "address_line1"
+        }
       }
     },
     {

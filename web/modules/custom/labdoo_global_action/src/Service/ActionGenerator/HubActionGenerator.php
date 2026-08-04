@@ -26,9 +26,10 @@ class HubActionGenerator extends AbstractActionGenerator implements ActionGenera
     }
 
     $city = '';
-    $country = '';
+    $countryCode = '';
     $location = $entity->hasField('field_locations') ? ($entity->get('field_locations')->getValue()[0] ?? []) : [];
-    $this->setGeoData($location, $city, $country);
+    $this->resolveLocalGeoData($entity, $location, $city, $countryCode);
+    $country = $this->getCountryName($countryCode);
 
     $title = sprintf(
       'Hub was created in %s, %s',
@@ -48,6 +49,7 @@ class HubActionGenerator extends AbstractActionGenerator implements ActionGenera
       $entity->getOwner()->id(),
       $location,
       $city ?? '',
+      $countryCode,
       $entity->get('created')->value,
       $entity->get('changed')->value
     );

@@ -7,25 +7,7 @@ dependencies:
     - node.type.action
   module:
     - address
-    - geocoder_field
-third_party_settings:
-  geocoder_field:
-    method: reverse_geocode
-    weight: 0
-    field: field_locations
-    skip_not_empty_value: false
-    disabled: false
-    hidden: false
-    providers:
-      - googlemaps
-    dumper: geojson
-    delta_handling: default
-    failure:
-      handling: preserve
-      status_message: true
-      log: true
-    geocode:
-      delta_handling: default
+third_party_settings: {  }
 id: node.action.field_address
 field_name: field_address
 entity_type: node

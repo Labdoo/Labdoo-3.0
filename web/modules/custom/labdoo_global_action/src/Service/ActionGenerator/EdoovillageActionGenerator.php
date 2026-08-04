@@ -26,12 +26,13 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
     }
 
     $city = '';
-    $country = '';
+    $countryCode = '';
     $location = $entity->hasField('field_location') ? ($entity->get('field_location')->getValue()[0] ?? []) : [];
     if (empty($location) && $entity->hasField('field_locations')) {
       $location = $entity->get('field_locations')->getValue()[0] ?? [];
     }
-    $this->setGeoData($location, $city, $country);
+    $this->resolveLocalGeoData($entity, $location, $city, $countryCode);
+    $country = $this->getCountryName($countryCode);
 
     $title = sprintf(
       'Edoovillage was created in %s, %s',
@@ -51,6 +52,7 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
       $entity->getOwner()->id(),
       $location,
       $city ?? '',
+      $countryCode,
       $entity->get('created')->value,
       $entity->get('changed')->value
     );

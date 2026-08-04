@@ -26,7 +26,7 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
     }
 
     $city = '';
-    $country = '';
+    $countryCode = '';
     $location = $entity->hasField('field_origin_of_the_trip') ? $entity->get('field_origin_of_the_trip')->getValue() : [];
     if (empty($location)) {
       $location = $entity->hasField('field_destination_of_the_trip') ? $entity->get('field_destination_of_the_trip')->getValue() : [];
@@ -39,7 +39,7 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
     if ($location === NULL) {
       $location = [];
     }
-    $this->setGeoData($location, $city, $country);
+    $this->resolveLocalGeoData($entity, $location, $city, $countryCode);
 
     $titleSplit = explode('- ', $entity->label());
     $titlePart = $titleSplit[1] ?? ($titleSplit[0] ?? $entity->label());
@@ -81,6 +81,7 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
       $entity->getOwner()->id(),
       $location,
       $city ?? '',
+      $countryCode,
       $entity->get('created')->value,
       $entity->get('changed')->value
     );

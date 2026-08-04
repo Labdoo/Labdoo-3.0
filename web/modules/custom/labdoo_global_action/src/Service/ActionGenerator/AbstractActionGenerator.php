@@ -31,6 +31,13 @@ abstract class AbstractActionGenerator {
   protected CommonRepository $commonRepository;
 
   /**
+   * Static cache of geocoded coordinates to prevent redundant API calls.
+   *
+   * @var array
+   */
+  protected static array $geoCache = [];
+
+  /**
    * AbstractActionGenerator constructor.
    *
    * @param \Drupal\geocoder\GeocoderInterface $geocoder
@@ -96,6 +103,156 @@ abstract class AbstractActionGenerator {
   }
 
   /**
+   * Resolves city and country code locally from the entity and/or location data.
+   */
+  protected function resolveLocalGeoData(EntityInterface $entity, array $location, &$city, &$countryCode): void {
+    $city = '';
+    $countryCode = '';
+
+    // 1. Try to get from entity fields.
+    if ($entity->hasField('field_city') && !$entity->get('field_city')->isEmpty()) {
+      $city = $entity->get('field_city')->value;
+    }
+    if ($entity->hasField('field_country') && !$entity->get('field_country')->isEmpty()) {
+      $countryCode = $entity->get('field_country')->value;
+    }
+
+    // 2. Fallback to location properties.
+    if (empty($city)) {
+      $city = $location['city'] ?? $location['locality'] ?? '';
+    }
+    if (empty($countryCode)) {
+      $countryCode = $location['country_code'] ?? $location['country'] ?? '';
+    }
+
+    // 3. Fallback to reverse geocoding with cache if city is still empty and we have coordinates.
+    if (empty($city)) {
+      $lat = $location['lat'] ?? $location['latitude'] ?? NULL;
+      $lon = $location['lon'] ?? $location['lng'] ?? $location['longitude'] ?? NULL;
+      if ($lat !== NULL && $lon !== NULL && (abs((float)$lat) >= 0.1 || abs((float)$lon) >= 0.1)) {
+        $geoData = $this->reverseGeocodeWithFallback((string) $lat, (string) $lon);
+        if ($geoData !== NULL) {
+          $city = $geoData['city'];
+          if (empty($countryCode)) {
+            $countryCode = $geoData['country_code'];
+          }
+        }
+      }
+    }
+
+    $city = trim($city);
+    $countryCode = trim($countryCode);
+
+    // Normalize country code to 2-character ISO if it's currently a country name.
+    if (strlen($countryCode) > 2) {
+      $countryList = \Drupal::service('country_manager')->getList();
+      foreach ($countryList as $code => $name) {
+        if (strcasecmp($countryCode, (string) $name) === 0) {
+          $countryCode = $code;
+          break;
+        }
+      }
+    }
+
+    $countryCode = strtoupper($countryCode);
+  }
+
+  /**
+   * Reverse geocodes coordinates with caching and Nominatim fallback.
+   *
+   * @param string $lat
+   *   Latitude.
+   * @param string $lon
+   *   Longitude.
+   *
+   * @return array|null
+   *   Array with keys 'city' and 'country_code', or NULL.
+   */
+  protected function reverseGeocodeWithFallback(string $lat, string $lon): ?array {
+    $cacheKey = round((float) $lat, 4) . ',' . round((float) $lon, 4);
+    if (isset(self::$geoCache[$cacheKey])) {
+      return self::$geoCache[$cacheKey];
+    }
+
+    $result = NULL;
+
+    // 1. Try Google Maps geocoder service.
+    try {
+      $addressCollection = $this->geocoder->reverse(
+        $lat,
+        $lon,
+        ['plugin' => 'googlemaps']
+      );
+      if ($addressCollection && !$addressCollection->isEmpty()) {
+        /** @var \Geocoder\Location $address */
+        $address = $addressCollection->first();
+        $adminLevels = $address->getAdminLevels();
+        $city = $address->getLocality() ?: ($adminLevels->has(2) ? $adminLevels->get(2)->getName() : '') ?: '';
+        $countryCode = '';
+        if ($country = $address->getCountry()) {
+          $countryCode = $country->getCode();
+        }
+        if (!empty($city) || !empty($countryCode)) {
+          $result = [
+            'city' => $city,
+            'country_code' => $countryCode,
+          ];
+        }
+      }
+    }
+    catch (\Throwable $e) {
+      // Ignore and fallback to Nominatim.
+    }
+
+    // 2. Try Nominatim fallback if Google Maps failed or returned empty.
+    if ($result === NULL) {
+      try {
+        $client = \Drupal::httpClient();
+        $response = $client->get("https://nominatim.openstreetmap.org/reverse?lat={$lat}&lon={$lon}&format=json", [
+          'headers' => [
+            'User-Agent' => 'Labdoo Geocoding Fallback Bot',
+          ],
+          'timeout' => 5,
+        ]);
+        if ($response->getStatusCode() === 200) {
+          $data = json_decode((string) $response->getBody(), TRUE);
+          if (!empty($data['address'])) {
+            $addr = $data['address'];
+            $city = $addr['city'] ?? $addr['town'] ?? $addr['village'] ?? $addr['hamlet'] ?? $addr['municipality'] ?? $addr['suburb'] ?? $addr['county'] ?? $addr['state'] ?? '';
+            $countryCode = !empty($addr['country_code']) ? strtoupper($addr['country_code']) : '';
+            if (!empty($city) || !empty($countryCode)) {
+              $result = [
+                'city' => $city,
+                'country_code' => $countryCode,
+              ];
+            }
+          }
+        }
+      }
+      catch (\Throwable $e) {
+        // Ignore fallback errors.
+      }
+    }
+
+    if ($result !== NULL) {
+      self::$geoCache[$cacheKey] = $result;
+    }
+
+    return $result;
+  }
+
+  /**
+   * Returns country name from a country code.
+   */
+  protected function getCountryName(string $countryCode): string {
+    if (empty($countryCode)) {
+      return 'unknown country';
+    }
+    $countryList = \Drupal::service('country_manager')->getList();
+    return isset($countryList[strtoupper($countryCode)]) ? (string)$countryList[strtoupper($countryCode)] : $countryCode;
+  }
+
+  /**
    * Sets the city and country from a given geolocation.
    *
    * @param array $location
@@ -108,35 +265,9 @@ abstract class AbstractActionGenerator {
    * @return void
    */
   protected function setGeoData(array $location, &$city, &$country): void {
-    $fallbackCity = $location['city'] ?? NULL;
-    $fallbackCountry = $location['country'] ?? NULL;
-
-    if (!empty($fallbackCity) && !empty($fallbackCountry)) {
-      $city = $fallbackCity;
-      $country = $fallbackCountry;
-      return;
-    }
-
-    $lat = $location['lat'] ?? $location['latitude'] ?? NULL;
-    $lon = $location['lon'] ?? $location['lng'] ?? $location['longitude'] ?? NULL;
-    $geoData = NULL;
-
-    if ($lat !== NULL && $lon !== NULL) {
-      $geoData = $this->reverseGeocode((string) $lat, (string) $lon);
-    }
-
-    if (
-      $geoData === NULL
-      || empty($geoData['country'])
-      || !method_exists($geoData['country'], 'getName')
-    ) {
-      $city = $fallbackCity ?? 'unknown city';
-      $country = $fallbackCountry ?? 'unknown country';
-    }
-    else {
-      $city = $geoData['city'];
-      $country = $geoData['country']->getName();
-    }
+    $city = $location['city'] ?? $location['locality'] ?? 'unknown city';
+    $countryCode = $location['country_code'] ?? $location['country'] ?? '';
+    $country = $this->getCountryName($countryCode);
   }
 
   /**
@@ -188,6 +319,8 @@ abstract class AbstractActionGenerator {
    *   The location.
    * @param string $city
    *   The city.
+   * @param string $countryCode
+   *   The country code.
    * @param int $created
    *   The creation date.
    * @param int $changed
@@ -205,6 +338,7 @@ abstract class AbstractActionGenerator {
     int $ownerId,
     $location,
     string $city,
+    string $countryCode,
     int $created,
     int $changed
   ): void {
@@ -226,6 +360,10 @@ abstract class AbstractActionGenerator {
     if ($this->mustBeStreamed($city, $title)) {
       $globalAction->set('field_stream_it', TRUE);
     }
+    $globalAction->set('field_address', [
+      'locality' => $city,
+      'country_code' => $countryCode,
+    ]);
   }
 
   /**
@@ -250,7 +388,7 @@ abstract class AbstractActionGenerator {
     int $width
   ): string {
     return sprintf(
-      '<a href="/node/%d">%s...</a><img src="/themes/custom/labdoo/img/%s" width="%d"></a>',
+      '<a href="/node/%d">%s...</a>&nbsp;<img src="/themes/custom/labdoo/img/%s" width="%d"></a>',
       $nodeId,
       $title,
       $picture,

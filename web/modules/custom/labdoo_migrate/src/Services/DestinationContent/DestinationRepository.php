@@ -670,7 +670,12 @@ class DestinationRepository implements DestinationRepositoryInterface {
           $accumulatedValues[$fieldName] = !empty($fieldValue) ? reset($fieldValue) : NULL;
         }
         else {
-          $accumulatedValues[$fieldName] = $fieldValue;
+          if (is_array($fieldValue) && is_array($accumulatedValues[$fieldName] ?? NULL)) {
+            $accumulatedValues[$fieldName] = array_merge($accumulatedValues[$fieldName], $fieldValue);
+          }
+          else {
+            $accumulatedValues[$fieldName] = $fieldValue;
+          }
         }
       }
     }

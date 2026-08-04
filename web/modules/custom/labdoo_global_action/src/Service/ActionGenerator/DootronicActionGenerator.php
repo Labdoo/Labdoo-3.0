@@ -26,9 +26,10 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
     }
 
     $city = '';
-    $country = '';
+    $countryCode = '';
     $location = $entity->hasField('field_locations') ? ($entity->get('field_locations')->getValue()[0] ?? []) : [];
-    $this->setGeoData($location, $city, $country);
+    $this->resolveLocalGeoData($entity, $location, $city, $countryCode);
+    $country = $this->getCountryName($countryCode);
 
     // New Dootronic.
     if ($entity->original === NULL) {
@@ -37,6 +38,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $globalAction,
         $city,
         $country,
+        $countryCode,
         'was tagged',
         'laptop-simple.png',
         20,
@@ -64,6 +66,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
           $globalAction,
           $city,
           $country,
+          $countryCode,
           'was sanitized',
           'laptop-sanitized.png',
           31,
@@ -91,7 +94,8 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $location = [];
       }
 
-      $this->setGeoData($location, $city, $country);
+      $this->resolveLocalGeoData($edooVillage, $location, $city, $countryCode);
+      $country = $this->getCountryName($countryCode);
     }
 
     // Laptop delivered.
@@ -101,6 +105,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $globalAction,
         $city,
         $country,
+        $countryCode,
         'was delivered to an edoovillage',
         'laptop-delivered.png',
         31,
@@ -116,6 +121,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $globalAction,
         $city,
         $country,
+        $countryCode,
         'has started its journey to an edoovillage',
         'laptop-dootripped.png',
         34,
@@ -131,6 +137,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         $globalAction,
         $city,
         $country,
+        $countryCode,
         'has been recycled',
         'laptop-recycled.png',
         27,
@@ -163,6 +170,8 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
    *   The city.
    * @param string $country
    *   The country.
+   * @param string $countryCode
+   *   The country code.
    * @param string $action
    *   The action.
    * @param string $picture
@@ -177,6 +186,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
     EntityInterface $globalAction,
     ?string $city,
     string $country,
+    string $countryCode,
     string $action,
     string $picture,
     int $pictureWidth,
@@ -207,6 +217,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
       $entity->getOwner()->id(),
       $location,
       $city ?? '',
+      $countryCode,
       $entity->get('created')->value,
       $entity->get('changed')->value
     );

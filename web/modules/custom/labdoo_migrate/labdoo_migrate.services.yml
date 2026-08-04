@@ -65,6 +65,8 @@ services:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeFormattedText
   labdoo_migrate.special_field_types.formatted_text_with_replacement:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeFormattedTextWithReplacement
+  labdoo_migrate.special_field_types.address_component:
+    class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeAddressComponent
   labdoo_migrate.special_field_types.role:
     class: Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeRole
   labdoo_migrate.special_field_types.password:
