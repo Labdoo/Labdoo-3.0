@@ -111,6 +111,9 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
         if (empty($teamId) || !is_numeric($teamId)) {
           $teamId = $this->linkHelper->getActiveNode('arg_1');
         }
+        if (empty($teamId) || !is_numeric($teamId)) {
+          $teamId = $this->linkHelper->getActiveNode('teamId');
+        }
         if (empty($teamId)) {
           return [
             '#markup' => '',
@@ -138,6 +141,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
 
     $editLink = $this->linkHelper->generateEditLink($team);
     $wallLink = $this->linkHelper->generateWallLink($team);
+    $aboutLink = \Drupal\Core\Url::fromRoute('labdoo_team.about', ['teamId' => $team->id()])->toString();
 
     $isMember = $this->teamMembershipManager->checkUserMembership($team->id());
     if (!$isMember) {
@@ -172,6 +176,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
     return [
       '#theme' => 'team_actions_block_block',
       '#team_name' => $team->label(),
+      '#about_link' => $aboutLink,
       '#edit_link' => $editLink,
       '#wall_link' => $wallLink,
       '#membership_link' => $membershipLink->getUrl(),

@@ -15,3 +15,12 @@ labdoo_team.leave:
   requirements:
     _permission: 'leave team'
     teamId: \d+
+
+labdoo_team.about:
+  path: '/team/about/{teamId}'
+  defaults:
+    _controller: '\Drupal\labdoo_team\Controller\TeamAboutController::about'
+    _title: 'About this team'
+  requirements:
+    _permission: 'access content'
+    teamId: \d+

@@ -29,6 +29,7 @@ function labdoo_team_theme() {
     'team_actions_block_block' => [
       'variables' => [
         'team_name' => '',
+        'about_link' => '',
         'wall_link' => '',
         'edit_link' => '',
         'membership_link' => '',

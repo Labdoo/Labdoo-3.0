@@ -22,4 +22,4 @@ visibility:
   request_path:
     id: request_path
     negate: false
-    pages: "/team-wall/*\r\n/node/*\r\n/team/task/*/list\r\n/team/task/*/create\r\n/team-tasks/*\r\n/team-members/*"
+    pages: "/team/about/*\r\n/team-wall/*\r\n/node/*\r\n/team/task/*/list\r\n/team/task/*/create\r\n/team-tasks/*\r\n/team-members/*"

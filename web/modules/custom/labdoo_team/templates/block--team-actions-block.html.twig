@@ -6,6 +6,9 @@
         </div>
         <div class="block-actions-content">
             <div class="actions">
+            {% if about_link is not empty %}
+                <div class="action"><a href="{{ about_link }}"><img class="icon" src="/themes/custom/labdoo/img/home.png">{{ "About this team"|t }}</a></div>
+            {% endif %}
             <div class="action"><a href="/teams"><img class="icon" src="/themes/custom/labdoo/img/all-teams.png">{{ "All teams"|t }}</a></div>
             <div class="action"><a href="{{ wall_link }}"><img class="icon" src="/themes/custom/labdoo/img/wall.png">{{ "View wall"|t }}</a></div>
             {% if edit_link is not empty %}
