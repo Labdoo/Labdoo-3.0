@@ -3,12 +3,15 @@ langcode: en
 status: true
 dependencies:
   config:
+    - media.type.remote_video
+    - media.type.video
     - node.type.book
     - node.type.labdoo_story
   module:
     - book
     - content_translation
     - eu_cookie_compliance
+    - media
     - mini_wiki
     - node
     - path
@@ -27,7 +30,9 @@ permissions:
   - 'create labdoo_story content'
   - 'create mini_wiki_page'
   - 'create new books'
+  - 'create remote_video media'
   - 'create url aliases'
+  - 'create video media'
   - 'delete any labdoo_story content'
   - 'delete content translations'
   - 'delete labdoo_story revisions'
@@ -35,12 +40,16 @@ permissions:
   - 'delete mini_wiki_page revision'
   - 'delete own book content'
   - 'delete own labdoo_story content'
+  - 'delete own remote_video media'
+  - 'delete own video media'
   - 'display eu cookie compliance popup'
   - 'edit any book content'
   - 'edit any labdoo_story content'
   - 'edit mini_wiki_page'
   - 'edit own book content'
   - 'edit own labdoo_story content'
+  - 'edit own remote_video media'
+  - 'edit own video media'
   - 'revert labdoo_story revisions'
   - 'revert mini_wiki_page revision'
   - 'translate any entity'
