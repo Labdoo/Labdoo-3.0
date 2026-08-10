@@ -42,7 +42,7 @@ display:
           admin_label: ''
           plugin_id: field
           label: Picture
-          exclude: false
+          exclude: true
           alter:
             alter_text: false
             text: ''
@@ -405,7 +405,7 @@ display:
           admin_label: ''
           plugin_id: field
           label: Skills
-          exclude: false
+          exclude: true
           alter:
             alter_text: false
             text: ''
