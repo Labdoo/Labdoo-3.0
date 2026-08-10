@@ -207,6 +207,30 @@ function labdoo_common_form_user_register_form_alter(&$form, FormStateInterface 
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter() for media_library_add_form_oembed.
+ */
+function labdoo_common_form_media_library_add_form_oembed_alter(array &$form, FormStateInterface $form_state, $form_id): void {
+  if (!isset($form['container']['url'], $form['url']) || !is_array($form['url'])) {
+    return;
+  }
+
+  $isHoneypotField = ($form['url']['#type'] ?? NULL) === 'textfield';
+
+  if (!$isHoneypotField) {
+    foreach ($form['url']['#element_validate'] ?? [] as $callback) {
+      if ((is_array($callback) && ($callback[1] ?? NULL) === 'validateHoneypot') || $callback === 'validateHoneypot') {
+        $isHoneypotField = TRUE;
+        break;
+      }
+    }
+  }
+
+  if ($isHoneypotField) {
+    unset($form['url']);
+  }
+}
+
+/**
  * Implements hook_block_view_alter().
  */
 function labdoo_common_block_view_alter(array &$build, BlockPluginInterface $block) {
