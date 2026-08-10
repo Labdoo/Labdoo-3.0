@@ -196,13 +196,6 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
-  field_number_of_doojects_assigne:
-    type: number
-    weight: 20
-    region: content
-    settings:
-      placeholder: ''
-    third_party_settings: {  }
   field_origin_of_the_trip:
     type: geofield_map
     weight: 1
@@ -287,6 +280,7 @@ hidden:
   field_expired: true
   field_full: true
   field_locations: true
+  field_number_of_doojects_assigne: true
   langcode: true
   path: true
   promote: true
