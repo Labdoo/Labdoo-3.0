@@ -495,6 +495,10 @@ function labdoo_common_library_info_alter(array &$libraries, string $extension) 
     unset($libraries['geocoder']['js']['js/geofield_map.geocoder.js']);
     $libraries['geocoder']['js']['/modules/custom/labdoo_common/js/geofield_map.geocoder.secure.js'] = [];
   }
+
+  if ($extension === 'geofield_map' && isset($libraries['geofield_google_map']['js']['js/geofield_map_gmap_formatter.js'])) {
+    $libraries['geofield_google_map']['js']['/modules/custom/labdoo_common/js/geofield_map_gmap_auth_referrer.secure.js'] = [];
+  }
 }
 
 /**
