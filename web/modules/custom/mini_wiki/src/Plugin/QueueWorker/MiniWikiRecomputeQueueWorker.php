@@ -21,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @QueueWorker(
  *   id = "mini_wiki_recompute",
  *   title = @Translation("Recompute the mini wiki data"),
+ *   cron = {"time" = 60}
  * )
  */
 class MiniWikiRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
