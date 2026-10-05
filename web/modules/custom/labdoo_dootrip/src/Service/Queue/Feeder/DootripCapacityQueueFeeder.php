@@ -58,7 +58,8 @@ class DootripCapacityQueueFeeder extends AbstractQueueFeeder implements QueueFee
   protected function enqueueItem(array $item): void {
     $queueData = new QueueDataModel();
     $queueData->setQueueId($this->getQueueId());
-    $queueData->setTimestamp(new \DateTime());
+    // DatabaseQueue already stores the enqueue time. Leaving this null keeps
+    // identical payloads byte-for-byte equal for QueueHelper deduplication.
     $queueData->setData($item);
 
     $this->queueHelper->enqueueData(

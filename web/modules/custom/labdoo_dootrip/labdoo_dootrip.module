@@ -174,10 +174,60 @@ function labdoo_dootrip_entity_update(EntityInterface $entity) {
     }
     /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
     $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
-    $dootripCompute->computeDootronicsAssigned($entity);
-    $dootripCompute->enqueueCapacityRecompute($entity);
-    $dootripCompute->enqueueGeocoding($entity);
+
+    if (labdoo_dootrip_has_any_field_changed($entity, [
+      'field_laptops',
+      'field_arrival_date',
+      'field_dootrip_capacity',
+      'field_dootronics_delivered',
+      'field_dootronics_in_transit',
+      'field_full',
+    ])) {
+      $dootripCompute->enqueueCapacityRecompute($entity);
+    }
+
+    if (labdoo_dootrip_has_any_field_changed($entity, [
+      'field_origin_of_the_trip',
+      'field_destination_of_the_trip',
+    ])) {
+      $dootripCompute->enqueueGeocoding($entity);
+    }
   }
+}
+
+/**
+ * Checks whether any listed field differs from the entity's original values.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity being saved.
+ * @param string[] $field_names
+ *   The field names to compare.
+ *
+ * @return bool
+ *   TRUE if any listed field changed.
+ */
+function labdoo_dootrip_has_any_field_changed(
+  EntityInterface $entity,
+  array $field_names
+): bool {
+  if (
+    !isset($entity->original) ||
+    !($entity->original instanceof EntityInterface)
+  ) {
+    return TRUE;
+  }
+
+  foreach ($field_names as $field_name) {
+    if (!$entity->hasField($field_name) || !$entity->original->hasField($field_name)) {
+      continue;
+    }
+
+    if ($entity->get($field_name)->getValue() !== $entity->original->get($field_name)->getValue()) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
 }
 
 /**
@@ -203,38 +253,63 @@ function labdoo_dootrip_entity_presave(EntityInterface $entity) {
   /** @var \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute */
   $dootripCompute = \Drupal::service('labdoo_dootrip.compute');
   $dootripCompute->setDootripTitle($entity);
-  $dootripCompute->computeWeight($entity);
-  $dootripCompute->computeCo2Savings($entity);
-  $dootripCompute->computeDistance($entity);
-  $dootripCompute->computeDootripLocations($entity);
-  $dootripCompute->computeEdoovillagesAssigned($entity);
+
+  $laptopsChanged = labdoo_dootrip_has_any_field_changed($entity, ['field_laptops']);
+  $locationsChanged = labdoo_dootrip_has_any_field_changed($entity, [
+    'field_origin_of_the_trip',
+    'field_destination_of_the_trip',
+  ]);
+
+  if ($laptopsChanged) {
+    $dootripCompute->computeWeight($entity);
+    $dootripCompute->computeDootronicsAssigned($entity);
+    $dootripCompute->computeEdoovillagesAssigned($entity);
+  }
+
+  if ($laptopsChanged || $locationsChanged) {
+    $dootripCompute->computeCo2Savings($entity);
+  }
+
+  if ($locationsChanged) {
+    $dootripCompute->computeDistance($entity);
+    $dootripCompute->computeDootripLocations($entity);
+  }
 }
 
 function labdoo_dootrip_cron() {
-  /** @var \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface $dootripRepository */
-  $dootripRepository = \Drupal::service('labdoo_dootrip.repository');
   /** @var \Drupal\labdoo_dootrip\Service\Queue\Feeder\QueueFeederInterface $queueFeeder */
   $queueFeeder = \Drupal::service('labdoo_dootrip.queue.feeder.dootrip_capacity');
+  $database = \Drupal::database();
+  // The capacity worker uses DateTime::diff('%r%a') and only moves items
+  // from transit to delivered after at least one full day has elapsed.
+  $arrival_cutoff = (new \DateTime())->modify('-1 day')->format('Y-m-d\\TH:i:s');
 
-  try {
-    $dootripRepository->disableEntityStorageCache();
-  } catch (\Exception $e) {
-    return;
-  }
+  $query = $database->select('node_field_data', 'n');
+  $query->distinct();
+  $query->innerJoin(
+    'node__field_arrival_date',
+    'arrival',
+    'arrival.entity_id = n.nid AND arrival.deleted = 0 AND arrival.langcode = n.langcode'
+  );
+  $query->innerJoin(
+    'node__field_dootronics_in_transit',
+    'transit',
+    'transit.entity_id = n.nid AND transit.deleted = 0 AND transit.langcode = n.langcode'
+  );
+  $dootrip_nids = $query
+    ->fields('n', ['nid'])
+    ->condition('n.type', 'dootrip')
+    ->condition('arrival.field_arrival_date_value', $arrival_cutoff, '<')
+    ->condition('transit.field_dootronics_in_transit_value', 0, '>')
+    ->execute()
+    ->fetchCol();
 
-  // Retrieves all the dootrips.
-  $dootripNids = $dootripRepository->getAllNids();
-
-  foreach ($dootripNids as $dootripNid) {
-    $dootrip = $dootripRepository->load((int) $dootripNid);
-    if ($dootrip->get('field_full')->value !== 1) {
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  foreach ($dootrip_nids as $dootrip_nid) {
+    $dootrip = $storage->load((int) $dootrip_nid);
+    if ($dootrip && $dootrip->bundle() === 'dootrip') {
       $queueFeeder->feedQueue($dootrip);
     }
-  }
-
-  try {
-    $dootripRepository->enableEntityStorageCache();
-  } catch (\Exception $e) {
   }
 }
 
