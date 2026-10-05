@@ -21,6 +21,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
+   * Maximum number of cron runs to retry an item with no usable geocoding.
+   */
+  private const MAX_GEOCODING_ATTEMPTS = 3;
+
+  /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -99,12 +104,39 @@ class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPlug
           return;
         }
 
-        $coordinatesData = $this->reverseLookupCoordinates((float)$locationData['lat'], (float)$locationData['lon']);
+        $state = \Drupal::state();
+        $attempt_key = 'labdoo_dootronics.geocoding_attempts.' . $nid;
+        try {
+          $coordinatesData = $this->reverseLookupCoordinates((float) $locationData['lat'], (float) $locationData['lon']);
+        }
+        catch (\Throwable $e) {
+          // Retain transient provider failures briefly, but cap the retries so
+          // a permanently failing provider cannot pin this queue item forever.
+          $attempts = (int) $state->get($attempt_key, 0) + 1;
+          if ($attempts < self::MAX_GEOCODING_ATTEMPTS) {
+            $state->set($attempt_key, $attempts);
+            throw new \RuntimeException(sprintf('Geocoding provider request failed for dootronic %d (attempt %d of %d).', $nid, $attempts, self::MAX_GEOCODING_ATTEMPTS), 0, $e);
+          }
+
+          $state->delete($attempt_key);
+          \Drupal::logger('labdoo_dootronics')->error('Discarding dootronic @nid from geocoding queue after @attempts provider errors (@exception).', [
+            '@nid' => $nid,
+            '@attempts' => self::MAX_GEOCODING_ATTEMPTS,
+            '@exception' => get_class($e),
+          ]);
+          return;
+        }
         
         if (empty($coordinatesData['country_code'])) {
-          // If we couldn't get a country code, throw exception to keep in queue for retry.
-          throw new \Exception(sprintf('Failed to reverse geocode dootronic %d. No results or API error.', $nid));
+          $state->delete($attempt_key);
+          \Drupal::logger('labdoo_dootronics')->error('Discarding dootronic @nid from geocoding queue: Google Maps and Nominatim returned no country for its coordinates.', [
+            '@nid' => $nid,
+          ]);
+          return;
         }
+
+        // Clear any prior failure count after a successful lookup.
+        \Drupal::state()->delete('labdoo_dootronics.geocoding_attempts.' . $nid);
 
         $countryCode = $coordinatesData['country_code'];
         $node->set('field_country', $countryCode);
@@ -153,47 +185,68 @@ class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPlug
     }
     catch (\Exception $e) {
       $msg = $e->getMessage();
-      \Drupal::logger('labdoo_dootronics')->warning('Google Maps reverse geocode failed: @message. Trying fallback Nominatim API...', ['@message' => $msg]);
+      \Drupal::logger('labdoo_dootronics')->warning('Google Maps reverse geocode failed; trying Nominatim fallback (@exception).', ['@exception' => get_class($e)]);
+    }
 
-      // Fallback to Nominatim OpenStreetMap API
-      try {
-        $client = \Drupal::httpClient();
-        $response = $client->get("https://nominatim.openstreetmap.org/reverse?lat={$lat}&lon={$lon}&format=json", [
-          'headers' => [
-            'User-Agent' => 'Labdoo Geocoding Fallback Bot',
-          ],
-        ]);
-        if ($response->getStatusCode() === 200) {
-          $data = json_decode((string) $response->getBody(), TRUE);
-          if (!empty($data['address'])) {
-            $addr = $data['address'];
-            if (!empty($addr['country_code'])) {
-              $result['country_code'] = strtoupper($addr['country_code']);
-            }
-            $result['city'] = $addr['city'] ?? $addr['town'] ?? $addr['village'] ?? $addr['hamlet'] ?? $addr['municipality'] ?? $addr['suburb'] ?? '';
-          }
-        }
-      }
-      catch (\Exception $fallbackException) {
-        \Drupal::logger('labdoo_dootronics')->error('Fallback Nominatim reverse geocode failed: @message', ['@message' => $fallbackException->getMessage()]);
-
-        // Circuit Breaker: If API is blocked (403) or rate limited (429), suspend queue.
-        if (
-          strpos($msg, 'Access Not Configured') !== FALSE ||
-          strpos($msg, 'API keys with referer restrictions') !== FALSE ||
-          strpos($msg, '403') !== FALSE ||
-          strpos($msg, '429') !== FALSE ||
-          strpos($msg, 'QuotaExceeded') !== FALSE
-        ) {
-          throw new \Drupal\Core\Queue\SuspendQueueException('Google Maps API Error: ' . $msg);
-        }
-
-        // Re-throw to ensure the queue item is not deleted for other transient errors.
-        throw $e;
-      }
+    // Google can return a successful but unusable response (for example, no
+    // country for a coordinate). Use the fallback for that case too. Nominatim
+    // requests are limited to one per second by its public service policy.
+    if (empty($result['country_code'])) {
+      $result = $this->reverseLookupNominatim($lat, $lon);
     }
 
     return $result;
+  }
+
+  /**
+   * Reverse geocode coordinates with Nominatim.
+   *
+   * @throws \Throwable
+   *   When the provider request fails. The caller applies the bounded retry.
+   */
+  private function reverseLookupNominatim(float $lat, float $lon): array {
+    $result = ['country_code' => '', 'city' => ''];
+    $cache = \Drupal::cache('default');
+    $cache_id = 'labdoo_dootronics.nominatim.' . hash('sha256', sprintf('%.6F,%.6F', $lat, $lon));
+    if ($cached = $cache->get($cache_id)) {
+      return $cached->data;
+    }
+
+    // Regular jobs using public Nominatim are limited to four requests per
+    // minute. Serialize callers and space requests from completion to start.
+    $lock_name = 'labdoo_dootronics.nominatim_rate_limit';
+    $lock = \Drupal::lock();
+    while (!$lock->acquire($lock_name, 60)) {
+      usleep(250000);
+    }
+    try {
+      $last_request = (float) \Drupal::state()->get($lock_name, 0);
+      $wait = 16 - (microtime(TRUE) - $last_request);
+      if ($wait > 0) {
+        usleep((int) ($wait * 1000000));
+      }
+
+      $response = \Drupal::httpClient()->get('https://nominatim.openstreetmap.org/reverse', [
+        'query' => ['lat' => $lat, 'lon' => $lon, 'format' => 'jsonv2'],
+        'headers' => ['User-Agent' => 'Labdoo Geocoding Fallback Bot'],
+        'timeout' => 15,
+      ]);
+      $data = json_decode((string) $response->getBody(), TRUE);
+      $address = $data['address'] ?? [];
+      if (!empty($address['country_code'])) {
+        $result['country_code'] = strtoupper($address['country_code']);
+      }
+      $result['city'] = $address['city'] ?? $address['town'] ?? $address['village'] ?? $address['hamlet'] ?? $address['municipality'] ?? $address['suburb'] ?? '';
+
+      // Cache both positive and empty results to avoid repeating queries.
+      $cache->set($cache_id, $result, \Drupal::time()->getRequestTime() + 2592000);
+      return $result;
+    }
+    finally {
+      \Drupal::state()->set($lock_name, microtime(TRUE));
+      $lock->release($lock_name);
+    }
+
   }
 
 }
