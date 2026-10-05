@@ -26,7 +26,7 @@ class EdooVillageNodeChartTest extends UnitTestCase {
 
     // Mock the field item list.
     $fieldItemList = $this->createMock(\Drupal\Core\Field\FieldItemListInterface::class);
-    $fieldItemList->value = 15;
+    $fieldItemList->method('__get')->with('value')->willReturn(15);
     $node->method('get')->with('field_number_of_laptops_needed')->willReturn($fieldItemList);
 
     // Call the function.
@@ -50,7 +50,7 @@ class EdooVillageNodeChartTest extends UnitTestCase {
     $node->method('hasField')->with('field_number_of_laptops_needed')->willReturn(TRUE);
 
     $fieldItemList = $this->createMock(\Drupal\Core\Field\FieldItemListInterface::class);
-    $fieldItemList->value = 25;
+    $fieldItemList->method('__get')->with('value')->willReturn(25);
     $node->method('get')->with('field_number_of_laptops_needed')->willReturn($fieldItemList);
 
     // Setup mock expectations.
