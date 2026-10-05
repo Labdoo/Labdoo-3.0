@@ -1,0 +1,4 @@
+legacy_video:
+  css:
+    component:
+      css/legacy-video.css: {  }

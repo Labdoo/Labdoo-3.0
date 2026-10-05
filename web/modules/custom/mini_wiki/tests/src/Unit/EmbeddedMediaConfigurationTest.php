@@ -23,6 +23,7 @@ class EmbeddedMediaConfigurationTest extends UnitTestCase {
       $settings = $config['filters']['media_embed']['settings'];
       $this->assertSame('embedded_content', $settings['default_view_mode']);
       $this->assertSame(['embedded_content' => 'embedded_content'], $settings['allowed_view_modes']);
+      $this->assertTrue($config['filters']['mini_wiki_legacy_video']['status']);
     }
 
     $image = Yaml::parseFile($config_path . 'core.entity_view_display.media.image.embedded_content.yml');

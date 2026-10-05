@@ -8,6 +8,7 @@ dependencies:
     - blazy
     - editor
     - media
+    - mini_wiki
 _core:
   default_config_hash: vpZysv3RHJjhYzq7O_q5q8mVlHdrSzKELmXyiX6RtV0
 name: 'Full HTML'
@@ -81,6 +82,12 @@ filters:
     weight: 0
     settings:
       filter_url_length: 72
+  mini_wiki_legacy_video:
+    id: mini_wiki_legacy_video
+    provider: mini_wiki
+    status: true
+    weight: -1
+    settings: {  }
   media_embed:
     id: media_embed
     provider: media
