@@ -3,7 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
-    - core.entity_view_mode.media.media_library
+    - core.entity_view_mode.media.embedded_content
   module:
     - blazy
     - editor
@@ -87,9 +87,9 @@ filters:
     status: true
     weight: 100
     settings:
-      default_view_mode: media_library
+      default_view_mode: embedded_content
       allowed_view_modes:
-        media_library: media_library
+        embedded_content: embedded_content
       allowed_media_types:
         image: image
         remote_video: remote_video
