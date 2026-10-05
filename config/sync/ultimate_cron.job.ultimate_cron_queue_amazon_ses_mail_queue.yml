@@ -1,6 +1,6 @@
 uuid: 25e92391-2c1d-4afe-a2bf-721c2b732638
 langcode: en
-status: true
+status: false
 dependencies:
   module:
     - amazon_ses
