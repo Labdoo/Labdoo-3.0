@@ -3,11 +3,12 @@ langcode: en
 status: true
 dependencies:
   config:
-    - core.entity_view_mode.media.media_library
+    - core.entity_view_mode.media.embedded_content
   module:
     - blazy
     - editor
     - media
+    - mini_wiki
 _core:
   default_config_hash: vpZysv3RHJjhYzq7O_q5q8mVlHdrSzKELmXyiX6RtV0
 name: 'Full HTML'
@@ -81,15 +82,21 @@ filters:
     weight: 0
     settings:
       filter_url_length: 72
+  mini_wiki_legacy_video:
+    id: mini_wiki_legacy_video
+    provider: mini_wiki
+    status: true
+    weight: -1
+    settings: {  }
   media_embed:
     id: media_embed
     provider: media
     status: true
     weight: 100
     settings:
-      default_view_mode: media_library
+      default_view_mode: embedded_content
       allowed_view_modes:
-        media_library: media_library
+        embedded_content: embedded_content
       allowed_media_types:
         image: image
         remote_video: remote_video

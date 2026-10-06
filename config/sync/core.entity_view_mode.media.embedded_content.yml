@@ -1,0 +1,11 @@
+uuid: b4b61bf5-a677-4ace-be9c-de234e6ef66b
+langcode: en
+status: true
+dependencies:
+  module:
+    - media
+id: media.embedded_content
+label: 'Embedded content'
+description: 'Media embedded in rich text, with playable videos.'
+targetEntityType: media
+cache: true
