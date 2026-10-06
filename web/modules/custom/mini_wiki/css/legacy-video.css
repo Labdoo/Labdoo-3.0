@@ -1,0 +1,11 @@
+.labdoo-video-embed {
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  width: 560px;
+}
+
+.labdoo-video-embed iframe {
+  border: 0;
+  height: 100%;
+  width: 100%;
+}

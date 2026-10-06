@@ -3,6 +3,11 @@ custom-styling:
     theme:
       css/main.css: {}
 
+print_labels:
+  css:
+    theme:
+      css/print-labels.css: {}
+
 labdoo_ui:
   js:
     js/labdoo-ui.js: {}
