@@ -1,0 +1,44 @@
+<?php
+
+use Drupal\Core\Url;
+use Drupal\search_api_autocomplete\Suggestion\SuggestionFactory;
+
+/**
+ * Implements hook_search_api_autocomplete_suggestions_alter().
+ *
+ * Display indexed entities like the V2 search suggestions and append a link
+ * to the complete results page.
+ */
+function labdoo_search_fix_search_api_autocomplete_suggestions_alter(array &$suggestions, array $alter_params): void {
+  $search = $alter_params['search'];
+  $search_id = $search->id();
+  $result_searches = [
+    'search_results' => [
+      'route' => 'view.search_results.page_1',
+      'query_key' => 'search_api_fulltext',
+    ],
+    'search_content' => [
+      'route' => 'view.search_content.page_1',
+      'query_key' => 'keys',
+    ],
+  ];
+  if (!isset($result_searches[$search_id])) {
+    return;
+  }
+
+  $keys = trim((string) ($alter_params['user_input'] ?? ''));
+  if ($keys === '') {
+    return;
+  }
+
+  // Reserve one slot for the link to the full results page.
+  $limit = (int) $search->getOption('limit');
+  if ($limit > 0 && count($suggestions) >= $limit) {
+    $suggestions = array_slice($suggestions, 0, $limit - 1);
+  }
+  $all_results = (new SuggestionFactory())->createUrlSuggestion(
+    Url::fromRoute($result_searches[$search_id]['route'], [], ['query' => [$result_searches[$search_id]['query_key'] => $keys]]),
+    t('View all results for @query', ['@query' => $keys])
+  );
+  $suggestions[] = $all_results;
+}

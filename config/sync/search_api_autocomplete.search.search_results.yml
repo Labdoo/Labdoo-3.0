@@ -11,16 +11,16 @@ id: search_results
 label: 'Search results'
 index_id: default_index
 suggester_settings:
-  server:
-    fields:
-      - title
-      - mini_wiki_label
-suggester_weights: {  }
+  indexed_results: {  }
+suggester_weights:
+  indexed_results: 0
 suggester_limits:
-  server: 5
+  indexed_results: 15
 search_settings:
   'views:search_results':
     displays:
       default: true
       selected: {  }
-options: {  }
+options:
+  limit: 15
+  min_length: 3
