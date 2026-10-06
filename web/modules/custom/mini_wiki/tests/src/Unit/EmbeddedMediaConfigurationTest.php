@@ -46,4 +46,17 @@ class EmbeddedMediaConfigurationTest extends UnitTestCase {
     $this->assertContains('media_library_add_form_oembed', $honeypot['unprotected_forms']);
   }
 
+  /**
+   * Tests the mini wiki recompute queue remains scheduled by Ultimate Cron.
+   */
+  public function testRecomputeQueueCronJobIsSynchronized(): void {
+    $config_path = dirname(__DIR__, 7) . '/config/sync/';
+    $cron = Yaml::parseFile($config_path . 'ultimate_cron.job.ultimate_cron_queue_mini_wiki_recompute.yml');
+
+    $this->assertSame('ultimate_cron_queue_mini_wiki_recompute', $cron['id']);
+    $this->assertSame('mini_wiki', $cron['module']);
+    $this->assertSame('ultimate_cron.queue_worker:queueCallback', $cron['callback']);
+    $this->assertSame(['* * * * *'], $cron['scheduler']['configuration']['rules']);
+  }
+
 }
