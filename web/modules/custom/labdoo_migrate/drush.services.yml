@@ -130,6 +130,7 @@ services:
   labdoo_migrate.geography_synchronizer_commands:
     class: \Drupal\labdoo_migrate\Commands\GeographySynchronizerCommands
     arguments:
+      - '@labdoo_migrate.database.external_connection_manager'
       - '@labdoo_migrate.config.configuration_manager'
       - '@labdoo_migrate.mapper.fields_mapper'
       - '@labdoo_migrate.source_content.repository.node'
