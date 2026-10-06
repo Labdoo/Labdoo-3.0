@@ -33,6 +33,7 @@ settings:
       - heading
       - codeBlock
       - '|'
+      - drupalInsertImage
       - sourceEditing
   plugins:
     ckeditor5_codeBlock:
@@ -91,10 +92,12 @@ settings:
         reversed: true
         startIndex: true
       multiBlock: true
+    ckeditor5_imageResize:
+      allow_resize: true
     ckeditor5_sourceEditing:
       allowed_tags: {  }
     media_media:
-      allow_view_mode_override: false
+      allow_view_mode_override: true
 image_upload:
   status: true
   scheme: public

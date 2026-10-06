@@ -77,6 +77,15 @@ function labdoo_dootronics_form_alter(&$form, FormStateInterface $form_state, $f
 }
 
 /**
+ * Implements hook_entity_type_alter().
+ */
+function labdoo_dootronics_entity_type_alter(array &$entity_types): void {
+  if (isset($entity_types['node'])) {
+    $entity_types['node']->addConstraint('DootronicS3RequiresEdoovillage');
+  }
+}
+
+/**
  * Implements hook_entity_presave().
  */
 function labdoo_dootronics_entity_presave(EntityInterface $entity) {

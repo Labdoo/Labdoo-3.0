@@ -20,10 +20,19 @@ class EmbeddedMediaConfigurationTest extends UnitTestCase {
 
     foreach (['basic_html', 'full_html'] as $format) {
       $config = Yaml::parseFile($config_path . "filter.format.$format.yml");
+      $editor = Yaml::parseFile($config_path . "editor.editor.$format.yml");
       $settings = $config['filters']['media_embed']['settings'];
       $this->assertSame('embedded_content', $settings['default_view_mode']);
-      $this->assertSame(['embedded_content' => 'embedded_content'], $settings['allowed_view_modes']);
+      $this->assertSame([
+        'embedded_content' => 'embedded_content',
+        'wiki_medium' => 'wiki_medium',
+      ], $settings['allowed_view_modes']);
       $this->assertTrue($config['filters']['mini_wiki_legacy_video']['status']);
+      $this->assertTrue($editor['settings']['plugins']['media_media']['allow_view_mode_override']);
+      if ($format === 'full_html') {
+        $this->assertTrue($editor['settings']['plugins']['ckeditor5_imageResize']['allow_resize']);
+        $this->assertContains('drupalInsertImage', $editor['settings']['toolbar']['items']);
+      }
     }
 
     $image = Yaml::parseFile($config_path . 'core.entity_view_display.media.image.embedded_content.yml');
@@ -34,6 +43,20 @@ class EmbeddedMediaConfigurationTest extends UnitTestCase {
     $this->assertSame('oembed', $remote_video['content']['field_media_oembed_video']['type']);
     $this->assertSame('file_video', $video['content']['field_media_video_file']['type']);
     $this->assertTrue($video['content']['field_media_video_file']['settings']['controls']);
+  }
+
+  /**
+   * Tests the reduced wiki image mode uses the expected image style.
+   */
+  public function testWikiMediumImageMode(): void {
+    $config_path = dirname(__DIR__, 7) . '/config/sync/';
+    $view_mode = Yaml::parseFile($config_path . 'core.entity_view_mode.media.wiki_medium.yml');
+    $display = Yaml::parseFile($config_path . 'core.entity_view_display.media.image.wiki_medium.yml');
+    $image_style = Yaml::parseFile($config_path . 'image.style.wiki_medium.yml');
+
+    $this->assertTrue($view_mode['status']);
+    $this->assertSame('wiki_medium', $display['content']['field_media_image']['settings']['image_style']);
+    $this->assertSame(640, $image_style['effects']['d9387667-6135-4bd1-890a-92f477727564']['data']['width']);
   }
 
   /**

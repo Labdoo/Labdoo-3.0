@@ -10,9 +10,8 @@ declare(strict_types=1);
  * @link http://natiboo.es
  */
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
@@ -111,22 +110,26 @@ function mini_wiki_user_predelete(UserInterface $account): void {
 }
 
 /**
- * Returns an array of allowed text formats for a mini-wiki.
- *
- * @param FieldStorageDefinitionInterface $definition
- *   The field storage definition interface.
- * @param ContentEntityInterface|null $entity
- *   The content entity interface.
- * @param bool $cacheable
- *   A boolean indicating whether the result is cacheable.
- *
- * @return array An array of allowed text formats as key-value pairs.
+ * Implements hook_field_widget_single_element_form_alter().
  */
-function mini_wiki_allowed_text_formats(FieldStorageDefinitionInterface $definition, ContentEntityInterface $entity = NULL, $cacheable = TRUE): array {
-  return [
-    'basic_html' => 'Basic HTML',
-    'markdown' => 'Markdown',
-  ];
+function mini_wiki_field_widget_single_element_form_alter(
+  array &$element,
+  FormStateInterface $form_state,
+  array $context,
+): void {
+  if ($context['items']->getName() !== 'body') {
+    return;
+  }
+
+  $entity = $context['items']->getEntity();
+  $account = \Drupal::currentUser();
+  if (
+    $entity->bundle() === 'mini_wiki_page'
+    && $entity->isNew()
+    && $account->hasPermission('use text format full_html')
+  ) {
+    $element['#format'] = 'full_html';
+  }
 }
 
 /**
@@ -183,4 +186,3 @@ function mini_wiki_pathauto_alias_types_alter(&$definitions) {
     unset($definitions['canonical_entities']);
   }
 }
-

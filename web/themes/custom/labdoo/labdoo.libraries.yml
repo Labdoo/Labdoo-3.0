@@ -2,6 +2,7 @@ custom-styling:
   css:
     theme:
       css/main.css: {}
+      css/wiki.css: {}
 
 print_labels:
   css:

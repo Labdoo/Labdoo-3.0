@@ -1,0 +1,11 @@
+uuid: c36ac9d7-f162-4d1e-9a7a-53ba752e3729
+langcode: en
+status: true
+dependencies:
+  module:
+    - media
+id: media.wiki_medium
+label: 'Wiki medium (about half width)'
+description: 'A reduced image size for embedding images in wiki pages.'
+targetEntityType: media
+cache: true

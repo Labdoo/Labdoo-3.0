@@ -245,10 +245,11 @@ final class MiniWikiPage extends RevisionableContentEntityBase implements MiniWi
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
-      ->setSetting(
-        'allowed_values_function',
-        'mini_wiki_allowed_text_formats'
-      );
+      ->setSetting('allowed_formats', [
+        'basic_html',
+        'markdown',
+        'full_html',
+      ]);
 
     $fields['parent'] = BaseFieldDefinition::create('entity_reference')
       ->setRevisionable(TRUE)

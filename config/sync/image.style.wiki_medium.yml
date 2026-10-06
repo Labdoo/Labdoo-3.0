@@ -1,0 +1,15 @@
+uuid: 8d51fdc8-51e8-49c8-9ef8-8639733d836a
+langcode: en
+status: true
+dependencies: {  }
+name: wiki_medium
+label: 'Wiki medium (640px wide)'
+effects:
+  d9387667-6135-4bd1-890a-92f477727564:
+    uuid: d9387667-6135-4bd1-890a-92f477727564
+    id: image_scale
+    weight: 0
+    data:
+      width: 640
+      height: null
+      upscale: false

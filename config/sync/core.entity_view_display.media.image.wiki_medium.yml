@@ -1,0 +1,34 @@
+uuid: f24e717f-d20c-4995-8176-eacb0d17bda7
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.media.wiki_medium
+    - field.field.media.image.field_media_image
+    - image.style.wiki_medium
+    - media.type.image
+  module:
+    - image
+id: media.image.wiki_medium
+targetEntityType: media
+bundle: image
+mode: wiki_medium
+content:
+  field_media_image:
+    type: image
+    label: visually_hidden
+    settings:
+      image_link: ''
+      image_style: wiki_medium
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  created: true
+  langcode: true
+  name: true
+  search_api_excerpt: true
+  thumbnail: true
+  uid: true
