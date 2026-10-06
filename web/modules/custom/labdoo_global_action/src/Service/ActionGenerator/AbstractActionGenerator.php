@@ -125,14 +125,16 @@ abstract class AbstractActionGenerator {
       $countryCode = $location['country_code'] ?? $location['country'] ?? '';
     }
 
-    // 3. Fallback to reverse geocoding with cache if city is still empty and we have coordinates.
-    if (empty($city)) {
+    // 3. Fallback to reverse geocoding with cache if either value is missing.
+    if (empty($city) || empty($countryCode)) {
       $lat = $location['lat'] ?? $location['latitude'] ?? NULL;
       $lon = $location['lon'] ?? $location['lng'] ?? $location['longitude'] ?? NULL;
       if ($lat !== NULL && $lon !== NULL && (abs((float)$lat) >= 0.1 || abs((float)$lon) >= 0.1)) {
         $geoData = $this->reverseGeocodeWithFallback((string) $lat, (string) $lon);
         if ($geoData !== NULL) {
-          $city = $geoData['city'];
+          if (empty($city)) {
+            $city = $geoData['city'];
+          }
           if (empty($countryCode)) {
             $countryCode = $geoData['country_code'];
           }
