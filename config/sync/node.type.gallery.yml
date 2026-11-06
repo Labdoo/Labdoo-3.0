@@ -13,5 +13,5 @@ type: gallery
 description: 'A gallery of nodes.'
 help: null
 new_revision: false
-preview_mode: 1
+preview_mode: 0
 display_submitted: false
