@@ -846,7 +846,7 @@ display:
       style:
         type: table
         options:
-          grouping: {  }
+          grouping: {}
           row_class: ''
           default_row_class: true
           columns:
@@ -857,65 +857,65 @@ display:
             field_dootronics_remaining: field_dootronics_remaining
             field_dootronics_completed: field_dootronics_completed
             field_country: field_country
-            field_semaphore: field_semaphore
+            field_hub_status: field_hub_status
           default: '-1'
           info:
             title_3:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootronics_needed:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootronics_in_transit:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootronics_delivered:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootronics_remaining:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootronics_completed:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_country:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
-            field_semaphore:
               sortable: true
+            field_hub_status:
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
           override: true
           sticky: false
           summary: ''

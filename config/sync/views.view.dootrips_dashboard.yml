@@ -887,7 +887,7 @@ display:
       style:
         type: table
         options:
-          grouping: {  }
+          grouping: {}
           row_class: ''
           default_row_class: true
           columns:
@@ -901,54 +901,54 @@ display:
           default: '-1'
           info:
             title:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_departure_date:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootrip_capacity:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootronics_in_transit:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootronics_delivered:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_status_dootrip:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_full:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
           override: true
           sticky: false
           summary: ''

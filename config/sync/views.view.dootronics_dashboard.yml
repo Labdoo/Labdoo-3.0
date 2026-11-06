@@ -170,7 +170,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          plugin_id: field
+          plugin_id: labdoo_sortable_hub
           label: Hub
           exclude: false
           alter:
@@ -945,68 +945,68 @@ display:
       style:
         type: table
         options:
-          grouping: {  }
+          grouping: {}
           row_class: ''
           default_row_class: true
           columns:
-            nid: nid
-            field_hub: field_hub
-            field_country_value: field_country_value
-            field_edoovillage_destination: field_edoovillage_destination
-            field_pick_me_up: field_pick_me_up
-            field_serial_number: field_serial_number
+            title_3: title_3
             field_dootronic_status: field_dootronic_status
+            field_hub: field_hub
+            field_edoovillage_destination: field_edoovillage_destination
+            field_country_value: field_country_value
+            field_serial_number: field_serial_number
+            field_pick_me_up: field_pick_me_up
           default: '-1'
           info:
-            nid:
+            title_3:
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
               sortable: true
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            field_hub:
-              sortable: true
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            field_country_value:
-              sortable: true
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            field_edoovillage_destination:
-              sortable: true
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            field_pick_me_up:
-              sortable: true
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            field_serial_number:
-              sortable: false
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
             field_dootronic_status:
-              sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
+            field_hub:
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+              sortable: true
+            field_edoovillage_destination:
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+              sortable: true
+            field_country_value:
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+              sortable: true
+            field_serial_number:
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+              sortable: true
+            field_pick_me_up:
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+              sortable: true
           override: true
           sticky: false
           summary: ''
@@ -1936,7 +1936,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          plugin_id: field
+          plugin_id: labdoo_sortable_hub
           label: Hub
           exclude: false
           alter:
@@ -2538,7 +2538,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          plugin_id: field
+          plugin_id: labdoo_sortable_hub
           label: Hub
           exclude: false
           alter:

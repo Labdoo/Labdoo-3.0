@@ -294,7 +294,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          plugin_id: field
+          plugin_id: labdoo_sortable_hub
           label: Hubs
           exclude: false
           alter:
@@ -934,7 +934,7 @@ display:
       style:
         type: table
         options:
-          grouping: {  }
+          grouping: {}
           row_class: ''
           default_row_class: true
           columns:
@@ -947,79 +947,71 @@ display:
             field_dootronics_delivered: field_dootronics_delivered
             field_dootronics_in_transit: field_dootronics_in_transit
             field_dootronics_remaining: field_dootronics_remaining
-            field_location: field_location
           default: created
           info:
             title:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
-            created:
               sortable: true
+            created:
               default_sort_order: desc
               align: ''
               separator: ''
               empty_column: false
               responsive: priority-medium
+              sortable: true
             field_status:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_country:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: priority-medium
+              sortable: true
             field_hub:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: priority-medium
+              sortable: true
             field_number_of_laptops_needed:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
+              sortable: true
             field_dootronics_delivered:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: priority-low
+              sortable: true
             field_dootronics_in_transit:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: priority-low
+              sortable: true
             field_dootronics_remaining:
-              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: priority-low
-            field_location:
-              sortable: false
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
+              sortable: true
           override: true
           sticky: false
           summary: ''
@@ -1710,7 +1702,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          plugin_id: field
+          plugin_id: labdoo_sortable_hub
           label: Hubs
           exclude: false
           alter:
