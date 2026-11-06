@@ -233,6 +233,8 @@ class LabelController extends ControllerBase {
       '#theme' => 'dootronics_label',
       '#dootronics_collection' => [],
       '#cache' => [
+        // Normalized query cache contexts collapse repeated id parameters.
+        'max-age' => 0,
         'contexts' => ['url.query_args', 'user.permissions'],
         'tags' => ['node_list'],
       ],
