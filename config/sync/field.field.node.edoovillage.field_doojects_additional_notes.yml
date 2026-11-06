@@ -10,7 +10,7 @@ field_name: field_doojects_additional_notes
 entity_type: node
 bundle: edoovillage
 label: 'Dootronics additional notes'
-description: ''
+description: 'Add observations about the dootronics, such as their condition, missing accessories, or who donated them.'
 required: false
 translatable: false
 default_value: {  }
