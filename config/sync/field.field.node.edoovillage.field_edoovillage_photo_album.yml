@@ -5,7 +5,7 @@ dependencies:
   config:
     - field.storage.node.field_edoovillage_photo_album
     - node.type.edoovillage
-    - node.type.page
+    - node.type.gallery
 id: node.edoovillage.field_edoovillage_photo_album
 field_name: field_edoovillage_photo_album
 entity_type: node
@@ -20,7 +20,7 @@ settings:
   handler: 'default:node'
   handler_settings:
     target_bundles:
-      page: page
+      gallery: gallery
     sort:
       field: _none
       direction: ASC
