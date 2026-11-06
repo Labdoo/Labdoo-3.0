@@ -141,7 +141,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
 
     $editLink = $this->linkHelper->generateEditLink($team);
     $wallLink = $this->linkHelper->generateWallLink($team);
-    $aboutLink = \Drupal\Core\Url::fromRoute('labdoo_team.about', ['teamId' => $team->id()])->toString();
+    $aboutLink = $team->toUrl()->toString();
 
     $isMember = $this->teamMembershipManager->checkUserMembership($team->id());
     if (!$isMember) {
