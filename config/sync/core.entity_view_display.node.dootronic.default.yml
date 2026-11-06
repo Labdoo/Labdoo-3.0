@@ -122,7 +122,7 @@ mode: default
 content:
   field_amp_hours:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -131,7 +131,7 @@ content:
     region: content
   field_battery_duration:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -140,7 +140,7 @@ content:
     region: content
   field_battery_watt_hours:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -148,7 +148,7 @@ content:
     region: content
   field_cpu:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -157,7 +157,7 @@ content:
     region: content
   field_cpu_type:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -166,7 +166,7 @@ content:
     region: content
   field_current_operating_system:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -174,21 +174,21 @@ content:
     region: content
   field_device_type:
     type: list_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 8
     region: content
   field_doojects_additional_notes:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 20
     region: content
   field_dootrips:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -196,14 +196,14 @@ content:
     region: content
   field_dootronic_status:
     type: list_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 1
     region: content
   field_edoovillage_destination:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -211,7 +211,7 @@ content:
     region: content
   field_hard_drive:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -220,7 +220,7 @@ content:
     region: content
   field_hub:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -228,14 +228,14 @@ content:
     region: content
   field_keyboard:
     type: address_country_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 13
     region: content
   field_keyboard_type:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -243,7 +243,7 @@ content:
     region: content
   field_locations:
     type: geolocation_geofield
-    label: above
+    label: inline
     settings:
       set_marker: true
       show_label: false
@@ -849,7 +849,7 @@ content:
     region: content
   field_manager:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -857,7 +857,7 @@ content:
     region: content
   field_memory:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -866,7 +866,7 @@ content:
     region: content
   field_model:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -874,7 +874,7 @@ content:
     region: content
   field_picture:
     type: image
-    label: above
+    label: inline
     settings:
       image_link: ''
       image_style: ''
@@ -885,7 +885,7 @@ content:
     region: content
   field_serial_number:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -893,7 +893,7 @@ content:
     region: content
   field_tagger:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -901,14 +901,14 @@ content:
     region: content
   field_technical_notes:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 21
     region: content
   field_volts:
     type: number_decimal
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       decimal_separator: .
@@ -919,7 +919,7 @@ content:
     region: content
   field_weight:
     type: number_decimal
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       decimal_separator: .

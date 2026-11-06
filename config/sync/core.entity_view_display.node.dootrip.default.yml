@@ -46,14 +46,14 @@ mode: default
 content:
   field_additional_traveler_s_info:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 7
     region: content
   field_arrival_date:
     type: datetime_default
-    label: above
+    label: inline
     settings:
       timezone_override: ''
       format_type: medium
@@ -62,7 +62,7 @@ content:
     region: content
   field_co2_savings_dootrip:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -70,14 +70,14 @@ content:
     region: content
   field_comments:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 19
     region: content
   field_departure_date:
     type: datetime_default
-    label: above
+    label: inline
     settings:
       timezone_override: ''
       format_type: medium
@@ -86,7 +86,7 @@ content:
     region: content
   field_destination_of_the_trip:
     type: geocoder_geofield_reverse_geocode
-    label: above
+    label: inline
     settings:
       providers:
         freegeoip:
@@ -101,7 +101,7 @@ content:
     region: content
   field_distance_dootrip:
     type: number_decimal
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       decimal_separator: .
@@ -112,7 +112,7 @@ content:
     region: content
   field_dootrip_capacity:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -121,7 +121,7 @@ content:
     region: content
   field_dootrip_weight:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -129,7 +129,7 @@ content:
     region: content
   field_dootripper_s:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -137,7 +137,7 @@ content:
     region: content
   field_dootronics_delivered:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -146,7 +146,7 @@ content:
     region: content
   field_edoovillages_assigned:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -154,7 +154,7 @@ content:
     region: content
   field_hub:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -162,7 +162,7 @@ content:
     region: content
   field_laptops:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -170,7 +170,7 @@ content:
     region: content
   field_locations:
     type: geolocation_geofield
-    label: above
+    label: inline
     settings:
       set_marker: true
       show_label: false
@@ -777,7 +777,7 @@ content:
     region: content
   field_number_of_days_after:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -786,7 +786,7 @@ content:
     region: content
   field_number_of_days_before:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -795,7 +795,7 @@ content:
     region: content
   field_number_of_doojects_assigne:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -804,7 +804,7 @@ content:
     region: content
   field_origin_of_the_trip:
     type: geocoder_geofield_reverse_geocode
-    label: above
+    label: inline
     settings:
       providers:
         freegeoip:
@@ -819,7 +819,7 @@ content:
     region: content
   field_preferred_edoovillages:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -827,7 +827,7 @@ content:
     region: content
   field_status_dootrip:
     type: list_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 8
