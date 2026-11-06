@@ -413,7 +413,7 @@ display:
           group_type: group
           admin_label: 'field_parent: Content'
           plugin_id: standard
-          required: true
+          required: false
         field_story_section:
           id: field_story_section
           table: node__field_story_section
@@ -422,7 +422,7 @@ display:
           group_type: group
           admin_label: 'field_story_section: Paragraph'
           plugin_id: standard
-          required: true
+          required: false
       header:
         area_text_custom:
           id: area_text_custom
@@ -433,7 +433,7 @@ display:
           admin_label: ''
           plugin_id: text_custom
           empty: false
-          content: "<p><img src=\"/themes/custom/labdoo/img/labdoo-stories-header.png\" width=\"550px\"></p>\r\n<p><a href=\"content/labdoo-stories\" target=\"_blank\">[Click here for help on Labdoo Stories]</a></p>"
+          content: "<p><img src=\"/themes/custom/labdoo/img/labdoo-stories-header.png\" width=\"550\" style=\"max-width:100%;height:auto\" alt=\"Labdoo Stories\"></p>\r\n<p><a href=\"/content/labdoo-stories\" target=\"_blank\">[Click here for help on Labdoo Stories]</a></p>"
           tokenize: false
       footer: {  }
       display_extenders: {  }
