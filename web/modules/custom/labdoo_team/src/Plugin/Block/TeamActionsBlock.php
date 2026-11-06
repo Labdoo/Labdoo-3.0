@@ -91,6 +91,10 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
   /**
    * {@inheritdoc}
    */
+  public function getCacheContexts(): array {
+    return \Drupal\Core\Cache\Cache::mergeContexts(parent::getCacheContexts(), ['route', 'session', 'user.permissions']);
+  }
+
   public function build() {
     $team = $this->linkHelper->getActiveNode();
     if (!$this->isValidTeam($team)) {
