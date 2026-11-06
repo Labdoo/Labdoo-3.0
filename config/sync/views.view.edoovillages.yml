@@ -24,7 +24,7 @@ dependencies:
     - options
     - user
 id: edoovillages
-label: 'EdooVillages Dashboard'
+label: 'Edoovillages Dashboard'
 module: views
 description: ''
 tag: ''
@@ -37,7 +37,7 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: 'EdooVillages Dashboard'
+      title: 'Edoovillages Dashboard'
       fields:
         title:
           id: title
@@ -1074,7 +1074,7 @@ display:
     display_plugin: block
     position: 2
     display_options:
-      title: 'EdooVillages Dashboard Map'
+      title: 'Edoovillages Dashboard Map'
       fields:
         title:
           id: title
@@ -1433,7 +1433,7 @@ display:
           tokenize: false
       exposed_block: true
       display_extenders: {  }
-      block_description: 'EdooVillages Map'
+      block_description: 'Edoovillages Map'
       block_hide_empty: true
     cache_metadata:
       max-age: -1
