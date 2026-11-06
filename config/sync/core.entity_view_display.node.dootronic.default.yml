@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.dootronic.field_address
     - field.field.node.dootronic.field_amp_hours
     - field.field.node.dootronic.field_battery_duration
     - field.field.node.dootronic.field_battery_watt_hours
@@ -57,6 +58,7 @@ third_party_settings:
         - field_picture
         - field_device_type
         - field_dootrips
+        - field_address
         - field_locations
         - labdoo_dates
       label: 'Basic information'
@@ -120,6 +122,13 @@ targetEntityType: node
 bundle: dootronic
 mode: default
 content:
+  field_address:
+    type: address_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 8
+    region: content
   field_amp_hours:
     type: number_integer
     label: above
