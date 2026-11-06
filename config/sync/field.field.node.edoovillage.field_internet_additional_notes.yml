@@ -10,7 +10,7 @@ field_name: field_internet_additional_notes
 entity_type: node
 bundle: edoovillage
 label: 'Internet additional notes'
-description: ''
+description: 'Add technical details about the internet connection, such as available bandwidth, reliability, or restrictions.'
 required: false
 translatable: false
 default_value: {  }
