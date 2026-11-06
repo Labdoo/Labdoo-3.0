@@ -152,7 +152,7 @@ mode: default
 content:
   field_additional_files:
     type: file_default
-    label: above
+    label: inline
     settings:
       use_description_as_link_text: true
     third_party_settings: {  }
@@ -160,14 +160,14 @@ content:
     region: content
   field_additional_info_language:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 16
     region: content
   field_city:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -175,21 +175,21 @@ content:
     region: content
   field_country:
     type: address_country_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 18
     region: content
   field_doojects_additional_notes:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 9
     region: content
   field_dootronics_delivered:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -198,7 +198,7 @@ content:
     region: content
   field_dootronics_in_transit:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -207,7 +207,7 @@ content:
     region: content
   field_dootronics_remaining:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -216,7 +216,7 @@ content:
     region: content
   field_edoo_additional_editors:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -224,7 +224,7 @@ content:
     region: content
   field_edoo_additional_followers:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -232,14 +232,14 @@ content:
     region: content
   field_edoo_additional_notif_em:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 8
     region: content
   field_edoovillage_photo_album:
     type: entity_reference_entity_view
-    label: above
+    label: inline
     settings:
       view_mode: default
       link: true
@@ -248,7 +248,7 @@ content:
     region: content
   field_hub:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -256,21 +256,21 @@ content:
     region: content
   field_internet_additional_notes:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 11
     region: content
   field_internet_connection_type:
     type: list_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 10
     region: content
   field_local_language_s_:
     type: string
-    label: above
+    label: inline
     settings:
       link_to_entity: false
     third_party_settings: {  }
@@ -278,7 +278,7 @@ content:
     region: content
   field_location:
     type: geolocation_geofield
-    label: above
+    label: inline
     settings:
       set_marker: true
       show_label: false
@@ -898,7 +898,7 @@ content:
     region: content
   field_number_of_laptops_needed:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -907,7 +907,7 @@ content:
     region: content
   field_number_of_students:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -916,7 +916,7 @@ content:
     region: content
   field_number_of_teachers:
     type: number_integer
-    label: above
+    label: inline
     settings:
       thousand_separator: ''
       prefix_suffix: true
@@ -925,14 +925,14 @@ content:
     region: content
   field_on_site_point_of_contact:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 12
     region: content
   field_project_application:
     type: file_default
-    label: above
+    label: inline
     settings:
       use_description_as_link_text: true
     third_party_settings: {  }
@@ -940,14 +940,14 @@ content:
     region: content
   field_project_description:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 2
     region: content
   field_project_manager_s_:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -955,21 +955,21 @@ content:
     region: content
   field_socket_type:
     type: list_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 9
     region: content
   field_socket_voltage:
     type: list_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 8
     region: content
   field_thank_you_note:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 6

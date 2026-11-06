@@ -30,21 +30,21 @@ mode: default
 content:
   field_branches_information:
     type: basic_string
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 7
     region: content
   field_country:
     type: address_country_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 4
     region: content
   field_hub_manager_s_:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -52,14 +52,14 @@ content:
     region: content
   field_hub_status:
     type: list_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 6
     region: content
   field_locations:
     type: geolocation_geofield
-    label: above
+    label: inline
     settings:
       set_marker: true
       show_label: false
@@ -656,7 +656,7 @@ content:
     region: content
   field_parent_hub:
     type: entity_reference_label
-    label: above
+    label: inline
     settings:
       link: true
     third_party_settings: {  }
@@ -664,7 +664,7 @@ content:
     region: content
   field_types_of_mini_missions:
     type: list_default
-    label: above
+    label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 5
