@@ -51,6 +51,35 @@ function template_preprocess_mini_wiki_page(array &$variables): void {
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
+  if ($variables['view_mode'] !== 'default') {
+    return;
+  }
+  $entity = $variables['elements']['#mini_wiki_page'];
+  $pages = \Drupal::service('mini_wiki.tree_manager')->getAdjacentPages($entity);
+  $navigation = [
+    '#type' => 'container',
+    '#attributes' => ['class' => ['wiki-sequential-navigation']],
+    '#weight' => 100,
+    '#cache' => [
+      'tags' => ['mini_wiki_page_list'],
+      'contexts' => ['route', 'user.permissions', 'languages:language_content', 'languages:language_interface'],
+    ],
+  ];
+  foreach ($pages as $direction => $page) {
+    if ($page) {
+      $navigation[$direction] = [
+        '#type' => 'link',
+        '#title' => $direction === 'previous'
+          ? t('Previous page: @title', ['@title' => $page->label()])
+          : t('Next page: @title', ['@title' => $page->label()]),
+        '#url' => $page->toUrl(),
+        '#attributes' => ['rel' => $direction === 'previous' ? 'prev' : 'next'],
+        '#prefix' => '<div>',
+        '#suffix' => '</div>',
+      ];
+    }
+  }
+  $variables['content']['wiki_navigation'] = $navigation;
 }
 
 /**

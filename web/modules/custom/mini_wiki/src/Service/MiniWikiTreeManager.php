@@ -107,4 +107,88 @@ class MiniWikiTreeManager {
     return $links;
   }
 
+  /**
+   * Finds the previous and next readable pages in book order.
+   */
+  public function getAdjacentPages(EntityInterface $entity): array {
+    $parent_id = $entity->get('parent')->target_id;
+    $siblings = $parent_id ? $this->loadVisibleChildren($parent_id) : [$entity];
+    $ids = array_map(static fn(EntityInterface $page) => (string) $page->id(), $siblings);
+    $position = array_search((string) $entity->id(), $ids, TRUE);
+    $previous = NULL;
+    if ($position !== FALSE && $position > 0) {
+      $previous = $siblings[$position - 1];
+      $seen = [(string) $entity->id() => TRUE];
+      while (!isset($seen[(string) $previous->id()])) {
+        $seen[(string) $previous->id()] = TRUE;
+        $children = $this->loadVisibleChildren($previous->id());
+        if (!$children) {
+          break;
+        }
+        $last = end($children);
+        if (isset($seen[(string) $last->id()])) {
+          break;
+        }
+        $previous = $last;
+      }
+    }
+    else {
+      $parent = $entity->get('parent')->entity;
+      if ($parent && $parent->access('view')) {
+        $previous = $parent;
+      }
+    }
+
+    $children = $this->loadVisibleChildren($entity->id());
+    $next = $children[0] ?? NULL;
+    $page = $entity;
+    $seen = [];
+    while (!$next && $page && !isset($seen[(string) $page->id()])) {
+      $seen[(string) $page->id()] = TRUE;
+      if (!$page->get('parent')->target_id) {
+        break;
+      }
+      $siblings = $this->loadVisibleChildren($page->get('parent')->target_id);
+      $ids = array_map(static fn(EntityInterface $sibling) => (string) $sibling->id(), $siblings);
+      $position = array_search((string) $page->id(), $ids, TRUE);
+      if ($position !== FALSE && isset($siblings[$position + 1])) {
+        $next = $siblings[$position + 1];
+        break;
+      }
+      $page = $page->get('parent')->entity;
+      if ($page && !$page->access('view')) {
+        break;
+      }
+    }
+
+    return ['previous' => $previous, 'next' => $next];
+  }
+
+  /**
+   * Loads readable siblings in their configured order and current language.
+   */
+  protected function loadVisibleChildren(?string $parent_id): array {
+    $storage = $this->entityTypeManager->getStorage('mini_wiki_page');
+    $query = $storage->getQuery()->accessCheck(TRUE);
+    if ($parent_id) {
+      $query->condition('parent', $parent_id);
+    }
+    else {
+      $query->notExists('parent');
+    }
+    $langcode = $this->languageManager->getCurrentLanguage()->getId();
+    $ids = $query->condition('langcode', $langcode)
+      ->sort('weight')->sort('label')->sort('id')->execute();
+    $pages = [];
+    foreach ($storage->loadMultiple($ids) as $page) {
+      if ($page->hasTranslation($langcode)) {
+        $page = $page->getTranslation($langcode);
+      }
+      if ($page->access('view')) {
+        $pages[] = $page;
+      }
+    }
+    return $pages;
+  }
+
 }
