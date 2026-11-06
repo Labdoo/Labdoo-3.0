@@ -115,7 +115,6 @@ third_party_settings:
         - field_additional_files
         - field_thank_you_note
         - field_edoo_additional_notif_em
-        - field_edoovillage_photo_album
         - field_edoo_additional_editors
         - field_edoo_additional_followers
       label: 'Additional information'
@@ -218,16 +217,6 @@ content:
     settings:
       placeholder: ''
       size: 60
-    third_party_settings: {  }
-  field_edoovillage_photo_album:
-    type: entity_reference_autocomplete
-    weight: 6
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
     third_party_settings: {  }
   field_hub:
     type: entity_reference_autocomplete
@@ -426,6 +415,7 @@ content:
     settings: {  }
     third_party_settings: {  }
 hidden:
+  field_edoovillage_photo_album: true
   created: true
   field_dootronics_delivered: true
   field_dootronics_in_transit: true
