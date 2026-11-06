@@ -601,3 +601,12 @@ function labdoo_common_preprocess_views_view_field(&$variables) {
     }
   }
 }
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function labdoo_common_views_data_alter(array &$data): void {
+  if (isset($data['node__field_hub']['field_hub']['field'])) {
+    $data['node__field_hub']['field_hub']['field']['id'] = 'labdoo_sortable_hub';
+  }
+}
