@@ -12,7 +12,7 @@ field_name: field_destination_of_the_trip
 entity_type: node
 bundle: dootrip
 label: 'Destination of the trip'
-description: ''
+description: 'Search for the destination city or address, or select its location on the map.'
 required: true
 translatable: false
 default_value: {  }
