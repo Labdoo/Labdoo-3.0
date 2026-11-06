@@ -36,119 +36,9 @@ dependencies:
     - node.type.edoovillage
   module:
     - address
-    - field_group
     - file
     - geofield_map
     - path
-third_party_settings:
-  field_group:
-    group_project_information:
-      children:
-        - title
-        - field_project_summary
-        - field_project_description
-        - field_number_of_students
-        - field_number_of_teachers
-        - field_number_of_laptops_needed
-        - field_doojects_additional_notes
-        - field_hub
-        - field_on_site_point_of_contact
-        - field_project_application
-        - field_status
-        - field_semaphore
-        - field_project_manager_s_
-      label: 'Project information'
-      region: content
-      parent_name: group_edoovillage
-      weight: 1
-      format_type: tab
-      format_settings:
-        classes: ''
-        show_empty_fields: false
-        id: ''
-        formatter: open
-        description: ''
-        required_fields: true
-    group_geographic_information:
-      children:
-        - field_local_language_s_
-        - field_additional_info_language
-        - field_location
-        - field_country
-        - field_city
-      label: 'Geographic information'
-      region: content
-      parent_name: group_edoovillage
-      weight: 2
-      format_type: tab
-      format_settings:
-        classes: ''
-        show_empty_fields: false
-        id: ''
-        formatter: closed
-        description: ''
-        required_fields: true
-        open: false
-        weight: 0
-    group_technical_information:
-      children:
-        - field_socket_voltage
-        - field_socket_type
-        - field_internet_connection_type
-        - field_internet_additional_notes
-      label: 'Technical information'
-      region: content
-      parent_name: group_edoovillage
-      weight: 3
-      format_type: tab
-      format_settings:
-        classes: ''
-        show_empty_fields: false
-        id: ''
-        formatter: closed
-        description: ''
-        required_fields: true
-        open: false
-        weight: 0
-    group_additional_information:
-      children:
-        - field_additional_files
-        - field_thank_you_note
-        - field_edoo_additional_notif_em
-        - field_edoovillage_photo_album
-        - field_edoo_additional_editors
-        - field_edoo_additional_followers
-      label: 'Additional information'
-      region: content
-      parent_name: group_edoovillage
-      weight: 4
-      format_type: tab
-      format_settings:
-        classes: ''
-        show_empty_fields: false
-        id: ''
-        formatter: closed
-        description: ''
-        required_fields: true
-        open: false
-        weight: 0
-    group_edoovillage:
-      children:
-        - group_project_information
-        - group_geographic_information
-        - group_technical_information
-        - group_additional_information
-      label: EdooVillage
-      region: content
-      parent_name: ''
-      weight: 0
-      format_type: tabs
-      format_settings:
-        classes: ''
-        show_empty_fields: true
-        id: ''
-        direction: horizontal
-        width_breakpoint: 640
 id: node.edoovillage.default
 targetEntityType: node
 bundle: edoovillage
@@ -156,14 +46,14 @@ mode: default
 content:
   field_additional_files:
     type: file_generic
-    weight: 2
+    weight: 22
     region: content
     settings:
       progress_indicator: throbber
     third_party_settings: {  }
   field_additional_info_language:
     type: string_textarea
-    weight: 18
+    weight: 14
     region: content
     settings:
       rows: 5
@@ -171,7 +61,7 @@ content:
     third_party_settings: {  }
   field_city:
     type: string_textfield
-    weight: 21
+    weight: 17
     region: content
     settings:
       size: 60
@@ -179,7 +69,7 @@ content:
     third_party_settings: {  }
   field_country:
     type: address_country_default
-    weight: 20
+    weight: 16
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -193,7 +83,7 @@ content:
     third_party_settings: {  }
   field_edoo_additional_editors:
     type: entity_reference_autocomplete
-    weight: 7
+    weight: 26
     region: content
     settings:
       match_operator: CONTAINS
@@ -203,7 +93,7 @@ content:
     third_party_settings: {  }
   field_edoo_additional_followers:
     type: entity_reference_autocomplete
-    weight: 8
+    weight: 27
     region: content
     settings:
       match_operator: CONTAINS
@@ -213,25 +103,15 @@ content:
     third_party_settings: {  }
   field_edoo_additional_notif_em:
     type: email_default
-    weight: 4
+    weight: 24
     region: content
     settings:
       placeholder: ''
       size: 60
-    third_party_settings: {  }
-  field_edoovillage_photo_album:
-    type: entity_reference_autocomplete
-    weight: 6
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
     third_party_settings: {  }
   field_hub:
     type: entity_reference_autocomplete
-    weight: 8
+    weight: 7
     region: content
     settings:
       match_operator: CONTAINS
@@ -241,7 +121,7 @@ content:
     third_party_settings: {  }
   field_internet_additional_notes:
     type: string_textarea
-    weight: 11
+    weight: 21
     region: content
     settings:
       rows: 5
@@ -249,13 +129,13 @@ content:
     third_party_settings: {  }
   field_internet_connection_type:
     type: options_buttons
-    weight: 10
+    weight: 20
     region: content
     settings: {  }
     third_party_settings: {  }
   field_local_language_s_:
     type: string_textfield
-    weight: 17
+    weight: 13
     region: content
     settings:
       size: 60
@@ -263,7 +143,7 @@ content:
     third_party_settings: {  }
   field_location:
     type: geofield_map
-    weight: 19
+    weight: 15
     region: content
     settings:
       html5_geolocation: false
@@ -328,7 +208,7 @@ content:
     third_party_settings: {  }
   field_on_site_point_of_contact:
     type: string_textarea
-    weight: 10
+    weight: 8
     region: content
     settings:
       rows: 5
@@ -336,7 +216,7 @@ content:
     third_party_settings: {  }
   field_project_application:
     type: file_generic
-    weight: 11
+    weight: 9
     region: content
     settings:
       progress_indicator: throbber
@@ -351,7 +231,7 @@ content:
     third_party_settings: {  }
   field_project_manager_s_:
     type: entity_reference_autocomplete
-    weight: 26
+    weight: 12
     region: content
     settings:
       match_operator: CONTAINS
@@ -369,31 +249,31 @@ content:
     third_party_settings: {  }
   field_semaphore:
     type: options_select
-    weight: 13
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
   field_socket_type:
     type: options_buttons
-    weight: 8
+    weight: 19
     region: content
     settings: {  }
     third_party_settings: {  }
   field_socket_voltage:
     type: options_select
-    weight: 7
+    weight: 18
     region: content
     settings: {  }
     third_party_settings: {  }
   field_status:
     type: options_select
-    weight: 12
+    weight: 10
     region: content
     settings: {  }
     third_party_settings: {  }
   field_thank_you_note:
     type: string_textarea
-    weight: 3
+    weight: 23
     region: content
     settings:
       rows: 5
@@ -401,31 +281,32 @@ content:
     third_party_settings: {  }
   langcode:
     type: language_select
-    weight: 1
+    weight: 28
     region: content
     settings:
       include_locked: true
     third_party_settings: {  }
   path:
     type: path
-    weight: 2
+    weight: 29
     region: content
     settings: {  }
     third_party_settings: {  }
   title:
     type: string_textfield
-    weight: 1
+    weight: 0
     region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
   url_redirects:
-    weight: 3
+    weight: 30
     region: content
     settings: {  }
     third_party_settings: {  }
 hidden:
+  field_edoovillage_photo_album: true
   created: true
   field_dootronics_delivered: true
   field_dootronics_in_transit: true
