@@ -10,7 +10,7 @@ field_name: field_edoo_additional_notif_em
 entity_type: node
 bundle: dootronic
 label: 'Additional notification emails'
-description: ''
+description: 'Add the email addresses of additional people who should be notified when this dootronic changes its status.'
 required: false
 translatable: false
 default_value: {  }

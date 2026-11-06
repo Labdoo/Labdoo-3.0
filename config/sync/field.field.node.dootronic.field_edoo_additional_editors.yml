@@ -10,7 +10,7 @@ field_name: field_edoo_additional_editors
 entity_type: node
 bundle: dootronic
 label: 'Additional editors'
-description: ''
+description: 'Add users who need to have permission to edit this dootronic.'
 required: false
 translatable: false
 default_value: {  }
