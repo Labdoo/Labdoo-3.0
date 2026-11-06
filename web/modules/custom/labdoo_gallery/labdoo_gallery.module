@@ -97,3 +97,20 @@ function labdoo_gallery_node_view_alter(array &$build, EntityInterface $node, En
     '#weight' => -100,
   ];
 }
+
+/**
+ * Implements hook_entity_delete().
+ */
+function labdoo_gallery_entity_delete(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() !== 'node' || !in_array($entity->bundle(), ['edoovillage', 'hub'], TRUE)) {
+    return;
+  }
+  // Delete every associated album, including duplicates from old migrations.
+  // A queued create/update item will skip this parent once it no longer exists.
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $galleries = $storage->loadByProperties([
+    'type' => 'gallery',
+    'field_parent' => $entity->id(),
+  ]);
+  $storage->delete($galleries);
+}

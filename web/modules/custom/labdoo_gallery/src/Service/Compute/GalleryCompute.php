@@ -4,6 +4,7 @@ namespace Drupal\labdoo_gallery\Service\Compute;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Queue\QueueFactory;
+use Drupal\Core\Database\Connection;
 use Drupal\labdoo_gallery\Services\LabdooGalleryRepositoryInterface;
 
 /**
@@ -19,6 +20,13 @@ class GalleryCompute implements GalleryComputeInterface {
   protected QueueFactory $queueFactory;
 
   /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected Connection $database;
+
+  /**
    * The gallery repository.
    *
    * @var \Drupal\labdoo_gallery\Services\LabdooGalleryRepositoryInterface
@@ -32,10 +40,13 @@ class GalleryCompute implements GalleryComputeInterface {
    *   The queue factory.
    * @param \Drupal\labdoo_gallery\Services\LabdooGalleryRepositoryInterface $gallery_repository
    *   The gallery repository.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database connection.
    */
-  public function __construct(QueueFactory $queue_factory, LabdooGalleryRepositoryInterface $gallery_repository) {
+  public function __construct(QueueFactory $queue_factory, LabdooGalleryRepositoryInterface $gallery_repository, Connection $database) {
     $this->queueFactory = $queue_factory;
     $this->galleryRepository = $gallery_repository;
+    $this->database = $database;
   }
 
   /**
@@ -63,6 +74,23 @@ class GalleryCompute implements GalleryComputeInterface {
    * {@inheritdoc}
    */
   public function createOrUpdateGallery(EntityInterface $entity): void {
+    if (
+      $entity->getEntityTypeId() !== 'node'
+      || !in_array($entity->bundle(), ['edoovillage', 'hub'], TRUE)
+    ) {
+      return;
+    }
+    // Serialize album creation with deletion of its parent row. The lock lasts
+    // until this transaction finishes, including the gallery save below.
+    $transaction = $this->database->startTransaction();
+    $parent = $this->database->select('node', 'parent')
+      ->fields('parent', ['nid'])
+      ->condition('nid', $entity->id())
+      ->forUpdate()->execute()->fetchField();
+    if (!$parent) {
+      unset($transaction);
+      return;
+    }
     $gallery = $this->galleryRepository->loadByParentId((int) $entity->id());
     $label = $entity->label();
     $suffix = ' - Photo Album';
@@ -82,6 +110,7 @@ class GalleryCompute implements GalleryComputeInterface {
     else {
       $this->galleryRepository->update($gallery->id(), $data);
     }
+    unset($transaction);
   }
 
 }
