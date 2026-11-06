@@ -67,3 +67,19 @@ labdoo_dootronics.update_dootronics:
   options:
     _admin_route: TRUE
 
+
+labdoo_dootronics.print_selected_labels:
+  path: '/dootronics/print-labels'
+  defaults:
+    _controller: '\Drupal\labdoo_dootronics\Controller\LabelController::printSelectedLabels'
+    _title: 'Print labels'
+  requirements:
+    _permission: 'print dootronic tags'
+
+labdoo_dootronics.print_legacy_selected_labels:
+  path: '/content/tag-one-dooject'
+  defaults:
+    _controller: '\Drupal\labdoo_dootronics\Controller\LabelController::printSelectedLabels'
+    _title: 'Print labels'
+  requirements:
+    _permission: 'print dootronic tags'
