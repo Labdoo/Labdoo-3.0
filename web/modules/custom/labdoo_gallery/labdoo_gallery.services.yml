@@ -4,4 +4,4 @@ services:
     arguments: ['@entity_type.manager', '@logger.factory']
   labdoo_gallery.compute:
     class: Drupal\labdoo_gallery\Service\Compute\GalleryCompute
-    arguments: ['@queue', '@labdoo_gallery.repository']
+    arguments: ['@queue', '@labdoo_gallery.repository', '@database']
