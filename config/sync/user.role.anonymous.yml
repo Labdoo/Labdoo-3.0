@@ -51,6 +51,7 @@ permissions:
   - 'use text format restricted_html'
   - 'view Terms and Conditions'
   - 'view dootronic revisions'
+  - 'view dootrip revisions'
   - 'view edoovillage revisions'
   - 'view hub revisions'
   - 'view media'

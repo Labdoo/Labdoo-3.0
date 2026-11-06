@@ -106,6 +106,7 @@ permissions:
   - 'use text format webform_default'
   - 'view Terms and Conditions'
   - 'view dootronic revisions'
+  - 'view dootrip revisions'
   - 'view edoovillage revisions'
   - 'view field_about_me'
   - 'view field_skills'
