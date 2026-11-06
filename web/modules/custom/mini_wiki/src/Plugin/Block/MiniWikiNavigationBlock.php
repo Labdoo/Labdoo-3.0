@@ -4,6 +4,9 @@ namespace Drupal\mini_wiki\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Url;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\mini_wiki\Entity\MiniWikiPage;
 use Drupal\mini_wiki\Service\MiniWikiTreeManager;
@@ -38,13 +41,16 @@ class MiniWikiNavigationBlock extends BlockBase implements ContainerFactoryPlugi
    *   The current route.
    * @param \Drupal\mini_wiki\Service\MiniWikiTreeManager $wikiTreeManager
    *   The book manager service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
     protected CurrentRouteMatch $routeMatch,
-    protected MiniWikiTreeManager $wikiTreeManager
+    protected MiniWikiTreeManager $wikiTreeManager,
+    protected EntityTypeManagerInterface $entityTypeManager,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -63,7 +69,8 @@ class MiniWikiNavigationBlock extends BlockBase implements ContainerFactoryPlugi
       $plugin_id,
       $plugin_definition,
       $container->get('current_route_match'),
-      $container->get('mini_wiki.tree_manager')
+      $container->get('mini_wiki.tree_manager'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -87,11 +94,23 @@ class MiniWikiNavigationBlock extends BlockBase implements ContainerFactoryPlugi
     $parentLinks = $this->wikiTreeManager->getParentEntityUrl($entity);
     $childrenLinks = $this->wikiTreeManager->getChildrenEntitiesUrls($entity->id());
 
-    return [
+    $access = $this->entityTypeManager
+      ->getAccessControlHandler('mini_wiki_page')
+      ->createAccess(NULL, NULL, [], TRUE);
+    $add_subpage = [
+      '#type' => 'link',
+      '#title' => $this->t('Add subpage'),
+      '#url' => Url::fromRoute('entity.mini_wiki_page.add_form', ['parent' => $entity->id()]),
+      '#attributes' => ['class' => ['button']],
+      '#access' => $access,
+    ];
+
+    $build = [
       '#theme' => 'mini_wiki_navigation_block',
       '#entity_id' => $entity->id(),
       '#parent_link' => $parentLinks,
       '#children_links' => $childrenLinks,
+      '#add_subpage' => $add_subpage,
       '#cache' => [
         'max-age' => Cache::PERMANENT,
         'contexts' => [
@@ -101,6 +120,10 @@ class MiniWikiNavigationBlock extends BlockBase implements ContainerFactoryPlugi
         'tags' => $cacheTags,
       ],
     ];
+    CacheableMetadata::createFromRenderArray($build)
+      ->merge(CacheableMetadata::createFromObject($access))
+      ->applyTo($build);
+    return $build;
   }
 
   /**

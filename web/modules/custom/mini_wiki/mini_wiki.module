@@ -29,6 +29,7 @@ function mini_wiki_theme(): array {
         'entity_id' => '',
         'parent_link' => '',
         'children_links' => '',
+        'add_subpage' => NULL,
       ],
       'template' => 'block--wiki-navigation-block',
     ],
