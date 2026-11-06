@@ -142,6 +142,7 @@ class UpdateDootronicForm extends FormBase {
       return;
     }
 
+    $updated_ids = [];
     foreach ($dootronicsData as $singleDootronicData) {
       if (!isset($singleDootronicData['labdoo_id'])) {
         continue;
@@ -173,13 +174,14 @@ class UpdateDootronicForm extends FormBase {
         $this->messenger()->addError($this->t('Unable to save dootronic.'));
       }
       else {
-        $this->messenger()->addMessage(
-          $this->t(
-            'Dootronic :did1 was correctly updated.',
-            [':did1' => $dootronic->label()]
-          )
-        );
+        $updated_ids[] = str_pad((string) $dootronic->label(), 9, '0', STR_PAD_LEFT);
       }
+    }
+    if ($updated_ids) {
+      $this->messenger()->addStatus($this->t(
+        'Dootronics successfully updated. Dootronics updated are: @ids.',
+        ['@ids' => implode(', ', $updated_ids)]
+      ));
     }
   }
 
