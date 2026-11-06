@@ -258,11 +258,11 @@ final class MiniWikiPage extends RevisionableContentEntityBase implements MiniWi
       ->setDescription(t('Leave empty if this is a root page'))
       ->setSetting('target_type', 'mini_wiki_page')
       ->setSetting('handler', 'default')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'entity_reference_label',
         'weight' => 11,
-      ))
+      ])
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'settings' => [
@@ -273,6 +273,18 @@ final class MiniWikiPage extends RevisionableContentEntityBase implements MiniWi
         'weight' => 11,
       ])
       ->setDisplayConfigurable('view', TRUE)
+      ->setDisplayConfigurable('form', TRUE);
+
+    $fields['weight'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Page order'))
+      ->setDescription(t('Pages with a lower number appear first among pages with the same parent.'))
+      ->setDefaultValue(0)
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'number',
+        'weight' => 12,
+      ])
       ->setDisplayConfigurable('form', TRUE);
 
     $fields['path'] = BaseFieldDefinition::create('path')
