@@ -52,7 +52,7 @@ function template_preprocess_mini_wiki_page(array &$variables): void {
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
-  if ($variables['view_mode'] !== 'default') {
+  if (!in_array($variables['view_mode'], ['default', 'full'], TRUE)) {
     return;
   }
   $entity = $variables['elements']['#mini_wiki_page'];
