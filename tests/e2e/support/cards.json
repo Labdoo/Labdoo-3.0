@@ -1,0 +1,192 @@
+[
+  {
+    "id": "6gMQ2C7jMCMfhM73",
+    "title": "Naming de Edoovillages",
+    "branch": "feature/edoovillages-naming"
+  },
+  {
+    "id": "6hCcX3pvWvg7PfV3",
+    "title": "Read the story about this edoovillage",
+    "branch": "feature/hub-story-label"
+  },
+  {
+    "id": "6gPX5vxWx8946V53",
+    "title": "Ocultar botón preview en gallery",
+    "branch": "feature/gallery-hide-preview"
+  },
+  {
+    "id": "6gMgH9gvCFP9PPmV",
+    "title": "Ubicación de estadísticas",
+    "branch": "feature/statistics-position"
+  },
+  {
+    "id": "6gMgH3WCG64h8vG3",
+    "title": "Visualización de tags",
+    "branch": "feature/wiki-inline-tags"
+  },
+  {
+    "id": "6gMQ2Hx53vQ3F4h3",
+    "title": "Tamaño imagen de semáforo",
+    "branch": "feature/dootrip-semaphore-size"
+  },
+  {
+    "id": "6gMgFvM8cgXgM3R3",
+    "title": "Ocultar \"Add subpage\" para anónimo",
+    "branch": "feature/wiki-add-subpage-access"
+  },
+  {
+    "id": "6gMPxwrGwfPV88C3",
+    "title": "Eliminar bloque Happening Right Now de la página de contacto",
+    "branch": "feature/contact-hide-activity"
+  },
+  {
+    "id": "6gMgGwV2rH8mR4v3",
+    "title": "Eliminar \"Happening right now\" de la wiki",
+    "branch": "feature/wiki-hide-activity"
+  },
+  {
+    "id": "6gMPxqhRh4CR7gM3",
+    "title": "Color párrafo wiki",
+    "branch": "feature/wiki-text-color"
+  },
+  {
+    "id": "6hqfP7RjHWr4cwcV",
+    "title": "Reducir longitud horizontal de la wiki",
+    "branch": "feature/wiki-reading-width"
+  },
+  {
+    "id": "6hp37Wqqqp2MmJJV",
+    "title": "Edoovillage Photo Album field should be hidden",
+    "branch": "feature/edoovillage-hide-album"
+  },
+  {
+    "id": "6gPX6VrpRQ4JFcQV",
+    "title": "Ocultar campos en la edición de edoovillage",
+    "branch": "feature/edoovillage-hide-album-edit"
+  },
+  {
+    "id": "6gPX6gg63pWrFWmV",
+    "title": "Navegación de gallery",
+    "branch": "feature/gallery-parent-navigation"
+  },
+  {
+    "id": "6gPX9pfJvqgJGMhV",
+    "title": "Mensajes al clonar y actualizar dootronics masivamente",
+    "branch": "feature/dootronics-bulk-feedback"
+  },
+  {
+    "id": "6gMh2gQXgpjWVpFV",
+    "title": "Mensaje de confirmación al clonar",
+    "branch": "feature/dootronics-confirmation-message"
+  },
+  {
+    "id": "6hrMFW2Jf42grXjV",
+    "title": "Being able to order wiki pages",
+    "branch": "feature/wiki-page-order"
+  },
+  {
+    "id": "6gMgGFp8m32xVq23",
+    "title": "Orden de las subpáginas",
+    "branch": "feature/wiki-subpage-order"
+  },
+  {
+    "id": "6hrMG5mVHW4r4fWV",
+    "title": "We can't go to the next wiki page",
+    "branch": "feature/wiki-sequential-navigation"
+  },
+  {
+    "id": "6gPX8hr54GRggW83",
+    "title": "Rediseño de la vista de dootronics",
+    "branch": "feature/dootronic-inline-fields"
+  },
+  {
+    "id": "6gMgxM2fFP6MH29V",
+    "title": "Dootronics (campos de objetos)",
+    "branch": "feature/object-inline-fields"
+  },
+  {
+    "id": "6gPX9M69fp2H9Xr3",
+    "title": "Descripción de campos en dootronics",
+    "branch": "feature/dootronic-field-descriptions"
+  },
+  {
+    "id": "6gMh24vFQv3Mfvf3",
+    "title": "Edoovillages (campos sin descripción)",
+    "branch": "feature/edoovillage-field-descriptions"
+  },
+  {
+    "id": "6gPX7RFJFRJfRHrV",
+    "title": "Descripción del campo \"Announce this dootrip\"",
+    "branch": "feature/dootrip-announcement-description"
+  },
+  {
+    "id": "6gPX7mJJ9p4H4F7V",
+    "title": "Habilitar revisiones de dootrips",
+    "branch": "feature/dootrip-public-revisions"
+  },
+  {
+    "id": "6hGpMp6q6qrPc473",
+    "title": "Nice URLs",
+    "branch": "feature/team-nice-urls"
+  },
+  {
+    "id": "6gMgGgXmr3492R6V",
+    "title": "Color de título en Teams",
+    "branch": "feature/team-title-color"
+  },
+  {
+    "id": "6gPX6r9wfcFWqgfV",
+    "title": "Rediseño de edoovillage",
+    "branch": "feature/edoovillage-single-page"
+  },
+  {
+    "id": "6gPX674JHCVHJWv3",
+    "title": "Rediseño de gallery",
+    "branch": "feature/gallery-thumbnail-grid"
+  },
+  {
+    "id": "6gMgxgxh4mmWfxM3",
+    "title": "Dootronics (show textual address)",
+    "branch": "feature/dootronic-text-address"
+  },
+  {
+    "id": "6hp368gf6w592H93",
+    "title": "Edoovillage photo album deletion",
+    "branch": "feature/edoovillage-album-cleanup"
+  },
+  {
+    "id": "6hp367m8rCjGP7qV",
+    "title": "Edoovillage cloning",
+    "branch": "feature/edoovillage-clone-album"
+  },
+  {
+    "id": "6gMQ25rVp4X9hgx3",
+    "title": "Columnas ordenables",
+    "branch": "feature/dashboard-sortable-columns"
+  },
+  {
+    "id": "6gPX7M6Jvwc6cGGV",
+    "title": "Orden de los campos de dootrips",
+    "branch": "feature/dootrip-form-order"
+  },
+  {
+    "id": "6gPX7v3QcHGjW243",
+    "title": "Orden de los campos de dootrips en la vista",
+    "branch": "feature/dootrip-display-order"
+  },
+  {
+    "id": "6gPX5jfFc2r8wJF3",
+    "title": "Gráfico de hub",
+    "branch": "feature/hub-node-chart"
+  },
+  {
+    "id": "6gPXCJ39xMgVf9cV",
+    "title": "Vista de Labdoo stories",
+    "branch": "feature/stories-list"
+  },
+  {
+    "id": "6hhWgX294gFcwG83",
+    "title": "Imprimir multiples etiquetas",
+    "branch": "feature/bulk-print-labels"
+  }
+]

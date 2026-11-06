@@ -1,0 +1,8 @@
+name: Labdoo E2E harness
+type: module
+description: Deterministic external services for an isolated E2E database.
+package: Testing
+core_version_requirement: ^10
+dependencies:
+  - geocoder:geocoder
+  - mailsystem:mailsystem

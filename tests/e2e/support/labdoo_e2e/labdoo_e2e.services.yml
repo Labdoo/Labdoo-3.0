@@ -1,0 +1,9 @@
+services:
+  labdoo_e2e.http_guard:
+    class: Drupal\labdoo_e2e\HttpGuard
+    tags:
+      - { name: http_client_middleware, priority: 1000 }
+  labdoo_e2e.response_subscriber:
+    class: Drupal\labdoo_e2e\ResponseSubscriber
+    tags:
+      - { name: event_subscriber }
