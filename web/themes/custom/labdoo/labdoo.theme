@@ -15,7 +15,7 @@ function labdoo_preprocess_html(&$variables) {
   array_walk($roles, function(&$value, $index) {
     $value = sprintf('role-%s', $value);
   });
-  if (\Drupal::routeMatch()->getRouteName() === 'labdoo_dootronics.print_labels') {
+  if (in_array(\Drupal::routeMatch()->getRouteName(), ['labdoo_dootronics.print_labels', 'labdoo_dootronics.print_selected_labels', 'labdoo_dootronics.print_legacy_selected_labels'], TRUE)) {
     $roles[] = 'dootronics-print-label-page';
   }
   $variables['roles'] = implode(' ', $roles);
@@ -25,7 +25,7 @@ function labdoo_preprocess_html(&$variables) {
  * Implements hook_theme_suggestions_page_alter().
  */
 function labdoo_theme_suggestions_page_alter(array &$suggestions, array $variables) {
-  if (\Drupal::routeMatch()->getRouteName() === 'labdoo_dootronics.print_labels') {
+  if (in_array(\Drupal::routeMatch()->getRouteName(), ['labdoo_dootronics.print_labels', 'labdoo_dootronics.print_selected_labels', 'labdoo_dootronics.print_legacy_selected_labels'], TRUE)) {
     $suggestions[] = 'page__dootronics_print_labels';
   }
 }
@@ -34,7 +34,7 @@ function labdoo_theme_suggestions_page_alter(array &$suggestions, array $variabl
  * Implements hook_theme_suggestions_html_alter().
  */
 function labdoo_theme_suggestions_html_alter(array &$suggestions, array $variables) {
-  if (\Drupal::routeMatch()->getRouteName() === 'labdoo_dootronics.print_labels') {
+  if (in_array(\Drupal::routeMatch()->getRouteName(), ['labdoo_dootronics.print_labels', 'labdoo_dootronics.print_selected_labels', 'labdoo_dootronics.print_legacy_selected_labels'], TRUE)) {
     $suggestions[] = 'html__dootronics__print_labels';
   }
 }
@@ -45,7 +45,7 @@ function labdoo_theme_suggestions_html_alter(array &$suggestions, array $variabl
 function labdoo_page_attachments_alter(&$page) {
   $page['#attached']['library'][] = 'labdoo/labdoo_ui';
 
-  if (\Drupal::routeMatch()->getRouteName() === 'labdoo_dootronics.print_labels') {
+  if (in_array(\Drupal::routeMatch()->getRouteName(), ['labdoo_dootronics.print_labels', 'labdoo_dootronics.print_selected_labels', 'labdoo_dootronics.print_legacy_selected_labels'], TRUE)) {
     $page['#attached']['library'][] = 'labdoo/print_labels';
   }
 }
