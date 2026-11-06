@@ -35,7 +35,7 @@ class MiniWikiTreeManager {
    * Generates the link to the entity referenced by field parent.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   *  Entity with field parent.
+   *   Entity with field parent.
    *
    * @return array|null
    *   Label and URL to the entity referenced by field parent.
@@ -73,13 +73,17 @@ class MiniWikiTreeManager {
     $query = $database->select('mini_wiki_page_field_data', 'fd');
     $query->fields('fd', ['id', 'label']);
     $query->condition('fd.parent', $entityId);
+    $query->orderBy('fd.weight');
+    $query->orderBy('fd.label');
+    $query->orderBy('fd.id');
     if (!\Drupal::currentUser()->hasPermission('edit mini_wiki_page') && !\Drupal::currentUser()->hasPermission('administer mini_wiki_page')) {
       $query->condition('fd.status', 1);
     }
     $query->condition('fd.langcode', $this->languageManager->getCurrentLanguage()->getId());
     try {
       $results = $query->execute()->fetchAll();
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return [];
     }
 

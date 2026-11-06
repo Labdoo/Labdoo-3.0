@@ -12,6 +12,13 @@ targetEntityType: mini_wiki_page
 bundle: mini_wiki_page
 mode: default
 content:
+  weight:
+    type: number
+    weight: 12
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
   body:
     type: text_textarea
     weight: 10

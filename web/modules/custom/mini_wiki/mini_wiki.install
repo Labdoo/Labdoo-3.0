@@ -114,3 +114,18 @@ function _mini_wiki_fix_double_encoding($string) {
 
   return $string;
 }
+
+/**
+ * Adds a revisionable page order field to wiki pages.
+ */
+function mini_wiki_update_10002() {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  if (!$manager->getFieldStorageDefinition('weight', 'mini_wiki_page')) {
+    $fields = \Drupal\mini_wiki\Entity\MiniWikiPage::baseFieldDefinitions(
+      $manager->getEntityType('mini_wiki_page')
+    );
+    $manager->installFieldStorageDefinition(
+      'weight', 'mini_wiki_page', 'mini_wiki', $fields['weight']
+    );
+  }
+}
