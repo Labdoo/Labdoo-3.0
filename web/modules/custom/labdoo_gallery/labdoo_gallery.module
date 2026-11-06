@@ -114,3 +114,14 @@ function labdoo_gallery_entity_delete(EntityInterface $entity): void {
   ]);
   $storage->delete($galleries);
 }
+
+/**
+ * Implements hook_cloned_node_alter().
+ */
+function labdoo_gallery_cloned_node_alter(\Drupal\node\NodeInterface &$node, \Drupal\node\NodeInterface $original_node): void {
+  if ($node->bundle() === 'edoovillage' && $node->hasField('field_edoovillage_photo_album')) {
+    // The new school's gallery is created by the gallery queue after saving.
+    // Never carry the original school's system managed reference into a clone.
+    $node->set('field_edoovillage_photo_album', NULL);
+  }
+}
