@@ -8,7 +8,7 @@ dependencies:
     - field.field.node.gallery.field_parent
     - node.type.gallery
   module:
-    - simple_slideshow
+    - labdoo_gallery
     - text
     - user
 id: node.gallery.default
@@ -24,14 +24,9 @@ content:
     weight: 1
     region: content
   field_images:
-    type: simple_slideshow
+    type: labdoo_gallery_grid
     label: hidden
-    settings:
-      image_style: full_width
-      autoplay_speed: '3000'
-      dots: '1'
-      arrows: '1'
-      autoplay: 0
+    settings: {  }
     third_party_settings: {  }
     weight: 2
     region: content
