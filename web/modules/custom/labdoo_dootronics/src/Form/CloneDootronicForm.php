@@ -103,20 +103,21 @@ class CloneDootronicForm extends FormBase {
       return;
     }
 
+    $cloned_ids = [];
     for ($i = 0; $i < $form_state->getValue('dootronics_number'); ++$i) {
       $clonedDootronic = $this->dootronicRepository->clone($originalDootronic);
       if (!$this->dootronicRepository->saveEntity($clonedDootronic)) {
         $this->messenger()->addError($this->t('Unable to save dootronic.'));
       }
       else {
-        $this->messenger()->addMessage(
-          $this->t(
-            'Dootronic :did1 was correctly created.',
-            [':did1' => $clonedDootronic->toLink($clonedDootronic->label())->toString()]
-          ),
-          TRUE
-        );
+        $cloned_ids[] = str_pad((string) $clonedDootronic->label(), 9, '0', STR_PAD_LEFT);
       }
+    }
+    if ($cloned_ids) {
+      $this->messenger()->addStatus($this->t(
+        'Dootronics successfully cloned. Dootronics cloned are: @ids.',
+        ['@ids' => implode(', ', $cloned_ids)]
+      ));
     }
   }
 
