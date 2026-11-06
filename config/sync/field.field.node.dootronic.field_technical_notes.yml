@@ -10,7 +10,7 @@ field_name: field_technical_notes
 entity_type: node
 bundle: dootronic
 label: 'Technical notes'
-description: ''
+description: 'Add technical information, such as hardware problems, repairs, or special setup instructions.'
 required: false
 translatable: false
 default_value: {  }

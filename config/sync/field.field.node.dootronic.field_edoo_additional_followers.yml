@@ -11,7 +11,7 @@ field_name: field_edoo_additional_followers
 entity_type: node
 bundle: dootronic
 label: 'Additional followers'
-description: ''
+description: 'Add users who want to follow this dootronic.'
 required: false
 translatable: false
 default_value: {  }
