@@ -21,6 +21,17 @@ use Drupal\views\ViewExecutable;
 function labdoo_hub_theme() {
 
   return [
+    'hub_node_chart' => [
+      'variables' => [
+        'needed' => NULL,
+        'tagged' => NULL,
+        'in_transit' => NULL,
+        'delivered_working' => NULL,
+        'delivered_broken' => NULL,
+        'recycled' => NULL,
+      ],
+      'template' => 'block--hub-node-chart',
+    ],
     'hub_chart_block_block' => [
       'variables' => [
         'needed' => NULL,

@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - labdoo_hub
+    - node
+  theme:
+    - labdoo
+id: labdoo_hubnodechart
+theme: labdoo
+region: content
+weight: -17
+provider: null
+plugin: hub_node_chart_block
+settings:
+  id: hub_node_chart_block
+  label: Hub progress chart
+  label_display: '0'
+  provider: labdoo_hub
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      hub: hub
