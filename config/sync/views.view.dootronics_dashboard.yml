@@ -684,7 +684,7 @@ display:
             default_group_multiple: {  }
             group_items: {  }
           fields:
-            title: title
+            title_3: title_3
         field_dootronic_status_value:
           id: field_dootronic_status_value
           table: node__field_dootronic_status
@@ -1076,8 +1076,8 @@ display:
     display_options:
       title: 'Dootronics Dashboard Map'
       fields:
-        title:
-          id: title
+        title_3:
+          id: title_3
           table: node_field_data
           field: title
           relationship: none
@@ -1442,7 +1442,7 @@ display:
             default_group_multiple: {  }
             group_items: {  }
           fields:
-            title: title
+            title_3: title_3
         field_dootronic_status_value:
           id: field_dootronic_status_value
           table: node__field_dootronic_status
