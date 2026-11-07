@@ -1,14 +1,14 @@
 # Validación E2E de MEJORAS
 
-Ejecución ampliada del 7 de noviembre de 2026: **91 pruebas aprobadas, 0 fallos, 0 omitidas y 0 reintentos**. Duración: 7 min 26 s. Las 38 tarjetas tienen cobertura de navegador aprobada. Traducciones permanece excluida.
+Ejecución del 7 de noviembre de 2026 tras corregir el filtro: **95 pruebas aprobadas, 0 fallos, 0 omitidas y 0 reintentos**. Duración: 7 min 27 s. Las 38 tarjetas tienen cobertura de navegador aprobada. Traducciones permanece excluida.
 
-La ampliación incorpora el dump V2 facilitado y sustituye la limitación de datos reales documentada en la ejecución del día anterior (90 pruebas aprobadas).
+Esta ejecución incorpora cuatro pruebas de regresión para el 404 del filtro, además de las 91 comprobaciones anteriores, incluida la migración de direcciones con el dump V2 real.
 
 | Proyecto | Pruebas aprobadas |
 |---|---:|
 | Autenticación: siete perfiles por copia, condiciones y sesión real | 2 |
 | Regresión en development (1582fd13) | 17 |
-| Integración de las mejoras | 60 |
+| Integración de las mejoras y regresión del filtro | 64 |
 | Flujo de direcciones desde V2 real: 12 registros | 1 |
 | Tamaño móvil 390 × 844 | 11 |
 
@@ -24,6 +24,7 @@ Chrome/Chromium en escritorio y emulación móvil. Se ejecutaron formularios de 
 | `feature/dootrip-semaphore-size` | Mantener el tamaño frente a gin-custom.css. | [5dec38a9](https://github.com/Labdoo/Labdoo-3.0/commit/5dec38a94dcd1ec1569c44de2bc8405886514c38) |
 | `feature/bulk-print-labels` | Aplicar la presentación de impresión a las rutas de selección y compatibilidad. | [19f3566d](https://github.com/Labdoo/Labdoo-3.0/commit/19f3566d9a2d1ff2e589ac539892585850499792) |
 | `feature/dootronic-text-address` | Leer solo la ubicación de la revisión V2 actual e invalidar las entradas de caché anteriores al guardar entidades migradas. | [525dd145](https://github.com/Labdoo/Labdoo-3.0/commit/525dd145ac3148d3fd7e6ba7039c9e950fab14cf) |
+| `feature/dootronics-dashboard-filter-404` | Alinear el identificador del título usado por el filtro en la vista principal, tabla y mapa. | [77ac7a49](https://github.com/Labdoo/Labdoo-3.0/commit/77ac7a493ed9c9b7f6cc204d84dbf7ac351c7f69) |
 
 ## Verificación con el dump V2 real
 
@@ -37,6 +38,14 @@ Chrome/Chromium en escritorio y emulación móvil. Se ejecutaron formularios de 
 - Tras corregir la consulta, la prueba detectó valores correctos en SQL pero una ficha antigua en navegador. El migrador deshabilitaba la caché persistente y Drupal omitía por ello la eliminación de entradas previas. El guardado ahora invalida la entrada de la entidad y conserva la política de caché del proceso. La prueba precarga una ficha sin dirección antes de migrarla y verifica después su actualización en navegador.
 - Los registros ya migrados se actualizan al repetir la migración del campo con la corrección; esta ejecución solo guarda muestras en la copia V3 aislada.
 - La copia base y los registros originales de los fixtures se conservan. El alcance de esta comprobación V2 es el flujo de direcciones de dootronics; no certifica una migración completa de todos los tipos de contenido.
+
+## Regresión del 404 del filtro
+
+El filtro combinado referenciaba el campo interno `title`, ausente en la tabla que usa `title_3`. Drupal marcaba la construcción de la vista como fallida y respondía HTTP 404 al recibir `combine`. Se alinearon las referencias y el identificador del título en la vista del mapa, sin cambiar los datos ni el criterio de búsqueda.
+
+Las cuatro pruebas nuevas comprueban: resultado correcto en las vistas principal/tabla/mapa; búsqueda por ID y conservación del filtro al ordenar y abrir la ficha; búsqueda sin coincidencias con HTTP 200 y lista vacía; envío y limpieza del formulario desde navegador. El caso original `/en/content/dootronics-dashboard?combine=000063348` devuelve HTTP 200 en integración.
+
+La corrección está publicada desde `development` en `feature/dootronics-dashboard-filter-404`. Para aplicarla al desplegar se debe importar la configuración de la vista y reconstruir caché. La copia base de control permanece sin cambios.
 
 ## Cobertura por tarjeta
 
@@ -81,17 +90,16 @@ Chrome/Chromium en escritorio y emulación móvil. Se ejecutaron formularios de 
 | Vista de Labdoo stories | `feature/stories-list` | Aprobado | 1 |
 | Imprimir multiples etiquetas | `feature/bulk-print-labels` | Aprobado | 5 |
 
-## Alcance y pendiente independiente
+## Alcance
 
 - Dos bases V3 y copias de archivos independientes; la cuenta V3 de pruebas solo tiene permisos en las copias. Las ramas permanecen para revisión, sin despliegue ni fusión en development.
 - Correo en colector local y geocodificación controlada. Las imágenes externas de mapas/QR son sustituidas: se comprueban destinos y composición de etiquetas, no la lectura óptica del QR del proveedor.
-- El sondeo adicional `/en/content/dootronics-dashboard?combine=000063348` devolvía HTTP 404 en baseline e integración. Sigue documentado como comportamiento pendiente de diagnóstico del entorno/base existente, fuera de las 91 comprobaciones aprobadas.
 - La cobertura de regresión comprueba los flujos enumerados; no certifica todas las funcionalidades, navegadores o combinaciones del sitio.
 
 ## Evidencias y reproducción
 
-Artefactos privados: `.e2e-lab/state/runs/final-mejoras-v2-real/` (`playwright-report/index.html`, `playwright-results.json`, `card-coverage.json`, `card-coverage.md` y PDF). Metadatos del dump y muestras reales: `.e2e-lab/state/v2-import-complete.json` y `legacy-address-fixtures.json`. Los valores personales, el SQL, las credenciales y los informes completos permanecen fuera de Git.
+Artefactos privados: `.e2e-lab/state/runs/final-mejoras-filter-fixed/` (`playwright-report/index.html`, `playwright-results.json`, `card-coverage.json`, `card-coverage.md` y PDF). Metadatos del dump y muestras reales: `.e2e-lab/state/v2-import-complete.json` y `legacy-address-fixtures.json`. Los valores personales, el SQL, las credenciales y los informes completos permanecen fuera de Git.
 
-Una ejecución anterior quedó interrumpida al detenerse los servidores locales con SIGTERM (74 pruebas aprobadas y 17 errores de conexión). Sus evidencias se conservan en `final-mejoras-v2-real-server-interrupted/`. Tras reiniciar ambos servidores se repitió íntegramente la suite; el resultado de 91 aprobadas corresponde a esa repetición completa.
+Una ejecución anterior quedó interrumpida al detenerse los servidores locales con SIGTERM (74 pruebas aprobadas y 17 errores de conexión). Sus evidencias se conservan en `final-mejoras-v2-real-server-interrupted/`. Tras reiniciar ambos servidores se repitió íntegramente la suite; la repetición completa de 91 pruebas pasó y esta ejecución posterior amplía el total a 95.
 
-Véase [README.md](README.md). El proyecto opcional `legacy-v2` permite repetir la comprobación real; `support/coverage.py final-mejoras-v2-real` verifica las 38 tarjetas. Las tareas siguen en IN REVIEW.
+Véase [README.md](README.md). El proyecto opcional `legacy-v2` permite repetir la comprobación real; `support/coverage.py final-mejoras-filter-fixed` verifica las 38 tarjetas. Las tareas siguen en IN REVIEW.
