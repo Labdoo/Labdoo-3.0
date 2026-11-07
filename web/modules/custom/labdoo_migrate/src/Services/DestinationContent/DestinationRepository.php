@@ -833,7 +833,20 @@ class DestinationRepository implements DestinationRepositoryInterface {
       if ($entity instanceof RevisionableInterface) {
         $entity->setNewRevision(FALSE);
       }
-      return $entity->save();
+      $saved = $entity->save();
+      // Migration disables persistent cache reads. Core then also skips deleting
+      // existing entries on save, so the next web request can load old values.
+      $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
+      $definition = $storage->getEntityType();
+      $persistent_cache = $definition->isPersistentlyCacheable();
+      try {
+        $definition->set('persistent_cache', TRUE);
+        $storage->resetCache([$entity->id()]);
+      }
+      finally {
+        $definition->set('persistent_cache', $persistent_cache);
+      }
+      return (bool) $saved;
     }
     catch (EntityStorageException | \Exception | \Throwable $e) {
       // If the save fails, it might be due to orphaned field data from a
