@@ -35,7 +35,8 @@ export default defineConfig({
     { name: 'setup-baseline', testMatch: /auth\.setup\.ts/, metadata: { variant: 'baseline' }, use: { baseURL: 'http://127.0.0.1:18380' } },
     { name: 'setup-integration', testMatch: /auth\.setup\.ts/, metadata: { variant: 'integration' }, use: { baseURL: 'http://127.0.0.1:18381' } },
     { name: 'baseline', testMatch: /regression\.spec\.ts/, dependencies: ['setup-baseline'], metadata: { variant: 'baseline' }, use: { baseURL: 'http://127.0.0.1:18380' } },
-    { name: 'integration', testMatch: /.*\.spec\.ts/, dependencies: ['setup-integration'], metadata: { variant: 'integration' }, use: { baseURL: 'http://127.0.0.1:18381' } },
+    { name: 'integration', testMatch: /.*\.spec\.ts/, testIgnore: /legacy-address\.spec\.ts/, dependencies: ['setup-integration'], metadata: { variant: 'integration' }, use: { baseURL: 'http://127.0.0.1:18381' } },
+    { name: 'legacy-v2', testMatch: /legacy-address\.spec\.ts/, dependencies: ['setup-integration'], metadata: { variant: 'integration' }, use: { baseURL: 'http://127.0.0.1:18381' } },
     { name: 'mobile', testMatch: /.*\.spec\.ts/, grep: /@responsive/, dependencies: ['setup-integration'], metadata: { variant: 'integration' }, use: { baseURL: 'http://127.0.0.1:18381', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
   ],
 });

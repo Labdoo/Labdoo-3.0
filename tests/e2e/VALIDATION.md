@@ -1,25 +1,42 @@
 # Validación E2E de MEJORAS
 
-Ejecución del 6 de noviembre de 2026: **90 pruebas aprobadas, 0 fallos, 0 omitidas y 0 reintentos**. Duración: 6 min 24 s. Las 38 tarjetas tienen al menos una comprobación de navegador aprobada. Traducciones permanece excluida.
+Ejecución ampliada del 7 de noviembre de 2026: **91 pruebas aprobadas, 0 fallos, 0 omitidas y 0 reintentos**. Duración: 7 min 26 s. Las 38 tarjetas tienen cobertura de navegador aprobada. Traducciones permanece excluida.
+
+La ampliación incorpora el dump V2 facilitado y sustituye la limitación de datos reales documentada en la ejecución del día anterior (90 pruebas aprobadas).
 
 | Proyecto | Pruebas aprobadas |
 |---|---:|
-| Autenticación: siete perfiles por copia, con condiciones y sesión real | 2 |
+| Autenticación: siete perfiles por copia, condiciones y sesión real | 2 |
 | Regresión en development (1582fd13) | 17 |
 | Integración de las mejoras | 60 |
+| Flujo de direcciones desde V2 real: 12 registros | 1 |
 | Tamaño móvil 390 × 844 | 11 |
 
-Las pruebas usan Chrome/Chromium en escritorio y emulación móvil. Se han ejecutado formularios reales de clonación y actualización mediante JSON, persistencia del peso de páginas wiki, navegación dentro de libros, paginación de 53 fotos, ordenación en ambos sentidos de las 31 columnas de los cuatro paneles, generación de PDF de etiquetas y borrado de escuelas con sus galerías antes y después de ejecutar la cola.
+Chrome/Chromium en escritorio y emulación móvil. Se ejecutaron formularios de clonación y actualización mediante JSON, persistencia de pesos wiki, navegación dentro de libros, paginación de 53 fotos, ordenación en ambos sentidos de las 31 columnas de los cuatro paneles, generación de PDF de etiquetas y borrado de escuelas/galerías antes y después de ejecutar la cola.
 
 ## Correcciones detectadas y publicadas
 
 | Rama | Corrección | Commit |
 |---|---|---|
-| `feature/wiki-sequential-navigation` | Generar anterior/siguiente en el modo full usado por la página. | [2b88ef98](https://github.com/Labdoo/Labdoo-3.0/commit/2b88ef98e8a1191d3ec0b62e394fdc3d594774c4) |
-| `feature/wiki-add-subpage-access` | Conservar los bloques laterales que Drupal renderiza de forma diferida. | [cff62672](https://github.com/Labdoo/Labdoo-3.0/commit/cff6267211e7ab1ffe3e87282d3ec58e6bcd0eaa) |
-| `feature/team-nice-urls` | Conservar bloques diferidos y variar los bloques vacíos por ruta, sesión y permisos. | [7dca4142](https://github.com/Labdoo/Labdoo-3.0/commit/7dca4142844f403831e8820b6ee95a9273e8fca1) |
-| `feature/dootrip-semaphore-size` | Evitar que gin-custom.css vuelva a ampliar el semáforo a 200 px. | [5dec38a9](https://github.com/Labdoo/Labdoo-3.0/commit/5dec38a94dcd1ec1569c44de2bc8405886514c38) |
-| `feature/bulk-print-labels` | Aplicar la plantilla y estilos de impresión a las rutas de selección y compatibilidad. | [19f3566d](https://github.com/Labdoo/Labdoo-3.0/commit/19f3566d9a2d1ff2e589ac539892585850499792) |
+| `feature/wiki-sequential-navigation` | Anterior/siguiente en el modo full usado por la página. | [2b88ef98](https://github.com/Labdoo/Labdoo-3.0/commit/2b88ef98e8a1191d3ec0b62e394fdc3d594774c4) |
+| `feature/wiki-add-subpage-access` | Conservar bloques laterales de renderizado diferido. | [cff62672](https://github.com/Labdoo/Labdoo-3.0/commit/cff6267211e7ab1ffe3e87282d3ec58e6bcd0eaa) |
+| `feature/team-nice-urls` | Conservar bloques diferidos y variar bloques vacíos por ruta, sesión y permisos. | [7dca4142](https://github.com/Labdoo/Labdoo-3.0/commit/7dca4142844f403831e8820b6ee95a9273e8fca1) |
+| `feature/dootrip-semaphore-size` | Mantener el tamaño frente a gin-custom.css. | [5dec38a9](https://github.com/Labdoo/Labdoo-3.0/commit/5dec38a94dcd1ec1569c44de2bc8405886514c38) |
+| `feature/bulk-print-labels` | Aplicar la presentación de impresión a las rutas de selección y compatibilidad. | [19f3566d](https://github.com/Labdoo/Labdoo-3.0/commit/19f3566d9a2d1ff2e589ac539892585850499792) |
+| `feature/dootronic-text-address` | Leer solo la ubicación de la revisión V2 actual e invalidar las entradas de caché anteriores al guardar entidades migradas. | [525dd145](https://github.com/Labdoo/Labdoo-3.0/commit/525dd145ac3148d3fd7e6ba7039c9e950fab14cf) |
+
+## Verificación con el dump V2 real
+
+- Archivo aportado: `/var/www/html/labdoo2/labdoo.sql`, 3.938.964.295 bytes; fecha de generación indicada en el dump: **15/01/2024 18:18:31**.
+- SHA-256: `cab14d1b2caa18bdc883ce56af664ffa3a6050826730cc69afa3e73f340631f9`.
+- Las 512 tablas se importaron en una base separada, `labdoo_e2e_v2_20261107`. El importador solo puede escribir en esa base; el lector de migración tiene exclusivamente SELECT y sesión de solo lectura. La conexión se sustituye solo dentro del proceso CLI de pruebas.
+- El inventario contiene 47,761 dootronics publicados; 28,550 tienen varias filas de ubicación. El SQL de referencia selecciona la ubicación de la revisión actual.
+- Se usaron los servicios reales SourceRepository y DestinationRepository, las cuatro reglas JSON de direcciones, la conversión de componentes y el guardado real en la copia V3. Se contrastaron los componentes persistidos con SQL independiente y después con el HTML de las fichas.
+- Se comprobaron 12 registros distintos: direcciones completas de CH, DE, ES, US, FR, GB, AT, CN e IN; un registro sin código postal; otro sin calle; y otro con historial de ubicaciones.
+- La prueba reprodujo primero una dirección vacía: la consulta sin filtrar revisión devolvía listas de valores históricos que el conversor escalar descartaba. Las cuatro reglas ahora unen también `node.vid = location_instance.vid`.
+- Tras corregir la consulta, la prueba detectó valores correctos en SQL pero una ficha antigua en navegador. El migrador deshabilitaba la caché persistente y Drupal omitía por ello la eliminación de entradas previas. El guardado ahora invalida la entrada de la entidad y conserva la política de caché del proceso. La prueba precarga una ficha sin dirección antes de migrarla y verifica después su actualización en navegador.
+- Los registros ya migrados se actualizan al repetir la migración del campo con la corrección; esta ejecución solo guarda muestras en la copia V3 aislada.
+- La copia base y los registros originales de los fixtures se conservan. El alcance de esta comprobación V2 es el flujo de direcciones de dootronics; no certifica una migración completa de todos los tipos de contenido.
 
 ## Cobertura por tarjeta
 
@@ -54,7 +71,7 @@ Las pruebas usan Chrome/Chromium en escritorio y emulación móvil. Se han ejecu
 | Color de título en Teams | `feature/team-title-color` | Aprobado | 2 |
 | Rediseño de edoovillage | `feature/edoovillage-single-page` | Aprobado | 2 |
 | Rediseño de gallery | `feature/gallery-thumbnail-grid` | Aprobado | 2 |
-| Dootronics (show textual address) | `feature/dootronic-text-address` | Aprobado | 2 |
+| Dootronics (show textual address) | `feature/dootronic-text-address` | Aprobado | 3 |
 | Edoovillage photo album deletion | `feature/edoovillage-album-cleanup` | Aprobado | 2 |
 | Edoovillage cloning | `feature/edoovillage-clone-album` | Aprobado | 2 |
 | Columnas ordenables | `feature/dashboard-sortable-columns` | Aprobado | 4 |
@@ -64,16 +81,17 @@ Las pruebas usan Chrome/Chromium en escritorio y emulación móvil. Se han ejecu
 | Vista de Labdoo stories | `feature/stories-list` | Aprobado | 1 |
 | Imprimir multiples etiquetas | `feature/bulk-print-labels` | Aprobado | 5 |
 
-## Alcance y pendientes
+## Alcance y pendiente independiente
 
-- Se trabajó con dos bases de datos y copias de archivos independientes. La cuenta MySQL de pruebas solo tiene permisos en las copias. No se ha desplegado ni fusionado en development.
-- El correo permanece en el colector local y la geocodificación devuelve valores controlados. Las imágenes externas de mapas/QR son sustituidas; se comprueban los destinos de los QR y la composición de las etiquetas, no la lectura óptica del código generado por el proveedor.
-- El mapeo de direcciones usa la configuración y los servicios reales de migración, persiste los cuatro componentes y verifica su visualización en navegador con entradas controladas. **La migración desde datos V2 reales no queda certificada**: los dos servicios Docker de ~/Projects/labdoo2 están arrancados, pero la base labdoo del volumen labdoo2_dbData tiene 0 tablas y su web devuelve HTTP 500. Hace falta la copia SQL o el volumen correcto para esa comprobación.
-- Un sondeo adicional de /en/content/dootronics-dashboard?combine=000063348 devuelve HTTP 404 tanto en baseline como en integración. Se documenta como comportamiento pendiente de diagnóstico del entorno/base existente; no forma parte de las 90 comprobaciones aprobadas y no se atribuye a estas mejoras.
-- La cobertura de regresión comprueba los flujos enumerados; no certifica todas las funcionalidades, navegadores o combinaciones posibles del sitio.
+- Dos bases V3 y copias de archivos independientes; la cuenta V3 de pruebas solo tiene permisos en las copias. Las ramas permanecen para revisión, sin despliegue ni fusión en development.
+- Correo en colector local y geocodificación controlada. Las imágenes externas de mapas/QR son sustituidas: se comprueban destinos y composición de etiquetas, no la lectura óptica del QR del proveedor.
+- El sondeo adicional `/en/content/dootronics-dashboard?combine=000063348` devolvía HTTP 404 en baseline e integración. Sigue documentado como comportamiento pendiente de diagnóstico del entorno/base existente, fuera de las 91 comprobaciones aprobadas.
+- La cobertura de regresión comprueba los flujos enumerados; no certifica todas las funcionalidades, navegadores o combinaciones del sitio.
 
 ## Evidencias y reproducción
 
-Los artefactos privados permanecen en `.e2e-lab/state/runs/final-mejoras/`: `playwright-report/index.html`, `playwright-results.json`, `card-coverage.json`, `card-coverage.md`, `additional-probes.json` y PDF de etiquetas. Los informes pueden contener información de la copia de datos y no se publican en Git.
+Artefactos privados: `.e2e-lab/state/runs/final-mejoras-v2-real/` (`playwright-report/index.html`, `playwright-results.json`, `card-coverage.json`, `card-coverage.md` y PDF). Metadatos del dump y muestras reales: `.e2e-lab/state/v2-import-complete.json` y `legacy-address-fixtures.json`. Los valores personales, el SQL, las credenciales y los informes completos permanecen fuera de Git.
 
-El código de pruebas y las instrucciones están en [README.md](README.md). `support/coverage.py final-mejoras` valida que las 38 tarjetas estén cubiertas y aprobadas. Las tareas permanecen en IN REVIEW para revisión y despliegue.
+Una ejecución anterior quedó interrumpida al detenerse los servidores locales con SIGTERM (74 pruebas aprobadas y 17 errores de conexión). Sus evidencias se conservan en `final-mejoras-v2-real-server-interrupted/`. Tras reiniciar ambos servidores se repitió íntegramente la suite; el resultado de 91 aprobadas corresponde a esa repetición completa.
+
+Véase [README.md](README.md). El proyecto opcional `legacy-v2` permite repetir la comprobación real; `support/coverage.py final-mejoras-v2-real` verifica las 38 tarjetas. Las tareas siguen en IN REVIEW.

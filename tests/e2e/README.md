@@ -33,3 +33,13 @@ Chrome is configured as `/usr/bin/google-chrome`. Baseline runs critical existin
 All projects use one worker, no retries, and retain failure screenshots/traces. Reports are written to `.e2e-lab/state/runs/RUN_ID`, including `playwright-report/index.html`, `playwright-results.json`, and the generated card matrix. Only the isolated fixtures are mutated. Album tests also execute the real gallery worker and verify that the original school and its gallery survive.
 
 Tests require the base snapshots and account fixture JSON to remain available; they do not embed credentials or silently create a database connection. To recreate the lab, inspect the local-lab scripts, supply the source connection privately, then clone, prepare sites, import configuration, enable the test module, harden and seed each clone. The scripts are specific to this workspace and intentionally refuse ambiguous state.
+
+## Real V2 address verification
+
+The optional `legacy-v2` project reads a dedicated V2 database populated from a private SQL dump. It is excluded from the regular integration project; select `legacy-v2` when running against the private V2 clone. Prepare its database using `support/local-lab/prepare-v2-import.py` and import the dump with `support/local-lab/import-v2.py`; `LABDOO_E2E_V2_DUMP` can override the default local dump path. Both scripts require the private connection exported to `.e2e-lab/state/external-connection.json` and use the local V2 Docker instance on port 3317. The importer can write only its dedicated database; the migration reader has only SELECT permissions and enforces read-only sessions.
+
+```sh
+E2E_RUN_ID=real-v2 npm test -- --project=legacy-v2
+```
+
+The test temporarily supplies this source connection inside guarded Drush only. It uses the actual source repository, address mappings and destination repository, checks persisted components against independent SQL results, then checks the rendered node pages. Samples cover different countries and missing postal codes/streets. The real addresses stay in private state and browser artifacts. This verifies the address migration flow, not an import of every V2 content type.
