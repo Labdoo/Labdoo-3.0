@@ -1,0 +1,3 @@
+field.formatter.settings.labdoo_dootrip_location:
+  type: field.formatter.settings.geocoder_geofield_reverse_geocode
+  label: 'Dootrip location text settings'

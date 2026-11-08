@@ -37,6 +37,7 @@ dependencies:
     - datetime
     - geocoder_geofield
     - geolocation_geofield
+    - labdoo_dootrip
     - options
     - user
 id: node.dootrip.default
@@ -85,7 +86,7 @@ content:
     weight: 1
     region: content
   field_destination_of_the_trip:
-    type: geocoder_geofield_reverse_geocode
+    type: labdoo_dootrip_location
     label: inline
     settings:
       providers:
@@ -803,7 +804,7 @@ content:
     weight: 8
     region: content
   field_origin_of_the_trip:
-    type: geocoder_geofield_reverse_geocode
+    type: labdoo_dootrip_location
     label: inline
     settings:
       providers:
