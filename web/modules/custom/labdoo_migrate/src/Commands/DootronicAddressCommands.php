@@ -96,6 +96,9 @@ final class DootronicAddressCommands extends DrushCommands {
         if (!$ids) {
           break;
         }
+        // An interrupted previous run may have committed a field batch before
+        // invalidating entity cache. Always compare fresh destination values.
+        $storage->resetCache(array_values($ids));
         $nodes = $storage->loadMultiple($ids);
         $tags = [];
         $changed = [];
