@@ -67,10 +67,6 @@ final class DootronicAddressCommands extends DrushCommands {
       Database::setActiveConnection($active);
     }
     $storage = $this->entityTypeManager->getStorage('node');
-    // Limit the write to the address tables of the existing default revision.
-    // This follows the existing coordinate repair: no entity save hooks run.
-    $writeField = new \ReflectionMethod($storage, 'saveToDedicatedTables');
-    $writeField->setAccessible(TRUE);
     $selected = array_filter(explode(',', (string) $options['nids']), 'strlen');
     foreach ($selected as $id) {
       if (!ctype_digit($id) || (int) $id < 1) {
@@ -102,6 +98,7 @@ final class DootronicAddressCommands extends DrushCommands {
         }
         $nodes = $storage->loadMultiple($ids);
         $tags = [];
+        $changed = [];
         // Commit and invalidate cache once per bounded batch, rather than
         // forcing a database commit for every one of the 63,000 addresses.
         $transaction = $apply ? Database::getConnection()->startTransaction() : NULL;
@@ -152,9 +149,12 @@ final class DootronicAddressCommands extends DrushCommands {
             $node->set('field_address', $address);
             $node->setNewRevision(FALSE);
             $node->isDefaultRevision(TRUE);
-            $writeField->invoke($storage, $node, TRUE, ['field_address']);
+            $changed[] = $node;
             $tags = array_merge($tags, $node->getCacheTagsToInvalidate());
             $stats['updated']++;
+          }
+          if ($changed) {
+            $this->writeAddresses($changed);
           }
           unset($transaction);
         }
@@ -177,6 +177,86 @@ final class DootronicAddressCommands extends DrushCommands {
       }
     }
     $this->io()->writeln(($apply ? 'APPLY ' : 'DRY RUN ') . json_encode($stats, JSON_THROW_ON_ERROR));
+  }
+
+  /**
+   * Writes only address data, using Drupal's dedicated field table mapping.
+   *
+   * Batching the same rows as SqlContentEntityStorage avoids four database
+   * round trips per node. Other translations and old revisions are preserved.
+   * The caller holds the transaction and has already backed up every change.
+   *
+   * @param \Drupal\node\NodeInterface[] $nodes
+   *   Existing nodes with recovered addresses in their default translation.
+   */
+  private function writeAddresses(array $nodes): void {
+    $storage = $this->entityTypeManager->getStorage('node');
+    $mapping = $storage->getTableMapping();
+    $definition = reset($nodes)->getFieldDefinition('field_address')->getFieldStorageDefinition();
+    $dataTable = $mapping->getDedicatedDataTableName($definition);
+    $revisionTable = $mapping->getDedicatedRevisionTableName($definition);
+    $columns = ['entity_id', 'revision_id', 'bundle', 'delta', 'langcode'];
+    foreach ($definition->getColumns() as $property => $settings) {
+      $columns[] = $mapping->getFieldColumnName($definition, $property);
+    }
+    $db = Database::getConnection();
+    $currentRevisions = $db->condition('OR');
+    $ids = [];
+    $rows = [];
+    foreach ($nodes as $node) {
+      $ids[] = $node->id();
+      $currentRevisions->condition($db->condition('AND')
+        ->condition('entity_id', $node->id())
+        ->condition('revision_id', $node->getRevisionId()));
+      $languages = $node->getFieldDefinition('field_address')->isTranslatable()
+        ? $node->getTranslationLanguages() : [$node->language()->getId() => $node->language()];
+      foreach ($languages as $langcode => $language) {
+        $items = $node->getTranslation($langcode)->get('field_address');
+        $items->filterEmptyItems();
+        foreach ($items as $delta => $item) {
+          $row = [
+            $node->id(),
+            $node->getRevisionId(),
+            $node->bundle(),
+            $delta,
+            $langcode,
+          ];
+          $value = $item->getValue();
+          foreach ($definition->getColumns() as $property => $settings) {
+            $row[] = $value[$property] ?? NULL;
+          }
+          $rows[] = $row;
+        }
+      }
+    }
+    // Stop safely if a user saved one of these nodes after it was loaded.
+    $current = $db->select('node', 'n')->fields('n', ['nid', 'vid'])
+      ->condition('nid', $ids, 'IN')->forUpdate()->execute()->fetchAllKeyed();
+    $defaultAddresses = $db->condition('OR');
+    foreach ($nodes as $node) {
+      if (($current[$node->id()] ?? NULL) != $node->getRevisionId()) {
+        throw new \RuntimeException('A node revision changed during recovery; rerun the command.');
+      }
+      $defaultAddresses->condition($db->condition('AND')
+        ->condition('entity_id', $node->id())
+        ->condition('langcode', $node->language()->getId()));
+    }
+    $countryColumn = $mapping->getFieldColumnName($definition, 'country_code');
+    $newAddresses = $db->select($dataTable, 'a')->fields('a', ['entity_id'])
+      ->condition($defaultAddresses)->isNotNull($countryColumn)
+      ->condition($countryColumn, '', '<>')->range(0, 1)->execute()->fetchField();
+    if ($newAddresses !== FALSE) {
+      throw new \RuntimeException('An address was populated during recovery; rerun the command.');
+    }
+    $db->delete($dataTable)->condition('entity_id', $ids, 'IN')->execute();
+    $db->delete($revisionTable)->condition($currentRevisions)->execute();
+    foreach ([$dataTable, $revisionTable] as $table) {
+      $insert = $db->insert($table)->fields($columns);
+      foreach ($rows as $row) {
+        $insert->values($row);
+      }
+      $insert->execute();
+    }
   }
 
 }
