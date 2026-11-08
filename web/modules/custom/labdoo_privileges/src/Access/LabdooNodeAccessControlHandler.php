@@ -51,15 +51,14 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
     $return_as_object = FALSE
   ) {
     $result = parent::access($entity, $operation, $account, TRUE);
-    if (!$result->isNeutral()) {
-      return $result;
+    if ($result->isNeutral()) {
+      $result = $account === NULL
+        ? AccessResult::neutral()
+        : $this->checkAccess($entity, $operation, $account);
     }
 
-    if ($account === NULL) {
-      return AccessResult::neutral();
-    }
-
-    return $this->checkAccess($entity, $operation, $account);
+    // Entity access callers expect a boolean unless they request the object.
+    return $return_as_object ? $result : $result->isAllowed();
   }
 
   /**

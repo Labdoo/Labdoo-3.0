@@ -1,14 +1,14 @@
 # Validación E2E de MEJORAS
 
-Ejecución del 7 de noviembre de 2026 tras corregir el filtro: **95 pruebas aprobadas, 0 fallos, 0 omitidas y 0 reintentos**. Duración: 7 min 27 s. Las 38 tarjetas tienen cobertura de navegador aprobada. Traducciones permanece excluida.
+Ejecución del 8 de noviembre de 2026 tras corregir las acciones del historial: **98 pruebas aprobadas, 0 fallos, 0 omitidas y 0 reintentos**. Duración: 428 s. Las 38 tarjetas tienen cobertura de navegador aprobada. Traducciones permanece excluida.
 
-Esta ejecución incorpora cuatro pruebas de regresión para el 404 del filtro, además de las 91 comprobaciones anteriores, incluida la migración de direcciones con el dump V2 real.
+Esta ejecución incorpora tres pruebas de permisos con revisiones históricas a las 95 comprobaciones anteriores, incluidas la regresión del filtro y la migración de direcciones con el dump V2 real.
 
 | Proyecto | Pruebas aprobadas |
 |---|---:|
 | Autenticación: siete perfiles por copia, condiciones y sesión real | 2 |
 | Regresión en development (1582fd13) | 17 |
-| Integración de las mejoras y regresión del filtro | 64 |
+| Integración de las mejoras y regresión del filtro y de las acciones del historial | 67 |
 | Flujo de direcciones desde V2 real: 12 registros | 1 |
 | Tamaño móvil 390 × 844 | 11 |
 
@@ -25,6 +25,7 @@ Chrome/Chromium en escritorio y emulación móvil. Se ejecutaron formularios de 
 | `feature/bulk-print-labels` | Aplicar la presentación de impresión a las rutas de selección y compatibilidad. | [19f3566d](https://github.com/Labdoo/Labdoo-3.0/commit/19f3566d9a2d1ff2e589ac539892585850499792) |
 | `feature/dootronic-text-address` | Leer solo la ubicación de la revisión V2 actual e invalidar las entradas de caché anteriores al guardar entidades migradas. | [525dd145](https://github.com/Labdoo/Labdoo-3.0/commit/525dd145ac3148d3fd7e6ba7039c9e950fab14cf) |
 | `feature/dootronics-dashboard-filter-404` | Alinear el identificador del título usado por el filtro en la vista principal, tabla y mapa. | [77ac7a49](https://github.com/Labdoo/Labdoo-3.0/commit/77ac7a493ed9c9b7f6cc204d84dbf7ac351c7f69) |
+| `feature/dootrip-public-revisions` | Respetar el retorno booleano del control de acceso para ocultar Revert/Delete a usuarios sin permisos. | [1b87e048](https://github.com/Labdoo/Labdoo-3.0/commit/1b87e048eb0ce7e39560987b336ea3f95b8f09af) |
 
 ## Verificación con el dump V2 real
 
@@ -46,6 +47,12 @@ El filtro combinado referenciaba el campo interno `title`, ausente en la tabla q
 Las cuatro pruebas nuevas comprueban: resultado correcto en las vistas principal/tabla/mapa; búsqueda por ID y conservación del filtro al ordenar y abrir la ficha; búsqueda sin coincidencias con HTTP 200 y lista vacía; envío y limpieza del formulario desde navegador. El caso original `/en/content/dootronics-dashboard?combine=000063348` devuelve HTTP 200 en integración.
 
 La corrección está publicada desde `development` en `feature/dootronics-dashboard-filter-404`. Para aplicarla al desplegar se debe importar la configuración de la vista y reconstruir caché. La copia base de control permanece sin cambios.
+
+## Acciones del historial de revisiones
+
+La revisión manual detectó que un anónimo veía Revert/Delete en revisiones históricas, aunque las rutas de acción respondían 403. El controlador de acceso personalizado devolvía un objeto incluso cuando Drupal solicitaba un booleano; el constructor de los botones interpretaba ese objeto como verdadero. Ahora se devuelve `isAllowed()` por defecto y se conserva el objeto con sus metadatos cuando se solicita explícitamente.
+
+La prueba anterior usaba un dootrip con una única revisión actual y no ejercitaba las operaciones de revisiones antiguas. Se añaden tres casos con un dootrip aislado de dos revisiones: anónimo y usuario básico pueden leer el historial y la revisión anterior, no ven acciones y reciben 403 al abrir sus rutas; el administrador conserva las acciones y puede abrir la confirmación sin enviarla. Una sesión anónima independiente comprueba después que los controles del administrador no se filtren entre sesiones.
 
 ## Cobertura por tarjeta
 
@@ -75,7 +82,7 @@ La corrección está publicada desde `development` en `feature/dootronics-dashbo
 | Descripción de campos en dootronics | `feature/dootronic-field-descriptions` | Aprobado | 1 |
 | Edoovillages (campos sin descripción) | `feature/edoovillage-field-descriptions` | Aprobado | 1 |
 | Descripción del campo "Announce this dootrip" | `feature/dootrip-announcement-description` | Aprobado | 1 |
-| Habilitar revisiones de dootrips | `feature/dootrip-public-revisions` | Aprobado | 1 |
+| Habilitar revisiones de dootrips | `feature/dootrip-public-revisions` | Aprobado | 4 |
 | Nice URLs | `feature/team-nice-urls` | Aprobado | 1 |
 | Color de título en Teams | `feature/team-title-color` | Aprobado | 2 |
 | Rediseño de edoovillage | `feature/edoovillage-single-page` | Aprobado | 2 |
@@ -98,8 +105,8 @@ La corrección está publicada desde `development` en `feature/dootronics-dashbo
 
 ## Evidencias y reproducción
 
-Artefactos privados: `.e2e-lab/state/runs/final-mejoras-filter-fixed/` (`playwright-report/index.html`, `playwright-results.json`, `card-coverage.json`, `card-coverage.md` y PDF). Metadatos del dump y muestras reales: `.e2e-lab/state/v2-import-complete.json` y `legacy-address-fixtures.json`. Los valores personales, el SQL, las credenciales y los informes completos permanecen fuera de Git.
+Artefactos privados: `.e2e-lab/state/runs/final-mejoras-revision-controls/` (`playwright-report/index.html`, `playwright-results.json`, `card-coverage.json`, `card-coverage.md` y PDF). Metadatos del dump y muestras reales: `.e2e-lab/state/v2-import-complete.json` y `legacy-address-fixtures.json`. Los valores personales, el SQL, las credenciales y los informes completos permanecen fuera de Git.
 
-Una ejecución anterior quedó interrumpida al detenerse los servidores locales con SIGTERM (74 pruebas aprobadas y 17 errores de conexión). Sus evidencias se conservan en `final-mejoras-v2-real-server-interrupted/`. Tras reiniciar ambos servidores se repitió íntegramente la suite; la repetición completa de 91 pruebas pasó y esta ejecución posterior amplía el total a 95.
+Una ejecución anterior quedó interrumpida al detenerse los servidores locales con SIGTERM (74 pruebas aprobadas y 17 errores de conexión). Sus evidencias se conservan en `final-mejoras-v2-real-server-interrupted/`. Tras reiniciar ambos servidores se repitió íntegramente la suite; la repetición completa de 91 pruebas pasó y las ejecuciones posteriores ampliaron el total a 95 y después a 98.
 
-Véase [README.md](README.md). El proyecto opcional `legacy-v2` permite repetir la comprobación real; `support/coverage.py final-mejoras-filter-fixed` verifica las 38 tarjetas. Las tareas siguen en IN REVIEW.
+Véase [README.md](README.md). El proyecto opcional `legacy-v2` permite repetir la comprobación real; `support/coverage.py final-mejoras-revision-controls` verifica las 38 tarjetas. Las tareas siguen en IN REVIEW.
