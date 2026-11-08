@@ -53,3 +53,15 @@ The test temporarily supplies this source connection inside guarded Drush only. 
 `gallery-lightbox.spec.ts` checks the modal photo viewer in desktop and mobile: original image loading, previous/next and arrow keys, Escape with focus restoration, button/backdrop closing, and the three-photo final page. A separate case verifies original links with JavaScript disabled. To also repeat the existing gallery pagination, parent link and edit form checks, run `npm test -- gallery-lightbox.spec.ts visual-and-navigation.spec.ts --project=integration --project=mobile --grep gallery`.
 
 `dootrip-assigned-counter.spec.ts` covers older imports whose assigned-device counter is empty. It creates isolated dootrips with zero/one linked device, removes only their counter field rows to model that legacy state, and verifies the rendered value and its position between capacity and weight. It also checks existing dootrip 16086 without changing it. The display fallback uses the linked-device count only when the stored counter is empty and never saves the node.
+
+## Deployment of the validated improvements
+
+The 38 reviewed feature branches and the dootronics search filter fix are integrated together. Translations remain excluded. After deploying the code, run the site's normal database update and configuration import steps, then rebuild caches:
+
+```sh
+vendor/bin/drush updatedb -y
+vendor/bin/drush config:import -y
+vendor/bin/drush cache:rebuild
+```
+
+The update hook installs the wiki page order field; configuration enables the revised displays, gallery formatter and permissions. Existing missing dootronic addresses require rerunning the address field migration from V2 separately. The E2E database/settings and SQL dump remain local test artifacts.

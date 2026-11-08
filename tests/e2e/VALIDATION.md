@@ -1,16 +1,16 @@
 # Validación E2E de MEJORAS
 
-Ejecución del 8 de noviembre de 2026 tras corregir las acciones del historial: **98 pruebas aprobadas, 0 fallos, 0 omitidas y 0 reintentos**. Duración: 428 s. Las 38 tarjetas tienen cobertura de navegador aprobada. Traducciones permanece excluida.
+Ejecución final del 8 de noviembre de 2026 para integrar en development: **106 pruebas aprobadas, 0 fallos, 0 omitidas y 0 reintentos**. Duración: 479 s. Las 38 tarjetas tienen cobertura de navegador aprobada y validación manual del usuario. Traducciones permanece excluida.
 
-Esta ejecución incorpora tres pruebas de permisos con revisiones históricas a las 95 comprobaciones anteriores, incluidas la regresión del filtro y la migración de direcciones con el dump V2 real.
+Esta ejecución reúne las 38 mejoras y la corrección del filtro, incluidos el visor de fotos y los fallos de permisos, caché y contadores detectados durante la validación manual.
 
 | Proyecto | Pruebas aprobadas |
 |---|---:|
 | Autenticación: siete perfiles por copia, condiciones y sesión real | 2 |
 | Regresión en development (1582fd13) | 17 |
-| Integración de las mejoras y regresión del filtro y de las acciones del historial | 67 |
+| Integración de todas las mejoras y regresiones | 73 |
 | Flujo de direcciones desde V2 real: 12 registros | 1 |
-| Tamaño móvil 390 × 844 | 11 |
+| Tamaño móvil 390 × 844 | 13 |
 
 Chrome/Chromium en escritorio y emulación móvil. Se ejecutaron formularios de clonación y actualización mediante JSON, persistencia de pesos wiki, navegación dentro de libros, paginación de 53 fotos, ordenación en ambos sentidos de las 31 columnas de los cuatro paneles, generación de PDF de etiquetas y borrado de escuelas/galerías antes y después de ejecutar la cola.
 
@@ -58,13 +58,13 @@ La prueba anterior usaba un dootrip con una única revisión actual y no ejercit
 
 Corrección posterior en la revisión manual [28/38]: el dootrip existente 16086 tenía un equipo vinculado pero el contador almacenado estaba vacío y Drupal omitía el campo. `feature/dootrip-display-order`, commit `501234ce`, añade un respaldo de visualización: cuando el contador está vacío y el campo está habilitado en la vista, usa el número de referencias a equipos con el formato y posición configurados. No guarda cambios ni modifica contadores existentes.
 
-La ejecución `dootrip-counter-fixed` aprobó **11/11 pruebas**, sin omisiones ni reintentos: tres casos nuevos (contador ausente con cero/un equipo y el dootrip existente), orden de campos, formulario y permisos de historial/revisiones. El fallo de la ficha existente se reprodujo primero en `dootrip-counter-reproduction-ready`. Se comprobó después que la lectura no rellenó el contador persistido. No se ha repetido la suite completa para esta corrección.
+La ejecución `dootrip-counter-fixed` aprobó **11/11 pruebas**, sin omisiones ni reintentos: tres casos nuevos (contador ausente con cero/un equipo y el dootrip existente), orden de campos, formulario y permisos de historial/revisiones. El fallo de la ficha existente se reprodujo primero en `dootrip-counter-reproduction-ready`. Se comprobó después que la lectura no rellenó el contador persistido. La ejecución final indicada al principio incorpora esta corrección.
 
 Corrección posterior en la revisión manual [25/38]: el álbum del clon se creaba, pero el bloque de acciones almacenado antes de ejecutar la cola no mostraba **Go to photo album**. Se añaden dependencias de caché del nodo, de la lista de galerías y del álbum encontrado para invalidar el bloque al crear, modificar o borrar galerías. Publicado en `feature/edoovillage-clone-album`, commit `34408224`.
 
-La prueba ampliada reprodujo primero la ausencia del enlace (`clone-album-link-reproduction`). Tras corregirlo, `clone-album-link-fixed` aprobó **12/12 pruebas**, sin omisiones ni reintentos: autenticación, clonación/borrado antes y después de la cola, seguimiento del enlace en la misma sesión con el bloque precargado y regresiones de escuelas en escritorio/móvil. La prueba anterior comprobaba las entidades, pero no recargaba el bloque después de crear el álbum. No se ha repetido la suite completa para esta corrección.
+La prueba ampliada reprodujo primero la ausencia del enlace (`clone-album-link-reproduction`). Tras corregirlo, `clone-album-link-fixed` aprobó **12/12 pruebas**, sin omisiones ni reintentos: autenticación, clonación/borrado antes y después de la cola, seguimiento del enlace en la misma sesión con el bloque precargado y regresiones de escuelas en escritorio/móvil. La prueba anterior comprobaba las entidades, pero no recargaba el bloque después de crear el álbum. La ejecución final indicada al principio incorpora esta corrección.
 
-Ampliación posterior del 08/11/2026: la revisión manual [22/38] solicitó un visor modal para las fotos. Se añadió a `feature/gallery-thumbnail-grid` en el commit `cc6e8508`. La ejecución específica `gallery-lightbox` aprobó **10/10 pruebas**, sin omisiones ni reintentos: autenticación, cinco casos nuevos de visor/fallback y cuatro comprobaciones previas de galería. Incluye originales cargados, navegación con botones y teclado, Escape y devolución del foco, cierre por botón/fondo, paginación, escritorio, móvil y enlaces sin JavaScript. La suite completa de 98 pruebas indicada arriba corresponde al estado anterior a esta ampliación; no se ha repetido íntegramente para el visor.
+Ampliación posterior del 08/11/2026: la revisión manual [22/38] solicitó un visor modal para las fotos. Se añadió a `feature/gallery-thumbnail-grid` en el commit `cc6e8508`. La ejecución específica `gallery-lightbox` aprobó **10/10 pruebas**, sin omisiones ni reintentos: autenticación, cinco casos nuevos de visor/fallback y cuatro comprobaciones previas de galería. Incluye originales cargados, navegación con botones y teclado, Escape y devolución del foco, cierre por botón/fondo, paginación, escritorio, móvil y enlaces sin JavaScript. La suite completa de 98 pruebas indicada arriba corresponde al estado anterior a esta ampliación; la ejecución final indicada al principio también incluye el visor.
 
 | Tarjeta | Rama | Resultado | Casos anotados |
 |---|---|---|---:|
@@ -96,13 +96,13 @@ Ampliación posterior del 08/11/2026: la revisión manual [22/38] solicitó un v
 | Nice URLs | `feature/team-nice-urls` | Aprobado | 1 |
 | Color de título en Teams | `feature/team-title-color` | Aprobado | 2 |
 | Rediseño de edoovillage | `feature/edoovillage-single-page` | Aprobado | 2 |
-| Rediseño de gallery | `feature/gallery-thumbnail-grid` | Aprobado | 2 |
+| Rediseño de gallery | `feature/gallery-thumbnail-grid` | Aprobado | 7 |
 | Dootronics (show textual address) | `feature/dootronic-text-address` | Aprobado | 3 |
 | Edoovillage photo album deletion | `feature/edoovillage-album-cleanup` | Aprobado | 2 |
 | Edoovillage cloning | `feature/edoovillage-clone-album` | Aprobado | 2 |
 | Columnas ordenables | `feature/dashboard-sortable-columns` | Aprobado | 4 |
 | Orden de los campos de dootrips | `feature/dootrip-form-order` | Aprobado | 1 |
-| Orden de los campos de dootrips en la vista | `feature/dootrip-display-order` | Aprobado | 1 |
+| Orden de los campos de dootrips en la vista | `feature/dootrip-display-order` | Aprobado | 4 |
 | Gráfico de hub | `feature/hub-node-chart` | Aprobado | 1 |
 | Vista de Labdoo stories | `feature/stories-list` | Aprobado | 1 |
 | Imprimir multiples etiquetas | `feature/bulk-print-labels` | Aprobado | 5 |
@@ -115,8 +115,16 @@ Ampliación posterior del 08/11/2026: la revisión manual [22/38] solicitó un v
 
 ## Evidencias y reproducción
 
-Artefactos privados: `.e2e-lab/state/runs/final-mejoras-revision-controls/` (`playwright-report/index.html`, `playwright-results.json`, `card-coverage.json`, `card-coverage.md` y PDF). Metadatos del dump y muestras reales: `.e2e-lab/state/v2-import-complete.json` y `legacy-address-fixtures.json`. Los valores personales, el SQL, las credenciales y los informes completos permanecen fuera de Git.
+Artefactos privados: `.e2e-lab/state/runs/development-merge-final/` (`playwright-report/index.html`, `playwright-results.json`, `card-coverage.json`, `card-coverage.md` y PDF). Metadatos del dump y muestras reales: `.e2e-lab/state/v2-import-complete.json` y `legacy-address-fixtures.json`. Los valores personales, el SQL, las credenciales y los informes completos permanecen fuera de Git.
 
 Una ejecución anterior quedó interrumpida al detenerse los servidores locales con SIGTERM (74 pruebas aprobadas y 17 errores de conexión). Sus evidencias se conservan en `final-mejoras-v2-real-server-interrupted/`. Tras reiniciar ambos servidores se repitió íntegramente la suite; la repetición completa de 91 pruebas pasó y las ejecuciones posteriores ampliaron el total a 95 y después a 98.
 
-Véase [README.md](README.md). El proyecto opcional `legacy-v2` permite repetir la comprobación real; `support/coverage.py final-mejoras-revision-controls` verifica las 38 tarjetas. Las tareas siguen en IN REVIEW.
+Véase [README.md](README.md). El proyecto opcional `legacy-v2` permite repetir la comprobación real; `support/coverage.py development-merge-final` verifica las 38 tarjetas. Las tareas siguen en IN REVIEW.
+
+## Integración en development
+
+Se incorporaron las 38 ramas feature de las tarjetas y `feature/dootronics-dashboard-filter-404`, con sus últimos commits publicados. Todas son ancestros del candidato de integración. El contenido del candidato coincide con la revisión validada; el único conflicto fue el CSS generado, resuelto conservando los estilos conjuntos revisados. Antes de publicar se ajustaron únicamente formato/documentación de TeamActionsBlock; sus tokens PHP ejecutables son idénticos a los comprobados en navegador.
+
+Sintaxis: 40 archivos PHP, 42 YAML y 4 JSON aprobados; JavaScript del visor aprobado. PHPCS no añade errores respecto a development: quedan 26 errores anteriores en los archivos comprobados y cuatro advertencias nuevas (longitud de un comentario y llamadas estáticas a Drupal). PHPStan no está disponible en el entorno.
+
+Para desplegar, ejecutar las actualizaciones de base de datos, importar configuración y reconstruir caché, como se indica en el README. La migración de direcciones ausentes es un paso separado.
