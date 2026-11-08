@@ -56,6 +56,10 @@ La prueba anterior usaba un dootrip con una única revisión actual y no ejercit
 
 ## Cobertura por tarjeta
 
+Corrección posterior en la revisión manual [28/38]: el dootrip existente 16086 tenía un equipo vinculado pero el contador almacenado estaba vacío y Drupal omitía el campo. `feature/dootrip-display-order`, commit `501234ce`, añade un respaldo de visualización: cuando el contador está vacío y el campo está habilitado en la vista, usa el número de referencias a equipos con el formato y posición configurados. No guarda cambios ni modifica contadores existentes.
+
+La ejecución `dootrip-counter-fixed` aprobó **11/11 pruebas**, sin omisiones ni reintentos: tres casos nuevos (contador ausente con cero/un equipo y el dootrip existente), orden de campos, formulario y permisos de historial/revisiones. El fallo de la ficha existente se reprodujo primero en `dootrip-counter-reproduction-ready`. Se comprobó después que la lectura no rellenó el contador persistido. No se ha repetido la suite completa para esta corrección.
+
 Corrección posterior en la revisión manual [25/38]: el álbum del clon se creaba, pero el bloque de acciones almacenado antes de ejecutar la cola no mostraba **Go to photo album**. Se añaden dependencias de caché del nodo, de la lista de galerías y del álbum encontrado para invalidar el bloque al crear, modificar o borrar galerías. Publicado en `feature/edoovillage-clone-album`, commit `34408224`.
 
 La prueba ampliada reprodujo primero la ausencia del enlace (`clone-album-link-reproduction`). Tras corregirlo, `clone-album-link-fixed` aprobó **12/12 pruebas**, sin omisiones ni reintentos: autenticación, clonación/borrado antes y después de la cola, seguimiento del enlace en la misma sesión con el bloque precargado y regresiones de escuelas en escritorio/móvil. La prueba anterior comprobaba las entidades, pero no recargaba el bloque después de crear el álbum. No se ha repetido la suite completa para esta corrección.
