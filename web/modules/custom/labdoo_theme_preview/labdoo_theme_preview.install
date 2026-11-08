@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Installs the optional theme without changing the default theme.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function labdoo_theme_preview_install(): void {
+  // Drupal copies the default theme's block placements on theme installation.
+  // This installs configuration only; it does not create content entities.
+  \Drupal::service('theme_installer')->install(['labdoo_next']);
+}

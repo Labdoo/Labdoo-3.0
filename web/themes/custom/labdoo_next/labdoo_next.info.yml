@@ -1,0 +1,25 @@
+name: Labdoo Next
+type: theme
+description: A warm, accessible editorial design for the Labdoo community.
+package: Labdoo
+base theme: labdoo
+core_version_requirement: ^10
+libraries:
+  - labdoo_next/design
+regions:
+  header: Header
+  post_header: Post header
+  pre_content: Pre-content
+  breadcrumb: Breadcrumb
+  highlighted: Highlighted
+  help: Help
+  sidebar: Sidebar
+  content: Content
+  post_content: Post-content
+  pre_footer: Pre-footer
+  page_top: Page top
+  page_bottom: Page bottom
+  sidebar_first: First sidebar
+  footer: Footer
+regions_hidden:
+  - sidebar_first

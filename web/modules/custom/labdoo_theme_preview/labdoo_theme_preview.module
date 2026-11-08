@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Cache variation for the optional Labdoo Next preview.
+ */
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function labdoo_theme_preview_page_attachments_alter(array &$attachments): void {
+  $attachments['#cache']['contexts'][] = 'url.query_args:theme';
+}
