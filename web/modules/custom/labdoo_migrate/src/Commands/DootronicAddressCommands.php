@@ -100,66 +100,75 @@ final class DootronicAddressCommands extends DrushCommands {
         if (!$ids) {
           break;
         }
-        foreach ($storage->loadMultiple($ids) as $node) {
-          $last = (int) $node->id();
-          $stats['scanned']++;
-          if (!$node->get('field_address')->isEmpty()) {
-            $stats['populated']++;
-            continue;
-          }
-          $sourceId = $node->hasField('field_d7_nid') && !$node->get('field_d7_nid')->isEmpty()
+        $nodes = $storage->loadMultiple($ids);
+        $tags = [];
+        // Commit and invalidate cache once per bounded batch, rather than
+        // forcing a database commit for every one of the 63,000 addresses.
+        $transaction = $apply ? Database::getConnection()->startTransaction() : NULL;
+        try {
+          foreach ($nodes as $node) {
+            $last = (int) $node->id();
+            $stats['scanned']++;
+            if (!$node->get('field_address')->isEmpty()) {
+              $stats['populated']++;
+              continue;
+            }
+            $sourceId = $node->hasField('field_d7_nid') && !$node->get('field_d7_nid')->isEmpty()
             ? (int) $node->get('field_d7_nid')->value : $last;
-          $rows = $source->query("SELECT l.country,l.city,l.postal_code,l.street
+            $rows = $source->query("SELECT l.country,l.city,l.postal_code,l.street
             FROM {node} n JOIN {location_instance} li ON li.nid=n.nid AND li.vid=n.vid
             JOIN {location} l ON l.lid=li.lid WHERE n.nid=:nid AND n.type='laptop'",
             [':nid' => $sourceId])->fetchAll();
-          if (count($rows) !== 1 || !isset(CountryManager::getStandardList()[strtoupper(trim((string) $rows[0]->country))])) {
-            $stats['missing_or_ambiguous_source']++;
-            continue;
-          }
-          $row = $rows[0];
-          $address = ['country_code' => strtoupper(trim($row->country))];
-          $components = [
-            'city' => 'locality',
-            'postal_code' => 'postal_code',
-            'street' => 'address_line1',
-          ];
-          foreach ($components as $from => $to) {
-            $address[$to] = trim((string) $row->$from);
-          }
-          $stats['recoverable']++;
-          if (!$apply) {
-            continue;
-          }
-          $record = [
-            'nid' => $last,
-            'vid' => (int) $node->getRevisionId(),
-            'source_nid' => $sourceId,
-            'langcode' => $node->language()->getId(),
-            'before' => $node->get('field_address')->getValue(),
-            'after' => $address,
-          ];
-          $line = json_encode($record, JSON_THROW_ON_ERROR) . "\n";
-          if (fwrite($backup, $line) !== strlen($line) || !fflush($backup)) {
-            throw new \RuntimeException('Cannot persist address backup; stopping.');
-          }
-          $transaction = Database::getConnection()->startTransaction();
-          try {
+            if (count($rows) !== 1 || !isset(CountryManager::getStandardList()[strtoupper(trim((string) $rows[0]->country))])) {
+              $stats['missing_or_ambiguous_source']++;
+              continue;
+            }
+            $row = $rows[0];
+            $address = ['country_code' => strtoupper(trim($row->country))];
+            $components = [
+              'city' => 'locality',
+              'postal_code' => 'postal_code',
+              'street' => 'address_line1',
+            ];
+            foreach ($components as $from => $to) {
+              $address[$to] = trim((string) $row->$from);
+            }
+            $stats['recoverable']++;
+            if (!$apply) {
+              continue;
+            }
+            $record = [
+              'nid' => $last,
+              'vid' => (int) $node->getRevisionId(),
+              'source_nid' => $sourceId,
+              'langcode' => $node->language()->getId(),
+              'before' => $node->get('field_address')->getValue(),
+              'after' => $address,
+            ];
+            $line = json_encode($record, JSON_THROW_ON_ERROR) . "\n";
+            if (fwrite($backup, $line) !== strlen($line) || !fflush($backup)) {
+              throw new \RuntimeException('Cannot persist address backup; stopping.');
+            }
             $node->set('field_address', $address);
             $node->setNewRevision(FALSE);
             $node->isDefaultRevision(TRUE);
             $writeField->invoke($storage, $node, TRUE, ['field_address']);
-          }
-          catch (\Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
+            $tags = array_merge($tags, $node->getCacheTagsToInvalidate());
+            $stats['updated']++;
           }
           unset($transaction);
-          $storage->resetCache([$last]);
-          Cache::invalidateTags($node->getCacheTagsToInvalidate());
-          $stats['updated']++;
+        }
+        catch (\Throwable $e) {
+          $transaction?->rollBack();
+          throw $e;
         }
         $storage->resetCache(array_values($ids));
+        if ($tags) {
+          Cache::invalidateTags(array_values(array_unique($tags)));
+        }
+        if ($stats['scanned'] % 1000 === 0) {
+          $this->io()->writeln('Scanned: ' . $stats['scanned'] . '; updated: ' . $stats['updated']);
+        }
       }
     }
     finally {
