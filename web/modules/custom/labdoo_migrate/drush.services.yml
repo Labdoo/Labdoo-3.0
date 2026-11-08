@@ -1,4 +1,10 @@
 services:
+  labdoo_migrate.dootronic_address_commands:
+    class: Drupal\labdoo_migrate\Commands\DootronicAddressCommands
+    arguments: ['@labdoo_migrate.database.external_connection_manager', '@entity_type.manager']
+    tags:
+      - { name: drush.command }
+
   labdoo_migrate.synchronizer_commands:
     class: \Drupal\labdoo_migrate\Commands\SynchronizerCommands
     arguments:
