@@ -44,7 +44,8 @@ foreach ([16086, 16136] as $nid) {
     if (!$row) {
       throw new RuntimeException('Missing source fixture for ' . $nid);
     }
-    $node->set($field, ['value' => 'POINT (' . $row['longitude'] . ' ' . $row['latitude'] . ')']);
+    // Exercise the small geocoding differences present in the deployed data.
+    $node->set($field, ['value' => 'POINT (' . ((float) $row['longitude'] + 0.0005) . ' ' . ((float) $row['latitude'] + 0.0005) . ')']);
     $labels->delete($nid . ':' . $field);
   }
   $write->invoke($storage, $node, TRUE, ['field_origin_of_the_trip', 'field_destination_of_the_trip']);

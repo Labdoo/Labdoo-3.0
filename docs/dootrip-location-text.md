@@ -12,7 +12,7 @@ vendor/bin/drush labdoo:backfill-dootrip-location-text
 vendor/bin/drush labdoo:backfill-dootrip-location-text --apply
 ```
 
-El update 9002 cambia únicamente el formatter de origen y destino en la vista predeterminada; conserva el resto de ajustes y el orden de campos. La configuración exportada incluye el mismo cambio. La recuperación requiere la conexión V2 `external` y lee solo las tablas actuales de origen/destino. Omite fuentes ambiguas o cuyas coordenadas no coincidan; no supone que una dirección antigua siga siendo válida. Repetirla es idempotente.
+El update 9002 cambia únicamente el formatter de origen y destino en la vista predeterminada; conserva el resto de ajustes y el orden de campos. La configuración exportada incluye el mismo cambio. La recuperación requiere la conexión V2 `external` y lee solo las tablas actuales de origen/destino. Omite fuentes ambiguas o cuyas coordenadas difieran en 0,002 grados o más en alguno de los ejes, el mismo umbral que las comprobaciones de integridad geográfica existentes. Esto admite las pequeñas variaciones de geocodificación presentes en el despliegue. Una vez recuperado el texto, cualquier cambio del valor de coordenadas en V3 invalida su uso. Repetirla es idempotente.
 
 Sin etiqueta V2 se intenta la geocodificación habitual. Si el proveedor sigue fallando, se muestran coordenadas con etiqueta legible y caché breve (300 s), evitando que desaparezcan origen/destino. Obtener una dirección de calle para ubicaciones nuevas requiere un proveedor operativo y una clave apta para consultas del servidor.
 
