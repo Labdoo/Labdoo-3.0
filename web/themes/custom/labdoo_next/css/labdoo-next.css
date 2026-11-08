@@ -106,6 +106,10 @@ body.labdoo-next {
   font-style: italic;
   line-height: 1.65;
 }
+.labdoo-next .ldn-quote blockquote::before,
+.labdoo-next .ldn-quote blockquote::after {
+  content: none;
+}
 .labdoo-next .ldn-quote figcaption {
   font-size: .8rem;
   font-weight: 600;
