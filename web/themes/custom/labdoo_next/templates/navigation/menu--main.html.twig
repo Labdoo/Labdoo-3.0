@@ -1,0 +1,21 @@
+{% macro links(items, depth) %}
+  {% if items %}
+    <ul class="ldn-menu{% if depth %} ldn-menu--nested{% endif %}">
+      {% for item in items %}
+        <li class="ldn-menu__item">
+          {% if item.below %}
+            <details class="ldn-menu-group">
+              <summary>{{ item.title }}<span aria-hidden="true">⌄</span></summary>
+              <div class="ldn-menu-group__panel">
+                {{ _self.links(item.below, depth + 1) }}
+              </div>
+            </details>
+          {% else %}
+            {{ link(item.title, item.url, {class: ['ldn-menu__link']}) }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
+{{ _self.links(items, 0) }}

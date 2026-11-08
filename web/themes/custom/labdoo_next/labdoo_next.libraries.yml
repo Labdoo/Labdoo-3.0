@@ -1,0 +1,10 @@
+design:
+  css:
+    theme:
+      css/labdoo-next.css: { weight: 100 }
+  js:
+    js/labdoo-next.js: {}
+  dependencies:
+    - labdoo/custom-styling
+    - core/drupal
+    - core/once
