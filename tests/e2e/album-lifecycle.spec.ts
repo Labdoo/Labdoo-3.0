@@ -31,12 +31,20 @@ test.describe('school album lifecycle', () => {
       const clone = clones[0];
       expect(clone.id).not.toBe(school.id);
       expect(clone.album).toBeNull();
+      // Warm the actions block before the asynchronous album exists.
+      await goto(page, `/en/node/${clone.id}`, info);
+      await expect(page.getByRole('link', { name: 'Go to photo album', exact: true })).toHaveCount(0);
       let galleries: number[] = [];
       if (!stale) {
         await drush(info, ['queue:run', 'labdoo_gallery_create_or_update', '--time-limit=40']);
         galleries = (await entity(info, { id: clone.id }))[0].galleries;
         expect(galleries).toHaveLength(1);
         expect(galleries).not.toContain(original.album);
+        await goto(page, `/en/node/${clone.id}`, info);
+        const albumLink = page.getByRole('link', { name: 'Go to photo album', exact: true });
+        await expect(albumLink).toBeVisible();
+        await albumLink.click();
+        expect((await entity(info, { path: new URL(page.url()).pathname }))[0].id).toBe(galleries[0]);
       }
       await goto(page, `/en/node/${clone.id}/delete`, info);
       await page.locator('main').getByRole('button', { name: 'Delete', exact: true }).click();

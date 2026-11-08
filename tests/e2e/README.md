@@ -32,6 +32,8 @@ Chrome is configured as `/usr/bin/google-chrome`. Baseline runs critical existin
 
 All projects use one worker, no retries, and retain failure screenshots/traces. Reports are written to `.e2e-lab/state/runs/RUN_ID`, including `playwright-report/index.html`, `playwright-results.json`, and the generated card matrix. Only the isolated fixtures are mutated. Album tests also execute the real gallery worker and verify that the original school and its gallery survive.
 
+The album lifecycle check warms the cloned school's actions block before its gallery exists, runs the gallery worker, then reloads in the same administrator session and follows **Go to photo album** to verify it resolves to the new gallery. This covers cache invalidation as well as entity creation; no cache rebuild is performed between those steps.
+
 Tests require the base snapshots and account fixture JSON to remain available; they do not embed credentials or silently create a database connection. To recreate the lab, inspect the local-lab scripts, supply the source connection privately, then clone, prepare sites, import configuration, enable the test module, harden and seed each clone. The scripts are specific to this workspace and intentionally refuse ambiguous state.
 
 ## Real V2 address verification
