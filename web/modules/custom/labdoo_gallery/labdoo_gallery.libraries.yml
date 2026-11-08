@@ -1,4 +1,9 @@
 grid:
+  js:
+    js/gallery-lightbox.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
   css:
     component:
       css/gallery-grid.css: {}
