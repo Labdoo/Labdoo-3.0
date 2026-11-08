@@ -8,9 +8,30 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_node_view().
+ */
+function labdoo_dootrip_node_view(array &$build, EntityInterface $node, EntityViewDisplayInterface $display): void {
+  $field_name = 'field_number_of_doojects_assigne';
+  if ($node->bundle() !== 'dootrip' || !$node->get($field_name)->isEmpty()) {
+    return;
+  }
+  $component = $display->getComponent($field_name);
+  if ($component === NULL) {
+    return;
+  }
+
+  // Older imports can have device references without a stored counter. Render
+  // the count using the configured formatter without changing the saved node.
+  $view_node = clone $node;
+  $view_node->set($field_name, count($node->get('field_laptops')));
+  $build[$field_name] = $view_node->get($field_name)->view($component);
+}
 
 /**
  * Implements hook_theme().
