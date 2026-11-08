@@ -16,6 +16,11 @@ use Drush\Commands\DrushCommands;
 final class DootripLocationTextCommands extends DrushCommands {
 
   /**
+   * Same tolerance as the existing geographic migration integrity checks.
+   */
+  private const COORDINATE_TOLERANCE = 0.002;
+
+  /**
    * Constructs the command.
    */
   public function __construct(
@@ -94,8 +99,8 @@ final class DootripLocationTextCommands extends DrushCommands {
             WHERE n.nid=:nid AND n.type='dootrip' AND f.deleted=0 AND f.entity_type='node'",
             [':nid' => $sourceId])->fetchAll();
           if (count($rows) !== 1 || !is_numeric($rows[0]->latitude) || !is_numeric($rows[0]->longitude)
-            || abs((float) $rows[0]->latitude - (float) $item->lat) > 0.00001
-            || abs((float) $rows[0]->longitude - (float) $item->lon) > 0.00001) {
+            || abs((float) $rows[0]->latitude - (float) $item->lat) >= self::COORDINATE_TOLERANCE
+            || abs((float) $rows[0]->longitude - (float) $item->lon) >= self::COORDINATE_TOLERANCE) {
             $stats['missing_or_mismatched']++;
             continue;
           }
