@@ -348,6 +348,16 @@ body.labdoo-next {
   border-inline-end: 1px solid #cfddc9;
   min-width: 80px;
 }
+.labdoo-next .ldn-metric:hover,
+.labdoo-next .ldn-metric:focus,
+.labdoo-next .ldn-metric:active {
+  border-bottom: 0;
+}
+.labdoo-next .ldn-metric:hover span {
+  color: var(--ldn-green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .labdoo-next .ldn-metric strong {
   color: var(--ldn-green);
   font-size: clamp(1.3rem, 2vw, 1.8rem);
@@ -632,6 +642,17 @@ body.labdoo-next {
   font-size: .82rem;
   font-variant-numeric: tabular-nums;
 }
+.labdoo-next .view-content.gin-layer-wrapper,
+.labdoo-next .gin-table-scroll-wrapper {
+  background: transparent;
+  box-shadow: none;
+}
+.labdoo-next .gin-table-scroll-wrapper {
+  margin-block: 0;
+}
+.labdoo-next .gin-table-scroll-wrapper .ldn-table-scroll {
+  margin-block-end: 0;
+}
 .labdoo-next table th {
   background: #eaf0e5;
   color: #2d4738;
@@ -671,6 +692,8 @@ body.labdoo-next {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-bottom: 1px solid transparent !important;
+  transition: color .2s ease, background-color .2s ease;
 }
 .labdoo-next .pager__item.is-active a {
   background: var(--ldn-green);

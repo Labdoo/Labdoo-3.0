@@ -13,6 +13,21 @@ function labdoo_next_preprocess_html(array &$variables): void {
 }
 
 /**
+ * Implements hook_page_attachments_alter().
+ */
+function labdoo_next_page_attachments_alter(array &$attachments): void {
+  if (empty($attachments['#attached']['html_head_link'])) {
+    return;
+  }
+  foreach ($attachments['#attached']['html_head_link'] as &$link) {
+    if (($link[0]['rel'] ?? '') === 'icon') {
+      $link[0]['href'] = base_path() . \Drupal::service('extension.list.theme')->getPath('labdoo') . '/img/favicon.png';
+      $link[0]['type'] = 'image/png';
+    }
+  }
+}
+
+/**
  * Implements hook_preprocess_page().
  */
 function labdoo_next_preprocess_page(array &$variables): void {
