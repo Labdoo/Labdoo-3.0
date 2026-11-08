@@ -136,6 +136,38 @@ test.describe('progressive enhancement', () => {
 
 test.describe('administration and print boundaries', () => {
   test.use({ role: 'admin' });
+  test('complete admin navigation and header utilities fit without wrapping @responsive', async ({ page }, info) => {
+    await goto(page, '/en/node/749?theme=labdoo_next', info);
+    const header = page.locator('.ldn-header');
+    await expect(header.locator('summary', { hasText: 'Superhub users' })).toHaveCount(1);
+    for (const width of [1842, 1440, 1280, 1100, 800, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const language = page.locator('.ldn-utilities .chosen-single, .ldn-utilities select:visible').first();
+      const search = page.locator('.ldn-utilities .search-icon-trigger');
+      await expect(language).toBeVisible();
+      await expect(search).toBeVisible();
+      const l = (await language.boundingBox())!;
+      const s = (await search.boundingBox())!;
+      expect(Math.abs(l.y - s.y)).toBeLessThan(2);
+      expect(l.height).toBe(44);
+      expect(s.height).toBe(44);
+      expect(l.x + l.width).toBeLessThanOrEqual(s.x);
+      expect(s.x + s.width).toBeLessThanOrEqual(width);
+      if (width > 1100) {
+        const rows = await page.locator('#ldn-navigation .ldn-menu:not(.ldn-menu--nested) > li').evaluateAll(es => es.map(e => e.getBoundingClientRect().y));
+        expect(new Set(rows.map(y => Math.round(y))).size).toBe(1);
+        expect(await page.locator('#ldn-navigation').evaluate(e => e.scrollWidth <= e.clientWidth + 1)).toBe(true);
+      }
+      else {
+        await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeVisible();
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    }
+    await expect(page.locator('.ldn-section-label')).toHaveText('Our shared impact');
+    await expect(page.locator('.ldn-section-label span')).toHaveCount(0);
+    await expect(page.locator('.footer-acts-image')).toHaveAttribute('src', /footer-acts-transparent\.png$/);
+    await languageFocus(page);
+  });
   test('admin routes and printable labels retain their existing themes', async ({ page }, info) => {
     await goto(page, '/en/admin/content?theme=labdoo_next', info);
     await expect(page.locator('body')).not.toHaveClass(/labdoo-next/);
@@ -144,3 +176,11 @@ test.describe('administration and print boundaries', () => {
     await expect(page.locator('body')).toHaveClass(/dootronics-print-label-page/);
   });
 });
+
+async function languageFocus(page: any) {
+  const select = page.locator('.ldn-utilities .chosen-single, .ldn-utilities select:visible').first();
+  await select.click();
+  await expect(select).toHaveCSS('outline-style', 'none');
+  await expect(select).toHaveCSS('border-top-color', 'rgb(36, 92, 64)');
+  await page.keyboard.press('Escape');
+}

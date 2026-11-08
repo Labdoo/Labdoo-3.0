@@ -13,8 +13,9 @@
       </a>
       <button class="ldn-menu-toggle" type="button" aria-controls="ldn-navigation" aria-expanded="false">{{ 'Menu'|t }} <span aria-hidden="true">☰</span></button>
       <nav id="ldn-navigation" class="ldn-navigation" aria-label="{{ 'Main navigation'|t }}">{{ next_navigation }}</nav>
-      {{ next_header }}
+      <div class="ldn-utilities">{{ next_utilities }}</div>
     </div>
+    {{ next_header }}
     <figure class="ldn-shell ldn-quote">
       <blockquote>
         <p>«{{ 'La educación es el arma más poderosa que puedes usar para cambiar el mundo'|t }}»</p>
@@ -25,7 +26,7 @@
   <div class="ldn-shell">
     <div class="ldn-breadcrumb">{{ page.breadcrumb }}</div>
     <section class="ldn-impact" aria-label="{{ 'Our shared impact'|t }}">
-      <div class="ldn-section-label"><span aria-hidden="true">●</span> {{ 'Our shared impact'|t }}</div>
+      <div class="ldn-section-label">{{ 'Our shared impact'|t }}</div>
       {{ next_statistics }}
     </section>
     <header class="ldn-page-heading">{{ next_title }}</header>
