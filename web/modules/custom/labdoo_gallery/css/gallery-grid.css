@@ -7,6 +7,60 @@
   width: 100%;
   height: auto;
 }
+.labdoo-gallery-lightbox-open {
+  overflow: hidden;
+}
+.labdoo-gallery-lightbox {
+  width: min(96vw, 1200px);
+  max-width: 96vw;
+  max-height: 94vh;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+}
+.labdoo-gallery-lightbox::backdrop {
+  background: rgb(0 0 0 / 85%);
+}
+.labdoo-gallery-lightbox__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .5rem;
+  flex-wrap: wrap;
+}
+.labdoo-gallery-lightbox__toolbar button {
+  min-height: 44px;
+  padding: .5rem .75rem;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #222;
+  color: #fff;
+  cursor: pointer;
+}
+.labdoo-gallery-lightbox__toolbar button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+.labdoo-gallery-lightbox figure {
+  margin: 0;
+  text-align: center;
+}
+.labdoo-gallery-lightbox figure img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  margin: 0 auto;
+}
+.labdoo-gallery-lightbox figcaption {
+  padding: .5rem 1rem;
+  overflow-wrap: anywhere;
+}
 @media (max-width: 800px) {
   .labdoo-gallery-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -56,6 +56,8 @@ La prueba anterior usaba un dootrip con una única revisión actual y no ejercit
 
 ## Cobertura por tarjeta
 
+Ampliación posterior del 08/11/2026: la revisión manual [22/38] solicitó un visor modal para las fotos. Se añadió a `feature/gallery-thumbnail-grid` en el commit `cc6e8508`. La ejecución específica `gallery-lightbox` aprobó **10/10 pruebas**, sin omisiones ni reintentos: autenticación, cinco casos nuevos de visor/fallback y cuatro comprobaciones previas de galería. Incluye originales cargados, navegación con botones y teclado, Escape y devolución del foco, cierre por botón/fondo, paginación, escritorio, móvil y enlaces sin JavaScript. La suite completa de 98 pruebas indicada arriba corresponde al estado anterior a esta ampliación; no se ha repetido íntegramente para el visor.
+
 | Tarjeta | Rama | Resultado | Casos anotados |
 |---|---|---|---:|
 | Naming de Edoovillages | `feature/edoovillages-naming` | Aprobado | 1 |
