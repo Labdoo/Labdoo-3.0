@@ -8,6 +8,23 @@
 use Drupal\Core\Cache\Cache;
 
 /**
+ * Keeps dootrip origin/destination visible during geocoder outages.
+ */
+function labdoo_dootrip_update_9002() {
+  $display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.dootrip.default');
+  if ($display) {
+    foreach (['field_origin_of_the_trip', 'field_destination_of_the_trip'] as $field) {
+      $component = $display->getComponent($field);
+      if ($component && $component['type'] === 'geocoder_geofield_reverse_geocode') {
+        $component['type'] = 'labdoo_dootrip_location';
+        $display->setComponent($field, $component);
+      }
+    }
+    $display->save();
+  }
+}
+
+/**
  * Initialize field_expired to 0 for all dootrips.
  */
 function labdoo_dootrip_update_9001() {

@@ -5,6 +5,12 @@ services:
     tags:
       - { name: drush.command }
 
+  labdoo_migrate.dootrip_location_text_commands:
+    class: Drupal\labdoo_migrate\Commands\DootripLocationTextCommands
+    arguments: ['@labdoo_migrate.database.external_connection_manager', '@entity_type.manager', '@keyvalue', '@country_manager']
+    tags:
+      - { name: drush.command }
+
   labdoo_migrate.synchronizer_commands:
     class: \Drupal\labdoo_migrate\Commands\SynchronizerCommands
     arguments:

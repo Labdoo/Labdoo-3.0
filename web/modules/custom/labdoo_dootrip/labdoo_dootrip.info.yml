@@ -4,6 +4,7 @@ description: "A dootrip is a travel performed by a person or an organization whi
 package: 'Labdoo'
 core_version_requirement: ^10
 dependencies:
+  - geocoder:geocoder_geofield
   - drupal:labdoo_common
   - drupal:queue_manager
   - drupal:labdoo_map
