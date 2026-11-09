@@ -70,13 +70,21 @@ try {
   $passed[] = 'alias dry-run does not write';
   $beforeMetadata = $db->select('file_managed', 'f')->fields('f')->condition('fid', $fid)->execute()->fetchAssoc();
   $aliasBackup = $private . '/alias-missing.jsonl';
-  $result = $aliases->apply($plan, $aliasBackup);
+  $previousMask = umask(0077);
+  try {
+    $result = $aliases->apply($plan, $aliasBackup);
+  }
+  finally {
+    umask($previousMask);
+  }
   $oldPath = $oldDirectory . '/missing.png';
   $assert($result['created'] === 1 && is_link($oldPath) && !str_starts_with(readlink($oldPath), '/'), 'A new alias must be relative.');
   $assert(file_get_contents($oldPath) === $png && realpath($oldPath) === realpath($directory . '/missing.png'), 'Reading the old URL path must return the exact original bytes.');
   $assert((fileperms($aliasBackup) & 0777) === 0600, 'Alias backup must be private.');
   $assert($db->select('file_managed', 'f')->fields('f')->condition('fid', $fid)->execute()->fetchAssoc() === $beforeMetadata, 'Filesystem phase must not change file metadata.');
   $passed[] = 'old path reads original bytes without DB writes';
+  $assert((fileperms($oldDirectory) & 07777) === 02775 && filegroup($oldDirectory) === filegroup($root), 'New public directories must preserve site-group access even with private backup umask.');
+  $passed[] = 'new public directories retain group access under umask0077';
   $http = new \GuzzleHttp\Client(['base_uri' => \Drupal::request()->getSchemeAndHttpHost(), 'proxy' => '', 'connect_timeout' => 2, 'timeout' => 5]);
   foreach (['/sites/default/files/content/image/migrate/blog/' . $nonce . '/missing.png', '/sites/default/files/' . $nonce . '/missing.png'] as $url) {
     $response = $http->get($url);
