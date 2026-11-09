@@ -216,3 +216,12 @@ function mini_wiki_pathauto_alias_types_alter(&$definitions) {
     unset($definitions['canonical_entities']);
   }
 }
+
+/**
+ * Implements hook_ENTITY_TYPE_view_alter() for media.
+ */
+function mini_wiki_media_view_alter(array &$build, \Drupal\media\MediaInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display): void {
+  if (in_array($entity->bundle(), ['remote_video', 'video'], TRUE)) {
+    $build['#attached']['library'][] = 'mini_wiki/legacy_video';
+  }
+}

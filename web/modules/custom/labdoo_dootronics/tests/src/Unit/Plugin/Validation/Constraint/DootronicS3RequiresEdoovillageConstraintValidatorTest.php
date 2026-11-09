@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\labdoo_dootronics\Unit\Plugin\Validation\Constraint;
 
 use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\node\NodeInterface;
 use Drupal\labdoo_dootronics\Plugin\Validation\Constraint\DootronicS3RequiresEdoovillageConstraint;
@@ -21,9 +22,11 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 class DootronicS3RequiresEdoovillageConstraintValidatorTest extends UnitTestCase {
 
   /**
-   * Tests an S3 dootronic without a destination is rejected.
+   * Tests missing and dangling school references are rejected.
+   *
+   * @dataProvider missingDestinationCases
    */
-  public function testS3RequiresDestination(): void {
+  public function testS3RequiresDestination(bool $empty, bool $dangling): void {
     $validator = new DootronicS3RequiresEdoovillageConstraintValidator();
     $context = $this->createMock(ExecutionContextInterface::class);
     $builder = $this->createMock(ConstraintViolationBuilderInterface::class);
@@ -35,7 +38,14 @@ class DootronicS3RequiresEdoovillageConstraintValidatorTest extends UnitTestCase
       ->willReturn($builder);
     $validator->initialize($context);
 
-    $validator->validate($this->dootronic('S3', TRUE), new DootronicS3RequiresEdoovillageConstraint());
+    $validator->validate($this->dootronic('S3', $empty, $dangling), new DootronicS3RequiresEdoovillageConstraint());
+  }
+
+  /**
+   * Provides empty and dangling reference cases.
+   */
+  public static function missingDestinationCases(): array {
+    return ['empty' => [TRUE, FALSE], 'dangling' => [FALSE, TRUE]];
   }
 
   /**
@@ -67,13 +77,17 @@ class DootronicS3RequiresEdoovillageConstraintValidatorTest extends UnitTestCase
   /**
    * Creates a mock dootronic node.
    */
-  private function dootronic(string $status, bool $destination_is_empty): NodeInterface {
+  private function dootronic(string $status, bool $destination_is_empty, bool $dangling = FALSE): NodeInterface {
     $status_item = $this->createMock(FieldItemInterface::class);
     $status_item->method('getValue')->willReturn(['value' => $status]);
     $status_list = $this->createMock(FieldItemListInterface::class);
     $status_list->method('first')->willReturn($status_item);
-    $destination_list = $this->createMock(FieldItemListInterface::class);
+    $destination_list = $this->createMock(EntityReferenceFieldItemListInterface::class);
     $destination_list->method('isEmpty')->willReturn($destination_is_empty);
+    $school = $this->createMock(NodeInterface::class);
+    $school->method('bundle')->willReturn('edoovillage');
+    $school->method('id')->willReturn(123);
+    $destination_list->method('referencedEntities')->willReturn($destination_is_empty || $dangling ? [] : [$school]);
 
     $node = $this->createMock(NodeInterface::class);
     $node->method('bundle')->willReturn('dootronic');

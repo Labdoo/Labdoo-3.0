@@ -1,11 +1,28 @@
 .labdoo-video-embed {
   aspect-ratio: 16 / 9;
   max-width: 100%;
-  width: 560px;
+  width: 900px;
 }
 
 .labdoo-video-embed iframe {
   border: 0;
   height: 100%;
+  width: 100%;
+}
+
+/* Keep embedded Media videos readable while respecting narrow content columns. */
+.media--type-remote-video,
+.media--type-video {
+  max-width: 100%;
+  width: 900px;
+}
+
+.media--type-remote-video iframe,
+.media--type-video video {
+  aspect-ratio: 16 / 9;
+  border: 0;
+  display: block;
+  height: auto;
+  max-width: 100%;
   width: 100%;
 }

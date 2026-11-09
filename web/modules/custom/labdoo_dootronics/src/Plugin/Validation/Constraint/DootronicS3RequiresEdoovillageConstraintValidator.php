@@ -23,7 +23,13 @@ class DootronicS3RequiresEdoovillageConstraintValidator extends ConstraintValida
 
     $status_item = $entity->get('field_dootronic_status')->first();
     $status = $status_item ? ($status_item->getValue()['value'] ?? NULL) : NULL;
-    if ($status === 'S3' && $entity->get('field_edoovillage_destination')->isEmpty()) {
+    if ($status !== 'S3') {
+      return;
+    }
+    // A non-empty target ID can still refer to a school absent after migration.
+    $destinations = $entity->get('field_edoovillage_destination')->referencedEntities();
+    $destination = reset($destinations);
+    if (!$destination instanceof NodeInterface || !$destination->id() || $destination->bundle() !== 'edoovillage') {
       $this->context->buildViolation($constraint->message)
         ->atPath('field_edoovillage_destination')
         ->addViolation();

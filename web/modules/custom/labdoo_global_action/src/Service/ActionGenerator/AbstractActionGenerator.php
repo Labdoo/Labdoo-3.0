@@ -132,7 +132,7 @@ abstract class AbstractActionGenerator {
     if (empty($city) || empty($countryCode)) {
       $lat = $location['lat'] ?? $location['latitude'] ?? NULL;
       $lon = $location['lon'] ?? $location['lng'] ?? $location['longitude'] ?? NULL;
-      if ($lat !== NULL && $lon !== NULL && (abs((float)$lat) >= 0.1 || abs((float)$lon) >= 0.1)) {
+      if ($lat !== NULL && $lon !== NULL && is_numeric($lat) && is_numeric($lon) && abs((float) $lat) <= 90 && abs((float) $lon) <= 180 && !((float) $lat === 0.0 && (float) $lon === 0.0) && !((float) $lat === -90.0 && (float) $lon === -180.0)) {
         $geoData = $this->reverseGeocodeWithFallback((string) $lat, (string) $lon);
         if ($geoData !== NULL) {
           if (empty($city)) {
@@ -174,6 +174,11 @@ abstract class AbstractActionGenerator {
    *   Array with keys 'city' and 'country_code', or NULL.
    */
   protected function reverseGeocodeWithFallback(string $lat, string $lon): ?array {
+    // Rebuilds and migrations explicitly disable external geocoding.
+    if (\Drupal::config('geocoder.settings')->get('geocoder_presave_disabled')) {
+      return NULL;
+    }
+
     $cacheKey = round((float) $lat, 4) . ',' . round((float) $lon, 4);
     if (isset(self::$geoCache[$cacheKey])) {
       return self::$geoCache[$cacheKey];

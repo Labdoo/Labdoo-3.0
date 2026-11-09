@@ -46,6 +46,10 @@ function labdoo_global_action_views_query_alter(ViewExecutable $view, QueryPlugi
  * @return void
  */
 function __labdoo_global_action_create_global_action(EntityInterface $entity): void {
+  if (!empty($entity->skip_action_generation)) {
+    return;
+  }
+
   if (
     $entity->bundle() !== 'dootronic'
     && $entity->bundle() !== 'edoovillage'
@@ -58,4 +62,19 @@ function __labdoo_global_action_create_global_action(EntityInterface $entity): v
   /** @var \Drupal\labdoo_global_action\Service\Repository\GlobalActionRepository $globalActionRepository */
   $globalActionRepository = \Drupal::service('labdoo_common.repository.global_action');
   $globalActionRepository->createGlobalAction($entity);
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function labdoo_global_action_entity_presave(EntityInterface $entity): void {
+  // A CLI-only, process-scoped safety guard for explicitly approved repairs.
+  // Reject unexpected node saves before storage allocates an identifier.
+  if ($entity->getEntityTypeId() === 'node' && isset($GLOBALS['labdoo_scoped_school_repair'])) {
+    $allowed = $GLOBALS['labdoo_scoped_school_repair'];
+    $nid = (int) $entity->id();
+    if (!array_key_exists($nid, $allowed) || $entity->isNew() !== $allowed[$nid]) {
+      throw new \RuntimeException('Unexpected node save blocked during scoped school repair.');
+    }
+  }
 }
