@@ -74,7 +74,7 @@ function labdoo_migrate_schema(): array {
     ],
   ];
 
-  return $schema;
+  return $schema + \Drupal\labdoo_migrate\Services\Incremental\DeltaStore::schema();
 }
 
 /**
@@ -136,5 +136,15 @@ function labdoo_migrate_update_9002(): void {
         ],
       ],
     ]);
+  }
+}
+
+/** Add resumable incremental manifests and verified baselines; no node writes. */
+function labdoo_migrate_update_9003(): void {
+  $schema = \Drupal::database()->schema();
+  foreach (\Drupal\labdoo_migrate\Services\Incremental\DeltaStore::schema() as $table => $definition) {
+    if (!$schema->tableExists($table)) {
+      $schema->createTable($table, $definition);
+    }
   }
 }
