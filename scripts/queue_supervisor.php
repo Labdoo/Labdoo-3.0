@@ -1,9 +1,10 @@
 <?php
 
 /**
+ * @file
  * Read-only snapshot of every Drupal database queue.
  *
- * Run with: drush scr scripts/queue_supervisor.php
+ * Run with: drush scr scripts/queue_supervisor.php.
  *
  * Emits one JSON document so it can be captured by cron, systemd, or a log
  * collector. This script never claims or deletes queue items.
@@ -15,14 +16,16 @@ $now = time();
 $rows = $database->query(
   'SELECT name, COUNT(*) AS item_count, MIN(created) AS oldest_created,
     SUM(CASE WHEN expire > :now THEN 1 ELSE 0 END) AS active_leases,
+    SUM(CASE WHEN expire = 0 OR expire <= :now_ready THEN 1 ELSE 0 END) AS ready_items,
     MAX(created) AS newest_created
    FROM {queue}
    GROUP BY name
    ORDER BY item_count DESC, name ASC',
-  [':now' => $now]
+  [':now' => $now, ':now_ready' => $now]
 )->fetchAllAssoc('name');
 
 $queues = [];
+$definitions = \Drupal::service('plugin.manager.queue_worker')->getDefinitions();
 foreach ($rows as $name => $row) {
   $oldestCreated = (int) $row->oldest_created;
   $queues[] = [
@@ -32,6 +35,9 @@ foreach ($rows as $name => $row) {
     'oldest_age_seconds' => max(0, $now - $oldestCreated),
     'newest_created' => (int) $row->newest_created,
     'active_leases' => (int) $row->active_leases,
+    'ready_items' => (int) $row->ready_items,
+    'worker_registered' => isset($definitions[$name]),
+    'cron_budget_seconds' => $definitions[$name]['cron']['time'] ?? NULL,
   ];
 }
 

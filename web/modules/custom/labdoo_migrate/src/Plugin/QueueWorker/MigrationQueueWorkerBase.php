@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Plugin\QueueWorker;
 
+use Drupal\Core\Database\Database;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -99,6 +100,9 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
    * {@inheritdoc}
    */
   public function processItem($data): void {
+    $state = \Drupal::state();
+    $previousRunning = $state->get('labdoo_migrate_is_running');
+    $activeConnection = Database::getConnection()->getKey();
     try {
       $queueDataModel = $this->checkData($data);
       $itemData = $queueDataModel->getData();
@@ -147,13 +151,13 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
       elseif ($mode === 'update') {
         $destinationEntityId = $itemData['destination_entity_id'] ?? NULL;
         if (!$destinationEntityId) {
-           throw new \Exception('Missing destination_entity_id for update mode');
+          throw new \Exception('Missing destination_entity_id for update mode');
         }
 
         $sourceEntity = $sourceRepository->getEntity($contentType, $mapping, $entityId);
         if (empty($sourceEntity)) {
-           $this->logger->warning(sprintf('Source entity %s of type %s not found for update.', $entityId, $contentType));
-           return;
+          $this->logger->warning(sprintf('Source entity %s of type %s not found for update.', $entityId, $contentType));
+          return;
         }
 
         // For updates, we need the destination entities.
@@ -178,13 +182,22 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
     catch (EmptyQueueItemException $exception) {
       $this->logger->warning($exception->getMessage());
     }
-    catch (\Exception $exception) {
+    catch (\Throwable $exception) {
       $errorMessage = sprintf(
         'Error processing migration item: %s',
         $exception->getMessage()
       );
       $this->logger->error($errorMessage);
       throw $exception;
+    }
+    finally {
+      if ($previousRunning === NULL) {
+        $state->delete('labdoo_migrate_is_running');
+      }
+      else {
+        $state->set('labdoo_migrate_is_running', $previousRunning);
+      }
+      Database::setActiveConnection($activeConnection);
     }
   }
 
