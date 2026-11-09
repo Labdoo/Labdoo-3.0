@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7df5eaa433a47e8ea927f25968141fa6",
+    "content-hash": "80ab5e55ef0a559ce96985212975d8f2",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1560,6 +1560,7 @@
                     "type": "tidelift"
                 }
             ],
+            "abandoned": true,
             "time": "2025-01-01T22:12:03+00:00"
         },
         {
@@ -4608,31 +4609,32 @@
         },
         {
             "name": "drupal/geofield",
-            "version": "1.65.0",
+            "version": "10.3.5",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/geofield.git",
-                "reference": "8.x-1.65"
+                "reference": "10.3.5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/geofield-8.x-1.65.zip",
-                "reference": "8.x-1.65",
-                "shasum": "931c4864847e5612c50583580505ba5c0f89d395"
+                "url": "https://ftp.drupal.org/files/projects/geofield-10.3.5.zip",
+                "reference": "10.3.5",
+                "shasum": "c485759b412f511527f746f3fda9a2f9e6368942"
             },
             "require": {
-                "drupal/core": "^9 || ^10 || ^11",
+                "drupal/core": "^10.3 || ^11 || ^12",
                 "itamair/geophp": "^1.6"
             },
             "require-dev": {
                 "drupal/diff": "^1.3",
-                "drupal/feeds": "^3.0@beta"
+                "drupal/feeds": "^3.2",
+                "drupal/jsonapi_extras": "^3.28"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.65",
-                    "datestamp": "1754552601",
+                    "version": "10.3.5",
+                    "datestamp": "1793285504",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4670,27 +4672,27 @@
         },
         {
             "name": "drupal/geofield_map",
-            "version": "11.0.5",
+            "version": "11.1.9",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/geofield_map.git",
-                "reference": "11.0.5"
+                "reference": "11.1.9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/geofield_map-11.0.5.zip",
-                "reference": "11.0.5",
-                "shasum": "67f959731ded6fdad450e86934011a12669add29"
+                "url": "https://ftp.drupal.org/files/projects/geofield_map-11.1.9.zip",
+                "reference": "11.1.9",
+                "shasum": "635d35241f9cc389dc27480c2f50436eca5ef9db"
             },
             "require": {
-                "drupal/core": "^10.2 || ^11",
-                "drupal/geofield": "^1.31"
+                "drupal/core": "^10.3 || ^11",
+                "drupal/geofield": "^1.31 || ^10.3"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "11.0.5",
-                    "datestamp": "1737538269",
+                    "version": "11.1.9",
+                    "datestamp": "1777543475",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4717,42 +4719,51 @@
         },
         {
             "name": "drupal/geolocation",
-            "version": "4.0.0-beta2",
+            "version": "4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/geolocation.git",
-                "reference": "4.0.0-beta2"
+                "reference": "4.1.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/geolocation-4.0.0-beta2.zip",
-                "reference": "4.0.0-beta2",
-                "shasum": "487ac32499c23f3811bd2e6bf766b470b6266727"
+                "url": "https://ftp.drupal.org/files/projects/geolocation-4.1.0.zip",
+                "reference": "4.1.0",
+                "shasum": "276a6eebeea3e93d941eead251d91ec93ccb655a"
             },
             "require": {
                 "drupal/core": "^10 || ^11 || ^12"
             },
             "require-dev": {
-                "drupal/address": "*",
-                "drupal/geofield": "*",
+                "drupal/address": "^2",
+                "drupal/elasticsearch_connector": "^9.0@alpha",
+                "drupal/facets": "^3.0",
+                "drupal/feeds": "^3.0",
+                "drupal/geocoder": "^4.29",
+                "drupal/geofield": "^1.64",
                 "drupal/geolocation_demo": "*",
                 "drupal/geolocation_geometry": "*",
                 "drupal/geolocation_google_maps": "*",
                 "drupal/geolocation_google_maps_demo": "*",
                 "drupal/geolocation_google_static_maps": "*",
                 "drupal/geolocation_leaflet": "*",
-                "drupal/migrate_plus": "*",
-                "drupal/migrate_tools": "*",
-                "drupal/search_api": "*"
+                "drupal/migrate_plus": "^6.0",
+                "drupal/migrate_tools": "^6.0",
+                "drupal/search_api": "^1.38",
+                "drupal/search_api_location": "^1.x-dev@dev",
+                "drupal/tamper": "^1.0@beta",
+                "gasparesganga/php-shapefile": "^3",
+                "geocodio/geocodio-library-php": "^3.0",
+                "sibyx/phpgpx": "^1.1"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "4.0.0-beta2",
-                    "datestamp": "1742547273",
+                    "version": "4.1.0",
+                    "datestamp": "1792500155",
                     "security-coverage": {
-                        "status": "not-covered",
-                        "message": "Beta releases are not covered by Drupal security advisories."
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
                     }
                 }
             },
@@ -8416,16 +8427,16 @@
         },
         {
             "name": "itamair/geophp",
-            "version": "1.7",
+            "version": "1.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itamair/geoPHP.git",
-                "reference": "c8cf587256cdd1a72a732f59138ee3bfa3372956"
+                "reference": "e0f87ad0e45f3898892a8f3bc02e8717c01554fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itamair/geoPHP/zipball/c8cf587256cdd1a72a732f59138ee3bfa3372956",
-                "reference": "c8cf587256cdd1a72a732f59138ee3bfa3372956",
+                "url": "https://api.github.com/repos/itamair/geoPHP/zipball/e0f87ad0e45f3898892a8f3bc02e8717c01554fb",
+                "reference": "e0f87ad0e45f3898892a8f3bc02e8717c01554fb",
                 "shasum": ""
             },
             "require-dev": {
@@ -8456,9 +8467,10 @@
             "description": "GeoPHP is a open-source native PHP library for doing geometry operations. It is written entirely in PHP and can therefore run on shared hosts. It can read and write a wide variety of formats: WKT (including EWKT), WKB (including EWKB), GeoJSON, KML, GPX, GeoRSS). It works with all Simple-Feature geometries (Point, LineString, Polygon, GeometryCollection etc.) and can be used to get centroids, bounding-boxes, area, and a wide variety of other useful information.",
             "homepage": "https://github.com/itamair/geoPHP",
             "support": {
-                "source": "https://github.com/itamair/geoPHP/tree/1.7"
+                "issues": "https://github.com/itamair/geoPHP/issues",
+                "source": "https://github.com/itamair/geoPHP/tree/1.12"
             },
-            "time": "2025-05-31T05:12:53+00:00"
+            "time": "2026-04-02T10:02:52+00:00"
         },
         {
             "name": "league/commonmark",
@@ -13592,7 +13604,6 @@
         "drupal/conditional_fields": 15,
         "drupal/customerror": 10,
         "drupal/email_registration": 5,
-        "drupal/geolocation": 10,
         "drupal/masquerade": 5,
         "drupal/ultimate_cron": 15,
         "drupal/webform": 10
