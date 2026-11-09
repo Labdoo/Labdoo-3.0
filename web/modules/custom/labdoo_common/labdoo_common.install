@@ -5,6 +5,8 @@
  * Install and update hooks for the Labdoo Common module.
  */
 
+use Drupal\Core\Utility\UpdateException;
+
 /**
  * Installs geocode cache entity schema and migrates legacy table rows.
  */
@@ -135,4 +137,40 @@ function labdoo_common_update_9003(): void {
       ]);
     }
   }
+}
+
+/**
+ * Reconcile field metadata and enable production asset aggregation.
+ */
+function labdoo_common_update_9004(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $repository = \Drupal::service('entity.last_installed_schema.repository');
+  $definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('node');
+  $installed = $repository->getLastInstalledFieldStorageDefinitions('node');
+
+  // These fields already have populated tables. Only reconcile equivalent
+  // column definitions; changing their data layout requires a separate update.
+  $names = [
+    'field_co2_savings_dootrip',
+    'field_dootrip_weight',
+    'field_project_manager_s_',
+  ];
+  foreach ($names as $name) {
+    $definition = $definitions[$name] ?? NULL;
+    $original = $installed[$name] ?? NULL;
+    if (!$definition || !$original
+      || $definition->getType() !== $original->getType()
+      || $definition->getColumns() != $original->getColumns()
+      || $definition->getCardinality() !== $original->getCardinality()
+      || $definition->isRevisionable() !== $original->isRevisionable()
+      || $definition->isTranslatable() !== $original->isTranslatable()) {
+      throw new UpdateException('Unexpected storage layout for node.' . $name . '; manual review is required.');
+    }
+    $manager->updateFieldStorageDefinition($definition);
+  }
+
+  \Drupal::configFactory()->getEditable('system.performance')
+    ->set('css.preprocess', TRUE)
+    ->set('js.preprocess', TRUE)
+    ->save();
 }

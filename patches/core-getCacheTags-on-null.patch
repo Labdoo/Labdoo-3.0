@@ -22,7 +22,7 @@ index af57e33ec4..7e472960dd 100644
      if (!$this->hasAggregate) {
        foreach ($this->getAllEntities() as $entity) {
 -        $tags = Cache::mergeTags($entity->getCacheTags(), $tags);
-+        if (!$entity === NULL) {
++        if ($entity !== NULL) {
 +          $tags = Cache::mergeTags($entity->getCacheTags(), $tags);
 +        }
        }
@@ -33,7 +33,7 @@ index af57e33ec4..7e472960dd 100644
      $max_age = parent::getCacheMaxAge();
      foreach ($this->getAllEntities() as $entity) {
 -      $max_age = Cache::mergeMaxAges($max_age, $entity->getCacheMaxAge());
-+      if (!$entity === NULL) {
++      if ($entity !== NULL) {
 +        $max_age = Cache::mergeMaxAges($max_age, $entity->getCacheMaxAge());
 +      }
      }

@@ -2,7 +2,6 @@
 
 namespace Drupal\mini_wiki\Form;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
@@ -17,7 +16,7 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $mini_wiki_page = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ?ContentEntityInterface $mini_wiki_page = NULL): array {
     /** @var \Drupal\mini_wiki\Entity\MiniWikiPage $mini_wiki_page */
     $account = $this->currentUser;
     $langcode = $mini_wiki_page->language()->getId();
@@ -27,7 +26,7 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
     $entity_type_id = $mini_wiki_page->getEntityTypeId();
     $storage = $this->entityTypeManager->getStorage($entity_type_id);
 
-    $pagerLimit = $this->config->get('general_settings.revision_pager_limit');
+    $pagerLimit = $this->getDiffConfig()->get('general_settings.revision_pager_limit');
 
     $query = $storage->getQuery()
       ->condition($mini_wiki_page->getEntityType()->getKey('id'), $mini_wiki_page->id())
@@ -90,14 +89,10 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
     ];
 
     $build['revisions_table']['#attached']['library'][] = 'diff/diff.general';
-    $build['revisions_table']['#attached']['drupalSettings']['diffRevisionRadios'] = $this->config->get('general_settings.radio_behavior');
+    $build['revisions_table']['#attached']['drupalSettings']['diffRevisionRadios'] = $this->getDiffConfig()->get('general_settings.radio_behavior');
 
     $default_revision = $mini_wiki_page->getRevisionId();
-    foreach ($vids as $key => $vid) {
-      $previous_revision = NULL;
-      if (isset($vids[$key + 1])) {
-        $previous_revision = $storage->loadRevision($vids[$key + 1]);
-      }
+    foreach ($vids as $vid) {
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       if ($revision = $storage->loadRevision($vid)) {
         if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
@@ -105,7 +100,7 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
             '#theme' => 'username',
             '#account' => $revision->getRevisionUser(),
           ];
-          $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
+          $revision_date = $this->dateFormatter->format($revision->getRevisionCreationTime(), 'short');
           if ($vid != $mini_wiki_page->getRevisionId()) {
             $link = Link::fromTextAndUrl($revision_date, new Url('entity.mini_wiki_page.revision', [
               'mini_wiki_page' => $mini_wiki_page->id(),
@@ -118,7 +113,7 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
 
           if ($vid == $default_revision) {
             $row = [
-              'revision' => $this->buildRevision($link, $username, $revision, $previous_revision),
+              'revision' => $this->buildRevision($link, $username, $revision),
             ];
 
             if ($revision_count > 1) {
@@ -138,7 +133,7 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
           }
           else {
             $row = [
-              'revision' => $this->buildRevision($link, $username, $revision, $previous_revision),
+              'revision' => $this->buildRevision($link, $username, $revision),
             ];
 
             if ($revision_count > 1) {
@@ -189,7 +184,7 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     $input = $form_state->getUserInput();
 
     $revisions = $form_state->getValue('revisions_table');
@@ -207,7 +202,7 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $input = $form_state->getUserInput();
     $vid_left = $input['radios_left'];
     $vid_right = $input['radios_right'];
