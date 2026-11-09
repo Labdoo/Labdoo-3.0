@@ -216,6 +216,7 @@ final class MiniWikiPage extends RevisionableContentEntityBase implements MiniWi
       ->setDescription(t('The time that the wiki page was last edited.'));
 
     $fields['langcode'] = BaseFieldDefinition::create('language')
+      ->setRevisionable(TRUE)
       ->setLabel(t('Language'))
       ->setDisplayOptions('view', [
         'region' => 'hidden',
