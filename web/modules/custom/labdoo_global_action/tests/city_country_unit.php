@@ -61,6 +61,9 @@ namespace {
     ],
   ];
 
+  $testCases['does not geocode invalid sentinel'] = [new TestEntity([]), ['lat' => '-90', 'lon' => '-180'], ['city' => 'Wrong', 'country_code' => 'XX'], '', ''];
+  $testCases['does not geocode invalid range'] = [new TestEntity([]), ['lat' => '91', 'lon' => '181'], ['city' => 'Wrong', 'country_code' => 'XX'], '', ''];
+
   foreach ($testCases as $label => [$entity, $location, $geo, $expectedCity, $expectedCountry]) {
     $generator = new TestActionGenerator($geo);
     $city = $country = '';
@@ -68,7 +71,7 @@ namespace {
     if ($city !== $expectedCity || $country !== $expectedCountry) {
       throw new \RuntimeException(sprintf('%s: got %s/%s', $label, $city, $country));
     }
-    $expectedCalls = $label === 'does not geocode when both values exist' ? 0 : 1;
+    $expectedCalls = str_starts_with($label, 'does not geocode') ? 0 : 1;
     if ($generator->reverseCalls !== $expectedCalls) {
       throw new \RuntimeException(sprintf('%s: expected %d geocoder calls, got %d', $label, $expectedCalls, $generator->reverseCalls));
     }
