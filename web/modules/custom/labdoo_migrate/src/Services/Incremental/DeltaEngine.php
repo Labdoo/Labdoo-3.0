@@ -123,6 +123,13 @@ final class DeltaEngine {
       return array_replace($item, ['operation' => 'conflict', 'details' => ['reason' => $destination['conflict']]]);
     }
     if (empty($destination['id'])) {
+      // Surface missing dependencies/configuration in preview, before apply.
+      if (!$baseline && method_exists($this->adapter, 'validateNew')) {
+        $validation = $this->adapter->validateNew($run['source_type'], $id);
+        if (!empty($validation['unsupported'])) {
+          return array_replace($item, ['operation' => 'unsupported', 'details' => ['reason' => 'unverifiable_projection', 'fields' => $validation['unsupported']]]);
+        }
+      }
       // Never silently recreate locally removed migrated nodes.
       return array_replace($item, ['operation' => $baseline ? 'conflict' : 'create', 'details' => ['reason' => $baseline ? 'destination_removed_since_baseline' : 'new_source']]);
     }

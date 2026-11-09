@@ -50,7 +50,7 @@ final class NodeSyncAdapter {
       throw new \InvalidArgumentException('Unsupported incremental node type: ' . $type);
     }
     $semantics = ['version' => self::VERSION, 'mapping' => $mapping, 'global' => json_decode(file_get_contents(dirname(__DIR__, 3) . '/config/fields_mapping/global.json'), TRUE, 512, JSON_THROW_ON_ERROR), 'default_language' => \Drupal::languageManager()->getDefaultLanguage()->getId(), 'code' => []];
-    foreach ([__FILE__, __DIR__ . '/NodeSourceReader.php', __DIR__ . '/StorySectionAdapter.php', __DIR__ . '/ManagedFileIdentity.php', __DIR__ . '/ReadOnlyEntityLoader.php', __DIR__ . '/DerivedFields.php'] as $path) { $semantics['code'][basename($path)] = hash_file('sha256', $path); }
+    foreach ([__FILE__, __DIR__ . '/NodeSourceReader.php', __DIR__ . '/StorySectionAdapter.php', __DIR__ . '/ManagedFileIdentity.php', __DIR__ . '/ReadOnlyEntityLoader.php', __DIR__ . '/DerivedFields.php', __DIR__ . '/GeneratedIdentityResolver.php'] as $path) { $semantics['code'][basename($path)] = hash_file('sha256', $path); }
     $definitions = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $mapping['destination_types'][0]);
     foreach ($definitions as $name => $definition) {
       if (!$definition->isComputed()) {
@@ -255,6 +255,19 @@ final class NodeSyncAdapter {
     return TRUE;
   }
 
+  /** Validate a proposed new node without saving it or reserving any IDs. */
+  public function validateNew(string $type, int $sourceId): array {
+    $context = $this->context($type);
+    $snapshot = $this->snapshotType === $type && isset($this->snapshot['nodes'][$sourceId]) ? $this->snapshot : $this->reader->snapshots($type, [$sourceId]);
+    $root = $snapshot['nodes'][$sourceId] ?? NULL;
+    if (!$root) { throw new \RuntimeException('Missing source root.'); }
+    $lang = $root['language'] ?? '';
+    if (!$lang || $lang === 'und') { $lang = \Drupal::languageManager()->getDefaultLanguage()->getId(); }
+    $node = ReadOnlyEntityLoader::storage('node')->create(['type' => $context['bundle'], 'langcode' => $lang]);
+    [, $unsupported] = $this->projection($type, $sourceId, $node);
+    return ['unsupported' => $unsupported];
+  }
+
   /** Pure mapping projection. Unknown transformations fail closed. */
   private function projection(string $type, int $sourceId, NodeInterface $node): array {
     $this->context($type);
@@ -321,13 +334,16 @@ final class NodeSyncAdapter {
             if (array_filter($address, static fn($value) => $value !== '')) { $items[] = $address; }
             continue;
           }
-          if ($value === NULL || $value === '') { continue; }
           if ($special === 'address_component') {
             $component = $metadata['component'] ?? '';
             if (!$component) { $unsupported[] = 'Unknown address component'; continue; }
+            // Empty source components are intentional removals. Omitting them
+            // would let apply's auxiliary-property merge restore stale values.
+            $value = $value === NULL ? '' : $value;
             $out[$lang][$name][0][$component] = $component === 'country_code' ? strtoupper($value) : $value;
             continue;
           }
+          if ($value === NULL || $value === '') { continue; }
           if ($special === 'watt_hours') { $value = str_replace('wh', '', strtolower($value)); }
           elseif ($special === 'managed_file') {
             $fidKey = preg_replace('/_value$|_uri$/', '_fid', $column);
@@ -393,6 +409,24 @@ final class NodeSyncAdapter {
         catch (\RuntimeException $e) { $unsupported[] = $e->getMessage(); }
       }
     }
+    foreach ($out as $lang => &$fields) {
+      foreach ($fields as $name => &$items) {
+        if (!$node->hasField($name) || $node->get($name)->getFieldDefinition()->getType() !== 'address') { continue; }
+        foreach ($items as $delta => $item) {
+          if (!array_filter($item, static fn($value) => $value !== '' && $value !== NULL)) {
+            unset($items[$delta]);
+          }
+          elseif (empty($item['country_code'])) {
+            // AddressItem::isEmpty() checks only country_code. Without this
+            // guard Drupal would silently discard a populated legacy address.
+            $unsupported[] = 'Source address has content without country: ' . $name;
+          }
+        }
+        $items = array_values($items);
+      }
+      unset($items);
+    }
+    unset($fields);
     $shared = [];
     foreach ($out as $lang => $fields) {
       foreach ($fields as $name => $items) {
@@ -469,6 +503,19 @@ final class NodeSyncAdapter {
       }
       if ($targetType === 'user' && $this->destination->schema()->tableExists('migrate_map_d7_user')) {
         foreach ($this->destination->select('migrate_map_d7_user', 'm')->fields('m', ['sourceid1', 'destid1'])->condition('sourceid1', $chunk, 'IN')->execute() as $row) { $candidates[(int) $row->sourceid1][(int) $row->destid1] = TRUE; }
+      }
+    }
+    // Albums were regenerated in V3. Resolve them through reciprocal source
+    // ownership and a uniquely mapped parent, never through their numeric NID.
+    if ($targetType === 'node') {
+      $galleries = [];
+      foreach ($canonical as $root) {
+        if (($nodes[$root]['type'] ?? '') === 'node_gallery_gallery' && empty($candidates[$root])) { $galleries[$root] = $root; }
+      }
+      if ($galleries) {
+        foreach ((new GeneratedIdentityResolver($this->source, $this->destination))->galleries(array_values($galleries)) as $root => $proof) {
+          if (!empty($proof['id']) && empty($proof['conflict'])) { $candidates[$root][(int) $proof['id']] = TRUE; }
+        }
       }
     }
     $targetIds = [];

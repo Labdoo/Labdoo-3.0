@@ -41,6 +41,39 @@
           {
             "table": "location",
             "key": "node.nid",
+            "field": "country",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "node",
+                "condition": "node.nid = location_instance.nid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_address",
+        "special_type": {
+          "type": "address_component",
+          "metadata": {
+            "component": "country_code"
+          }
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "node.nid",
             "field": "city",
             "ignore_langcode": "true",
             "joins": [
@@ -68,6 +101,39 @@
           {
             "table": "location",
             "key": "node.nid",
+            "field": "city",
+            "ignore_langcode": "true",
+            "joins": [
+              {
+                "type": "INNER",
+                "table": "location_instance",
+                "condition": "location_instance.lid = location.lid"
+              },
+              {
+                "type": "INNER",
+                "table": "node",
+                "condition": "node.nid = location_instance.nid"
+              }
+            ]
+          }
+        ]
+      },
+      "destination": {
+        "field": "field_address",
+        "special_type": {
+          "type": "address_component",
+          "metadata": {
+            "component": "locality"
+          }
+        }
+      }
+    },
+    {
+      "source": {
+        "fields": [
+          {
+            "table": "location",
+            "key": "node.nid",
             "field": "postal_code",
             "ignore_langcode": "true",
             "joins": [
@@ -86,7 +152,13 @@
         ]
       },
       "destination": {
-        "field": "field_postal_code"
+        "field": "field_address",
+        "special_type": {
+          "type": "address_component",
+          "metadata": {
+            "component": "postal_code"
+          }
+        }
       }
     },
     {
@@ -113,7 +185,13 @@
         ]
       },
       "destination": {
-        "field": "field_address"
+        "field": "field_address",
+        "special_type": {
+          "type": "address_component",
+          "metadata": {
+            "component": "address_line1"
+          }
+        }
       }
     },
     {
