@@ -16,6 +16,11 @@ final class NodeSyncAdapter {
   private NodeSourceReader $reader;
   private array $snapshot = [];
   private string $snapshotType = '';
+  private array $contexts = [];
+  private array $comparisonNodes = [];
+  private array $references = ['node' => [], 'user' => []];
+  private bool $referencesPrimed = FALSE;
+  private const MAX_REFERENCE_IDS = 50000;
   private const VERSION = 'node-projection-v1';
 
   public function __construct(private Connection $source, private Connection $destination, ?NodeSourceReader $reader = NULL) {
@@ -28,7 +33,18 @@ final class NodeSyncAdapter {
     }
   }
 
+  /** Request-local caches are bounded to one engine batch, never persisted. */
+  public function resetRuntime(): void {
+    $this->contexts = [];
+    $this->comparisonNodes = [];
+    $this->references = ['node' => [], 'user' => []];
+    $this->referencesPrimed = FALSE;
+    $this->snapshot = [];
+    $this->snapshotType = '';
+  }
+
   public function context(string $type): array {
+    if (isset($this->contexts[$type])) { return $this->contexts[$type]; }
     $mapping = $this->mappings[$type] ?? NULL;
     if (!$mapping || count($mapping['destination_types'] ?? []) !== 1) {
       throw new \InvalidArgumentException('Unsupported incremental node type: ' . $type);
@@ -41,16 +57,19 @@ final class NodeSyncAdapter {
         $semantics['destination_fields'][$name] = ['type' => $definition->getType(), 'translatable' => $definition->isTranslatable(), 'required' => $definition->isRequired(), 'cardinality' => $definition->getFieldStorageDefinition()->getCardinality(), 'settings' => $definition->getSettings()];
       }
     }
-    return ['bundle' => $mapping['destination_types'][0], 'mapping_hash' => hash('sha256', json_encode($semantics, JSON_THROW_ON_ERROR))];
+    return $this->contexts[$type] = ['bundle' => $mapping['destination_types'][0], 'mapping_hash' => hash('sha256', json_encode($semantics, JSON_THROW_ON_ERROR))];
   }
 
   /** Resolve identity only from evidence, never from equal numeric IDs. */
   public function destinations(string $type, array $sourceIds): array {
+    // A new page is also a cache boundary for direct adapter callers.
+    $this->resetRuntime();
     $bundle = $this->context($type)['bundle'];
     if (!$sourceIds) { return []; }
     if (count($sourceIds) > 500) { throw new \InvalidArgumentException('Batch exceeds 500.'); }
     $this->snapshot = $this->reader->snapshots($type, $sourceIds);
     $this->snapshotType = $type;
+    $this->prefetchReferences($type, $this->snapshot);
     $matches = [];
     if ($this->destination->schema()->tableExists('labdoo_migrate_tracking')) {
       $rows = $this->destination->select('labdoo_migrate_tracking', 't')->fields('t', ['source_id', 'destination_id'])->condition('entity_type', 'node')->condition('bundle', $bundle)->condition('source_id', $sourceIds, 'IN')->execute();
@@ -63,6 +82,7 @@ final class NodeSyncAdapter {
     $ids = [];
     foreach ($matches as $list) { $ids = array_merge($ids, array_keys($list)); }
     $nodes = ReadOnlyEntityLoader::storage('node')->loadMultiple(array_unique(array_merge($ids, array_map('intval', $sourceIds))));
+    $this->comparisonNodes = $nodes;
     $unreconciledActions = FALSE;
     if ($type === 'action') {
       $query = $this->destination->select('node', 'n')->fields('n', ['nid'])->condition('n.type', 'action');
@@ -195,7 +215,7 @@ final class NodeSyncAdapter {
   }
 
   public function compare(string $type, int $sourceId, int $destinationId, array $baselineSourceLanguages = []): array {
-    $node = ReadOnlyEntityLoader::storage('node')->load($destinationId);
+    $node = $this->comparisonNodes[$destinationId] ?? ReadOnlyEntityLoader::storage('node')->load($destinationId);
     if (!$node || $node->bundle() !== $this->context($type)['bundle']) { throw new \RuntimeException('Missing or wrong destination node.'); }
     [$values, $unsupported] = $this->projection($type, $sourceId, $node);
     $differences = [];
@@ -239,6 +259,7 @@ final class NodeSyncAdapter {
   private function projection(string $type, int $sourceId, NodeInterface $node): array {
     $this->context($type);
     $snapshot = $this->snapshotType === $type && isset($this->snapshot['translations'][$sourceId]) ? $this->snapshot : $this->reader->snapshots($type, [$sourceId]);
+    if (!$this->referencesPrimed) { $this->prefetchReferences($type, $snapshot); }
     $family = $snapshot['translations'][$sourceId] ?? [];
     if (!$family) { throw new \RuntimeException('Missing source root.'); }
     $out = []; $unsupported = [];
@@ -384,35 +405,95 @@ final class NodeSyncAdapter {
     return [$out, array_values(array_unique($unsupported))];
   }
 
+  /** Gather only mapped references, including repeated authors, once per page. */
+  private function prefetchReferences(string $type, array $snapshot): void {
+    $definitions = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $this->context($type)['bundle']);
+    $ids = ['node' => [], 'user' => []];
+    foreach ($this->mappings[$type]['fields_mapping'] as $mapping) {
+      $definition = $definitions[$mapping['destination']['field']] ?? NULL;
+      if (!$definition || $definition->getType() !== 'entity_reference') { continue; }
+      $target = $definition->getSetting('target_type');
+      if (!isset($ids[$target])) { continue; }
+      foreach ($mapping['source']['fields'] ?? [] as $field) {
+        $rows = $field['table'] === 'node' ? array_values($snapshot['nodes']) : [];
+        if ($field['table'] !== 'node') {
+          foreach ($snapshot['fields'][$field['table']] ?? [] as $entityRows) { $rows = array_merge($rows, $entityRows); }
+        }
+        foreach ($rows as $row) {
+          $id = (int) ($row[$field['field']] ?? 0);
+          if ($id > 0) { $ids[$target][$id] = $id; }
+        }
+      }
+    }
+    foreach ($ids as $target => $values) { $this->resolveReferences($target, array_values($values)); }
+    $this->referencesPrimed = TRUE;
+  }
+
+  /** SELECT-only metadata validation, never full referenced node/user entities. */
+  private function resolveReferences(string $targetType, array $sourceIds): void {
+    $sourceIds = array_values(array_unique(array_filter(array_map('intval', $sourceIds), static fn($id) => $id > 0)));
+    $sourceIds = array_values(array_filter($sourceIds, fn($id) => !array_key_exists($id, $this->references[$targetType])));
+    if (!$sourceIds) { return; }
+    if (count($sourceIds) + count($this->references[$targetType]) > self::MAX_REFERENCE_IDS) {
+      throw new \RuntimeException('Reference batch exceeds the memory limit; reduce the batch size.');
+    }
+    foreach ($sourceIds as $id) { $this->references[$targetType][$id] = NULL; }
+    $canonical = [];
+    if ($targetType === 'node') {
+      $nodes = [];
+      foreach (array_chunk($sourceIds, 500) as $chunk) {
+        foreach ($this->source->select('node', 'n')->fields('n', ['nid', 'tnid', 'type'])->condition('nid', $chunk, 'IN')->execute() as $node) { $nodes[(int) $node->nid] = (array) $node; }
+      }
+      $missingRoots = [];
+      foreach ($nodes as $node) {
+        if ((int) $node['tnid'] > 0 && !isset($nodes[(int) $node['tnid']])) { $missingRoots[(int) $node['tnid']] = (int) $node['tnid']; }
+      }
+      foreach (array_chunk(array_values($missingRoots), 500) as $chunk) {
+        foreach ($this->source->select('node', 'n')->fields('n', ['nid', 'tnid', 'type'])->condition('nid', $chunk, 'IN')->execute() as $node) { $nodes[(int) $node->nid] = (array) $node; }
+      }
+      foreach ($sourceIds as $id) {
+        if (!isset($nodes[$id])) { continue; }
+        $root = (int) $nodes[$id]['tnid'] ?: $id;
+        if (isset($nodes[$root]) && $nodes[$root]['type'] === $nodes[$id]['type']) { $canonical[$id] = $root; }
+      }
+    }
+    else { $canonical = array_combine($sourceIds, $sourceIds); }
+    if (!$canonical) { return; }
+    $candidates = [];
+    foreach (array_chunk(array_values(array_unique($canonical)), 500) as $chunk) {
+      if ($this->destination->schema()->tableExists('labdoo_migrate_tracking')) {
+        foreach ($this->destination->select('labdoo_migrate_tracking', 't')->fields('t', ['source_id', 'destination_id'])->condition('entity_type', $targetType)->condition('source_id', $chunk, 'IN')->execute() as $row) { $candidates[(int) $row->source_id][(int) $row->destination_id] = TRUE; }
+      }
+      if ($targetType === 'node' && $this->destination->schema()->tableExists('node__field_d7_nid')) {
+        foreach ($this->destination->select('node__field_d7_nid', 'f')->fields('f', ['field_d7_nid_value', 'entity_id'])->condition('deleted', 0)->condition('field_d7_nid_value', $chunk, 'IN')->execute() as $row) { $candidates[(int) $row->field_d7_nid_value][(int) $row->entity_id] = TRUE; }
+      }
+      if ($targetType === 'user' && $this->destination->schema()->tableExists('migrate_map_d7_user')) {
+        foreach ($this->destination->select('migrate_map_d7_user', 'm')->fields('m', ['sourceid1', 'destid1'])->condition('sourceid1', $chunk, 'IN')->execute() as $row) { $candidates[(int) $row->sourceid1][(int) $row->destid1] = TRUE; }
+      }
+    }
+    $targetIds = [];
+    foreach ($candidates as $list) { foreach ($list as $id => $unused) { $targetIds[(int) $id] = (int) $id; } }
+    $existing = [];
+    foreach (array_chunk(array_values($targetIds), 500) as $chunk) {
+      $table = $targetType === 'node' ? 'node' : 'users';
+      $key = $targetType === 'node' ? 'nid' : 'uid';
+      foreach ($this->destination->select($table, 'e')->fields('e', [$key])->condition($key, $chunk, 'IN')->execute()->fetchCol() as $id) { $existing[(int) $id] = TRUE; }
+    }
+    foreach ($canonical as $sourceId => $root) {
+      $ids = array_keys($candidates[$root] ?? []);
+      if (count($ids) === 1 && isset($existing[$ids[0]])) { $this->references[$targetType][$sourceId] = (int) $ids[0]; }
+    }
+  }
+
   private function reference(string $targetType, int $sourceId): ?int {
     if (!$sourceId) { return $targetType === 'user' ? 0 : NULL; }
-    if ($targetType === 'node') {
-      $sourceNode = $this->source->select('node', 'n')->fields('n', ['nid', 'tnid', 'type'])->condition('nid', $sourceId)->execute()->fetchAssoc();
-      if (!$sourceNode) { return NULL; }
-      if ((int) $sourceNode['tnid'] > 0 && (int) $sourceNode['tnid'] !== $sourceId) {
-        $root = $this->source->select('node', 'n')->fields('n', ['nid', 'type'])->condition('nid', (int) $sourceNode['tnid'])->execute()->fetchAssoc();
-        if (!$root || $root['type'] !== $sourceNode['type']) { return NULL; }
-        $sourceId = (int) $root['nid'];
-      }
-      $rows = $this->destination->select('labdoo_migrate_tracking', 't')->fields('t', ['destination_id'])->condition('entity_type', 'node')->condition('source_id', $sourceId)->execute()->fetchCol();
-      if ($this->destination->schema()->tableExists('node__field_d7_nid')) {
-        $rows = array_merge($rows, $this->destination->select('node__field_d7_nid', 'f')->fields('f', ['entity_id'])->condition('deleted', 0)->condition('field_d7_nid_value', $sourceId)->execute()->fetchCol());
-      }
-      $rows = array_unique(array_map('intval', $rows));
-      return count($rows) === 1 && ReadOnlyEntityLoader::storage('node')->load(reset($rows)) ? reset($rows) : NULL;
-    }
-    if ($targetType === 'user') {
-      $rows = $this->destination->select('labdoo_migrate_tracking', 't')->fields('t', ['destination_id'])->condition('entity_type', 'user')->condition('source_id', $sourceId)->execute()->fetchCol();
-      if ($this->destination->schema()->tableExists('migrate_map_d7_user')) {
-        $rows = array_merge($rows, $this->destination->select('migrate_map_d7_user', 'm')->fields('m', ['destid1'])->condition('sourceid1', $sourceId)->execute()->fetchCol());
-      }
-      $rows = array_unique(array_map('intval', $rows));
-      return count($rows) === 1 && ReadOnlyEntityLoader::storage('user')->load(reset($rows)) ? reset($rows) : NULL;
-    }
-    return NULL;
+    if (!isset($this->references[$targetType])) { return NULL; }
+    $this->resolveReferences($targetType, [$sourceId]);
+    return $this->references[$targetType][$sourceId] ?? NULL;
   }
 
   public function apply(string $type, int $sourceId, ?int $destinationId, string $operation, array $expected): array {
+    $this->resetRuntime();
     $context = $this->context($type);
     $removeLanguages = [];
     if (!hash_equals($context['mapping_hash'], $expected['mapping_hash'] ?? '')) { throw new \RuntimeException('Mapping changed since planning.'); }
@@ -428,6 +509,8 @@ final class NodeSyncAdapter {
     if ($actualHash !== (($expected['destination_hash'] ?? '') ?: NULL)) { throw new \RuntimeException('Destination changed since planning.'); }
     $fingerprints = $this->reader->fingerprints($type, [$sourceId]);
     $this->snapshot = []; $this->snapshotType = '';
+    $this->references = ['node' => [], 'user' => []]; $this->referencesPrimed = FALSE;
+    $this->comparisonNodes = [];
     if ($operation === 'unpublish') {
       if (isset($fingerprints[$sourceId]) || $this->reader->existing([$sourceId]) || !$node) { throw new \RuntimeException('Unpublish requires absent source and existing destination.'); }
       if (!$this->published($node)) { return ['destination_id' => (int) $node->id(), 'destination_hash' => $actualHash, 'written' => FALSE, 'effects' => []]; }
