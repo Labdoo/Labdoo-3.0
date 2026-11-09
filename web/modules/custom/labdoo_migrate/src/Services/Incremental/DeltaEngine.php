@@ -33,6 +33,7 @@ final class DeltaEngine {
 
   public function plan(string $type, array $options = []): array {
     $started = microtime(TRUE);
+    if (method_exists($this->adapter, 'resetRuntime')) { $this->adapter->resetRuntime(); }
     $options = $this->settings($options);
     $name = $options['dry_run'] ? NULL : $this->acquire($type);
     try {
@@ -147,6 +148,7 @@ final class DeltaEngine {
     $options = $this->settings($options);
     if ($options['dry_run']) { throw new \InvalidArgumentException('Use preview to avoid all content and metadata writes.'); }
     $run = $this->store->run($runId);
+    if (method_exists($this->adapter, 'resetRuntime')) { $this->adapter->resetRuntime(); }
     $name = $this->acquire($run['source_type']);
     try {
       $this->compatible($run, $this->adapter->context($run['source_type']), $run['source_type']);
@@ -219,6 +221,7 @@ final class DeltaEngine {
 
   /** Adoption is batched; every unchanged repeat needs no source re-read or node save. */
   private function adoptBatch(array $run, array $items): void {
+    if (method_exists($this->adapter, 'resetRuntime')) { $this->adapter->resetRuntime(); }
     $ids = array_map(static fn($item) => (int) $item['source_id'], $items);
     $currentItem = $items[0];
     $transaction = NULL;
@@ -246,6 +249,7 @@ final class DeltaEngine {
   }
 
   private function applyItem(array $run, array $item, array $options): void {
+    if (method_exists($this->adapter, 'resetRuntime')) { $this->adapter->resetRuntime(); }
     $type = $run['source_type'];
     $id = (int) $item['source_id'];
     $op = $item['operation'];
@@ -305,6 +309,7 @@ final class DeltaEngine {
     if (class_exists('Drupal') && \Drupal::hasContainer()) {
       \Drupal::service('entity.memory_cache')->deleteAll();
     }
+    if (method_exists($this->adapter, 'resetRuntime')) { $this->adapter->resetRuntime(); }
     if (method_exists($this->source, 'refresh')) { $this->source->refresh(); }
     gc_collect_cycles();
   }

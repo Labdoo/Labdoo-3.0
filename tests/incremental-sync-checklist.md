@@ -136,3 +136,9 @@ The checklist remains an acceptance/review matrix. Real source preview is
 separate from synthetic write tests. Assets must already be synchronized;
 content sync creates metadata only and does not fetch source binaries. Future
 managed-file byte changes without metadata changes need independent file sync.
+
+### Precarga de referencias y destinos existentes
+
+`python3 tests/support/incremental-drush.py php:script /var/www/html/labdoo3/.e2e-lab/program/incremental/tests/incremental-reference-prefetch.php`
+
+Seis casos adicionales: 200 destinos reales reutilizados para comparación sin más SQL; referencias de nodos/usuarios y TNID precargadas; 3.000 resoluciones repetidas sin consultas extra; reset frente a cambios de identidad; ambigüedad conservadora y UID 0; firma de configuración actualizada tras reset. La fixture usa exclusivamente las bases E2E separadas y revierte sus entidades.
