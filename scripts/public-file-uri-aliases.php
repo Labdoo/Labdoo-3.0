@@ -348,6 +348,15 @@ if (PHP_SAPI === 'cli' && realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE
   if (!$root || !is_file($root . '/autoload.php')) {
     throw new RuntimeException('Use --root to select the installed Drupal web root.');
   }
+  // Match Drush's working directory before resolving public:// paths.
+  foreach (['from', 'backup-path', 'rollback'] as $pathOption) {
+    if (isset($options[$pathOption]) && !str_starts_with($options[$pathOption], '/')) {
+      $options[$pathOption] = getcwd() . '/' . $options[$pathOption];
+    }
+  }
+  if (!chdir($root)) {
+    throw new RuntimeException('Cannot enter the installed Drupal web root.');
+  }
   $loader = require $root . '/autoload.php';
   $request = \Symfony\Component\HttpFoundation\Request::create($options['uri'] ?? 'https://v3.labdoo.org');
   \Drupal\Core\DrupalKernel::createFromRequest($request, $loader, 'prod', FALSE, $root)->boot();
