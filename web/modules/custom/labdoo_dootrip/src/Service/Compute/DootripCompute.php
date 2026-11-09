@@ -576,37 +576,57 @@ class DootripCompute implements DootripComputeInterface {
   private function allocateNewId(): int {
     $lock_key = 'labdoo.dootrip.id';
     $lock = \Drupal::lock();
-    if (!$lock->acquire($lock_key, 30)) {
+    if (!$lock->acquire($lock_key, 360)) {
       throw new \Exception('Could not acquire lock for dootrip ID sequence.');
     }
 
-    $query = $this->database->select('node_field_data', 'n')
-      ->fields('n', ['title'])
-      ->condition('n.type', 'dootrip')
-      ->condition('n.title', 'Dootrip #%', 'LIKE')
-      ->orderBy('n.title', 'ASC');
+    try {
+      $query = $this->database->select('node_field_data', 'n');
+      $query->innerJoin('node', 'base', 'base.nid = n.nid');
+      $query->fields('n', ['title'])
+        ->condition('n.default_langcode', 1)
+        ->condition('n.type', 'dootrip')
+        ->condition('n.title', 'Dootrip #%', 'LIKE')
+        ->orderBy('n.title', 'ASC');
 
-    $result = $query->execute();
+      $result = $query->execute();
 
-    $dootripIds = [];
-    while (($title = $result->fetchField()) !== FALSE) {
-      if (preg_match('/#(\d+)/', (string) $title, $matches)) {
-        $dootripIds[] = (int) $matches[1];
+      $dootripIds = [];
+      while (($title = $result->fetchField()) !== FALSE) {
+        if (preg_match('/#(\d+)/', (string) $title, $matches)) {
+          $dootripIds[] = (int) $matches[1];
+        }
       }
+
+      sort($dootripIds);
+      $dootripIds = array_unique($dootripIds);
+
+      $potentialId = 1;
+      foreach ($dootripIds as $thisId) {
+        if ($potentialId < $thisId) {
+          break;
+        }
+        $potentialId = $thisId + 1;
+      }
+
+    }
+    catch (\Throwable $exception) {
+      $lock->release($lock_key);
+      throw $exception;
     }
 
-    sort($dootripIds);
-    $dootripIds = array_unique($dootripIds);
-
-    $potentialId = 1;
-    foreach ($dootripIds as $thisId) {
-      if ($potentialId < $thisId) {
-        break;
-      }
-      $potentialId = $thisId + 1;
+    if ($this->database->inTransaction()) {
+      // The allocated title must be visible before another request scans IDs.
+      $this->database->transactionManager()->addPostTransactionCallback(
+        static function () use ($lock, $lock_key): void {
+          $lock->release($lock_key);
+        }
+      );
     }
-
-    $lock->release($lock_key);
+    else {
+      // Unsaved title previews do not reserve public identifiers.
+      $lock->release($lock_key);
+    }
     return $potentialId;
   }
 

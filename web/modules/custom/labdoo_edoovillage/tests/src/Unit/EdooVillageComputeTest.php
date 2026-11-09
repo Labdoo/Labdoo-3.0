@@ -33,6 +33,9 @@ class EdooVillageComputeTest extends UnitTestCase {
     $container = new \Symfony\Component\DependencyInjection\ContainerBuilder();
     $container->set('labdoo_edoovillage.repository', $repository);
     $container->set('country_manager', $countryManager);
+    $database = $this->createMock(\Drupal\Core\Database\Connection::class);
+    $database->method('inTransaction')->willReturn(FALSE);
+    $container->set('database', $database);
     \Drupal::setContainer($container);
 
     $entity = $this->createMock(NodeInterface::class);

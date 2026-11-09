@@ -1,4 +1,4 @@
-name: 'Mini Wiki'
+name: 'Labdoo Wiki'
 type: module
 description: 'Provides really simple wiki functionality.'
 core_version_requirement: ^10

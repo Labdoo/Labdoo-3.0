@@ -234,6 +234,7 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
 
     $cacheTags = [
       'edoovillage:' . $edooVillage->id(),
+      'node_list:edoovillage',
     ];
     // The album may be created by the queue after this block was cached.
     $cacheTags = Cache::mergeTags(

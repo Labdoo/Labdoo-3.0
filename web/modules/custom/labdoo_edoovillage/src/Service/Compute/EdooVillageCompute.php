@@ -146,7 +146,20 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
     /** @var \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface $edoovillageRepository */
     $edoovillageRepository = \Drupal::service('labdoo_edoovillage.repository');
     $id = $edoovillageRepository->generateId();
-    $edoovillageRepository->commit();
+    $database = \Drupal::database();
+    if ($database->inTransaction()) {
+      // Releasing in presave/insert allows another request to read the old
+      // sequence before this transaction is visible. Hold until commit/rollback.
+      $database->transactionManager()->addPostTransactionCallback(
+        static function () use ($edoovillageRepository): void {
+          $edoovillageRepository->commit();
+        }
+      );
+    }
+    else {
+      // Unsaved previews and title calculations do not reserve identifiers.
+      $edoovillageRepository->commit();
+    }
     return $id;
   }
 

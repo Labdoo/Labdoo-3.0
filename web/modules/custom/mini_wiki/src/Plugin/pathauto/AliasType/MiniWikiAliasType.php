@@ -10,7 +10,7 @@ use Drupal\pathauto\Plugin\pathauto\AliasType\EntityAliasTypeBase;
  *
  * @AliasType(
  *   id = "mini_wiki_page",
- *   label = @Translation("Mini Wiki Page"),
+ *   label = @Translation("Wiki Page"),
  *   types = {"mini_wiki_page"},
  *   entity_type = "mini_wiki_page"
  * )
@@ -33,7 +33,7 @@ class MiniWikiAliasType extends EntityAliasTypeBase {
    * {@inheritdoc}
    */
   public function getLabel(): string|TranslatableMarkup {
-    return $this->t('Mini Wiki Page');
+    return $this->t('Wiki Page');
   }
 
 }
