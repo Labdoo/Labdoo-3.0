@@ -94,4 +94,22 @@ La muestra local de 500 raíces sintéticas requirió ocho SELECT y aproximadame
 
 La resolución de referencias y la firma de contexto se precargan por lote. Los nodos de destino ya leídos se reutilizan para comparar; no se recargan completos por cada referencia. Las cachés son locales al proceso y se vacían en los límites de lote y antes de las comprobaciones de escritura. Una prueba con 200 destinos reales y 3.000 consultas repetidas de referencias confirma que las comparaciones no añaden SQL después de la precarga; las guardas de identidad y cambios concurrentes permanecen activas.
 
-El preview de V3 detectó incompatibilidades previas que deben reconciliarse antes de aplicar esos elementos: mappings de escuelas hacia field_postal_code/field_address ausentes, mappings de hubs hacia field_city/field_postal_code/field_address ausentes y algunas galerías sin identidad de migración verificable. Esos casos quedan bloqueados; el motor no crea campos, asigna galerías por similitud de NID ni descarta valores en silencio. Los títulos/cuerpos compartidos con valores distintos por idioma también requieren revisión explícita.
+El primer preview de V3 detectó mappings de direcciones incompatibles y galerías regeneradas sin tracker. Su reconciliación se documenta a continuación. El motor no asigna galerías por similitud de NID ni descarta valores en silencio. Los títulos/cuerpos compartidos con valores distintos por idioma mantienen una guarda explícita; la auditoría de la fuente real y V3 no encontró tales traducciones de contenido el 10/11/2026, por lo que no se altera su configuración preventivamente.
+
+## Reconciliación de compatibilidad (10/11/2026)
+
+La actualización 9004 conecta el almacenamiento de dirección existente a escuelas/hubs, añade ciudad al hub y amplía las referencias de hubs padre para conservar todos los valores de V2. No guarda nodos ni cambia sus secuencias. Los mappings conservan país/ciudad para filtros y agrupan los componentes postales en `field_address`. Un componente borrado se proyecta vacío para que no reaparezca desde V3; una dirección con contenido pero sin país se informa como inválida antes de guardar.
+
+Las galerías regeneradas se resuelven por una relación recíproca de propietario en V2, identidad demostrada del propietario en V3 y una única galería con ese padre. No se usan NIDs iguales como prueba ni se regeneran galerías durante el preview. Los padres que aún no se hayan importado siguen siendo dependencias pendientes.
+
+Los usuarios referenciados que falten se pueden revisar e importar selectivamente antes de los nodos:
+
+```sh
+drush labdoo-delta:import-users 9894
+# Tras revisar el informe y disponer de respaldo:
+drush labdoo-delta:import-users 9894 --apply
+```
+
+El primer comando sólo informa. El segundo sólo crea usuarios ausentes con su UID original; las colisiones y las cuentas ya existentes quedan protegidas. No envía notificaciones ni modifica automáticamente el equipo global. El estado de migración se restaura al terminar. No genera traducciones ni crea nodos de prueba.
+
+El preview también valida las dependencias y mappings de las altas sin guardarlas, de forma que una referencia no verificable aparece como `unsupported` antes de ejecutar apply. Las Actions regeneradas siguen requiriendo una política explícita de reconciliación histórica: la coincidencia de textos o fechas por sí sola no demuestra identidad de acontecimientos.

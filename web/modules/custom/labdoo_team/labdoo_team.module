@@ -387,6 +387,10 @@ function labdoo_team_comment_links_alter(array &$links, CommentInterface $entity
  * Implements hook_user_insert().
  */
 function labdoo_team_user_insert(UserInterface $account) {
+  // Importing an existing account must not save the Global team or its revisions.
+  if ($account->isSyncing() || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
+    return;
+  }
   try {
     // Load the Global team (nid 24)
     $team = \Drupal::entityTypeManager()

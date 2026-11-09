@@ -142,3 +142,45 @@ managed-file byte changes without metadata changes need independent file sync.
 `python3 tests/support/incremental-drush.py php:script /var/www/html/labdoo3/.e2e-lab/program/incremental/tests/incremental-reference-prefetch.php`
 
 Seis casos adicionales: 200 destinos reales reutilizados para comparación sin más SQL; referencias de nodos/usuarios y TNID precargadas; 3.000 resoluciones repetidas sin consultas extra; reset frente a cambios de identidad; ambigüedad conservadora y UID 0; firma de configuración actualizada tras reset. La fixture usa exclusivamente las bases E2E separadas y revierte sus entidades.
+
+Reconciliación de compatibilidad (10/11/2026):
+
+- `incremental-location-fields.php`: configuración idempotente, conservación de filas/revisiones/display, cuatro componentes postales, borrado parcial real, ubicación ausente, país vacío y múltiples ubicaciones.
+- `incremental-adapter.php`: las altas sin autor resoluble aparecen bloqueadas desde preview, sin reservar NIDs.
+- El importador selectivo de usuarios debe probar contraseña heredada sin rehash, colisiones, rollback, lock y restauración de estado; sin correo, nodos ni modificaciones del equipo global.
+- La identidad relacional de galerías debe demostrar reciprocidad, propietario único y destino único; los conflictos no autorizan un fallback numérico.
+
+### Location reconciliation follow-up (2026-11-10)
+
+`incremental-location-fields.php` adds nine isolated checks for the school/hub
+location mismatch found by a SELECT-only SSH metadata audit. Production already
+has single-value `field_address` storage, but neither bundle has an instance;
+`field_postal_code` storage is absent and hub also lacks a city instance. The
+configuration update attaches existing address/city storage, keeps new fields
+hidden, and expands hub parent-reference cardinality so distinct source parents
+are preserved. No content is saved by the update. Drupal may serialize hidden
+field/dependency defaults in display configuration; all effective display
+components remain unchanged, checked using loaded display entities.
+
+The new address instances make legacy optional address components optional
+rather than requiring person names, province, street and postal code which V2
+locations do not consistently supply. Country remains necessary for a populated
+address: Drupal considers country-less address items empty and otherwise could
+silently discard their textual values.
+
+The suite verifies idempotence, unchanged entity counts and effective displays,
+current/revision parent-reference preservation, the actual JSON mappings, real
+source-reader projection for both bundles, a real hub update clearing source
+street/postal while retaining auxiliary line/organization, no-location clearing,
+ambiguous source rejection, country-less content rejection, and normalization
+of fully empty locations. All fixture entity/configuration changes roll back.
+
+```sh
+python3 tests/support/incremental-drush.py php:script /var/www/html/labdoo3/.e2e-lab/program/incremental/tests/incremental-location-fields.php
+```
+
+`incremental-cli-readonly.php` covers the CLI entry points with an expired
+semaphore row: both node preview and user-dependency preview must preserve that
+row, keep the active connection and issue read-only SQL. Fixture setup seeds the
+expired semaphore inside a rolled-back destination transaction; the production
+source is never used as a fixture writer.

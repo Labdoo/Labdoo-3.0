@@ -20,9 +20,9 @@ final class IncrementalCommands extends DrushCommands {
 
   private function engine(): DeltaEngine {
     if ($this->engine) { return $this->engine; }
-    $active = Database::getConnection()->getKey();
-    try { $source = $this->sourceManager->setConnection(); }
-    finally { Database::setActiveConnection($active); }
+    // Read-only commands must not enter the legacy manager: checking an expired
+    // legacy lock can delete semaphore rows. Writers acquire their own delta lock.
+    $source = Database::getConnection('default', 'external');
     $options = $source->getConnectionOptions();
     $identity = hash('sha256', json_encode(array_intersect_key($options, array_fill_keys(['driver', 'database', 'prefix', 'host', 'port', 'username'], TRUE)), JSON_THROW_ON_ERROR));
     $reader = new NodeSourceReader($source);
@@ -45,6 +45,25 @@ final class IncrementalCommands extends DrushCommands {
       if (($config['entity_type'] ?? '') === 'node' && isset($config['source_type'])) { $runs[] = $this->engine()->plan($config['source_type'], $options); }
     }
     return ['scope' => 'all_configured_node_types', 'max_items_is_per_type' => TRUE, 'runs' => $runs];
+  }
+
+  /**
+   * Preview or explicitly import missing V2 users required by node references.
+   *
+   * @command labdoo-delta:import-users
+   * @param string $uids Comma-separated original V2 UIDs (at most 100).
+   * @option apply Explicitly create missing users; existing identities are protected.
+   * @usage labdoo-delta:import-users 9894
+   */
+  public function importUsers(string $uids, array $options = ['apply' => FALSE]): void {
+    if (!preg_match('/^[1-9][0-9]*(,[1-9][0-9]*)*$/D', $uids)) { throw new \InvalidArgumentException('Specify positive comma-separated source UIDs.'); }
+    foreach (explode(',', $uids) as $id) { if ((string) (int) $id !== $id) { throw new \InvalidArgumentException('Source UID exceeds the supported integer range.'); } }
+    $ids = array_values(array_unique(array_map('intval', explode(',', $uids))));
+    if (count($ids) > 100) { throw new \InvalidArgumentException('At most 100 source users per request.'); }
+    // Read-only commands must not enter the legacy manager: checking an expired
+    // legacy lock can delete semaphore rows. Writers acquire their own delta lock.
+    $source = Database::getConnection('default', 'external');
+    $this->emit((new \Drupal\labdoo_migrate\Services\Incremental\UserDependencyImporter($source, $this->database))->run($ids, (bool) $options['apply']));
   }
 
   private function emit(array $report): void { $this->output()->writeln(json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)); }

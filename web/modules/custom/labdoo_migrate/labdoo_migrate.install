@@ -148,3 +148,9 @@ function labdoo_migrate_update_9003(): void {
     }
   }
 }
+
+/** Attach existing location storage and permit all source parent hubs; no content writes. */
+function labdoo_migrate_update_9004(): string {
+  $changes = \Drupal\labdoo_migrate\Services\Incremental\LocationFieldConfiguration::ensure();
+  return 'Location fields verified; changes: ' . ($changes ? implode(', ', $changes) : 'none');
+}
