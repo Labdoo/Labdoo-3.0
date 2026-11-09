@@ -65,8 +65,15 @@ final class LabdooPublicFileUriAliases {
           throw new RuntimeException('Public path parent escapes the public root.');
         }
       }
-      elseif ($create && !mkdir($next, 0775)) {
-        throw new RuntimeException('Cannot create public alias directory.');
+      elseif ($create) {
+        if (!mkdir($next, 0775)) {
+          throw new RuntimeException('Cannot create public alias directory.');
+        }
+        // Keep backups private with umask0077, but make only newly created
+        // public directories traversable/writable by the site's public group.
+        if (!chgrp($next, filegroup($this->root)) || !chmod($next, 02775)) {
+          throw new RuntimeException('Cannot set the public group/mode on a new alias directory.');
+        }
       }
       $current = $next;
     }
