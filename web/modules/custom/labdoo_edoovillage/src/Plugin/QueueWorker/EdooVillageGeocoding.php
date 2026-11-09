@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_edoovillage\Plugin\QueueWorker;
 
+use Drupal\Core\Queue\SuspendQueueException;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
@@ -82,9 +84,31 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
    * {@inheritdoc}
    */
   public function processItem($data) {
-    $nid = $data['nid'];
+    $nid = is_array($data) ? filter_var($data['nid'] ?? NULL, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : FALSE;
+    if (!$nid) {
+      return;
+    }
     /** @var \Drupal\node\NodeInterface $node */
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
+
+    // Stale items must not prevent the remaining queue from being processed.
+    if (!$node || $node->bundle() !== 'edoovillage') {
+      return;
+    }
+    $countryMissing = $node->get('field_country')->isEmpty();
+    $cityMissing = $node->hasField('field_city') && $node->get('field_city')->isEmpty();
+    if (!$countryMissing && !$cityMissing) {
+      return;
+    }
+    if (
+      Settings::get('labdoo_geocoding_disabled', FALSE)
+      || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)
+      || Settings::get('labdoo_migrate_is_running', FALSE)
+      || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)
+    ) {
+      throw new SuspendQueueException('Geocoding is disabled; retain pending work.');
+    }
+    $modified = FALSE;
 
     if (
       $node
@@ -94,20 +118,37 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
     ) {
       $locationData = $node->get('field_location')->first()->getValue();
       if (isset($locationData['lat']) && isset($locationData['lon'])) {
+        $lat = (float) $locationData['lat'];
+        $lon = (float) $locationData['lon'];
+        if (!is_finite($lat) || !is_finite($lon) || abs($lat) > 90 || abs($lon) > 180 || ($lat == 0 && $lon == 0) || ($lat == -90 && $lon == -180)) {
+          return;
+        }
         $coordinatesData = $this->reverseLookupCoordinates($locationData['lat'], $locationData['lon']);
-        if (!empty($coordinatesData['country_code'])) {
+        if (empty($coordinatesData['country_code']) && empty($coordinatesData['city'])) {
+          throw new SuspendQueueException('Geocoder returned no location; retain pending work.');
+        }
+        if ($countryMissing && !empty($coordinatesData['country_code'])) {
           $countryCode = $coordinatesData['country_code'];
           // Persist the country code back to the entity.
           $node->set('field_country', $countryCode);
+          $modified = TRUE;
         }
-        if (!empty($coordinatesData['city'])) {
+        if ($cityMissing && !empty($coordinatesData['city'])) {
           $nodeCity = $coordinatesData['city'];
           // Persist the city back to the entity if the field exists.
           if ($node->hasField('field_city')) {
             $node->set('field_city', $nodeCity);
+            $modified = TRUE;
           }
         }
+        if (!$modified) {
+          throw new SuspendQueueException('Geocoder did not resolve the missing fields; retain pending work.');
+        }
       }
+    }
+
+    if (!$modified) {
+      return;
     }
 
     // Re-generate title with new country/city data.
@@ -116,8 +157,10 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
     $this->edoovillageCompute->setEdooVillageTitle($node);
 
     // Save the node to persist updated title and fields (country/city).
-    // Use a flag to avoid re-queueing if possible, but __labdoo_edoovillage_enqueue_geocoding 
+    // Use a flag to avoid re-queueing if possible, but __labdoo_edoovillage_enqueue_geocoding
     // already checks if country/city are empty.
+    // Do not enqueue the same geocoding task again from the update hook.
+    $node->skip_geocoding_enqueue = TRUE;
     $node->save();
   }
 
@@ -157,10 +200,12 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
       $msg = $e->getMessage();
       \Drupal::logger('labdoo_edoovillage')->warning('Google Maps reverse geocode failed: @message. Trying fallback Nominatim API...', ['@message' => $msg]);
 
-      // Fallback to Nominatim OpenStreetMap API
+      // Fallback to Nominatim OpenStreetMap API.
       try {
         $client = \Drupal::httpClient();
         $response = $client->get("https://nominatim.openstreetmap.org/reverse?lat={$lat}&lon={$lon}&format=json", [
+          'connect_timeout' => 3,
+          'timeout' => 5,
           'headers' => [
             'User-Agent' => 'Labdoo Geocoding Fallback Bot',
           ],
@@ -187,7 +232,7 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
           strpos($msg, '429') !== FALSE ||
           strpos($msg, 'QuotaExceeded') !== FALSE
         ) {
-          throw new \Drupal\Core\Queue\SuspendQueueException('Google Maps API Error: ' . $msg);
+          throw new SuspendQueueException('Google Maps API Error: ' . $msg);
         }
 
         // Re-throw to ensure the queue item is not deleted for other transient errors.

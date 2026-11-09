@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Database\Database;
 use Drupal\labdoo_migrate\Model\ContentConfigurationModel;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface;
@@ -216,6 +217,10 @@ class SynchronizerCommands extends DrushCommands {
       'profile-picture-only' => FALSE,
     ]
   ): void {
+    $state = \Drupal::state();
+    $previousRunning = $state->get('labdoo_migrate_is_running');
+    $previousIndexing = $state->get('labdoo_migrate.disable_indexing');
+    $activeConnection = Database::getConnection()->getKey();
     try {
       $this->setEnvironment($contentType, $options);
 
@@ -231,8 +236,23 @@ class SynchronizerCommands extends DrushCommands {
         $this->destinationRepository->getProcessedEntitiesSummary()
       );
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
       $this->logger->error($e->getMessage());
+      throw $e;
+    }
+    finally {
+      foreach ([
+        'labdoo_migrate_is_running' => $previousRunning,
+        'labdoo_migrate.disable_indexing' => $previousIndexing,
+      ] as $key => $value) {
+        if ($value === NULL) {
+          $state->delete($key);
+        }
+        else {
+          $state->set($key, $value);
+        }
+      }
+      Database::setActiveConnection($activeConnection);
     }
   }
 
@@ -516,7 +536,7 @@ class SynchronizerCommands extends DrushCommands {
 
     if ($this->profilePictureOnly && $this->contentType !== 'user') {
       $this->logger->error('Option "profile-picture-only" can only be used with content type "user".');
-      die;
+      throw new \InvalidArgumentException('Profile-picture-only requires the user content type.');
     }
 
     if ($this->profilePictureOnly) {
@@ -535,7 +555,7 @@ class SynchronizerCommands extends DrushCommands {
       $ts = strtotime($options['from-date']);
       if ($ts === FALSE) {
         $this->logger->error(sprintf('Invalid value for option "from-date": %s. Expected format: YYYY-MM-DD HH:MM:SS', $options['from-date']));
-        die;
+        throw new \InvalidArgumentException('Invalid from-date value.');
       }
       $this->fromTimestamp = (int) $ts;
     }
@@ -560,7 +580,7 @@ class SynchronizerCommands extends DrushCommands {
         'Invalid value for option "mode". Valid options are "create" and "update"',
       );
       $this->logger->error($errorMessage);
-      die;
+      throw new \InvalidArgumentException('Invalid synchronization mode.');
     }
     $this->create = $options['mode'] === 'create';
 
@@ -623,7 +643,6 @@ class SynchronizerCommands extends DrushCommands {
 
     return $destinationEntities;
   }
-
 
   /**
    * Finishes the process.
