@@ -22,6 +22,7 @@ $testCreated = [];
 $testAliasIds = [];
 $testTransaction = NULL;
 $testResult = NULL;
+$testOriginalTracking = $testDb->select('labdoo_migrate_tracking', 't')->fields('t')->condition('entity_type', 'node')->condition('source_id', [253587,253619], 'IN')->orderBy('source_id')->execute()->fetchAll(\PDO::FETCH_ASSOC);
 $testSource['test_renumber'] = [];
 try {
   foreach ([3178 => 3285, 3177 => 3286] as $old => $new) {
@@ -48,6 +49,10 @@ try {
   // The repair commits only its nested scope. The outer test transaction can
   // roll back the actual restoration, new revisions, aliases and file usage.
   $testTransaction = $testDb->startTransaction();
+  // Exercise both an existing matching mapping and an absent mapping. The
+  // outer test transaction restores the real local tracker state afterwards.
+  $testDb->delete('labdoo_migrate_tracking')->condition('entity_type', 'node')->condition('source_id', [253587,253619], 'IN')->execute();
+  $testDb->insert('labdoo_migrate_tracking')->fields(['entity_type' => 'node', 'bundle' => 'edoovillage', 'source_id' => 253587, 'destination_id' => 253587, 'last_migrated' => 123, 'duration_ms' => 321])->execute();
   ob_start();
   try {
     require dirname(__DIR__, 3) . '/scripts/repair-approved-school-conflicts.php';
@@ -64,6 +69,23 @@ try {
     if (!$school || !$school->get('field_hub')->entity || !$school->get('field_project_manager_s_')->entity || !$school->get('field_edoovillage_photo_album')->entity) {
       throw new RuntimeException('A restored school or required dependency is not loadable.');
     }
+    if ($school->hasField('field_d7_nid') && (int) $school->get('field_d7_nid')->value !== $nid) {
+      throw new RuntimeException('A restored school does not retain its original V2 identity field.');
+    }
+    $tracked = $testDb->select('labdoo_migrate_tracking', 't')->fields('t')->condition('entity_type', 'node')->condition('bundle', 'edoovillage')->condition('source_id', $nid)->execute()->fetchAssoc();
+    if (!$tracked || (int) $tracked['destination_id'] !== $nid || (int) $tracked['last_migrated'] <= 123) {
+      throw new RuntimeException('A restored school migration mapping is absent or incorrect.');
+    }
+  }
+  $testTrackedIds = array_map('intval', \Drupal::service('labdoo_migrate.tracking.migration_tracker')->getMigratedSourceIds('node', 'edoovillage'));
+  if (!in_array(253587, $testTrackedIds, TRUE) || !in_array(253619, $testTrackedIds, TRUE)) {
+    throw new RuntimeException('A subsequent incremental sync would select the restored schools again.');
+  }
+  $testBackupStream = fopen(getenv('LABDOO_SCHOOL_BACKUP'), 'r');
+  $testBackupBefore = json_decode(fgets($testBackupStream), TRUE, 512, JSON_THROW_ON_ERROR);
+  fclose($testBackupStream);
+  if (count($testBackupBefore['tracking_rows']) !== 1 || (int) $testBackupBefore['tracking_rows'][0]['source_id'] !== 253587 || (int) $testBackupBefore['tracking_rows'][0]['duration_ms'] !== 321) {
+    throw new RuntimeException('The original tracking record was not included in the private backup.');
   }
   foreach ($testAliasIds as $id) {
     if (!PathAlias::load($id)) {
@@ -89,4 +111,7 @@ finally {
   }
   $testStorage->resetCache(array_merge($testCreated, [253587, 253619]));
 }
-echo 'PROGRAM_JSON:' . json_encode(['passed' => TRUE, 'restored_source_schools' => 2, 'renumbered_existing_schools' => 2, 'preserved_old_aliases' => count($testAliasIds), 'node_auto_increment_unchanged' => TRUE, 'no_generated_actions_or_queues' => TRUE]);
+if ($testDb->select('labdoo_migrate_tracking', 't')->fields('t')->condition('entity_type', 'node')->condition('source_id', [253587,253619], 'IN')->orderBy('source_id')->execute()->fetchAll(\PDO::FETCH_ASSOC) !== $testOriginalTracking) {
+  throw new RuntimeException('The isolated test did not roll back its migration tracker changes.');
+}
+echo 'PROGRAM_JSON:' . json_encode(['passed' => TRUE, 'restored_source_schools' => 2, 'renumbered_existing_schools' => 2, 'preserved_old_aliases' => count($testAliasIds), 'source_identity_checked_when_field_exists' => TRUE, 'tracker_rows_checked' => 2, 'incremental_excludes_restored_schools' => TRUE, 'tracker_backup_checked' => TRUE, 'node_auto_increment_unchanged' => TRUE, 'no_generated_actions_or_queues' => TRUE]);

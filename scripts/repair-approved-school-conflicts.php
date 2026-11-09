@@ -94,6 +94,22 @@ try {
       Database::setActiveConnection($connection_key);
     }
   }
+  $tracking_before = $db->query('SELECT * FROM {labdoo_migrate_tracking} WHERE entity_type=:type AND (source_id IN (:sources[]) OR destination_id IN (:destinations[])) ORDER BY source_id', [':type' => 'node', ':sources[]' => array_keys($restore), ':destinations[]' => array_keys($restore)])->fetchAll(\PDO::FETCH_ASSOC);
+  foreach ($tracking_before as $row) {
+    $source_id = (int) $row['source_id'];
+    if ($row['bundle'] !== 'edoovillage' || !isset($restore[$source_id]) || (int) $row['destination_id'] !== $source_id) {
+      throw new RuntimeException('An approved school has a conflicting migration tracking mapping.');
+    }
+  }
+  $source_identity_field = Node::create(['type' => 'edoovillage'])->hasField('field_d7_nid');
+  if ($source_identity_field) {
+    $identity_nodes = \Drupal::entityQuery('node')->accessCheck(FALSE)->condition('field_d7_nid', array_keys($restore), 'IN')->execute();
+    foreach ($identity_nodes as $identity_nid) {
+      if (!isset($restore[(int) $identity_nid])) {
+        throw new RuntimeException('An approved V2 school identity already belongs to another V3 node.');
+      }
+    }
+  }
   $already_done = TRUE;
   foreach ($renumber as $nid => $change) {
     $node = $storage->load($nid);
@@ -107,6 +123,13 @@ try {
     $already_done = $already_done && $node && str_starts_with($node->getTitle(), 'Edoovillage #' . $number . ' - ');
   }
   if ($already_done) {
+    $tracked_ids = array_map(static fn($row) => (int) $row['source_id'], $tracking_before);
+    foreach (array_keys($restore) as $nid) {
+      $existing = $storage->load($nid);
+      if (!in_array($nid, $tracked_ids, TRUE) || ($existing->hasField('field_d7_nid') && (int) $existing->get('field_d7_nid')->value !== $nid)) {
+        throw new RuntimeException('Restored schools have incomplete migration identity metadata; review is required.');
+      }
+    }
     echo json_encode(['mode' => 'already-applied', 'restored' => $restore, 'renumbered' => $renumber], JSON_PRETTY_PRINT) . PHP_EOL;
     return;
   }
@@ -200,11 +223,15 @@ try {
       $snapshot[$table] = $db->select($table, 't')->fields('t')->condition($id_column, array_merge(array_keys($restore), array_keys($renumber)), 'IN')->execute()->fetchAll(\PDO::FETCH_ASSOC);
     }
   }
-  $entry = ['kind' => 'before', 'plan' => $plan, 'node_tables' => $snapshot, 'aliases' => $aliases_before, 'source' => $source_data, 'state' => $state_before];
+  $entry = ['kind' => 'before', 'plan' => $plan, 'node_tables' => $snapshot, 'aliases' => $aliases_before, 'source' => $source_data, 'state' => $state_before, 'tracking_rows' => $tracking_before];
   if (fwrite($backup, json_encode($entry, JSON_THROW_ON_ERROR) . PHP_EOL) === FALSE || !fflush($backup) || !fsync($backup)) {
     throw new RuntimeException('Cannot persist the backup before repair.');
   }
   $transaction = $db->startTransaction();
+  $tracking_now = $db->query('SELECT * FROM {labdoo_migrate_tracking} WHERE entity_type=:type AND bundle=:bundle AND source_id IN (:ids[]) ORDER BY source_id FOR UPDATE', [':type' => 'node', ':bundle' => 'edoovillage', ':ids[]' => array_keys($restore)])->fetchAll(\PDO::FETCH_ASSOC);
+  if ($tracking_now !== $tracking_before) {
+    throw new RuntimeException('School tracking changed since backup; repair aborted.');
+  }
   $GLOBALS['labdoo_scoped_school_repair'] = array_fill_keys(array_keys($restore), TRUE) + array_fill_keys(array_keys($renumber), FALSE);
   foreach ($state_keys as $name) {
     $state->set($name, TRUE);
@@ -307,6 +334,12 @@ try {
         $translation->set('field_address', ['country_code' => strtoupper((string) $translation->get('field_country')->value), 'locality' => $translation->get('field_city')->value]);
       }
     }
+    if ($node->hasField('field_d7_nid')) {
+      if ((int) $node->get('field_d7_nid')->value !== 0 && (int) $node->get('field_d7_nid')->value !== $nid) {
+        throw new RuntimeException('Restored school has a conflicting original V2 node identity.');
+      }
+      $node->set('field_d7_nid', $nid);
+    }
     $node->original_entity_id = $nid;
     $node->skip_action_generation = TRUE;
     $node->skip_recompute_enqueue = TRUE;
@@ -317,6 +350,11 @@ try {
     $node->save();
     if ((int) $node->id() !== $nid || !str_starts_with($node->getTitle(), 'Edoovillage #' . $number . ' - ')) {
       throw new RuntimeException('Restored school did not retain its approved identity.');
+    }
+    \Drupal::service('labdoo_migrate.tracking.migration_tracker')->track('node', 'edoovillage', $nid, $nid);
+    $tracked_destination = $db->select('labdoo_migrate_tracking', 't')->fields('t', ['destination_id'])->condition('entity_type', 'node')->condition('bundle', 'edoovillage')->condition('source_id', $nid)->execute()->fetchField();
+    if ((int) $tracked_destination !== $nid) {
+      throw new RuntimeException('Restored school migration identity was not recorded.');
     }
   }
   foreach ($aliases_to_add as $alias) {
