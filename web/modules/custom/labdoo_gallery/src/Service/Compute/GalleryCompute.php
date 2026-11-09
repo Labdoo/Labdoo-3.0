@@ -53,6 +53,9 @@ class GalleryCompute implements GalleryComputeInterface {
    * {@inheritdoc}
    */
   public function enqueueGalleryCreateOrUpdate(EntityInterface $entity): void {
+    if (\Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
+      return;
+    }
     // Only enqueue if it's a new entity or the label has changed.
     if (
       !$entity->isNew()

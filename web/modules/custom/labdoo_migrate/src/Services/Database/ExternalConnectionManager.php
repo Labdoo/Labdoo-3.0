@@ -52,6 +52,11 @@ class ExternalConnectionManager implements ConnectionManagerInterface {
    * {@inheritDoc}
    */
   public function setConnection(): Connection {
+    // Legacy importers share this entry point. Do not let them bypass a delta
+    // writer's lock and overwrite nodes between its identity/hash checks.
+    if (empty($GLOBALS['labdoo_incremental_lock_owner']) && !\Drupal::lock()->lockMayBeAvailable('labdoo_migrate.delta')) {
+      throw new \RuntimeException('Incremental migration is active; wait before running legacy imports.');
+    }
     Database::setActiveConnection(self::DB_KEY);
     return Database::getConnection(self::DB_KEY);
   }

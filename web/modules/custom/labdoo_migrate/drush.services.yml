@@ -186,3 +186,9 @@ services:
       - '@labdoo_migrate.tracking.migration_tracker'
     tags:
       - { name: drush.command }
+
+  labdoo_migrate.incremental_commands:
+    class: Drupal\labdoo_migrate\Commands\IncrementalCommands
+    arguments: ['@database', '@labdoo_migrate.database.external_connection_manager', '@lock']
+    tags:
+      - { name: drush.command }

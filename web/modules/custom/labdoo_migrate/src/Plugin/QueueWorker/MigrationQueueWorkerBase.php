@@ -100,6 +100,9 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
    * {@inheritdoc}
    */
   public function processItem($data): void {
+    if (empty($GLOBALS['labdoo_incremental_lock_owner']) && !\Drupal::lock()->lockMayBeAvailable('labdoo_migrate.delta')) {
+      throw new \Drupal\Core\Queue\SuspendQueueException('Incremental writer active; retain legacy migration work.');
+    }
     $state = \Drupal::state();
     $previousRunning = $state->get('labdoo_migrate_is_running');
     $activeConnection = Database::getConnection()->getKey();
