@@ -230,7 +230,9 @@ class CommonRepository {
    */
   public function getBundleCount(string $bundle): int {
     $query = $this->database->select('node_field_data', 'n');
+    $query->innerJoin('node', 'base', 'base.nid = n.nid');
     $query->condition('n.type', $bundle);
+    $query->condition('n.default_langcode', 1);
     try {
       return (int) $query->countQuery()->execute()->fetchField();
     }
@@ -254,8 +256,10 @@ class CommonRepository {
    */
   public function getEdoovillagesCount(?int $userId = NULL): int {
     $query = $this->database->select('node_field_data', 'n');
+    $query->innerJoin('node', 'base', 'base.nid = n.nid');
     $query->addExpression('COUNT(*)');
     $query->condition('n.type', 'edoovillage');
+    $query->condition('n.default_langcode', 1);
 
     if ($userId !== NULL) {
       $query->condition('n.uid', $userId);
@@ -385,6 +389,9 @@ class CommonRepository {
    *   The previous entity ID.
    */
   public function getPreviousEntity(int $entityId, string $type): int {
+    if ($type === 'edoovillage') {
+      return $this->getEdoovillageNeighbor($entityId, -1);
+    }
     $query = $this->database->select('node_field_data', 'n');
     $query->join('node', 'base', 'n.nid = base.nid');
     $query->addField('n', 'nid');
@@ -426,6 +433,9 @@ class CommonRepository {
    *   The next entity ID.
    */
   public function getNextEntity(int $entityId, string $type): int {
+    if ($type === 'edoovillage') {
+      return $this->getEdoovillageNeighbor($entityId, 1);
+    }
     $query = $this->database->select('node_field_data', 'n');
     $query->join('node', 'base', 'n.nid = base.nid');
     $query->addField('n', 'nid');
@@ -484,6 +494,43 @@ class CommonRepository {
 
       return -1;
     }
+  }
+
+  /**
+   * Navigates schools by their public number, including legacy unnumbered names.
+   */
+  private function getEdoovillageNeighbor(int $nid, int $direction): int {
+    $cid = 'edoovillage_numeric_navigation';
+    $cached = $this->cacheBackend->get($cid);
+    if ($cached) {
+      $ordered = $cached->data;
+    }
+    else {
+      $query = $this->database->select('node_field_data', 'n');
+      $query->innerJoin('node', 'base', 'base.nid = n.nid');
+      $rows = $query->fields('n', ['nid', 'title'])
+        ->condition('n.type', 'edoovillage')
+        ->condition('n.status', 1)
+        ->condition('n.default_langcode', 1)
+        ->orderBy('n.nid')->execute()->fetchAll();
+      $ranked = [];
+      $legacyNumber = 0;
+      foreach ($rows as $row) {
+        // The first legacy schools predate numbered titles. Preserve their
+        // established order, then use the explicit public number when present.
+        $number = preg_match('/^Edoovillage\s+#(\d+)/i', $row->title, $match)
+          ? (int) $match[1] : ++$legacyNumber;
+        $ranked[] = ['nid' => (int) $row->nid, 'number' => $number];
+      }
+      usort($ranked, static fn(array $a, array $b): int => [$a['number'], $a['nid']] <=> [$b['number'], $b['nid']]);
+      $ordered = array_column($ranked, 'nid');
+      $this->cacheBackend->set($cid, $ordered, CacheBackendInterface::CACHE_PERMANENT, ['node_list:edoovillage']);
+    }
+    $index = array_search($nid, $ordered, TRUE);
+    if ($index === FALSE || !$ordered) {
+      return -1;
+    }
+    return $ordered[($index + $direction + count($ordered)) % count($ordered)];
   }
 
   /**

@@ -19,7 +19,7 @@ class SequenceManager implements SequenceManagerInterface {
   /**
    * Lock timeout in seconds.
    */
-  private const LOCK_TIMEOUT = 15;
+  private const LOCK_TIMEOUT = 360;
 
   /**
    * Max time to wait for an existing lock to be released.
@@ -39,7 +39,6 @@ class SequenceManager implements SequenceManagerInterface {
    * @var \Drupal\Core\Database\Connection
    */
   private Connection $database;
-
 
   /**
    * SequenceManager constructor.
@@ -71,7 +70,13 @@ class SequenceManager implements SequenceManagerInterface {
       }
     }
 
-    return $this->findFirstAvailableTitleId();
+    try {
+      return $this->findFirstAvailableTitleId();
+    }
+    catch (\Throwable $exception) {
+      $this->commit();
+      throw $exception;
+    }
   }
 
   /**
@@ -96,7 +101,10 @@ class SequenceManager implements SequenceManagerInterface {
       ->fields('n', ['title'])
       ->condition('n.type', 'edoovillage')
       ->condition('n.title', 'Edoovillage #%', 'LIKE')
+      ->condition('n.default_langcode', 1)
       ->orderBy('n.title', 'ASC');
+    // Deleted nodes can leave stale field rows; those must not reserve IDs.
+    $query->innerJoin('node', 'base', 'base.nid = n.nid');
 
     $result = $query->execute();
 
