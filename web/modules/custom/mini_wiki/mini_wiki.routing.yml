@@ -10,7 +10,7 @@ entity.mini_wiki_page.add_form:
   path: '/wiki-page/add/{parent}'
   defaults:
     _entity_form: 'mini_wiki_page.add'
-    _title: 'Create mini Wiki Page'
+    _title: 'Create Wiki Page'
     parent: NULL
   requirements:
     _entity_create_access: 'mini_wiki_page'

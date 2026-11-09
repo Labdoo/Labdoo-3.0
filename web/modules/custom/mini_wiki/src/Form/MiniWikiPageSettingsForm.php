@@ -56,7 +56,7 @@ final class MiniWikiPageSettingsForm extends ConfigFormBase {
     $form['root_page'] = [
       '#type' => 'select',
       '#title' => $this->t('Root page'),
-      '#description' => $this->t('Select the root page for the mini wiki. If not set, the first page without parent will be used.'),
+      '#description' => $this->t('Select the root page for the wiki. If not set, the first page without parent will be used.'),
       '#options' => $options,
       '#default_value' => $config->get('root_page') ?? '',
     ];
