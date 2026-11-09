@@ -125,7 +125,8 @@ final class LabdooPublicFileUriAliases {
       }
       try {
         $old = self::relative($record['file']['uri']);
-        $canonical = self::relative($record['after']['uri']);
+        $canonical = self::relative($record['proof']['canonical_uri'] ?? $record['after']['uri']);
+        $mode = !empty($record['proof']['requires_independent_entry']) ? 'hardlink' : 'symlink';
         $target = realpath($this->root . '/' . $canonical);
         $parent = $this->parent($old);
         if (!$target || !$this->contained($target) || !is_file($target) || filesize($target) !== $record['proof']['actual_bytes'] || filemtime($target) !== $record['proof']['physical_mtime']) {
@@ -137,7 +138,7 @@ final class LabdooPublicFileUriAliases {
         }
         $link = self::linkTarget($parent, $target);
         if (is_link($path)) {
-          if (readlink($path) === $link && realpath($path) === $target) {
+          if ($mode === 'symlink' && readlink($path) === $link && realpath($path) === $target) {
             $counts['already_alias']++;
           }
           else {
@@ -146,6 +147,14 @@ final class LabdooPublicFileUriAliases {
           continue;
         }
         $before = ['kind' => 'missing'];
+        if ($mode === 'hardlink' && is_file($path) && !is_link($path)) {
+          $oldStat = lstat($path);
+          $targetStat = lstat($target);
+          if ($oldStat['dev'] === $targetStat['dev'] && $oldStat['ino'] === $targetStat['ino'] && $oldStat['nlink'] >= 2) {
+            $counts['already_alias']++;
+            continue;
+          }
+        }
         if (file_exists($path)) {
           if (empty($record['proof']['placeholder_metadata']) || !self::placeholder($path)) {
             $counts['protected_existing']++;
@@ -154,7 +163,7 @@ final class LabdooPublicFileUriAliases {
           $stat = lstat($path);
           $before = ['kind' => 'placeholder', 'base64' => self::PLACEHOLDER, 'stat' => array_intersect_key($stat, array_flip(['dev', 'ino', 'mode', 'uid', 'gid', 'mtime']))];
         }
-        $records[] = ['operation' => bin2hex(random_bytes(12)), 'fid' => (int) $record['file']['fid'], 'uuid' => $record['file']['uuid'], 'status' => $record['file']['status'], 'old_uri' => $record['file']['uri'], 'canonical_uri' => $record['after']['uri'], 'old_relative' => $old, 'canonical_relative' => $canonical, 'parent' => $parent, 'target' => $target, 'link_target' => $link, 'before' => $before, 'target_bytes' => $record['proof']['actual_bytes'], 'target_mtime' => $record['proof']['physical_mtime']];
+        $records[] = ['operation' => bin2hex(random_bytes(12)), 'fid' => (int) $record['file']['fid'], 'uuid' => $record['file']['uuid'], 'status' => $record['file']['status'], 'old_uri' => $record['file']['uri'], 'expected_uri' => $record['after']['uri'], 'canonical_uri' => $record['proof']['canonical_uri'] ?? $record['after']['uri'], 'mode' => $mode, 'old_relative' => $old, 'canonical_relative' => $canonical, 'parent' => $parent, 'target' => $target, 'link_target' => $link, 'before' => $before, 'target_bytes' => $record['proof']['actual_bytes'], 'target_mtime' => $record['proof']['physical_mtime']];
         $counts['repairable']++;
       }
       catch (RuntimeException) {
@@ -173,7 +182,7 @@ final class LabdooPublicFileUriAliases {
     try {
       self::durable($backup, ['kind' => 'alias_header', 'schema' => 1, 'database' => $this->database->getConnectionOptions()['database'], 'root' => $this->root, 'captured_at' => gmdate('c')]);
       foreach ($plan['records'] as $record) {
-        if (!$this->validateMetadata(['file' => ['fid' => $record['fid'], 'uuid' => $record['uuid'], 'status' => $record['status']], 'after' => ['uri' => $record['canonical_uri']]])) {
+        if (!$this->validateMetadata(['file' => ['fid' => $record['fid'], 'uuid' => $record['uuid'], 'status' => $record['status']], 'after' => ['uri' => $record['expected_uri'] ?? $record['canonical_uri']]])) {
           throw new RuntimeException('File metadata changed before alias creation.');
         }
         clearstatcache();
@@ -204,15 +213,16 @@ final class LabdooPublicFileUriAliases {
             throw new RuntimeException('Concurrent file replacement was preserved; no alias was created.');
           }
         }
-        // symlink() is no-clobber: an unexpected file is never overwritten.
-        if (!@symlink($record['link_target'], $path)) {
+        // Both link() and symlink() are no-clobber: never overwrite a path.
+        $linked = $record['mode'] === 'hardlink' ? @link($target, $path) : @symlink($record['link_target'], $path);
+        if (!$linked) {
           if ($record['before']['kind'] === 'placeholder' && !file_exists($path) && !is_link($path) && link($hold, $path)) {
             unlink($hold);
           }
           throw new RuntimeException('Cannot create alias without overwriting an existing path.');
         }
         $after = lstat($path);
-        self::durable($backup, ['kind' => 'alias_applied', 'operation' => $record['operation'], 'dev' => $after['dev'], 'ino' => $after['ino'], 'ctime' => $after['ctime']]);
+        self::durable($backup, ['kind' => 'alias_applied', 'operation' => $record['operation'], 'dev' => $after['dev'], 'ino' => $after['ino'], 'ctime' => $after['ctime'], 'nlink' => $after['nlink'], 'entry_type' => $record['mode']]);
         if ($record['before']['kind'] === 'placeholder' && self::placeholder($hold)) {
           unlink($hold);
         }
@@ -266,12 +276,23 @@ final class LabdooPublicFileUriAliases {
           continue;
         }
       }
-      if (!$after || $parent !== $record['parent'] || !is_link($path)) {
+      if (!$after || $parent !== $record['parent'] || (!file_exists($path) && !is_link($path))) {
         $conflicts++;
         continue;
       }
       $stat = lstat($path);
-      if ($stat['dev'] !== $after['dev'] || $stat['ino'] !== $after['ino'] || $stat['ctime'] !== $after['ctime'] || readlink($path) !== $record['link_target']) {
+      if (($record['mode'] ?? 'symlink') === 'hardlink') {
+        $canonical = realpath($this->root . '/' . self::relative($record['canonical_uri']));
+        $targetStat = $canonical && $this->contained($canonical) ? lstat($canonical) : FALSE;
+        // Never unlink the last surviving copy or a path whose canonical
+        // owner has since replaced/deleted its entry. Reverse-order rollback
+        // restores nlink counts even when this run created several links.
+        $owned = !is_link($path) && $targetStat && $stat['dev'] === $after['dev'] && $stat['ino'] === $after['ino'] && $stat['nlink'] === $after['nlink'] && $stat['nlink'] >= 2 && $targetStat['dev'] === $stat['dev'] && $targetStat['ino'] === $stat['ino'];
+      }
+      else {
+        $owned = is_link($path) && $stat['dev'] === $after['dev'] && $stat['ino'] === $after['ino'] && $stat['ctime'] === $after['ctime'] && readlink($path) === $record['link_target'];
+      }
+      if (!$owned) {
         $conflicts++;
         continue;
       }

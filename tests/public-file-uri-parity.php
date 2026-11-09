@@ -168,7 +168,7 @@ try {
   $files[] = (int) $owner->id();
   $ownedFile = $create('owned.png');
   $negative = $runner([$ownedSource])->plan([(int) $ownedFile->id()]);
-  $assert(($negative['summary']['uri_already_managed'] ?? 0) === 1 && !$negative['records'], 'An original already owned by another FID must not create duplicate URIs.');
+  $assert(($negative['summary']['kept_uri_requires_hardlink'] ?? 0) === 1 && $negative['records'][0]['after']['uri'] === $negative['records'][0]['file']['uri'], 'An original already owned by another FID must preserve an independent URI.');
   $passed[] = 'existing target ownership preserved';
 
   $sharedSource = $source('planned.png');
@@ -177,6 +177,16 @@ try {
   $negative = $runner([$sharedSource])->plan([(int) $sharedA->id(), (int) $sharedB->id()]);
   $assert(($negative['summary']['planned_uri_collision'] ?? 0) === 2 && !$negative['records'], 'Two planned FIDs must not silently share one target URI.');
   $passed[] = 'planned URI collisions rejected';
+
+  $normalizedSource = $source('normalized.png');
+  $normalizedOwner = File::create(['filename' => 'normalized.png', 'uri' => str_replace('/normalized.png', '//normalized.png', $normalizedSource['uri']), 'filemime' => 'image/png', 'filesize' => strlen($png), 'status' => 1]);
+  $normalizedOwner->save();
+  $files[] = (int) $normalizedOwner->id();
+  $normalizedFile = $create('normalized.png');
+  $normalizedPlan = $runner([$normalizedSource])->plan([(int) $normalizedFile->id()]);
+  $assert($normalizedPlan['summary']['kept_uri_requires_hardlink'] === 1 && $normalizedPlan['records'][0]['after']['uri'] === $normalizedPlan['records'][0]['file']['uri'], 'Double-slash ownership must preserve a separate managed URI.');
+  $assert($normalizedPlan['records'][0]['proof']['canonical_owner_fids'] === [(int) $normalizedOwner->id()], 'Normalized ownership must identify the actual existing FID.');
+  $passed[] = 'double-slash ownership preserved';
 
   $assert($nodeCounters() === $beforeNodes, 'Node and node-revision counters/maximum IDs must stay unchanged.');
   $passed[] = 'node sequences and revisions unchanged';

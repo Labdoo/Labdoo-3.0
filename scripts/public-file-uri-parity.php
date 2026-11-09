@@ -58,7 +58,9 @@ final class LabdooPublicFileUriParity {
 
   private function loadSources(): void {
     foreach ($this->database->query('SELECT fid, uri FROM {file_managed}')->fetchAll() as $file) {
-      $this->targetOwners[$file->uri][] = (int) $file->fid;
+      $relative = self::relativePath($file->uri);
+      $key = $relative !== NULL ? 'public://' . $relative : $file->uri;
+      $this->targetOwners[$key][] = (int) $file->fid;
     }
     $rows = $this->sourceFixture ?? $this->source?->query('SELECT fid, uuid, filename, uri, filemime, filesize FROM {file_managed}')->fetchAll(PDO::FETCH_ASSOC);
     if ($rows === NULL) {
@@ -127,10 +129,11 @@ final class LabdooPublicFileUriParity {
     if ($file['filesize'] !== NULL && (int) $file['filesize'] !== $bytes && !$placeholder) {
       return ['skip' => 'v3_size_conflict'];
     }
-    $after = ['uri' => 'public://' . $source['relative']];
-    if (array_diff($this->targetOwners[$after['uri']] ?? [], [(int) $file['fid']])) {
-      return ['skip' => 'uri_already_managed'];
-    }
+    $canonicalUri = 'public://' . $source['relative'];
+    $otherOwners = array_values(array_diff($this->targetOwners[$canonicalUri] ?? [], [(int) $file['fid']]));
+    // Another FID already owns this physical original. Keep an independent
+    // managed path and let the filesystem phase create a guarded hardlink.
+    $after = ['uri' => $otherOwners ? $file['uri'] : $canonicalUri];
     if ($placeholder || $file['filesize'] === NULL) {
       $after['filesize'] = $bytes;
       $after['filemime'] = $mime;
@@ -141,11 +144,14 @@ final class LabdooPublicFileUriParity {
       }
       $after['filename'] = $source['filename'];
     }
-    if (!array_diff_assoc($after, $file)) {
+    if (!array_diff_assoc($after, $file) && !$otherOwners) {
       return ['skip' => 'already_consistent'];
     }
     $proofData = [
       'identity' => $proof,
+      'canonical_uri' => $canonicalUri,
+      'canonical_owner_fids' => $otherOwners,
+      'requires_independent_entry' => (bool) $otherOwners,
       'source_fid' => (int) $source['fid'],
       'source_uri' => $source['uri'],
       'source_filename' => $source['filename'],
@@ -234,6 +240,8 @@ final class LabdooPublicFileUriParity {
     $this->attachReferenceUpdates($records);
     $counts['dimension_rows'] = array_sum(array_map(static fn(array $record): int => count($record['updates']), $records));
     $counts['checksum_samples'] = $this->hashSamples;
+    $counts['kept_uri_requires_hardlink'] = count(array_filter($records, static fn(array $record): bool => $record['proof']['requires_independent_entry']));
+    $counts['uri_repoints'] = count($records) - $counts['kept_uri_requires_hardlink'];
     return ['schema' => 1, 'captured_at' => gmdate('c'), 'database' => $this->database->getConnectionOptions()['database'], 'summary' => $counts, 'records' => $records];
   }
 
@@ -421,9 +429,11 @@ final class LabdooPublicFileUriParity {
                 throw new RuntimeException('Image metadata update did not match exactly one row.');
               }
             }
-            $query = $this->database->update('file_managed')->fields($record['after'])->condition('fid', $before['fid'])->condition('uri', $before['uri']);
-            if ($query->execute() !== 1) {
-              throw new RuntimeException('File URI update did not match exactly one row.');
+            if (array_diff_assoc($record['after'], $before)) {
+              $query = $this->database->update('file_managed')->fields($record['after'])->condition('fid', $before['fid'])->condition('uri', $before['uri']);
+              if ($query->execute() !== 1) {
+                throw new RuntimeException('File metadata update did not match exactly one row.');
+              }
             }
             $tags = array_merge($tags, $record['tags']);
             $applied++;
@@ -489,7 +499,7 @@ final class LabdooPublicFileUriParity {
             }
           }
           $before = array_intersect_key($record['file'], $record['after']);
-          if ($this->database->update('file_managed')->fields($before)->condition('fid', $record['file']['fid'])->condition('uri', $record['after']['uri'])->execute() !== 1) {
+          if (array_diff_assoc($before, $record['after']) && $this->database->update('file_managed')->fields($before)->condition('fid', $record['file']['fid'])->condition('uri', $record['after']['uri'])->execute() !== 1) {
             throw new RuntimeException('File rollback did not match exactly one row.');
           }
           $tags = array_merge($tags, $record['tags']);
