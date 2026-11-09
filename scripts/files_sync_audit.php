@@ -35,7 +35,7 @@ do {
     }
     $report['managed_public_files']++;
     $relative = substr($row->uri, strlen('public://'));
-    if (str_contains($relative, '..')) {
+    if (in_array('..', explode('/', $relative), TRUE)) {
       $report['managed_public_missing']++;
       continue;
     }
