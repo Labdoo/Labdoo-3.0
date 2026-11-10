@@ -113,3 +113,35 @@ drush labdoo-delta:import-users 9894 --apply
 El primer comando sólo informa. El segundo sólo crea usuarios ausentes con su UID original; las colisiones y las cuentas ya existentes quedan protegidas. No envía notificaciones ni modifica automáticamente el equipo global. El estado de migración se restaura al terminar. No genera traducciones ni crea nodos de prueba.
 
 El preview también valida las dependencias y mappings de las altas sin guardarlas, de forma que una referencia no verificable aparece como `unsupported` antes de ejecutar apply. Las Actions regeneradas siguen requiriendo una política explícita de reconciliación histórica: la coincidencia de textos o fechas por sí sola no demuestra identidad de acontecimientos.
+
+## Altas con dependencias y ciclos
+
+Las escrituras se ejecutan durante una ventana de mantenimiento con cron y demás escritores detenidos y las peticiones de administración drenadas. Las guardas de hashes no sustituyen esa exclusión: dos bases distintas no forman una transacción global y, con aislamiento REPEATABLE READ, no se promete protección perfecta frente a escrituras ajenas simultáneas.
+
+La opción siguiente es explícita y sólo afecta a altas nuevas cuyas referencias a nodos estén demostradas en V2:
+
+```sh
+drush labdoo-delta:preview all --stage-new-dependencies --max-items=500
+drush labdoo-delta:plan hub --stage-new-dependencies
+# Repetir plan para los demás tipos y conservar cada RUN_ID.
+drush labdoo-delta:apply RUN_ID --max-items=500
+```
+
+Las altas incompletas quedan sin publicar, con operación `create_staged` y estado `waiting_refs`. No tienen baseline ni se consideran completas. Los descriptores conservan la identidad de la referencia, las huellas de fuente, las fotos del álbum y el UUID/hash del nodo creado. Un manifiesto distinto no puede adoptar esa entidad parcial como equivalente. Los usuarios ausentes, identidades ambiguas y datos inválidos siguen bloqueados; no se aplazan mediante esta opción.
+
+Después de crear explícitamente todos los nodos necesarios, los ciclos entre dispositivos y viajes pueden resolverse sin inventar IDs. Los álbumes se importan aparte, exclusivamente desde las dependencias del manifiesto:
+
+```sh
+drush labdoo-delta:import-galleries RUN_ID --limit=100
+# Tras revisar el preview y con respaldo:
+drush labdoo-delta:import-galleries RUN_ID --limit=100 --apply
+# Repetir por páginas usando next_after como --after.
+drush labdoo-delta:apply RUN_ID --retry-dependencies --max-items=500
+drush labdoo-delta:enqueue-derived RUN_ID --limit=100
+```
+
+El importador crea únicamente galerías/fotos que falten y verifica originales sincronizados, MIME, tamaño, SHA256, orden y títulos alternativos. Conserva álbumes existentes y rechaza fotos extra o cambios locales. Usa IDs automáticos para galerías nuevas y rechaza un rango que pueda ocupar NIDs aún reservados al origen. No guarda el propietario: el retry comprueba todas las dependencias, enlaza y restaura la publicación de V2 antes de crear el baseline. Una repetición completa no genera revisiones adicionales. No reabrir el sitio mientras queden `waiting_refs`, errores, conflictos o colas derivadas pendientes.
+
+`labdoo-delta:import-users UIDS --source-roles` permite revisar roles no administrativos ya contemplados por el mapper de Labdoo; `--apply` restaura únicamente esas cuentas ausentes. Roles administrativos o desconocidos permanecen bloqueados incluso con esa opción.
+
+Alcance: nueve tipos de nodo configurados y sus dependencias nuevas. Cambios de fotos en un álbum ya existente no modifican por sí solos el hash de su escuela/hub; su actualización sigue siendo una fase separada de galerías. No se afirma paridad completa de usuarios, comentarios, archivos o tipos sin mapping. Las Actions necesitan el plan específico de sustitución revisable de `docs/actions-replacement-review.md`; su importación automática permanece protegida. Los nueve pares de identificadores físicos pendientes de revisión humana tampoco están autorizados para renumeración: revisar esos nodos antes de cualquier aplicación de títulos desde V2.

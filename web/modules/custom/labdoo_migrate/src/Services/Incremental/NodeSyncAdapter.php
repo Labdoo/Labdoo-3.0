@@ -20,6 +20,10 @@ final class NodeSyncAdapter {
   private array $comparisonNodes = [];
   private array $references = ['node' => [], 'user' => []];
   private bool $referencesPrimed = FALSE;
+  private bool $stagingNewDependencies = FALSE;
+  private bool $validatingNewDependencies = FALSE;
+  private array $stagedDependencies = [];
+  private ?array $stagedGallery = NULL;
   private const MAX_REFERENCE_IDS = 50000;
   private const VERSION = 'node-projection-v1';
 
@@ -50,7 +54,7 @@ final class NodeSyncAdapter {
       throw new \InvalidArgumentException('Unsupported incremental node type: ' . $type);
     }
     $semantics = ['version' => self::VERSION, 'mapping' => $mapping, 'global' => json_decode(file_get_contents(dirname(__DIR__, 3) . '/config/fields_mapping/global.json'), TRUE, 512, JSON_THROW_ON_ERROR), 'default_language' => \Drupal::languageManager()->getDefaultLanguage()->getId(), 'code' => []];
-    foreach ([__FILE__, __DIR__ . '/NodeSourceReader.php', __DIR__ . '/StorySectionAdapter.php', __DIR__ . '/ManagedFileIdentity.php', __DIR__ . '/ReadOnlyEntityLoader.php', __DIR__ . '/DerivedFields.php', __DIR__ . '/GeneratedIdentityResolver.php'] as $path) { $semantics['code'][basename($path)] = hash_file('sha256', $path); }
+    foreach ([__FILE__, __DIR__ . '/NodeSourceReader.php', __DIR__ . '/StorySectionAdapter.php', __DIR__ . '/ManagedFileIdentity.php', __DIR__ . '/ReadOnlyEntityLoader.php', __DIR__ . '/DerivedFields.php', __DIR__ . '/GeneratedIdentityResolver.php', __DIR__ . '/GalleryDependencyImporter.php'] as $path) { $semantics['code'][basename($path)] = hash_file('sha256', $path); }
     $definitions = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $mapping['destination_types'][0]);
     foreach ($definitions as $name => $definition) {
       if (!$definition->isComputed()) {
@@ -256,7 +260,7 @@ final class NodeSyncAdapter {
   }
 
   /** Validate a proposed new node without saving it or reserving any IDs. */
-  public function validateNew(string $type, int $sourceId): array {
+  public function validateNew(string $type, int $sourceId, bool $stageNewDependencies = FALSE): array {
     $context = $this->context($type);
     $snapshot = $this->snapshotType === $type && isset($this->snapshot['nodes'][$sourceId]) ? $this->snapshot : $this->reader->snapshots($type, [$sourceId]);
     $root = $snapshot['nodes'][$sourceId] ?? NULL;
@@ -264,8 +268,125 @@ final class NodeSyncAdapter {
     $lang = $root['language'] ?? '';
     if (!$lang || $lang === 'und') { $lang = \Drupal::languageManager()->getDefaultLanguage()->getId(); }
     $node = ReadOnlyEntityLoader::storage('node')->create(['type' => $context['bundle'], 'langcode' => $lang]);
-    [, $unsupported] = $this->projection($type, $sourceId, $node);
-    return ['unsupported' => $unsupported];
+    [, $unsupported, $dependencies] = $this->projectNew($type, $sourceId, $node, $stageNewDependencies);
+    return ['unsupported' => $unsupported, 'dependencies' => $dependencies];
+  }
+
+  /** Explicit staging changes only unresolved, source-proven node references. */
+  private function projectNew(string $type, int $sourceId, NodeInterface $node, bool $stage): array {
+    $prior = [$this->stagingNewDependencies, $this->stagedDependencies, $this->stagedGallery, $this->validatingNewDependencies];
+    $this->stagingNewDependencies = $stage; $this->validatingNewDependencies = TRUE; $this->stagedDependencies = []; $this->stagedGallery = NULL;
+    $errors = [];
+    try {
+      if (in_array($type, ['hub', 'edoovillage'], TRUE)) {
+        $inspection = (new GalleryDependencyImporter($this->source, $this->destination))->inspect($type, $sourceId);
+        if (!empty($inspection['blocked'])) { $errors[] = 'Gallery dependency blocked: ' . $inspection['blocked']; }
+        elseif (!empty($inspection['dependency'])) {
+          if (!$stage) { $errors[] = 'New owner gallery requires explicit dependency staging'; }
+          else { $this->stagedGallery = $inspection['dependency']; $this->stagedDependencies[] = $this->stagedGallery; }
+        }
+      }
+      [$values, $unsupported] = $this->projection($type, $sourceId, $node);
+      return [$values, array_values(array_unique(array_merge($errors, $unsupported))), $this->stagedDependencies];
+    }
+    finally { [$this->stagingNewDependencies, $this->stagedDependencies, $this->stagedGallery, $this->validatingNewDependencies] = $prior; }
+  }
+
+  /** Source identity, not content, proves a possible future node dependency. */
+  private function sourceReferenceProof(int $id, $definition, bool $requireAbsent): ?array {
+    $rows = $this->source->select('node', 'n')->fields('n', ['nid', 'type', 'tnid'])->condition('nid', $id)->execute()->fetchAllAssoc('nid', \PDO::FETCH_ASSOC);
+    $raw = $rows[$id] ?? NULL;
+    if (!$raw) { return NULL; }
+    $rootId = (int) $raw['tnid'] ?: $id;
+    $root = $rootId === $id ? $raw : $this->source->select('node', 'n')->fields('n', ['nid', 'type', 'tnid'])->condition('nid', $rootId)->execute()->fetchAssoc();
+    $mapping = $this->mappings[$raw['type']] ?? NULL;
+    if (!$root || $root['type'] !== $raw['type'] || !in_array((int) $root['tnid'], [0, $rootId], TRUE) || !$mapping || count($mapping['destination_types'] ?? []) !== 1) { return NULL; }
+    $bundle = $mapping['destination_types'][0];
+    $allowed = $definition->getSetting('handler_settings')['target_bundles'] ?? [];
+    if ($allowed && !in_array($bundle, array_values($allowed), TRUE)) { return NULL; }
+    if ($requireAbsent) {
+      $sourceIds = array_values(array_unique([$id, $rootId]));
+      if ($this->destination->select('node', 'n')->condition('nid', $rootId)->countQuery()->execute()->fetchField()) { return NULL; }
+      if ($this->destination->select('labdoo_migrate_tracking', 't')->condition('entity_type', 'node')->condition('source_id', $sourceIds, 'IN')->countQuery()->execute()->fetchField()) { return NULL; }
+      if ($this->destination->schema()->tableExists('node__field_d7_nid') && $this->destination->select('node__field_d7_nid', 'f')->condition('deleted', 0)->condition('field_d7_nid_value', $sourceIds, 'IN')->countQuery()->execute()->fetchField()) { return NULL; }
+    }
+    $proof = ['source_target_id' => $id, 'canonical_source_id' => $rootId, 'source_target_type' => $raw['type'], 'destination_bundle' => $bundle];
+    $proof['proof_hash'] = hash('sha256', json_encode($proof, JSON_THROW_ON_ERROR));
+    return $proof;
+  }
+
+  /** A target appearing since PLAN is allowed only through proven identity. */
+  private function assertPlannedDependencies(NodeInterface $node, array $expected, array $actual): void {
+    if (!$expected) { throw new \RuntimeException('Explicit staging requires planned dependencies.'); }
+    foreach ($actual as $dependency) {
+      if (!in_array($dependency, $expected, TRUE)) { throw new \RuntimeException('Source dependencies changed after planning.'); }
+    }
+    foreach ($expected as $dependency) {
+      if (($dependency['kind'] ?? '') === 'gallery') {
+        if (!in_array($dependency, $actual, TRUE)) { throw new \RuntimeException('Source gallery proof changed after planning.'); }
+        continue;
+      }
+      $name = $dependency['field'] ?? '';
+      if (($dependency['kind'] ?? '') !== 'node' || !$node->hasField($name)) { throw new \RuntimeException('Invalid planned node dependency.'); }
+      $definition = $node->get($name)->getFieldDefinition();
+      $proof = $this->sourceReferenceProof((int) $dependency['source_target_id'], $definition, FALSE);
+      if (!$proof || $proof['proof_hash'] !== $dependency['proof_hash']) { throw new \RuntimeException('Source reference identity changed after planning.'); }
+      $target = $this->reference('node', (int) $dependency['source_target_id']);
+      if ($target) {
+        $bundle = $this->destination->select('node', 'n')->fields('n', ['type'])->condition('nid', $target)->execute()->fetchField();
+        if ($bundle !== $dependency['destination_bundle']) { throw new \RuntimeException('Resolved staged reference has wrong bundle.'); }
+      }
+      elseif (!$this->sourceReferenceProof((int) $dependency['source_target_id'], $definition, TRUE)) { throw new \RuntimeException('Staged target is occupied, ambiguous or dangling.'); }
+    }
+  }
+
+  /** Recheck source graph proofs after creating a provisional destination. */
+  public function assertStagedSourceProofs(string $type, int $sourceId, array $dependencies): void {
+    $definitions = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $this->context($type)['bundle']);
+    foreach ($dependencies as $dependency) {
+      if (($dependency['kind'] ?? '') === 'gallery') {
+        $inspection = (new GalleryDependencyImporter($this->source, $this->destination))->inspect($type, $sourceId);
+        if (!empty($inspection['blocked']) || ($inspection['dependency']['proof_hash'] ?? '') !== $dependency['proof_hash'] || ($inspection['dependency']['source_hash'] ?? '') !== $dependency['source_hash']) { throw new \RuntimeException('Source gallery changed during staging.'); }
+      }
+      elseif (($dependency['kind'] ?? '') === 'node' && isset($definitions[$dependency['field']])) {
+        $proof = $this->sourceReferenceProof((int) $dependency['source_target_id'], $definitions[$dependency['field']], FALSE);
+        if (!$proof || $proof['proof_hash'] !== $dependency['proof_hash']) { throw new \RuntimeException('Source node dependency changed during staging.'); }
+      }
+      else { throw new \RuntimeException('Unsupported staged dependency source proof.'); }
+    }
+  }
+
+  /** Read-only completion gate; imports are always a separate explicit command. */
+  public function verifyDeferredReferences(string $type, int $sourceId, int $destinationId, array $dependencies): array {
+    $this->resetRuntime();
+    $owner = ReadOnlyEntityLoader::storage('node')->load($destinationId);
+    if (!$owner || $owner->bundle() !== $this->context($type)['bundle']) { throw new \RuntimeException('Staged owner is missing or retyped.'); }
+    $evidence = [];
+    foreach ($dependencies as $dependency) {
+      if (empty($dependency['destination_owner_uuid']) || $owner->uuid() !== $dependency['destination_owner_uuid']) { throw new \RuntimeException('Staged owner UUID changed.'); }
+      if (($dependency['kind'] ?? '') === 'gallery') {
+        if ((int) $dependency['source_owner_id'] !== $sourceId || $dependency['owner_bundle'] !== $owner->bundle()) { throw new \RuntimeException('Gallery dependency owner changed.'); }
+        $proof = (new GalleryDependencyImporter($this->source, $this->destination))->verify($dependency, $destinationId);
+        if (($proof['proof_hash'] ?? '') !== $dependency['proof_hash'] || (int) ($proof['verified_photo_count'] ?? -1) !== (int) $dependency['photo_count'] || empty($proof['destination_gallery_id'])) { throw new \RuntimeException('Source gallery content is not fully verified.'); }
+        $evidence[] = $proof; continue;
+      }
+      if (($dependency['kind'] ?? '') !== 'node' || empty($dependency['field']) || !$owner->hasField($dependency['field'])) { throw new \RuntimeException('Unsupported staged dependency.'); }
+      $field = $owner->get($dependency['field'])->getFieldDefinition();
+      $proof = $this->sourceReferenceProof((int) $dependency['source_target_id'], $field, FALSE);
+      if (!$proof || !hash_equals($dependency['proof_hash'], $proof['proof_hash'])) { throw new \RuntimeException('Source node dependency changed or disappeared.'); }
+      $target = $this->reference('node', (int) $dependency['source_target_id']);
+      $row = $target ? $this->destination->select('node', 'n')->fields('n', ['nid', 'type', 'uuid'])->condition('nid', $target)->execute()->fetchAssoc() : NULL;
+      if (!$row || $row['type'] !== $dependency['destination_bundle']) { throw new \RuntimeException('Node dependency is not uniquely migrated into its expected bundle.'); }
+      $pending = (new DeltaStore($this->destination))->pendingDependencies($dependency['source_target_type'], [(int) $dependency['canonical_source_id']]);
+      if ($pending && $target !== $destinationId) {
+        $pendingItem = $pending[(int) $dependency['canonical_source_id']];
+        $pendingDetails = json_decode($pendingItem['details'], TRUE, 512, JSON_THROW_ON_ERROR);
+        $targetEntity = ReadOnlyEntityLoader::storage('node')->load($target);
+        if ((int) $pendingItem['destination_id'] !== $target || !$targetEntity || $this->hashNode($targetEntity) !== ($pendingDetails['destination_hash_after_create'] ?? '')) { throw new \RuntimeException('A referenced staged node has local edits or a changed identity.'); }
+      }
+      $evidence[] = ['kind' => 'node', 'field' => $dependency['field'], 'source_target_id' => $dependency['source_target_id'], 'destination_id' => (int) $row['nid'], 'destination_uuid' => $row['uuid'], 'proof_hash' => $proof['proof_hash']];
+    }
+    return ['complete' => TRUE, 'evidence' => $evidence];
   }
 
   /** Pure mapping projection. Unknown transformations fail closed. */
@@ -316,7 +437,7 @@ final class NodeSyncAdapter {
         if ($table === 'node' && in_array($name, ['created', 'uid'], TRUE) && !$definition->isTranslatable()) { $rows = [$snapshot['roots'][$sourceId]]; }
         $fieldType = $definition->getType();
         $main = $definition->getFieldStorageDefinition()->getMainPropertyName();
-        $items = [];
+        $items = []; $deferredCount = 0;
         foreach ($rows as $row) {
           if ($table !== 'node' && isset($row['language']) && !in_array($row['language'], ['und', $sourceNode['language'], $lang], TRUE)) { continue; }
           $value = $row[$column] ?? NULL;
@@ -362,7 +483,27 @@ final class NodeSyncAdapter {
           elseif (!in_array($special, ['', 'formatted_text', 'formatted_text_with_replacement'], TRUE)) { $unsupported[] = 'Unsupported transformation: ' . $name; continue; }
           if ($fieldType === 'entity_reference') {
             $targetType = $definition->getSetting('target_type');
+            // Drupal 7 stores zero for an unselected node. User UID zero is
+            // different: it is the legitimate anonymous author identity.
+            if ($targetType === 'node' && ($value === 0 || $value === '0')) { continue; }
             $resolved = $this->reference($targetType, (int) $value);
+            if ($resolved !== NULL && $this->validatingNewDependencies && $targetType === 'node') {
+              $proof = $this->sourceReferenceProof((int) $value, $definition, FALSE);
+              $pending = $proof ? (new DeltaStore($this->destination))->pendingDependencies($proof['source_target_type'], [$proof['canonical_source_id']]) : [];
+              if ($pending) {
+                if (!$this->stagingNewDependencies) { $unsupported[] = 'Reference target is staged and incomplete: ' . $name; continue; }
+                $this->stagedDependencies[] = ['kind' => 'node', 'field' => $name, 'language' => $lang, 'delta' => (int) ($row['delta'] ?? 0)] + $proof;
+              }
+            }
+
+            if ($resolved === NULL && $this->stagingNewDependencies && $targetType === 'node') {
+              if ($this->stagedGallery && (int) $value === (int) $this->stagedGallery['source_gallery_id'] && in_array($name, ['field_edoovillage_photo_album', 'field_hub_photo_album'], TRUE) && !$definition->isRequired()) { $deferredCount++; continue; }
+              $proof = $this->sourceReferenceProof((int) $value, $definition, TRUE);
+              if ($proof) {
+                $this->stagedDependencies[] = ['kind' => 'node', 'field' => $name, 'language' => $lang, 'delta' => (int) ($row['delta'] ?? 0)] + $proof;
+                $deferredCount++; continue;
+              }
+            }
             if ($resolved === NULL) { $unsupported[] = 'Unresolved ' . $targetType . ' reference: ' . $name; continue; }
             $items[] = ['target_id' => $resolved];
           }
@@ -397,7 +538,7 @@ final class NodeSyncAdapter {
           else { $unsupported[] = 'Unsupported field type: ' . $name . ':' . $fieldType; }
         }
         $cardinality = $definition->getFieldStorageDefinition()->getCardinality();
-        if ($cardinality > 0 && count($items) > $cardinality) { $unsupported[] = 'Source cardinality exceeds destination: ' . $name; }
+        if ($cardinality > 0 && count($items) + $deferredCount > $cardinality) { $unsupported[] = 'Source cardinality exceeds destination: ' . $name; }
         if ($special !== 'address_component') { $out[$lang][$name] = $items; }
         elseif (!isset($out[$lang][$name])) { $out[$lang][$name] = []; }
       }
@@ -543,6 +684,7 @@ final class NodeSyncAdapter {
     $this->resetRuntime();
     $context = $this->context($type);
     $removeLanguages = [];
+    $staged = [];
     if (!hash_equals($context['mapping_hash'], $expected['mapping_hash'] ?? '')) { throw new \RuntimeException('Mapping changed since planning.'); }
     if (!in_array($operation, ['create', 'update', 'unpublish'], TRUE)) { throw new \InvalidArgumentException('Unsupported node operation.'); }
     if (($operation === 'create' && $destinationId !== NULL) || ($operation !== 'create' && !$destinationId)) { throw new \InvalidArgumentException('Operation does not match destination identity.'); }
@@ -574,7 +716,15 @@ final class NodeSyncAdapter {
         if ($lang === 'und' || !$lang) { $lang = \Drupal::languageManager()->getDefaultLanguage()->getId(); }
         $node = $storage->create(['type' => $context['bundle'], 'nid' => $sourceId, 'langcode' => $lang]);
       }
-      [$values, $unsupported] = $this->projection($type, $sourceId, $node);
+      if (!empty($expected['stage_new_dependencies'])) {
+        if ($operation !== 'create' || $destinationId !== NULL) { throw new \RuntimeException('Dependency staging is restricted to new source nodes.'); }
+        [$values, $unsupported, $staged] = $this->projectNew($type, $sourceId, $node, TRUE);
+        $this->assertPlannedDependencies($node, $expected['staged_dependencies'] ?? [], $staged);
+        $staged = $expected['staged_dependencies'];
+        foreach ($values as &$languageValues) { $languageValues['status'] = [['value' => 0]]; }
+        unset($languageValues);
+      }
+      else { [$values, $unsupported] = $this->projection($type, $sourceId, $node); }
       foreach (array_keys($node->getTranslationLanguages()) as $lang) {
         if (!isset($values[$lang])) {
           if (in_array($lang, $expected['source_languages'] ?? [], TRUE) && $lang !== $node->getUntranslated()->language()->getId()) { $removeLanguages[] = $lang; }
@@ -614,11 +764,15 @@ final class NodeSyncAdapter {
         }
       }
       $violations = $node->validate();
-      if ($violations->count()) {
-        $paths = [];
-        foreach ($violations as $violation) { $paths[] = $violation->getPropertyPath() . ': ' . $violation->getMessage(); }
-        throw new \RuntimeException('Mapped node fails validation: ' . implode(', ', array_unique($paths)));
+      $paths = [];
+      $deferredFields = array_column(array_filter($staged, static fn($dependency) => $dependency['kind'] === 'node'), 'field');
+      foreach ($violations as $violation) {
+        $path = $violation->getPropertyPath(); $constraint = $violation->getConstraint();
+        if ($staged && $node->isNew() && !$node->isPublished() && $node->bundle() === 'dootronic' && $path === 'field_edoovillage_destination' && in_array($path, $deferredFields, TRUE) && $constraint instanceof \Drupal\labdoo_dootronics\Plugin\Validation\Constraint\DootronicS3RequiresEdoovillageConstraint) { continue; }
+        if ($staged && in_array($path, $deferredFields, TRUE) && ($constraint instanceof \Symfony\Component\Validator\Constraints\NotNull || $constraint instanceof \Symfony\Component\Validator\Constraints\NotBlank || $constraint instanceof \Symfony\Component\Validator\Constraints\Count)) { continue; }
+        $paths[] = $path . ': ' . $violation->getMessage();
       }
+      if ($paths) { throw new \RuntimeException('Mapped node fails validation: ' . implode('; ', array_unique($paths))); }
       $node->setNewRevision(TRUE);
       $node->setRevisionLogMessage('Explicit incremental source synchronization: ' . $operation);
       $wasNew = $node->isNew();
@@ -635,7 +789,8 @@ final class NodeSyncAdapter {
       \Drupal::service('labdoo_migrate.tracking.migration_tracker')->track('node', $context['bundle'], $sourceId, (int) $node->id(), 0);
       $storage->resetCache([$node->id()]);
       $saved = $storage->load($node->id());
-      return ['destination_id' => (int) $node->id(), 'destination_hash' => $this->hashNode($saved), 'written' => TRUE, 'effects' => ['before' => $relationsBefore, 'after' => $this->relations($saved)]];
+      if ($staged && $this->published($saved)) { throw new \RuntimeException('A staged source node must remain unpublished.'); }
+      return ['destination_id' => (int) $node->id(), 'destination_uuid' => $saved->uuid(), 'destination_hash' => $this->hashNode($saved), 'written' => TRUE, 'effects' => ['before' => $relationsBefore, 'after' => $this->relations($saved)]];
     }
     finally {
       $switcher->switchBack();

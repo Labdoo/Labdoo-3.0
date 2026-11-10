@@ -18,16 +18,15 @@ class SpecialFieldTypeAddressComponent implements SpecialFieldTypeInterface {
       'country_code', 'locality', 'postal_code', 'address_line1',
       'administrative_area',
     ];
-    if (!in_array($component, $allowed, TRUE) || !is_scalar($value)) {
+    if (!in_array($component, $allowed, TRUE) || ($value !== NULL && !is_scalar($value))) {
       return NULL;
     }
     $value = trim((string) $value);
-    if ($value === '') {
-      return NULL;
-    }
+    // Empty components must remain mergeable: NULL would replace the whole
+    // address accumulated from earlier country/locality mappings.
     if ($component === 'country_code') {
       $value = strtoupper($value);
-      if (!preg_match('/^[A-Z]{2}$/D', $value)) {
+      if ($value !== '' && !preg_match('/^[A-Z]{2}$/D', $value)) {
         return NULL;
       }
     }
