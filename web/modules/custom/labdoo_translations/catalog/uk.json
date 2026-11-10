@@ -1416,7 +1416,8 @@
     "ff406517f8a840e7347ddcc372145ad1797f19c35a8d12ab965a32375d7a1350": "{{ \"Submitted by\"|t }} {{ uid }} | Опубліковано в <a href=\"team-wall/{{ field_team__target_id }}\">{{ field_team }}</a>, {{ created }}{% if comment_count %} | {{ comment_count }} {{ \"comment(s)\"|t }}{% endif %}",
     "ff58b6b0508b7b77f688d70cfd03115fa62fffc5dc5e59d23f3f4e500ab5085c": "Імпортувати сутність",
     "ff68ffb8712fd3acc2a00dc645708f9c92df49f6ea0075f0d2964900328cb179": "Дата прибуття",
-    "ff83a2bb9b37242ded78618e1bdf9dab49aab13b87b89f3a513e80ac9053269a": "Керівник суперцентру"
+    "ff83a2bb9b37242ded78618e1bdf9dab49aab13b87b89f3a513e80ac9053269a": "Керівник суперцентру",
+    "2d373a58a184109f25c7499492a9ead352dcaa5bfae2a00e36cea3e168893c4a": "Згенерувати @label"
   },
   "unchanged": {
     "0294cb7a06c0038fabf945a7a792428f438b8250bd96567c735fd9b29b95d4c1": "unit",

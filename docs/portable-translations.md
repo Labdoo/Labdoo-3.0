@@ -1,6 +1,6 @@
 # Traducciones portables de configuración y menús
 
-El módulo `labdoo_translations` incorpora un catálogo versionado de **1.416 textos únicos en 20 idiomas**: `en`, `es`, `ar`, `ca`, `zh-hans`, `zh-hant`, `nl`, `fr`, `de`, `it`, `ja`, `pl`, `ru`, `sr`, `sw`, `uk`, `hy`, `bs`, `ro` y `tr`. Este número corresponde al inventario de configuración y menús utilizado para esta entrega; no significa que cualquier texto futuro quede traducido automáticamente.
+El módulo `labdoo_translations` incorpora un catálogo versionado de **1.417 textos únicos en 20 idiomas**: `en`, `es`, `ar`, `ca`, `zh-hans`, `zh-hant`, `nl`, `fr`, `de`, `it`, `ja`, `pl`, `ru`, `sr`, `sw`, `uk`, `hy`, `bs`, `ro` y `tr`. Este número corresponde al inventario de configuración y menús utilizado para esta entrega; no significa que cualquier texto futuro quede traducido automáticamente.
 
 El alcance incluye los valores traducibles de configuración identificados mediante su esquema, las opciones y etiquetas de formularios web y los títulos y descripciones de menús. También incorpora textos de definiciones estáticas de menú mediante el servicio de traducción de Drupal. No traduce el contenido editorial de nodos, historias, comentarios ni archivos, ni crea traducciones de esas entidades. No modifica identificadores, UUID, rutas, relaciones o la estructura de los menús.
 
