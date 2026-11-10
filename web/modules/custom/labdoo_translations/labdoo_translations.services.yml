@@ -1,0 +1,18 @@
+services:
+  labdoo_translations.catalog:
+    class: Drupal\labdoo_translations\Catalog
+  labdoo_translations.translator:
+    class: Drupal\labdoo_translations\Translator
+    arguments: ['@labdoo_translations.catalog', '@?locale.storage']
+    tags:
+      - { name: string_translator, priority: 20 }
+  labdoo_translations.config_override:
+    class: Drupal\labdoo_translations\ConfigOverride
+    arguments: ['@labdoo_translations.catalog', '@config.storage', '@config.typed', '@language.config_factory_override']
+    tags:
+      - { name: config.factory.override, priority: 20 }
+  cache_context.labdoo_translations:
+    class: Drupal\labdoo_translations\CatalogCacheContext
+    arguments: ['@labdoo_translations.catalog', '@language.config_factory_override']
+    tags:
+      - { name: cache.context }

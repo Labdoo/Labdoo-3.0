@@ -30,10 +30,3 @@ function labdoo_language_block_view_alter(array &$build, \Drupal\Core\Block\Bloc
   }
 }
 
-function labdoo_language_language_switch_links_alter(array &$links, $type, $path) {
-  $user = \Drupal::currentUser();
-  if ($user->isAuthenticated()) {
-    $preferred_langcode = $user->getPreferredLangcode();
-    \Drupal::languageManager()->setConfigOverrideLanguage(new \Drupal\Core\Language\Language(['id' => $preferred_langcode]));
-  }
-}

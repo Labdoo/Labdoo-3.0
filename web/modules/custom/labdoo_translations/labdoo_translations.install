@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function labdoo_translations_install(): void {
+  // Explicit installation is operational setup, not a request-time override.
+  // Re-run labdoo-translations:prepare --apply after configuration/PO imports.
+  (new \Drupal\labdoo_translations\PluralPreparation())->prepare(TRUE);
+}

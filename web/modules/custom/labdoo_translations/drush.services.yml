@@ -1,0 +1,6 @@
+services:
+  labdoo_translations.commands:
+    class: Drupal\labdoo_translations\Commands\TranslationCommands
+    arguments: ['@labdoo_translations.catalog', '@labdoo_translations.config_override', '@config.storage', '@language_manager', '@plugin.manager.menu.link']
+    tags:
+      - { name: drush.command }
