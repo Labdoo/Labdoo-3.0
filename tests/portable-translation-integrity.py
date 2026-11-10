@@ -93,6 +93,8 @@ def integrity_errors(source, target):
     if "\ufffd" in target or "\0" in target:
         errors.append("invalid_unicode_or_nul")
     if "\x03" in source:
+        if all(re.fullmatch(r"(?:[0-9]+|@count)", form) for form in source.split("\x03")) and any(not re.fullmatch(r"(?:[0-9]+|@count)", form) for form in target.split("\x03")):
+            errors.append("non_numeric_counter_translation")
         if any(all(integrity_errors(form, variant) for form in source.split("\x03")) for variant in target.split("\x03")):
             errors.append("invalid_plural_variant")
         return errors
@@ -179,6 +181,7 @@ def audit(directory):
 
 class IntegrityTests(unittest.TestCase):
     def test_language_specific_plural_variants(self):
+        self.assertTrue(integrity_errors("1\x03@count", "1\x03@count[2]\x03@count[3]"))
         self.assertEqual(integrity_errors("1 place\x03@count places", "1 miejsce\x03@count miejsca\x03@count miejsc"), [])
         self.assertEqual(integrity_errors("1\x03@count", "@count"), [])
         self.assertEqual(integrity_errors("1 place\x03@count places", "@count emplacement\x03@count emplacements"), [])

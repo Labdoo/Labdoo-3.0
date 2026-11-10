@@ -88,7 +88,9 @@ final class Catalog {
     // different number of variants; compare each variant against source forms.
     if (str_contains($source, "\x03")) {
       $original = explode("\x03", $source);
+      $numeric = !array_filter($original, static fn($form) => !preg_match('/^(?:[0-9]+|@count)$/D', $form));
       foreach (explode("\x03", $translation) as $variant) {
+        if ($numeric && !preg_match('/^(?:[0-9]+|@count)$/D', $variant)) { return FALSE; }
         $valid = FALSE;
         foreach ($original as $form) { if (self::validTranslation($form, $variant)) { $valid = TRUE; break; } }
         if (!$valid) { return FALSE; }
