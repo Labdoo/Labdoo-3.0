@@ -4837,6 +4837,18 @@
         }
       ]
     },
+    "2d373a58a184109f25c7499492a9ead352dcaa5bfae2a00e36cea3e168893c4a": {
+      "source": "Generate @label",
+      "context": "",
+      "usage_count": 8,
+      "examples": [
+        {
+          "kind": "static_menu",
+          "name": "devel_generate.content",
+          "field": "title"
+        }
+      ]
+    },
     "2d575353b00cd49ad238bbf714a2a393fcfdaa3a84d8814bb8ea9ed636d1911d": {
       "source": "edit",
       "context": "",
