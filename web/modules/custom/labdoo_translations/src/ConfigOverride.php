@@ -45,7 +45,7 @@ final class ConfigOverride implements ConfigFactoryOverrideInterface {
       foreach ($leaves as $leaf) {
         $text = $this->catalog->lookup($language, $leaf['source'], $leaf['context']);
         $exists = FALSE; $current = NestedArray::getValue($nativeData, $leaf['path'], $exists);
-        $nativeValid = $exists && is_string($current) && $current !== $leaf['source'] && Catalog::validTranslation($leaf['source'], $current) && ($text === NULL || !str_contains($leaf['source'], "\x03") || count(explode("\x03", $current)) === count(explode("\x03", $text)));
+        $nativeValid = $exists && is_string($current) && $current !== $leaf['source'] && Catalog::validTranslation($leaf['source'], $current) && ($text === NULL || !str_contains($leaf['source'], "\x03") || Catalog::compatiblePlurals($current, $text));
         if ($nativeValid) { continue; }
         if ($text !== NULL && ($text !== $leaf['source'] || ($exists && $current !== $text))) { $out[$name] ??= []; NestedArray::setValue($out[$name], $leaf['path'], $text); }
       }

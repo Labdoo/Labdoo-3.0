@@ -18,7 +18,7 @@ final class Translator implements TranslatorInterface {
     if ($text !== NULL && $this->nativeStorage) {
       $native = $this->nativeStorage->findTranslation(['language' => $langcode, 'source' => $string, 'context' => $context]);
       $value = $native?->getString();
-      if (is_string($value) && $value !== $string && Catalog::validTranslation($string, $value) && (!str_contains($string, "\x03") || count(explode("\x03", $value)) === count(explode("\x03", $text)))) { $text = $value; }
+      if (is_string($value) && $value !== $string && Catalog::validTranslation($string, $value) && (!str_contains($string, "\x03") || Catalog::compatiblePlurals($value, $text))) { $text = $value; }
     }
     return $this->cache[$langcode][$id] = $text ?? FALSE;
   }

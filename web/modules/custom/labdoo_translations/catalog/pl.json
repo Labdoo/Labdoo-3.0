@@ -199,7 +199,7 @@
     "e788fb156b26d1ba2dd26e92fd4179d5a406b0f61e03c33653b0fa71c1a77b4e": "Typ encji",
     "a4de34c4b925bf4176ace37e7b11034cef3727b1abb84c4aee3a4168d842386f": "Rejestracja modułów",
     "d48859d0041370b0df9f62c73a75fb9fa86e640867b1efd0f33bf0f38758154b": "Ilość wystąpień",
-    "2c0b95be83eed6959674b43744cc57c90ce2e2ebfafd646b0a02ea7aa3641a1e": "1\u0003@count\u0003@count",
+    "2c0b95be83eed6959674b43744cc57c90ce2e2ebfafd646b0a02ea7aa3641a1e": "@count\u0003@count\u0003@count",
     "ed51cc5c39b7605ac39e529d8211eaf88cf4174c3b1c98532865232701306f09": "Wszystko",
     "25a5e3a5beb86fb7a37e903c8e9e0f8f416362d6ffb3c12f269073e30e6898cd": "Informacje o wykorzystaniu pliku dla {{ arguments.fid }}",
     "675be73b49744ff0381dd8c06b01ccc0980f9ad26ce6f761a5d05dfaf44f59eb": "Strona główna",

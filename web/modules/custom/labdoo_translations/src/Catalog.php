@@ -69,6 +69,17 @@ final class Catalog {
   }
 
   /** Keep placeholders, Drupal tokens, markup structure and link targets intact. */
+  public static function compatiblePlurals(string $native, string $catalog): bool {
+    $original = explode("\x03", $native); $reviewed = explode("\x03", $catalog);
+    if (count($original) !== count($reviewed)) { return FALSE; }
+    foreach ($reviewed as $index => $variant) {
+      // A literal "1" is unsafe where this language also uses that form for
+      // zero, twenty-one, etc. Keep the reviewed count placeholder in that form.
+      if (str_contains($variant, '@count') && !str_contains($original[$index], '@count')) { return FALSE; }
+    }
+    return TRUE;
+  }
+
   public static function validTranslation(string $source, string $translation): bool {
     if (trim($translation) === '' || !mb_check_encoding($source, 'UTF-8') || !mb_check_encoding($translation, 'UTF-8') || str_contains($translation, "\u{FFFD}") || preg_match('/[\x00-\x02\x04-\x08\x0B\x0C\x0E-\x1F\x7F]/u', $translation)) { return FALSE; }
     // Webform's empty_message is a visible label enclosed in braces, not a token.
