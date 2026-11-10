@@ -140,6 +140,7 @@ final class GeneratedIdentityResolver {
       $owner = reset($roots);
       if (array_values($globalForward[$id] ?? []) !== [$owner]) { $out[$id]['conflict'] = 'source_gallery_forward_owner_conflict'; continue; }
       if (array_values($forward[$owner] ?? []) !== [$id]) { $out[$id]['conflict'] = 'source_gallery_owner_not_reciprocal'; continue; }
+      $out[$id]['proof'] = ['kind' => 'reciprocal_source_gallery_owner', 'source_gallery' => $id, 'source_owner' => $owner, 'owner_bundle' => $family[$owner]['type']];
       $list = $matches[$owner] ?? [];
       if (isset($badOwner[$owner]) || count($list) !== 1) { $out[$id]['conflict'] = 'source_gallery_owner_identity_unproven'; continue; }
       $dest = reset($list);

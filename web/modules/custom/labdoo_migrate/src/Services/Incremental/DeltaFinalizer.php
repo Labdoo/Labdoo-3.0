@@ -10,7 +10,7 @@ use Drupal\node\NodeInterface;
 final class DeltaFinalizer {
 
   private const LOCK = 'labdoo_migrate.delta';
-  private const OPERATIONS = ['create', 'update', 'update_candidate', 'deleted'];
+  private const OPERATIONS = ['create', 'create_staged', 'update', 'update_candidate', 'deleted'];
   private const QUEUES = [
     'dootronic' => ['labdoo_dootronics_recompute', 'labdoo_dootronics.compute', 'enqueueRecompute'],
     'dootrip' => ['labdoo_dootrip_calculate_capacity', 'labdoo_dootrip.compute', 'enqueueCapacityRecompute'],

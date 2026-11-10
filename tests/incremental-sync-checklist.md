@@ -184,3 +184,54 @@ semaphore row: both node preview and user-dependency preview must preserve that
 row, keep the active connection and issue read-only SQL. Fixture setup seeds the
 expired semaphore inside a rolled-back destination transaction; the production
 source is never used as a fixture writer.
+
+### Explicit staging of new source dependencies
+
+Run staging, source-wins adoption and cutover writes only during maintenance
+with cron and other writers stopped. Keep the site in that controlled window
+until every staged node and dependency is complete. Hash checks reject detected
+changes; they do not guarantee perfect concurrency outside that window under
+MySQL REPEATABLE READ. Staging is opt-in
+through `--stage-new-dependencies` on preview/plan. It applies only to a new
+source node with no destination/baseline and to source-proven node dependencies;
+it never ignores an orphaned UID, missing source target, invalid geometry,
+country-less address, schema error or ambiguous identity.
+
+A staged node is unpublished. Its item is `create_staged / waiting_refs`, the
+run stays in review, and there is no successful baseline. The manifest records
+each dependency's source type/root proof, owner UUID and post-create target hash.
+Other manifests cannot adopt that partial node as synchronized. Existing target
+nodes are never put through this create-only path.
+
+```sh
+drush labdoo-delta:preview laptop --stage-new-dependencies --max-items=100
+drush labdoo-delta:plan laptop --stage-new-dependencies --max-items=100
+drush labdoo-delta:apply MANIFEST_ID
+# Create the other real source nodes using their own reviewed manifests.
+# For gallery dependencies only, preview and explicitly import the actual album:
+drush labdoo-delta:import-galleries MANIFEST_ID
+drush labdoo-delta:import-galleries MANIFEST_ID --apply
+drush labdoo-delta:apply MANIFEST_ID --retry-dependencies
+```
+
+Retry never imports a gallery automatically. It proves source and destination
+identities again, verifies every album/photo through the dedicated importer,
+resolves the remaining node references, and restores source publication only
+when the full node validates. It then advances the successful baseline. Missing
+dependencies remain waiting; changed source data, owner identities or local
+edits cannot be overwritten. Reference targets still staged must retain their
+recorded hashes. Completed targets use stable IDs/types/UUIDs so cycles and
+self-references can finish without depending on changing publication hashes.
+
+Node reference zero in V2 means an empty selection and is omitted. User UID zero
+continues to mean the anonymous account. S3 dootronics may omit their destination
+only while newly staged, unpublished and backed by the specific source-proven
+school dependency; the normal S3 constraint applies again at completion.
+
+`incremental-staging-real.php` exercises real Drupal cyclic and self references,
+publication, baseline protection and idempotence. It changes reference-field
+settings only inside its rolled-back fixture transaction. Its S3 case uses the
+real S3 constraint and real school identity while making unrelated required
+fields optional only in the fixture to isolate that dependency behavior.
+`incremental-gallery-workflow.php` provides independent transactional engine
+fault/race coverage. Neither suite writes production nodes or the real V2 source.

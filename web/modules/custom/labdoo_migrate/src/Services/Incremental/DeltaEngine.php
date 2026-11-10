@@ -9,7 +9,7 @@ final class DeltaEngine {
   public function __construct(private object $source, private object $adapter, private DeltaStore $store, private LockBackendInterface $lock, private string $sourceIdentity) {}
 
   private function settings(array $options): array {
-    $options += ['batch_size' => 100, 'max_items' => 0, 'run_id' => NULL, 'dry_run' => FALSE, 'source_wins' => FALSE, 'missing_source' => 'report', 'retry_errors' => FALSE, 'confirm_mass_unpublish' => FALSE];
+    $options += ['batch_size' => 100, 'max_items' => 0, 'run_id' => NULL, 'dry_run' => FALSE, 'source_wins' => FALSE, 'missing_source' => 'report', 'retry_errors' => FALSE, 'confirm_mass_unpublish' => FALSE, 'stage_new_dependencies' => FALSE, 'retry_dependencies' => FALSE];
     if ($options['batch_size'] < 1 || $options['batch_size'] > 500 || $options['max_items'] < 0 || !in_array($options['missing_source'], ['report', 'unpublish'], TRUE)) {
       throw new \InvalidArgumentException('Use batch size 1..500, non-negative max-items and missing-source=report|unpublish.');
     }
@@ -46,7 +46,7 @@ final class DeltaEngine {
       else {
         $run = ['source_type' => $type, 'bundle' => $context['bundle'], 'mapping_hash' => $context['mapping_hash'], 'source_identity' => $this->sourceIdentity, 'ceiling' => $this->source->maxId($type)];
         $count = method_exists($this->source, 'rootCount') ? $this->source->rootCount($type, (int) $run['ceiling']) : NULL;
-        $run['metadata'] = json_encode(['source_root_count' => $count], JSON_THROW_ON_ERROR);
+        $run['metadata'] = json_encode(['source_root_count' => $count, 'stage_new_dependencies' => (bool) $options['stage_new_dependencies']], JSON_THROW_ON_ERROR);
         $run = $options['dry_run'] ? $run + ['run_id' => NULL, 'phase' => 'scan', 'cursor' => 0, 'deletion_cursor' => 0] : $this->store->createRun($run);
       }
       $processed = 0;
@@ -68,12 +68,13 @@ final class DeltaEngine {
             $fingerprints = $this->source->fingerprints($type, $ids);
             $destinations = $this->adapter->destinations($type, $ids);
             $baselines = $this->store->baselines($type, $ids);
+            $dependencies = $this->store->pendingDependencies($type, $ids);
             $items = [];
             foreach ($ids as $id) {
               if (!isset($fingerprints[$id])) {
                 throw new \RuntimeException('Source changed during inventory; resume to read this batch again.');
               }
-              $items[] = $this->classify($run, (int) $id, $fingerprints[$id], $destinations[$id] ?? ['id' => NULL, 'hash' => NULL], $baselines[$id] ?? NULL);
+              $items[] = $this->classify($run, (int) $id, $fingerprints[$id], $destinations[$id] ?? ['id' => NULL, 'hash' => NULL], $baselines[$id] ?? NULL, $dependencies[$id] ?? NULL);
             }
             $checkpoint = ['cursor' => (int) max($ids)];
           }
@@ -117,18 +118,25 @@ final class DeltaEngine {
     finally { if ($name !== NULL) { $this->lock->release($name); unset($GLOBALS['labdoo_incremental_lock_owner']); } }
   }
 
-  private function classify(array $run, int $id, array $source, array $destination, ?array $baseline): array {
+  private function classify(array $run, int $id, array $source, array $destination, ?array $baseline, ?array $pendingDependency = NULL): array {
     $item = ['source_id' => $id, 'destination_id' => $destination['id'] ?? 0, 'source_hash' => $source['hash'], 'destination_hash' => $destination['hash'] ?? '', 'source_languages' => array_values(array_unique(array_map(static fn($lang) => $lang && $lang !== 'und' ? $lang : (\Drupal::hasContainer() ? \Drupal::languageManager()->getDefaultLanguage()->getId() : 'en'), $source['languages'] ?? [$source['language'] ?? 'en']))), 'details' => ['source_languages_before' => $baseline ? json_decode($baseline['source_languages'] ?? '[]', TRUE, 512, JSON_THROW_ON_ERROR) : []]];
+    if ($pendingDependency && ($pendingDependency['run_id'] ?? NULL) !== ($run['run_id'] ?? NULL)) {
+      return array_replace($item, ['operation' => 'conflict', 'details' => ['reason' => 'awaiting_dependencies_in_existing_manifest', 'dependency_run_id' => $pendingDependency['run_id']]]);
+    }
     if (!empty($destination['conflict'])) {
       return array_replace($item, ['operation' => 'conflict', 'details' => ['reason' => $destination['conflict']]]);
     }
     if (empty($destination['id'])) {
       // Surface missing dependencies/configuration in preview, before apply.
       if (!$baseline && method_exists($this->adapter, 'validateNew')) {
-        $validation = $this->adapter->validateNew($run['source_type'], $id);
+        $defer = (bool) (json_decode($run['metadata'], TRUE)['stage_new_dependencies'] ?? FALSE);
+        $validation = $this->adapter->validateNew($run['source_type'], $id, $defer);
         if (!empty($validation['unsupported'])) {
           return array_replace($item, ['operation' => 'unsupported', 'details' => ['reason' => 'unverifiable_projection', 'fields' => $validation['unsupported']]]);
         }
+      }
+      if (!$baseline && !empty($validation['dependencies'])) {
+        return array_replace($item, ['operation' => 'create_staged', 'details' => ['reason' => 'explicit_new_source_dependency_staging', 'dependencies' => $validation['dependencies'], 'source_languages_before' => []]]);
       }
       // Never silently recreate locally removed migrated nodes.
       return array_replace($item, ['operation' => $baseline ? 'conflict' : 'create', 'details' => ['reason' => $baseline ? 'destination_removed_since_baseline' : 'new_source']]);
@@ -178,7 +186,7 @@ final class DeltaEngine {
       while (!$options['max_items'] || $processed < $options['max_items']) {
         if (!$this->lock->acquire($name, 300)) { throw new \RuntimeException('Incremental lock lease lost.'); }
         $limit = $options['max_items'] ? min($options['batch_size'], $options['max_items'] - $processed) : $options['batch_size'];
-        $items = $this->store->items($runId, $limit, $options['source_wins'], $options['retry_errors'], $options['missing_source'] === 'unpublish', $after);
+        $items = $this->store->items($runId, $limit, $options['source_wins'], $options['retry_errors'], $options['missing_source'] === 'unpublish', $after, $options['retry_dependencies']);
         if (!$items) { break; }
         $activeItems = [];
         $baselineItems = [];
@@ -219,7 +227,7 @@ final class DeltaEngine {
       }
       $summary = $this->store->summary($runId);
       $pending = $blocked = 0;
-      foreach ($summary['operations'] as $counts) { $pending += $counts['pending'] ?? 0; $blocked += ($counts['blocked'] ?? 0) + ($counts['error'] ?? 0); }
+      foreach ($summary['operations'] as $counts) { $pending += $counts['pending'] ?? 0; $blocked += ($counts['blocked'] ?? 0) + ($counts['error'] ?? 0) + ($counts['waiting_refs'] ?? 0); }
       $this->store->updateRun($runId, ['phase' => $pending ? 'applying' : ($blocked ? 'review' : 'complete')]);
       return $this->store->summary($runId) + ['processed_this_call' => $processed];
     }
@@ -260,6 +268,11 @@ final class DeltaEngine {
     $type = $run['source_type'];
     $id = (int) $item['source_id'];
     $op = $item['operation'];
+    $details = json_decode($item['details'], TRUE, 512, JSON_THROW_ON_ERROR);
+    if ($op === 'create_staged' && !empty($details['awaiting_dependencies'])) {
+      $this->finishStaged($run, $item, $options);
+      return;
+    }
     if (in_array($op, ['conflict', 'unsupported', 'local_change'], TRUE)) {
       // Source-wins never bypasses identity conflicts or unsupported data.
       $this->store->itemStatus($item, $op === 'local_change' ? 'preserved' : 'blocked');
@@ -289,14 +302,23 @@ final class DeltaEngine {
       $this->store->baseline($run, $item, (int) $item['destination_id'], $item['destination_hash']);
       $this->store->itemStatus($item, 'applied'); return;
     }
-    $operation = $op === 'deleted' ? 'unpublish' : ($op === 'update_candidate' ? 'update' : $op);
+    $operation = $op === 'deleted' ? 'unpublish' : (in_array($op, ['update_candidate', 'create_staged'], TRUE) ? ($op === 'create_staged' ? 'create' : 'update') : $op);
     $result = $this->adapter->apply($type, $id, $item['destination_id'] ? (int) $item['destination_id'] : NULL, $operation, [
-      'source_hash' => $item['source_hash'], 'destination_hash' => $item['destination_hash'], 'mapping_hash' => $run['mapping_hash'], 'source_wins' => $options['source_wins'], 'source_languages' => json_decode($item['details'], TRUE, 512, JSON_THROW_ON_ERROR)['source_languages_before'] ?? [],
+      'source_hash' => $item['source_hash'], 'destination_hash' => $item['destination_hash'], 'mapping_hash' => $run['mapping_hash'], 'source_wins' => $options['source_wins'], 'source_languages' => $details['source_languages_before'] ?? [], 'staged_dependencies' => $op === 'create_staged' ? ($details['dependencies'] ?? NULL) : NULL, 'stage_new_dependencies' => $op === 'create_staged',
     ]);
     if (empty($result['destination_id']) || empty($result['destination_hash'])) { throw new \RuntimeException('Destination adapter did not confirm success.'); }
     if ($op !== 'deleted') {
       $fresh = $this->source->fingerprints($type, [$id]);
       if (!isset($fresh[$id]) || !hash_equals($item['source_hash'], $fresh[$id]['hash'])) { throw new \RuntimeException('Source changed during write; rolled back. Replan.'); }
+      if ($op === 'create_staged') {
+        if (method_exists($this->adapter, 'assertStagedSourceProofs')) { $this->adapter->assertStagedSourceProofs($type, $id, $details['dependencies']); }
+        if (empty($result['destination_uuid'])) { throw new \RuntimeException('Staged node creation did not return a stable UUID.'); }
+        $dependency = $details['dependencies'];
+        foreach ($dependency as &$descriptor) { $descriptor['destination_owner_uuid'] = $result['destination_uuid']; $descriptor['destination_owner_hash'] = $result['destination_hash']; }
+        unset($descriptor);
+        $this->store->waitingReferences($item, $result, $dependency);
+        return;
+      }
       $this->store->baseline($run, $item, (int) $result['destination_id'], $result['destination_hash']);
     }
     if ($op === 'deleted') {
@@ -310,6 +332,42 @@ final class DeltaEngine {
     $written = $result['written'] ?? TRUE;
     if (!is_bool($written)) { throw new \RuntimeException('Invalid actual-write evidence from adapter.'); }
     $this->store->itemStatus($item, $written ? 'applied' : 'skipped', ['written' => $written, 'effects' => $result['effects'] ?? []]);
+  }
+
+  /** Complete a previously created owner only after its real gallery is ready. */
+  private function finishStaged(array $run, array $item, array $options): void {
+    if (!$options['retry_dependencies']) { return; }
+    $type = $run['source_type']; $id = (int) $item['source_id'];
+    $details = json_decode($item['details'], TRUE, 512, JSON_THROW_ON_ERROR);
+    $dependency = $details['dependencies'] ?? NULL;
+    if (!$dependency || empty($details['destination_hash_after_create'])) { throw new \RuntimeException('Missing staged dependency evidence.'); }
+    $fresh = $this->source->fingerprints($type, [$id]);
+    if (!isset($fresh[$id]) || $fresh[$id]['hash'] !== $item['source_hash']) { throw new \RuntimeException('Source node changed while awaiting dependencies. Replan after review.'); }
+    $destination = $this->adapter->destinations($type, [$id])[$id] ?? [];
+    if (!empty($destination['conflict']) || (int) ($destination['id'] ?? 0) !== (int) $item['destination_id'] || ($destination['hash'] ?? '') !== $details['destination_hash_after_create']) { throw new \RuntimeException('Staged node identity or data changed; preserve local changes.'); }
+    try { $verification = $this->adapter->verifyDeferredReferences($type, $id, (int) $item['destination_id'], $dependency); }
+    catch (\RuntimeException $e) {
+      $this->store->itemStatus($item, 'waiting_refs', ['reason' => 'awaiting_dependencies', 'dependency_error_class' => get_class($e)]);
+      return;
+    }
+    if (($verification['complete'] ?? FALSE) !== TRUE || count($verification['evidence'] ?? []) !== count($dependency)) { throw new \RuntimeException('Dependency verifier did not confirm all dependencies.'); }
+    $comparison = $this->adapter->compare($type, $id, (int) $item['destination_id'], json_decode($item['source_languages'], TRUE));
+    if (!empty($comparison['unsupported'])) { throw new \RuntimeException('Staged node projection is still unsupported.'); }
+    $result = ['destination_id' => (int) $item['destination_id'], 'destination_hash' => $destination['hash'], 'effects' => $details['effects'] ?? []];
+    if (!$comparison['equal']) {
+      $result = $this->adapter->apply($type, $id, (int) $item['destination_id'], 'update', [
+        'source_hash' => $item['source_hash'], 'destination_hash' => $destination['hash'], 'mapping_hash' => $run['mapping_hash'],
+        'source_languages' => json_decode($item['source_languages'], TRUE), 'source_wins' => FALSE,
+      ]);
+    }
+    $fresh = $this->source->fingerprints($type, [$id]);
+    if (!isset($fresh[$id]) || $fresh[$id]['hash'] !== $item['source_hash']) { throw new \RuntimeException('Source node changed during staged completion; rolled back.'); }
+    $verificationAfter = $this->adapter->verifyDeferredReferences($type, $id, (int) $item['destination_id'], $dependency);
+    if ($verificationAfter !== $verification) { throw new \RuntimeException('Dependencies changed during staged completion; rolled back.'); }
+    $this->store->baseline($run, $item, (int) $result['destination_id'], $result['destination_hash']);
+    $effects = $result['effects'] ?? ($details['effects'] ?? []);
+    if (isset($details['effects']['before'])) { $effects['before'] = $details['effects']['before']; }
+    $this->store->itemStatus($item, 'applied', ['awaiting_dependencies' => FALSE, 'reason' => 'dependencies_verified', 'dependency_verified' => $verification, 'written' => TRUE, 'effects' => $effects]);
   }
 
   private function clearRuntime(): void {

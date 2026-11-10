@@ -97,13 +97,38 @@ final class DeltaStore {
     ])->execute();
   }
 
-  public function items(string $runId, int $limit, bool $sourceWins = FALSE, bool $retryErrors = FALSE, bool $unpublish = FALSE, int $after = 0): array {
+  public function items(string $runId, int $limit, bool $sourceWins = FALSE, bool $retryErrors = FALSE, bool $unpublish = FALSE, int $after = 0, bool $retryDependencies = FALSE): array {
     $query = $this->database->select(self::ITEM, 'i')->fields('i')->condition('run_id', $runId)->condition('source_id', $after, '>');
     $eligible = $query->orConditionGroup()->condition('status', 'pending');
     if ($sourceWins) { $eligible->condition($query->andConditionGroup()->condition('status', 'blocked')->condition('operation', ['update_candidate', 'deleted'], 'IN')); }
     if ($retryErrors) { $eligible->condition('status', 'error'); }
+    if ($retryDependencies) { $eligible->condition($query->andConditionGroup()->condition('operation', 'create_staged')->condition('destination_id', 0, '>')->condition('status', ['waiting_refs', 'error'], 'IN')); }
     if ($unpublish) { $eligible->condition($query->andConditionGroup()->condition('status', 'reported')->condition('operation', 'deleted')); }
     return $query->condition($eligible)->orderBy('source_id')->range(0, $limit)->execute()->fetchAll(\PDO::FETCH_ASSOC);
+  }
+
+  /** Unfinished owner creation must not be hidden by adoption in a new run. */
+  public function pendingDependencies(string $type, array $ids): array {
+    if (!$ids || !$this->database->schema()->tableExists(self::ITEM)) { return []; }
+    $query = $this->database->select(self::ITEM, 'i');
+    $query->innerJoin(self::RUN, 'r', 'r.run_id=i.run_id');
+    $query->fields('i')->condition('r.source_type', $type)->condition('i.source_id', $ids, 'IN')->condition('i.operation', 'create_staged')->condition('i.destination_id', 0, '>')->condition('i.status', ['waiting_refs', 'error'], 'IN')->orderBy('r.created', 'DESC');
+    $out = [];
+    foreach ($query->execute()->fetchAll(\PDO::FETCH_ASSOC) as $item) { $out[(int) $item['source_id']] ??= $item; }
+    return $out;
+  }
+
+  /** Save the created owner's identity and its unresolved dependency atomically. */
+  public function waitingReferences(array $item, array $result, array $dependency): void {
+    $details = array_replace(json_decode($item['details'], TRUE, 512, JSON_THROW_ON_ERROR), [
+      'reason' => 'awaiting_dependencies', 'awaiting_dependencies' => TRUE,
+      'dependencies' => $dependency, 'destination_hash_after_create' => $result['destination_hash'],
+      'effects' => $result['effects'] ?? [], 'written' => TRUE,
+    ]);
+    $this->database->update(self::ITEM)->fields([
+      'status' => 'waiting_refs', 'destination_id' => $result['destination_id'], 'destination_hash' => $result['destination_hash'],
+      'details' => json_encode($details, JSON_THROW_ON_ERROR), 'updated' => time(),
+    ])->expression('attempts', 'attempts + 1')->condition('run_id', $item['run_id'])->condition('source_id', $item['source_id'])->execute();
   }
 
   /** Metadata-only adoption is one upsert per batch, never a node save. */

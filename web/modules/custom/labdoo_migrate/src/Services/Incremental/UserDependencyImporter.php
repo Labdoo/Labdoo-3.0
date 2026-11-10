@@ -4,10 +4,13 @@ namespace Drupal\labdoo_migrate\Services\Incremental;
 
 use Drupal\Core\Database\Connection;
 use Drupal\user\Entity\User;
+use Drupal\user\Entity\Role;
 
 /** Explicit, create-only repair of missing D7 author dependencies; never syncs users. */
 final class UserDependencyImporter {
   private const LOCK = 'labdoo_migrate.delta';
+  // Matches SpecialFieldTypeRole; administrator RID 3 is intentionally excluded.
+  private const SOURCE_ROLES = [4=>'wiki_writer',5=>'edoovillage_manager',6=>'hub_manager',7=>'newsletter_manager',8=>'superhub_manager',9=>'team_manager'];
   private const PROFILE = ['field_about_me','field_user_name','field_notification_area','field_skills','field_hub_manager_notifications','field_picture'];
 
   public function __construct(private Connection $source, private Connection $destination) {
@@ -56,8 +59,8 @@ final class UserDependencyImporter {
     return array_values(array_unique(array_map('intval',$ids)));
   }
 
-  private function preview(int $uid, ?array $snapshot): array {
-    $result=['uid'=>$uid,'operation'=>'blocked','reasons'=>[],'legacy_empty_required_fields'=>[]];
+  private function preview(int $uid, ?array $snapshot, bool $sourceRoles=FALSE): array {
+    $result=['uid'=>$uid,'operation'=>'blocked','reasons'=>[],'legacy_empty_required_fields'=>[],'mapped_roles'=>[]];
     if (!$snapshot) { $result['reasons'][]='source_user_missing';return $result; }
     $result['source_hash']=$snapshot['hash'];
     $ids=$this->identity($uid);
@@ -71,7 +74,16 @@ final class UserDependencyImporter {
     $user=$snapshot['user'];
     if ($this->destination->select('users_field_data','u')->condition('name',$user['name'])->countQuery()->execute()->fetchField()) { $result['reasons'][]='username_collision'; }
     if ($user['mail']!=='' && $this->destination->query('SELECT COUNT(*) FROM {users_field_data} WHERE LOWER(TRIM(mail))=:mail',[':mail'=>strtolower(trim($user['mail']))])->fetchField()) { $result['reasons'][]='email_collision'; }
-    if (array_diff($snapshot['roles'],[2])) { $result['reasons'][]='special_roles_require_explicit_user_migration'; }
+    $special=array_values(array_diff($snapshot['roles'],[2]));
+    foreach($special as$rid){
+      if(isset(self::SOURCE_ROLES[$rid])){$result['mapped_roles'][]=self::SOURCE_ROLES[$rid];}
+      if(!$sourceRoles){continue;}
+      if($rid===3){$result['reasons'][]='administrator_source_role_forbidden';continue;}
+      if(!isset(self::SOURCE_ROLES[$rid])){$result['reasons'][]='unknown_source_role';continue;}
+      $role=Role::load(self::SOURCE_ROLES[$rid]);
+      if(!$role||$role->isAdmin()){$result['reasons'][]='destination_role_missing_or_administrative';}
+    }
+    if($special&&!$sourceRoles){$result['reasons'][]='special_roles_require_explicit_user_migration';}
     $password=(string)$user['pass'];$kind=$password;
     if (str_starts_with($kind,'U$')) { $kind=substr($kind,1); }
     $legacy=str_starts_with($kind,'$S$')||str_starts_with($kind,'$P$')||str_starts_with($kind,'$H$');
@@ -90,11 +102,12 @@ final class UserDependencyImporter {
     return $result;
   }
 
-  private function values(int $uid, array $snapshot): array {
+  private function values(int $uid, array $snapshot, array $roles=[]): array {
     $source=$snapshot['user'];
     $preferred=$source['language'] && $source['language']!=='und' ? $source['language'] : \Drupal::languageManager()->getDefaultLanguage()->getId();
     if (!\Drupal::languageManager()->getLanguage($preferred)) { throw new \RuntimeException('Source preferred language is not configured.'); }
     $values=['uid'=>$uid,'name'=>$source['name'],'mail'=>$source['mail'],'init'=>$source['init']??$source['mail'],'status'=>(int)$source['status'],'created'=>(int)$source['created'],'preferred_langcode'=>$preferred,'timezone'=>$source['timezone']?:NULL,'pass'=>['value'=>$source['pass'],'pre_hashed'=>TRUE]];
+    $values['roles']=$roles;
     foreach ($snapshot['profile'] as $field=>$rows) {
       if ($field==='field_picture') { continue; }
       $items=[];
@@ -132,26 +145,26 @@ final class UserDependencyImporter {
    * Preview reports create candidates; apply performs final entity validation.
    * Only the explicitly listed absent UIDs can be created, never updated.
    */
-  public function run(array $uids, bool $apply=FALSE): array {
+  public function run(array $uids, bool $apply=FALSE, bool $sourceRoles=FALSE): array {
     if(!$uids||count($uids)>100){throw new \InvalidArgumentException('Specify 1..100 explicit user IDs.');}
     foreach($uids as &$uid){$uid=filter_var($uid,FILTER_VALIDATE_INT,['options'=>['min_range'=>2,'max_range'=>4294967295]]);if($uid===FALSE){throw new \InvalidArgumentException('Import requires original source UIDs greater than one.');}}unset($uid);
-    $uids=array_values(array_unique($uids));$out=['dry_run'=>!$apply,'source_identity'=>$this->sourceIdentity(),'created'=>0,'preserved'=>0,'blocked'=>0,'users'=>[]];
+    $uids=array_values(array_unique($uids));$out=['dry_run'=>!$apply,'source_roles'=>$sourceRoles,'source_identity'=>$this->sourceIdentity(),'created'=>0,'preserved'=>0,'blocked'=>0,'users'=>[]];
     $lock=\Drupal::lock();$state=\Drupal::state();$sentinel=new \stdClass();$previous=$state->get('labdoo_migrate_is_running',$sentinel);$ownerExists=array_key_exists('labdoo_incremental_lock_owner',$GLOBALS);$previousOwner=$GLOBALS['labdoo_incremental_lock_owner']??NULL;
     if($apply&&($state->get('labdoo_migrate_is_running',FALSE)||$previousOwner)){throw new \RuntimeException('A migration writer is already active.');}
     if($apply&&!$lock->acquire(self::LOCK,300)){throw new \RuntimeException('Another incremental writer holds the global lock.');}
     try{
       if($apply){$GLOBALS['labdoo_incremental_lock_owner']=TRUE;}
       foreach($uids as$uid){
-        $snapshot=$this->snapshot($uid);$result=$this->preview($uid,$snapshot);
+        $snapshot=$this->snapshot($uid);$result=$this->preview($uid,$snapshot,$sourceRoles);
         if($result['operation']==='create'&&$apply){
           $transaction=$this->destination->startTransaction();$switcher=\Drupal::service('account_switcher');$switched=FALSE;
           try{
             if(!$lock->acquire(self::LOCK,300)){throw new \RuntimeException('Migration lock lease lost.');}
             $fresh=$this->snapshot($uid);if(!$fresh||!hash_equals($snapshot['hash'],$fresh['hash'])){throw new \RuntimeException('Source changed before import.');}
-            $again=$this->preview($uid,$fresh);if($again['operation']!=='create'){throw new \RuntimeException('Destination identity changed before import.');}
+            $again=$this->preview($uid,$fresh,$sourceRoles);if($again['operation']!=='create'){throw new \RuntimeException('Destination identity changed before import.');}
             $before=$this->nodeInvariants();$admin=ReadOnlyEntityLoader::storage('user')->load(1);if(!$admin){throw new \RuntimeException('Migration administrator is missing.');}
             $switcher->switchTo($admin);$switched=TRUE;$state->set('labdoo_migrate_is_running',TRUE);
-            $account=User::create($this->values($uid,$fresh));$account->setSyncing(TRUE);$account->labdoo_skip_geocoding=TRUE;$account->skip_action_generation=TRUE;$account->skip_geocoding_enqueue=TRUE;$account->skip_recompute_enqueue=TRUE;$account->search_api_skip_tracking=TRUE;
+            $account=User::create($this->values($uid,$fresh,$again['mapped_roles']));$account->setSyncing(TRUE);$account->labdoo_skip_geocoding=TRUE;$account->skip_action_generation=TRUE;$account->skip_geocoding_enqueue=TRUE;$account->skip_recompute_enqueue=TRUE;$account->search_api_skip_tracking=TRUE;
             $errors=[];
             foreach($account->validate()as$violation){
               $path=$violation->getPropertyPath();$constraint=$violation->getConstraint();
