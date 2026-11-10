@@ -93,6 +93,7 @@ module:
   labdoo_scraper: 0
   labdoo_search_fix: 0
   labdoo_statistics: 0
+  labdoo_translations: 0
   labdoo_story: 0
   labdoo_team: 0
   labdoo_user: 0

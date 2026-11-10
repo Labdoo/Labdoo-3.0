@@ -1,0 +1,8 @@
+name: Labdoo portable translations
+type: module
+description: Versioned configuration and menu translations without importing content or translation rows.
+package: Labdoo
+core_version_requirement: ^10.6 || ^11
+dependencies:
+  - drupal:language
+  - drupal:locale
