@@ -68,3 +68,7 @@ Revisión de cabecera y footer del 09/11/2026: **26/26 E2E aprobadas** en `theme
 
 
 Administración de paletas del 11/11/2026: **30/30 E2E aprobadas** (20 de escritorio y 10 de móvil), sin fallos, omisiones ni reintentos, en `theme-admin-palette-edit-final`. Verificadas creación, carga de campos al seleccionar, edición de paletas propias y predefinidas, selección global, fondos personalizados, duplicados, permisos y carga/guardado sin JavaScript. La configuración de las pruebas se restaura al terminar; las comprobaciones del tema mantienen el número y máximo ID de nodos y el tema predeterminado. Sintaxis PHP/JavaScript, YAML y `git diff --check` correctos. Cambios locales en `feature/labdoo-next-theme`, pendientes de despliegue.
+
+## Citas educativas
+
+Con `labdoo_quotes` habilitado, la cabecera carga una cita traducida mediante AJAX en cada visita, excluyendo la anterior. El endpoint devuelve `no-store` para conservar la variación aunque la página esté cacheada; la cita de respaldo funciona sin JavaScript. Catálogo, fuentes, traducciones PO y comprobaciones: `web/modules/custom/labdoo_quotes/README.md`.

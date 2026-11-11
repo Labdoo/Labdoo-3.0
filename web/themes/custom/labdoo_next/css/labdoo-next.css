@@ -1034,3 +1034,12 @@ body.labdoo-next {
     border: 0;
 }
 }
+
+.labdoo-next .ldn-quote figcaption a {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+.labdoo-next .ldn-quote figcaption a:hover {
+  text-decoration: underline;
+}

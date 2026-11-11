@@ -1,0 +1,11 @@
+labdoo_quotes.random:
+  path: '/labdoo/education-quote/{langcode}'
+  defaults:
+    _controller: '\Drupal\labdoo_quotes\Controller\QuoteController::random'
+    _format: 'json'
+  requirements:
+    _access: 'TRUE'
+    langcode: '[a-z][a-z0-9-]*'
+  methods: [GET]
+  options:
+    no_cache: TRUE

@@ -1,0 +1,7 @@
+services:
+  labdoo_quotes.catalog:
+    class: Drupal\labdoo_quotes\QuoteCatalog
+    arguments: ['@extension.list.module', '@string_translation', '@language_manager']
+  labdoo_quotes.importer:
+    class: Drupal\labdoo_quotes\TranslationImporter
+    arguments: ['@extension.list.module', '@language_manager', '@string_translation', '@lock']

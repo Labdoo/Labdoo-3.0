@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * @file
+ * Theme integration and translations for education quotes.
+ */
+
+use Drupal\language\ConfigurableLanguageInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function labdoo_quotes_theme(): array {
+  return [
+    'labdoo_education_quote' => [
+      'variables' => ['quote' => [], 'attributes' => [], 'langcode' => 'en'],
+      'template' => 'labdoo-education-quote',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for configurable_language.
+ */
+function labdoo_quotes_configurable_language_insert(ConfigurableLanguageInterface $language): void {
+  \Drupal::service('labdoo_quotes.importer')->import([$language->getId()]);
+}
