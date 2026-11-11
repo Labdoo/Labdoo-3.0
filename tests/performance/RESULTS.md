@@ -1,4 +1,4 @@
-# Evaluación actual: rendimiento móvil
+# Evaluación de rendimiento móvil
 
 URL exacta facilitada por el usuario, como visitante:
 
@@ -9,7 +9,46 @@ evaluación. Chrome 157.0.8103.38, perfiles estándar de Lighthouse, navegador
 nuevo por ejecución y red externa real. Las ejecuciones se realizan de forma
 secuencial y se informa la mediana, conservando todos los valores.
 
-## Resultado
+## Iteración posterior: caché interna y trabajo del navegador
+
+La puntuación de 81 comunicada por el usuario en v3 no queda resuelta por
+los resultados anteriores. La nueva tanda local, con Lighthouse 13.6.0,
+obtiene **82, 81 y 85** (mediana **82**); las otras tres categorías mantienen
+100. El TBT es 347, 437 y 311 ms. No se atribuye una mejora de puntuación a
+esta iteración ni se presenta el 96 histórico como resultado actual.
+
+Se ha identificado una causa independiente de latencia: la política del tema
+experimental anulaba también Dynamic Page Cache. Ahora se permite almacenar
+el shell con los contextos y placeholders de Drupal antes de impedir el
+almacenamiento en Page Cache. Las respuestas continúan siendo privadas y
+`no-store`; la frase AJAX sigue sin caché. Los enlaces de retorno separan
+todos los argumentos de consulta para evitar reutilizar enlaces de otra URL.
+En local las peticiones repetidas dan DPC HIT en unos 30 ms. Antes del cambio,
+cuatro peticiones internas al servidor AWS tardaron 1.687, 0.770, 0.941 y
+1.395 segundos y todas indicaron DPC UNCACHEABLE. Estas medidas son del
+backend y no equivalen a Lighthouse a través de CloudFront.
+
+También se cargan los plugins de fechas y etiquetas del gráfico únicamente
+cuando la configuración los requiere; se omite la animación inicial si no
+hay una animación explícita. La tabla de Views recibe su contenedor accesible
+desde Twig, evitando moverla después del primer renderizado y permitiendo
+el desplazamiento horizontal sin JavaScript. El observador de la frase deja
+de recorrer el documento al terminar de analizar el widget inicial.
+
+La regresión funcional completa aprueba **83 pruebas**, sin omisiones ni fallos.
+Incluye desplazamiento sin JavaScript, plugins opcionales y aislamiento de
+argumentos de consulta entre respuestas con DPC HIT.
+
+La comprobación de control, sirviendo el código de `f60c5b2b` en el mismo
+entorno y sesión de trabajo, obtiene **80, 79 y 80** (mediana 80). La
+diferencia hasta 82 es pequeña y no resuelve el objetivo móvil. También
+confirma que el 96 histórico no es reproducible en esta tanda.
+
+La traza todavía muestra tareas largas de diseño, inicialización del gráfico
+y analítica. La mejora móvil sigue pendiente. Informes privados:
+`.e2e-lab/state/lighthouse-next/phase3-table-final/`.
+
+## Resultado de la evaluación anterior
 
 | Versión / perfil | Rendimiento de cada ejecución | Mediana | Accesibilidad | Buenas prácticas | SEO |
 | --- | --- | --- | --- | --- | --- |

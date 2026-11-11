@@ -3,7 +3,6 @@
 namespace Drupal\labdoo_theme_preview\EventSubscriber;
 
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
-use Drupal\Core\Cache\CacheableResponseInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -29,14 +28,23 @@ final class PreviewResponseSubscriber implements EventSubscriberInterface {
     if (!$event->isMainRequest() || $this->themeManager->getActiveTheme()->getName() !== 'labdoo_next') {
       return;
     }
-    $this->killSwitch->trigger();
     $response = $event->getResponse();
-    if ($response instanceof CacheableResponseInterface) {
-      $response->getCacheableMetadata()->setCacheMaxAge(0);
-    }
     $response->setPrivate();
     $response->headers->addCacheControlDirective('no-store');
     $response->headers->set('X-Labdoo-Theme', 'labdoo_next');
+  }
+
+  /**
+   * Keeps previews out of page/CDN caches after contextual DPC storage.
+   */
+  public function preventSharedStorage(ResponseEvent $event): void {
+    $this->onResponse($event);
+    if ($event->isMainRequest() && $this->themeManager->getActiveTheme()->getName() === 'labdoo_next') {
+      // Dynamic Page Cache has already stored the cacheable shell with Drupal's
+      // contexts and placeholders. Deny the anonymous full-page cache, while
+      // preserving private/no-store for browsers and external shared caches.
+      $this->killSwitch->trigger();
+    }
   }
 
   /**
@@ -46,7 +54,7 @@ final class PreviewResponseSubscriber implements EventSubscriberInterface {
     return [
       KernelEvents::RESPONSE => [
         ['onResponse', 100],
-        ['onResponse', -1000],
+        ['preventSharedStorage', -1000],
       ],
     ];
   }
