@@ -1,0 +1,49 @@
+{# The original theme remains the base for content, maps and field templates. #}
+<div class="ldn-site">
+  <div class="ldn-preview">
+    <div class="ldn-shell ldn-preview__inner">
+      <span><span class="ldn-preview__dot" aria-hidden="true"></span>{{ 'A fresh look for Labdoo'|t }}</span>
+      <a href="{{ next_original_url }}" data-labdoo-original>{{ 'Back to original'|t }} <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+  <header class="ldn-header">
+    <div class="ldn-shell ldn-header__inner">
+      <a href="{{ path('<front>') }}" class="ldn-brand" aria-label="{{ 'Labdoo home'|t }}">
+        <img src="{{ next_logo }}" alt="Labdoo" width="134" height="42">
+      </a>
+      <button class="ldn-menu-toggle" type="button" aria-controls="ldn-navigation" aria-expanded="false">{{ 'Menu'|t }} <span aria-hidden="true">☰</span></button>
+      <nav id="ldn-navigation" class="ldn-navigation" aria-label="{{ 'Main navigation'|t }}">{{ next_navigation }}</nav>
+      <div class="ldn-utilities">{{ next_utilities }}</div>
+    </div>
+    {{ next_header }}
+    <figure class="ldn-shell ldn-quote">
+      <blockquote>
+        <p>«{{ 'La educación es el arma más poderosa que puedes usar para cambiar el mundo'|t }}»</p>
+      </blockquote>
+      <figcaption>— Nelson Mandela</figcaption>
+    </figure>
+  </header>
+  <div class="ldn-shell">
+    <div class="ldn-breadcrumb">{{ page.breadcrumb }}</div>
+    <section class="ldn-impact" aria-label="{{ 'Our shared impact'|t }}">
+      <div class="ldn-section-label">{{ 'Our shared impact'|t }}</div>
+      {{ next_statistics }}
+    </section>
+    <header class="ldn-page-heading">{{ next_title }}</header>
+    {{ page.post_header }}
+    {{ page.pre_content }}
+    {% set sidebar = page.sidebar|render %}
+    <div class="ldn-layout{% if sidebar|striptags|trim or '<drupal-render-placeholder' in sidebar|trim %} ldn-layout--sidebar{% endif %}">
+      <main id="main-content" class="ldn-main page-content" tabindex="-1">
+        {{ page.highlighted }}
+        {{ page.help }}
+        {{ page.content }}
+        {{ page.post_content }}
+      </main>
+      {% if sidebar|striptags|trim or '<drupal-render-placeholder' in sidebar|trim %}
+        <aside class="ldn-sidebar" aria-label="{{ 'Related actions and information'|t }}">{{ sidebar }}</aside>
+      {% endif %}
+    </div>
+    <footer class="ldn-footer">{{ page.pre_footer }}{{ page.footer }}</footer>
+  </div>
+</div>

@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * @file
+ * Presentation helpers for Labdoo Next.
+ */
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function labdoo_next_preprocess_html(array &$variables): void {
+  $variables['attributes']['class'][] = 'labdoo-next';
+  if (\Drupal::hasService('labdoo_theme_preview.palettes')) {
+    $palette = \Drupal::service('labdoo_theme_preview.palettes')->active();
+    $variables['attributes']['data-ldn-palette'] = $palette['id'];
+    $styles = [];
+    foreach ($palette['colors'] as $key => $color) {
+      $styles[] = '--ldn-' . $key . ':' . $color;
+    }
+    $styles[] = '--ldn-focus:' . $palette['colors']['green'] . '24';
+    $variables['attributes']['style'] = implode(';', $styles);
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function labdoo_next_page_attachments_alter(array &$attachments): void {
+  $attachments['#cache']['tags'][] = 'config:labdoo_theme_preview.palettes';
+  if (empty($attachments['#attached']['html_head_link'])) {
+    return;
+  }
+  foreach ($attachments['#attached']['html_head_link'] as &$link) {
+    if (($link[0]['rel'] ?? '') === 'icon') {
+      $link[0]['href'] = base_path() . \Drupal::service('extension.list.theme')->getPath('labdoo') . '/img/favicon.png';
+      $link[0]['type'] = 'image/png';
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function labdoo_next_preprocess_page(array &$variables): void {
+  $variables['next_header'] = $variables['page']['header'] ?? [];
+  $variables['next_statistics'] = [];
+  $variables['next_title'] = [];
+  $variables['next_utilities'] = [];
+  $blocks = \Drupal::entityTypeManager()->getStorage('block');
+  foreach ($variables['next_header'] as $key => $block) {
+    if (str_starts_with((string) $key, '#') || !is_array($block)) {
+      continue;
+    }
+    // Blocks can still be lazy builders here; their metadata is in config.
+    $plugin = $block['#plugin_id'] ?? $blocks->load($key)?->getPluginId();
+    if ($plugin === 'statistics_block_block') {
+      $variables['next_statistics'][$key] = $block;
+      unset($variables['next_header'][$key]);
+    }
+    elseif ($plugin === 'page_title_block') {
+      $variables['next_title'][$key] = $block;
+      unset($variables['next_header'][$key]);
+    }
+    elseif (str_starts_with($plugin ?? '', 'language_dropdown_block:') || $plugin === 'views_exposed_filter_block:search_results-page_1') {
+      $variables['next_utilities'][$key] = $block;
+      unset($variables['next_header'][$key]);
+    }
+  }
+  $variables['next_navigation'] = \Drupal::service('plugin.manager.block')
+    ->createInstance('system_menu_block:main', [
+      'label_display' => FALSE,
+      'level' => 1,
+      'depth' => 3,
+      'expand_all_items' => TRUE,
+    ])->build();
+  $request = \Drupal::request();
+  $query = $request->query->all();
+  unset($query['theme'], $query['palette']);
+  $variables['next_original_url'] = $request->getPathInfo()
+    . ($query ? '?' . http_build_query($query) : '');
+  $variables['next_logo'] = base_path() . 'themes/custom/labdoo/img/labdoo-site-logo.png';
+}
+
+/**
+ * Implements hook_preprocess_block().
+ */
+function labdoo_next_preprocess_block(array &$variables): void {
+  if (($variables['plugin_id'] ?? '') === 'labdoo_footer_acts_block' && isset($variables['content']['image'])) {
+    $variables['content']['image']['#uri'] = '/' . \Drupal::service('extension.list.theme')->getPath('labdoo') . '/img/footer-acts-transparent.png';
+  }
+}

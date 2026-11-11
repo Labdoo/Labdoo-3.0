@@ -1,0 +1,5 @@
+labdoo_theme_preview.palettes:
+  title: 'Labdoo Next color palettes'
+  description: 'Create named palettes and select the active colors for Labdoo Next.'
+  route_name: labdoo_theme_preview.palettes
+  parent: system.themes_page

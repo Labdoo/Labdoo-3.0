@@ -1,0 +1,14 @@
+services:
+  labdoo_theme_preview.negotiator:
+    class: Drupal\labdoo_theme_preview\Theme\PreviewNegotiator
+    arguments: ['@request_stack', '@config.factory']
+    tags:
+      - { name: theme_negotiator, priority: 1100 }
+  labdoo_theme_preview.response:
+    class: Drupal\labdoo_theme_preview\EventSubscriber\PreviewResponseSubscriber
+    arguments: ['@theme.manager', '@page_cache_kill_switch']
+    tags:
+      - { name: event_subscriber }
+  labdoo_theme_preview.palettes:
+    class: Drupal\labdoo_theme_preview\PaletteManager
+    arguments: ['@config.factory']
