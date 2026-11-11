@@ -5,6 +5,40 @@ design:
   js:
     js/labdoo-next.js: {}
   dependencies:
+    - labdoo_next/early
     - labdoo/custom-styling
     - core/drupal
+    - core/drupalSettings
     - core/once
+
+map:
+  js:
+    vendor/leaflet-1.0.3/dist/leaflet.js: { minified: true }
+    vendor/markercluster-1.5.3/dist/leaflet.markercluster.js: { minified: true }
+    /themes/custom/labdoo/js/labdoo-map.js: {}
+  css:
+    theme:
+      vendor/leaflet-1.0.3/dist/leaflet.css: {}
+      vendor/markercluster-1.5.3/dist/MarkerCluster.css: {}
+      vendor/markercluster-1.5.3/dist/MarkerCluster.Default.css: {}
+      /themes/custom/labdoo/css/labdoo-map.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+    - geolocation/geolocation.map
+
+lazy_chartjs:
+  js:
+    js/lazy-charts.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+    - charts/global
+
+early:
+  header: true
+  js:
+    js/early.js: {}

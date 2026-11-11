@@ -52,3 +52,9 @@ Para añadir una cita, actualizar `quotes.json` y sus entradas de texto y autor 
 `tests/e2e/education-quotes.spec.ts` verifica los veinte idiomas en el endpoint, las cabeceras de caché, exclusión de la frase anterior, reutilización del mismo HTML cacheado, BFCache, idiomas inválidos, métodos de escritura, errores de red, respaldo sin JavaScript y tamaños de escritorio/móvil.
 
 Validación del 11/11/2026: **64/64 E2E aprobadas**, sin fallos, omisiones ni reintentos (`education-quotes`), junto con la auditoría de los veinte PO. `tests/quotes-import.php` comprueba en la base aislada que las personalizaciones sobrevivan a una reimportación y restaura el texto original al terminar. Conservados los nodos, sus IDs, el tema predeterminado y las reglas de plurales anteriores a la instalación.
+
+Con JavaScript, un pequeño script de cabecera oculta el respaldo mientras se
+recupera la frase definitiva. La frase y su autor aparecen juntos al terminar
+la petición; si falla o supera ocho segundos, se muestra el respaldo traducido.
+Sin JavaScript, el respaldo permanece visible desde el principio. Labdoo Next
+mantiene el autor junto al final del texto y ajusta la altura al contenido.

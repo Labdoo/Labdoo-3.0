@@ -1,6 +1,15 @@
 quotes:
   js:
     js/quotes.js: {}
+  css:
+    component:
+      css/quotes.css: {}
   dependencies:
+    - labdoo_quotes/early
     - core/drupal
     - core/once
+
+early:
+  header: true
+  js:
+    js/early.js: {}

@@ -1,6 +1,12 @@
 (function (Drupal, once) {
   'use strict';
 
+  if (!('IntersectionObserver' in window)) {
+    Object.values(window.drupalSettings?.geolocation?.maps || {}).forEach((settings) => {
+      if (settings.conditional_initialization === 'viewport') settings.conditional_initialization = 'no';
+    });
+  }
+
   const excluded = /\/(?:admin(?:\/|$)|user\/logout|dootronics\/(?:print-labels|export)|content\/tag-one-dooject)|\.(?:pdf|png|jpe?g|gif|svg|zip|csv)$/i;
   Drupal.behaviors.labdooNext = {
     attach(context) {

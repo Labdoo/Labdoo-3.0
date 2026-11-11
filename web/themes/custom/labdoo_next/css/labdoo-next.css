@@ -123,7 +123,7 @@ body.labdoo-next {
 }
 .labdoo-next .ldn-brand img {
   width: 120px;
-  height: auto;
+  height: 23.5px;
   display: block;
 }
 .labdoo-next .ldn-navigation {
@@ -869,7 +869,7 @@ body.labdoo-next {
   .labdoo-next .ldn-menu-toggle {
     grid-area: 1 / 2;
   }
-  .js .labdoo-next .ldn-menu-toggle {
+  .ldn-js .labdoo-next .ldn-menu-toggle {
     display: flex !important;
     align-items: center;
     gap: 14px;
@@ -883,7 +883,7 @@ body.labdoo-next {
   .labdoo-next .ldn-navigation {
     grid-area: 3 / 1 / 4 / -1;
   }
-  .js .labdoo-next .ldn-navigation:not(.is-open) {
+  .ldn-js .labdoo-next .ldn-navigation:not(.is-open) {
     display: none;
   }
   .labdoo-next .ldn-navigation .ldn-menu {
@@ -915,7 +915,7 @@ body.labdoo-next {
     align-items: center;
     gap: 14px;
 }
-  .js .labdoo-next .ldn-menu-toggle {
+  .ldn-js .labdoo-next .ldn-menu-toggle {
     display: flex !important;
     align-items: center;
     gap: 14px;
@@ -926,7 +926,7 @@ body.labdoo-next {
     padding: 10px 14px;
     font: inherit;
 }
-  .js .labdoo-next .ldn-navigation:not(.is-open) {
+  .ldn-js .labdoo-next .ldn-navigation:not(.is-open) {
     display: none;
 }
   .labdoo-next .ldn-navigation .ldn-menu {
@@ -1042,4 +1042,41 @@ body.labdoo-next {
 }
 .labdoo-next .ldn-quote figcaption a:hover {
   text-decoration: underline;
+}
+
+/* Public controls use palette colors rather than the inherited blue/gray. */
+.labdoo-next .ldn-breadcrumb .breadcrumb__link,
+.labdoo-next .ldn-breadcrumb .breadcrumb__link:visited {
+  color: var(--ldn-green) !important;
+}
+.labdoo-next .pager__link .pager__item-title {
+  color: var(--ldn-ink) !important;
+}
+.labdoo-next .ldn-main .alert-success {
+  color: var(--ldn-ink);
+  background: var(--ldn-soft);
+  border-color: var(--ldn-line);
+}
+.labdoo-next .ldn-main .alert-success a {
+  color: var(--ldn-green);
+}
+/* The author follows the last line of the quote without an empty grid track. */
+.labdoo-next .ldn-quote {
+  display: block;
+  margin-block-end: 16px;
+}
+.labdoo-next .ldn-quote blockquote,
+.labdoo-next .ldn-quote blockquote p {
+  display: inline;
+}
+.labdoo-next .ldn-quote figcaption {
+  display: inline;
+  margin-inline-start: 14px;
+}
+
+.labdoo-next .block-actions-block-block .edoovillage-status-completed {
+  color: var(--ldn-green);
+}
+.labdoo-next .block-actions-block-block .edoovillage-status-open {
+  color: #a32929;
 }

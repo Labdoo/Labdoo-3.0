@@ -83,6 +83,43 @@ test('AJAX failure leaves a translated quote visible', async ({ page }, info) =>
   await expect(widget).toHaveAttribute('aria-busy', 'false');
   await expect(widget).toHaveAttribute('data-quote-id', 'mandela');
   await expect(widget.locator('.labdoo-quote__text')).toHaveText(translations('es').get(source[0].text)!);
+  await expect(widget.locator('.labdoo-quote__text')).toBeVisible();
+});
+
+test('only the final AJAX quote is shown and its author stays close @responsive', async ({ page }, info) => {
+  let release: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/labdoo/education-quote/**', async route => {
+    const response = await route.fetch();
+    await gate;
+    await route.fulfill({ response });
+  });
+  await goto(page, '/en/content/labdoo-social-network-how-it-works?theme=labdoo_next', info);
+  const widget = page.locator('.labdoo-quote');
+  const text = widget.locator('.labdoo-quote__text');
+  await expect(widget).toHaveAttribute('data-quote-pending', '');
+  await expect(text).toBeHidden();
+  await expect(widget.locator('figcaption')).toBeHidden();
+  release!();
+  await expect(widget).toHaveAttribute('aria-busy', 'false');
+  await expect(text).toBeVisible();
+  await expect(widget.locator('figcaption')).toBeVisible();
+  expect(await widget.getAttribute('data-quote-id')).not.toBe('mandela');
+  const spaceBelowText = await widget.evaluate(el => {
+    const box = el.getBoundingClientRect();
+    const bottom = Math.max(...Array.from(el.querySelectorAll('blockquote, figcaption'), child => child.getBoundingClientRect().bottom));
+    return box.bottom - bottom;
+  });
+  expect(spaceBelowText).toBeLessThan(16);
+  // On a wide screen short quotes and their authors share a compact line.
+  if (info.project.name !== 'mobile') {
+    await page.setViewportSize({ width: 1600, height: 1000 });
+    await text.evaluate(el => { el.textContent = 'Education changes lives.'; });
+    const quote = await widget.locator('blockquote').boundingBox();
+    const author = await widget.locator('figcaption').boundingBox();
+    expect(author!.x - quote!.x - quote!.width).toBeGreaterThanOrEqual(0);
+    expect(author!.x - quote!.x - quote!.width).toBeLessThan(24);
+  }
 });
 for (const language of ['es', 'ar']) {
   test(`server fallback is translated into ${language} without JavaScript`, async ({ browser, baseURL }, info) => {

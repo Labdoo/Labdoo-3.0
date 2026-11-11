@@ -15,7 +15,10 @@
       try { previous = sessionStorage.getItem(storageKey) || previous; }
       catch (error) { /* Exclude the fallback when storage is disabled. */ }
       url.searchParams.set('exclude', previous);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
       requests.set(endpoint, fetch(url, {
+        signal: controller.signal,
         cache: 'no-store',
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
@@ -31,11 +34,12 @@
         }
         remember(quote.id);
         return quote;
-      }));
+      }).finally(() => clearTimeout(timeout)));
     }
     return requests.get(endpoint);
   }
   function load(element) {
+    element.setAttribute('data-quote-pending', '');
     element.setAttribute('aria-busy', 'true');
     requestQuote(element).then(quote => {
       if (!element.isConnected) return;
@@ -47,7 +51,10 @@
       element.querySelector('blockquote').setAttribute('cite', quote.source);
     }).catch(() => {
       // Keep the translated server-rendered quote on network or server failure.
-    }).finally(() => element.setAttribute('aria-busy', 'false'));
+    }).finally(() => {
+      element.removeAttribute('data-quote-pending');
+      element.setAttribute('aria-busy', 'false');
+    });
   }
   Drupal.behaviors.labdooEducationQuotes = {
     attach(context) {

@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Default theme implementation to present a wiki page entity.
+ *
+ * This template is used when viewing a canonical wiki page page,
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ *   print a subset such as 'content.label'.
+ * - attributes: HTML attributes for the container element.
+ *
+ * @see template_preprocess_mini_wiki_page()
+ */
+#}
+<article{{ attributes }}>
+  {{ title_prefix }}
+  {% if content.label %}
+    <h1>{{ content.label }}</h1>
+  {% endif %}
+  {{ title_suffix }}
+  <div class="alert alert-success">
+    <a class="close" data-dismiss="alert" href="#">×</a>
+    <h2 class="visually-hidden">{{ 'Status message'|t }}</h2>
+    <img src="/themes/custom/labdoo/img/equation-2-alpha-small.png" width="60" alt="" loading="lazy" decoding="async"> If you have any questions about this page or if you find any errors,
+    please write a message to the
+    <a href="/team-wall/25">support wall</a>
+    and a Labdoo volunteer will help resolve it.
+    Thank you for helping to improve our wiki pages.
+  </div>
+  {% if content %}
+    {{- content -}}
+  {% endif %}
+</article>
