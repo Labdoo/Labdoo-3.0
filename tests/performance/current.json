@@ -19,7 +19,95 @@
     },
     "requests": 217
   },
-  "current_lighthouse_13_6_0": [
+  "current_lighthouse_12_8_2": [
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 1,
+      "scores": {
+        "performance": 94,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1357.9322,
+        "largest-contentful-paint": 2452.8983,
+        "total-blocking-time": 193.5,
+        "cumulative-layout-shift": 0.0004732323296101662,
+        "speed-index": 1525.2594492996025
+      },
+      "lighthouse_version": "12.8.2"
+    },
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 2,
+      "scores": {
+        "performance": 93,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1371.4645,
+        "largest-contentful-paint": 2301.4645,
+        "total-blocking-time": 258,
+        "cumulative-layout-shift": 0.0004732323296101662,
+        "speed-index": 1460.4991901840863
+      },
+      "lighthouse_version": "12.8.2"
+    },
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 3,
+      "scores": {
+        "performance": 93,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1365.6683,
+        "largest-contentful-paint": 2310.1683000000003,
+        "total-blocking-time": 242,
+        "cumulative-layout-shift": 0.0004732323296101662,
+        "speed-index": 1463.7702620640068
+      },
+      "lighthouse_version": "12.8.2"
+    }
+  ],
+  "mobile_transport": [
+    {
+      "run": 1,
+      "bytes": 507548,
+      "requests": 21,
+      "stylesheets": 2,
+      "map_point_requests": 0
+    },
+    {
+      "run": 2,
+      "bytes": 507210,
+      "requests": 21,
+      "stylesheets": 2,
+      "map_point_requests": 0
+    },
+    {
+      "run": 3,
+      "bytes": 507211,
+      "requests": 21,
+      "stylesheets": 2,
+      "map_point_requests": 0
+    }
+  ],
+  "functional_tests": {
+    "passed": 83,
+    "failed": 0,
+    "skipped": 0,
+    "report": "lighthouse-phase3-table/playwright-results.json"
+  },
+  "historical_phase2_lighthouse_13_6_0": [
     {
       "route": "requested",
       "profile": "mobile",
@@ -135,91 +223,128 @@
       "lighthouse_version": "13.6.0"
     }
   ],
-  "current_lighthouse_12_8_2": [
+  "current_lighthouse_13_6_0": [
     {
       "route": "requested",
       "profile": "mobile",
       "run": 1,
       "scores": {
-        "performance": 94,
+        "performance": 82,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "first-contentful-paint": 1357.9322,
-        "largest-contentful-paint": 2452.8983,
-        "total-blocking-time": 193.5,
-        "cumulative-layout-shift": 0.0004732323296101662,
-        "speed-index": 1525.2594492996025
+        "first-contentful-paint": 1372.6824,
+        "largest-contentful-paint": 3642.8316999999997,
+        "total-blocking-time": 347,
+        "cumulative-layout-shift": 0.023040415732343986,
+        "speed-index": 1447.1144701267335
       },
-      "lighthouse_version": "12.8.2"
+      "lighthouse_version": "13.6.0"
     },
     {
       "route": "requested",
       "profile": "mobile",
       "run": 2,
       "scores": {
-        "performance": 93,
+        "performance": 81,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "first-contentful-paint": 1371.4645,
-        "largest-contentful-paint": 2301.4645,
-        "total-blocking-time": 258,
-        "cumulative-layout-shift": 0.0004732323296101662,
-        "speed-index": 1460.4991901840863
+        "first-contentful-paint": 1375.1063,
+        "largest-contentful-paint": 3332.9509499999995,
+        "total-blocking-time": 437,
+        "cumulative-layout-shift": 0.00340379434893946,
+        "speed-index": 1467.2984849712275
       },
-      "lighthouse_version": "12.8.2"
+      "lighthouse_version": "13.6.0"
     },
     {
       "route": "requested",
       "profile": "mobile",
       "run": 3,
       "scores": {
-        "performance": 93,
+        "performance": 85,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "first-contentful-paint": 1365.6683,
-        "largest-contentful-paint": 2310.1683000000003,
-        "total-blocking-time": 242,
+        "first-contentful-paint": 1367.5614999999998,
+        "largest-contentful-paint": 3403.6544999999996,
+        "total-blocking-time": 310.85862499999985,
         "cumulative-layout-shift": 0.0004732323296101662,
-        "speed-index": 1463.7702620640068
+        "speed-index": 1425.1360584162153
       },
-      "lighthouse_version": "12.8.2"
+      "lighthouse_version": "13.6.0"
     }
   ],
-  "mobile_transport": [
-    {
-      "run": 1,
-      "bytes": 507548,
-      "requests": 21,
-      "stylesheets": 2,
-      "map_point_requests": 0
-    },
-    {
-      "run": 2,
-      "bytes": 507210,
-      "requests": 21,
-      "stylesheets": 2,
-      "map_point_requests": 0
-    },
-    {
-      "run": 3,
-      "bytes": 507211,
-      "requests": 21,
-      "stylesheets": 2,
-      "map_point_requests": 0
-    }
-  ],
-  "functional_tests": {
+  "current_note": "Phase 3 local mobile median 82. No confirmed Lighthouse improvement over the visitor report on v3. Historical phase 2 results are retained separately.",
+  "historical_phase2_functional_tests": {
     "passed": 78,
     "skipped": 0,
     "failed": 0
-  }
+  },
+  "phase3_paired_control": [
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 1,
+      "scores": {
+        "performance": 80,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1383.4413999999997,
+        "largest-contentful-paint": 3463.0982999999997,
+        "total-blocking-time": 432,
+        "cumulative-layout-shift": 0.023040415732343986,
+        "speed-index": 1601.3630803255849
+      },
+      "lighthouse_version": "13.6.0"
+    },
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 2,
+      "scores": {
+        "performance": 79,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1373.4301999999998,
+        "largest-contentful-paint": 4224.5327,
+        "total-blocking-time": 301.99999999999955,
+        "cumulative-layout-shift": 0.0004732323296101662,
+        "speed-index": 1586.4422440532805
+      },
+      "lighthouse_version": "13.6.0"
+    },
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 3,
+      "scores": {
+        "performance": 80,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1393.2327,
+        "largest-contentful-paint": 3531.83025,
+        "total-blocking-time": 413.5,
+        "cumulative-layout-shift": 0,
+        "speed-index": 1768.5797233486142
+      },
+      "lighthouse_version": "13.6.0"
+    }
+  ]
 }

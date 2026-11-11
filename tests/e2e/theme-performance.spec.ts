@@ -1,4 +1,21 @@
-import { test, expect, goto } from './helpers';
+import { test, expect, goto, networkGuard } from './helpers';
+
+test('results can be scrolled horizontally without JavaScript @responsive', async ({ browser, baseURL }, info) => {
+  const context = await browser.newContext({ baseURL, javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  await networkGuard(context);
+  const page = await context.newPage();
+  try {
+    await goto(page, '/en/content/dootronics-dashboard?theme=labdoo_next', info);
+    const region = page.getByRole('region', { name: 'Results table', exact: true }).first();
+    await region.scrollIntoViewIfNeeded();
+    await expect(region).toBeVisible();
+    expect(await region.evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
+    await region.focus();
+    await region.press('ArrowRight');
+    await expect.poll(() => region.evaluate(el => el.scrollLeft)).toBeGreaterThan(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  } finally { await context.close(); }
+});
 
 test('an offscreen dashboard map downloads neither Leaflet nor points before scrolling @responsive', async ({ page }, info) => {
   await page.setViewportSize({ width: 412, height: 823 });
@@ -57,7 +74,11 @@ test('public maps preserve filtered points, equator coordinates and safe popups 
 
 test('charts still render after scrolling with local libraries @responsive', async ({ page }, info) => {
   const errors: string[] = [];
+  const optional: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
+  page.on('request', request => {
+    if (/chartjs-(adapter-date-fns|plugin-datalabels)/.test(request.url())) optional.push(request.url());
+  });
   await page.route('**/api/map-points/**', route => route.fulfill({ json: [] }));
   await goto(page, '/en/content/dootronics-dashboard?theme=labdoo_next', info);
   const chart = page.locator('.charts-chartjs').first();
@@ -67,7 +88,56 @@ test('charts still render after scrolling with local libraries @responsive', asy
     const canvas = document.querySelector('canvas.charts-chartjs') as HTMLCanvasElement;
     return Boolean((window as any).Chart.getChart(canvas));
   })).toBe(true);
+  expect(optional).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test('an AJAX chart can load dates and data labels after the simple dashboard chart @responsive', async ({ page }, info) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.route('**/api/map-points/**', route => route.fulfill({ json: [] }));
+  await goto(page, '/en/content/dootronics-dashboard?theme=labdoo_next', info);
+  await page.locator('.charts-chartjs').first().scrollIntoViewIfNeeded();
+  await expect(page.locator('canvas.charts-chartjs').first()).toBeVisible();
+  await page.evaluate(() => {
+    const parent = document.createElement('section');
+    parent.style.width = '350px';
+    const chart = document.createElement('div');
+    chart.id = 'e2e-date-chart';
+    chart.className = 'charts-chartjs';
+    chart.dataset.chart = JSON.stringify({
+      type: 'line',
+      data: { datasets: [{ label: 'History', data: [{ x: '2026-11-01', y: 2 }, { x: '2026-11-02', y: 5 }] }] },
+      options: { animation: false, scales: { x: { type: 'time', time: { unit: 'day' } } }, plugins: { datalabels: { display: true } } },
+    });
+    parent.append(chart);
+    document.body.append(parent);
+    (window as any).Drupal.attachBehaviors(parent, (window as any).drupalSettings);
+  });
+  await page.locator('#e2e-date-chart').scrollIntoViewIfNeeded();
+  await expect(page.locator('canvas#e2e-date-chart')).toBeVisible();
+  expect(await page.evaluate(() => {
+    const chart = (window as any).Chart.getChart('e2e-date-chart');
+    return { scale: chart.scales.x.type, points: chart.getDatasetMeta(0).data.length, labels: chart.config.plugins.some((plugin: any) => plugin.id === 'datalabels') };
+  })).toEqual({ scale: 'time', points: 2, labels: true });
+  expect(errors).toEqual([]);
+});
+
+test('preview HTML uses contextual dynamic caching while remaining private', async ({ request }) => {
+  const token = Date.now().toString();
+  const a = `/en/content/dootronics-dashboard?theme=labdoo_next&cache_probe=a${token}`;
+  const b = `/en/content/dootronics-dashboard?theme=labdoo_next&cache_probe=b${token}`;
+  await request.get(a);
+  const cached = await request.get(a);
+  expect(cached.headers()['x-drupal-dynamic-cache']).toBe('HIT');
+  expect(cached.headers()['x-drupal-cache']).not.toBe('HIT');
+  expect(cached.headers()['cache-control']).toContain('private');
+  expect(cached.headers()['cache-control']).toContain('no-store');
+  const html = await (await request.get(b)).text();
+  expect(html).toContain(`cache_probe=b${token}`);
+  expect(html).not.toContain(`cache_probe=a${token}`);
+  const original = await request.get(`/en/content/dootronics-dashboard?cache_probe=a${token}`);
+  expect(await original.text()).not.toContain('class="ldn-site"');
 });
 
 test('a large marker collection completes without dropping points @responsive', async ({ page }, info) => {

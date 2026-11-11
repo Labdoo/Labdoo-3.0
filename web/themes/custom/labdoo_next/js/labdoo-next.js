@@ -33,6 +33,7 @@
         input.value = 'labdoo_next';
       });
       once('labdoo-next-table', '.ldn-main table', context).forEach((table) => {
+        if (table.closest('.ldn-table-scroll')) return;
         const scroll = document.createElement('div');
         scroll.className = 'ldn-table-scroll';
         scroll.tabIndex = 0;
