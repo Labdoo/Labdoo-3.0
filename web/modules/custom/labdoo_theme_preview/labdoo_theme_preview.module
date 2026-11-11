@@ -9,5 +9,7 @@
  * Implements hook_page_attachments_alter().
  */
 function labdoo_theme_preview_page_attachments_alter(array &$attachments): void {
-  $attachments['#cache']['contexts'][] = 'url.query_args:theme';
+  // The preview's return link preserves the complete query, including filters.
+  // Contextual dynamic caching must therefore vary by all query arguments.
+  $attachments['#cache']['contexts'][] = 'url.query_args';
 }

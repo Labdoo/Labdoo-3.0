@@ -1,0 +1,5 @@
+{# Keep Gin's table, sorting and bulk controls; prepare scrolling before paint. #}
+{% set scroll_label = caption ? caption|render|striptags : (title ? title|render|striptags : 'Results table'|t) %}
+<div class="ldn-table-scroll" tabindex="0" role="region" aria-label="{{ scroll_label }}">
+  {% include '@gin/views/views-view-table.html.twig' %}
+</div>

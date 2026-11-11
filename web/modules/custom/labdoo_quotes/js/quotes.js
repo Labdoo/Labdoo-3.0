@@ -71,13 +71,37 @@
     if (figure) initialize(figure);
     context.querySelectorAll('.labdoo-quote').forEach(initialize);
   }
-  // Start as the HTML parser reaches the quote, independently of Drupal's
-  // footer libraries. This also handles widgets inserted by AJAX later.
-  new MutationObserver(records => {
-    records.forEach(record => record.addedNodes.forEach(discover));
-  }).observe(document.documentElement, {childList: true, subtree: true});
-  discover(document);
-  document.addEventListener('DOMContentLoaded', () => discover(document), {once: true});
+  // Stop watching the parser as soon as the header quote is complete. Walking
+  // every later table row during parsing creates avoidable main-thread work.
+  const parserObserver = new MutationObserver(records => {
+    for (const record of records) {
+      for (const node of record.addedNodes) {
+        if (node.nodeType !== Node.ELEMENT_NODE) continue;
+        const ready = node.matches('[data-quote-ready]') ? node : node.querySelector('[data-quote-ready]');
+        if (ready) {
+          const figure = ready.closest('.labdoo-quote');
+          if (figure) initialize(figure);
+          parserObserver.disconnect();
+          return;
+        }
+      }
+    }
+  });
+  function afterParsing() {
+    parserObserver.disconnect();
+    discover(document);
+    // Continue supporting widgets added by AJAX, after the large initial DOM
+    // has already been parsed. Text replacements are ignored by discover().
+    new MutationObserver(records => {
+      records.forEach(record => record.addedNodes.forEach(discover));
+    }).observe(document.documentElement, {childList: true, subtree: true});
+  }
+  if (document.readyState === 'loading') {
+    parserObserver.observe(document.documentElement, {childList: true, subtree: true});
+    document.addEventListener('DOMContentLoaded', afterParsing, {once: true});
+  } else {
+    afterParsing();
+  }
   window.addEventListener('pageshow', event => {
     if (event.persisted) {
       requests.clear();
