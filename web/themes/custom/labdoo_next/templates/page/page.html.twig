@@ -16,12 +16,16 @@
       <div class="ldn-utilities">{{ next_utilities }}</div>
     </div>
     {{ next_header }}
+    {% if next_quote %}
+      {{ next_quote }}
+    {% else %}
     <figure class="ldn-shell ldn-quote">
       <blockquote>
         <p>«{{ 'La educación es el arma más poderosa que puedes usar para cambiar el mundo'|t }}»</p>
       </blockquote>
       <figcaption>— Nelson Mandela</figcaption>
     </figure>
+    {% endif %}
   </header>
   <div class="ldn-shell">
     <div class="ldn-breadcrumb">{{ page.breadcrumb }}</div>

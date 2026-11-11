@@ -1,0 +1,44 @@
+[
+  {
+    "id": "mandela",
+    "text": "Education is the most powerful weapon we can use to change the world.",
+    "author": "Nelson Mandela",
+    "source": "https://www.mandela.gov.za/mandela_speeches/2003/030716_mindset.htm",
+    "work": "Mindset Network launch speech, 16 July 2003"
+  },
+  {
+    "id": "keller",
+    "text": "The highest result of education is tolerance.",
+    "author": "Helen Keller",
+    "source": "https://www.gutenberg.org/cache/epub/31622/pg31622-images.html",
+    "work": "Optimism: An Essay (1903)"
+  },
+  {
+    "id": "confucius",
+    "text": "Learning without thought is naught; thought without learning is dangerous.",
+    "author": "Confucius",
+    "source": "https://www.gutenberg.org/cache/epub/24055/pg24055-images.html",
+    "work": "The Analects, II.15; translation by Leonard A. Lyall (1909)"
+  },
+  {
+    "id": "aristotle",
+    "text": "All men by nature desire to know.",
+    "author": "Aristotle",
+    "source": "https://classics.mit.edu/Aristotle/metaphysics.1.i.html",
+    "work": "Metaphysics, I.1; translation by W. D. Ross"
+  },
+  {
+    "id": "dewey",
+    "text": "Education, therefore, is a process of living and not a preparation for future living.",
+    "author": "John Dewey",
+    "source": "https://cyc-net.org/cyc-online/cycol-0502-dewey.html",
+    "work": "My Pedagogic Creed, article II (1897); excerpt from a sentence beginning “I believe that…”"
+  },
+  {
+    "id": "mann",
+    "text": "Education, then, beyond all other devices of human origin, is the great equalizer of the conditions of men.",
+    "author": "Horace Mann",
+    "source": "https://ushistory.education/historical-documents/horace-mann-twelfth-annual-report/",
+    "work": "Twelfth Annual Report, Massachusetts Board of Education (1848); excerpt"
+  }
+]

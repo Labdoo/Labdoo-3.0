@@ -42,6 +42,9 @@ function labdoo_next_page_attachments_alter(array &$attachments): void {
  * Implements hook_preprocess_page().
  */
 function labdoo_next_preprocess_page(array &$variables): void {
+  if (\Drupal::hasService('labdoo_quotes.catalog')) {
+    $variables['next_quote'] = \Drupal::service('labdoo_quotes.catalog')->build(['class' => ['ldn-shell', 'ldn-quote']]);
+  }
   $variables['next_header'] = $variables['page']['header'] ?? [];
   $variables['next_statistics'] = [];
   $variables['next_title'] = [];

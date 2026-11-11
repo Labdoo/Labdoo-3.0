@@ -1,0 +1,6 @@
+quotes:
+  js:
+    js/quotes.js: {}
+  dependencies:
+    - core/drupal
+    - core/once

@@ -1,0 +1,81 @@
+# Education quotes: original sources are recorded in quotes.json.
+# Singular strings only: no global Plural-Forms metadata is imported.
+msgid ""
+msgstr ""
+"Project-Id-Version: Labdoo education quotes\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. mandela — Mindset Network launch speech, 16 July 2003
+#. https://www.mandela.gov.za/mandela_speeches/2003/030716_mindset.htm
+msgctxt "Labdoo education quotes"
+msgid "Education is the most powerful weapon we can use to change the world."
+msgstr "Onderwijs is het krachtigste wapen dat we kunnen gebruiken om de wereld te veranderen."
+
+#. mandela — Mindset Network launch speech, 16 July 2003
+#. https://www.mandela.gov.za/mandela_speeches/2003/030716_mindset.htm
+msgctxt "Labdoo education quotes"
+msgid "Nelson Mandela"
+msgstr "Nelson Mandela"
+
+#. keller — Optimism: An Essay (1903)
+#. https://www.gutenberg.org/cache/epub/31622/pg31622-images.html
+msgctxt "Labdoo education quotes"
+msgid "The highest result of education is tolerance."
+msgstr "Het hoogste resultaat van onderwijs is verdraagzaamheid."
+
+#. keller — Optimism: An Essay (1903)
+#. https://www.gutenberg.org/cache/epub/31622/pg31622-images.html
+msgctxt "Labdoo education quotes"
+msgid "Helen Keller"
+msgstr "Helen Keller"
+
+#. confucius — The Analects, II.15; translation by Leonard A. Lyall (1909)
+#. https://www.gutenberg.org/cache/epub/24055/pg24055-images.html
+msgctxt "Labdoo education quotes"
+msgid "Learning without thought is naught; thought without learning is dangerous."
+msgstr "Leren zonder na te denken is vergeefs; nadenken zonder te leren is gevaarlijk."
+
+#. confucius — The Analects, II.15; translation by Leonard A. Lyall (1909)
+#. https://www.gutenberg.org/cache/epub/24055/pg24055-images.html
+msgctxt "Labdoo education quotes"
+msgid "Confucius"
+msgstr "Confucius"
+
+#. aristotle — Metaphysics, I.1; translation by W. D. Ross
+#. https://classics.mit.edu/Aristotle/metaphysics.1.i.html
+msgctxt "Labdoo education quotes"
+msgid "All men by nature desire to know."
+msgstr "Alle mensen verlangen van nature naar kennis."
+
+#. aristotle — Metaphysics, I.1; translation by W. D. Ross
+#. https://classics.mit.edu/Aristotle/metaphysics.1.i.html
+msgctxt "Labdoo education quotes"
+msgid "Aristotle"
+msgstr "Aristoteles"
+
+#. dewey — My Pedagogic Creed, article II (1897); excerpt from a sentence beginning “I believe that…”
+#. https://cyc-net.org/cyc-online/cycol-0502-dewey.html
+msgctxt "Labdoo education quotes"
+msgid "Education, therefore, is a process of living and not a preparation for future living."
+msgstr "Onderwijs is daarom een levensproces en geen voorbereiding op het toekomstige leven."
+
+#. dewey — My Pedagogic Creed, article II (1897); excerpt from a sentence beginning “I believe that…”
+#. https://cyc-net.org/cyc-online/cycol-0502-dewey.html
+msgctxt "Labdoo education quotes"
+msgid "John Dewey"
+msgstr "John Dewey"
+
+#. mann — Twelfth Annual Report, Massachusetts Board of Education (1848); excerpt
+#. https://ushistory.education/historical-documents/horace-mann-twelfth-annual-report/
+msgctxt "Labdoo education quotes"
+msgid "Education, then, beyond all other devices of human origin, is the great equalizer of the conditions of men."
+msgstr "Onderwijs is dus, meer dan enig ander door mensen bedacht middel, de grote gelijkmaker van de levensomstandigheden van mensen."
+
+#. mann — Twelfth Annual Report, Massachusetts Board of Education (1848); excerpt
+#. https://ushistory.education/historical-documents/horace-mann-twelfth-annual-report/
+msgctxt "Labdoo education quotes"
+msgid "Horace Mann"
+msgstr "Horace Mann"
