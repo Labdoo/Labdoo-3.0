@@ -9,6 +9,51 @@ evaluación. Chrome 157.0.8103.38, perfiles estándar de Lighthouse, navegador
 nuevo por ejecución y red externa real. Las ejecuciones se realizan de forma
 secuencial y se informa la mediana, conservando todos los valores.
 
+## 12/11/2026: analítica según el consentimiento configurado
+
+La tanda final obtiene **98, 98 y 97** en móvil (mediana **98**), con
+accesibilidad, buenas prácticas y SEO en **100** en las tres ejecuciones.
+TBT: **55, 71 y 126 ms**. LCP: **2.37, 2.23 y 2.16 s**.
+La descarga inicial es de unos **0.26 MB en 15 peticiones**, con una sola
+petición de frase y ninguna descarga de Analytics antes del consentimiento.
+Son ejecuciones estándar de Lighthouse 13.6.0 en la URL indicada, con un
+navegador nuevo y sin patrones de bloqueo de Analytics.
+
+El alcance es la primera visita anónima **antes de aceptar cookies**. El portal
+(local y v3) tiene configurado `opt_in`. Next conserva el código de configuración
+y la cola de gtag, pero descarga la biblioteca de Analytics después de aceptar.
+Quien ya dio su consentimiento sigue cargándola; estas puntuaciones no miden
+ese caso. La retirada desactiva los nuevos eventos de todas las cuentas, se
+respetan las exclusiones previas y volver a aceptar no duplica la descarga.
+El cambio se aplica a Next anónimo con `opt_in`; otros métodos mantienen su
+comportamiento. La lógica reutiliza los estados y eventos de EU Cookie Compliance.
+
+La comprobación previa de esta sesión, con la petición de la frase adelantada
+pero Analytics cargándose al inicio, obtuvo **84, 83 y 85** (mediana 84).
+Un diagnóstico excluyendo únicamente Analytics obtuvo **94, 97 y 92**;
+esos valores son una prueba de aislamiento, no el resultado del cambio real.
+
+La frase empieza su petición AJAX desde una pequeña inicialización en el HTML,
+antes de los estilos. El widget reutiliza esa misma petición, mantiene la
+exclusión de la última frase y conserva el respaldo traducido por fallo de red
+o sin JavaScript. La restauración desde BFCache inicia una petición nueva.
+
+**90 casos funcionales verificados:** 85 de regresión y cinco específicos de
+analítica en escritorio/móvil. La ejecución amplia aprobó los 85 casos de
+regresión; después de corregir el helper que cerraba el aviso y los estados de
+prueba (el proveedor usa cadenas), la tanda final de analítica aprobó sus cinco
+casos. Cubren aceptar, retirar, volver a aceptar, visitas con consentimiento
+previo y el tema original. También se comprobó la biblioteca real de Google:
+se observaron peticiones de colección con consentimiento, interceptadas para
+no publicar visitas sintéticas. La retirada utiliza la API de desactivación
+[documentada por Google](https://developers.google.com/tag-platform/security/guides/privacy).
+
+Informes completos privados: `phase4-consent-final/`, `phase4-early-request/`
+y `phase4-diagnostic-without-analytics/` dentro de
+`.e2e-lab/state/lighthouse-next/`. Regresión: `lighthouse-phase4-final`;
+analítica final: `lighthouse-phase4-consent-validated` en `state/runs`.
+Las puntuaciones son locales y no equivalen a una auditoría pública de AWS.
+
 ## Iteración posterior: caché interna y trabajo del navegador
 
 La puntuación de 81 comunicada por el usuario en v3 no queda resuelta por

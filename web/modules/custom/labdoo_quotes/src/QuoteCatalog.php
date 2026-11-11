@@ -2,9 +2,11 @@
 
 namespace Drupal\labdoo_quotes;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\Url;
 
@@ -62,6 +64,8 @@ final class QuoteCatalog {
       'data-quote-pending' => '',
       'data-quote-url' => Url::fromRoute('labdoo_quotes.random', ['langcode' => $language->getId()], ['language' => $language])->toString(),
     ];
+    $bootstrap = file_get_contents(DRUPAL_ROOT . '/' . $this->modules->getPath('labdoo_quotes') . '/js/request-early.js');
+    $bootstrap .= '(' . Json::encode($attributes['data-quote-url']) . ', ' . Json::encode($quotes[0]['id']) . ');';
     return [
       '#theme' => 'labdoo_education_quote',
       '#quote' => $quotes[0],
@@ -69,6 +73,10 @@ final class QuoteCatalog {
       '#langcode' => $language->getId(),
       '#attached' => [
         'library' => ['labdoo_quotes/quotes'],
+        'html_head' => [[
+          ['#tag' => 'script', '#value' => Markup::create($bootstrap), '#weight' => -100],
+          'labdoo_quote_request_' . $language->getId(),
+        ]],
       ],
       '#cache' => [
         'contexts' => ['languages:language_interface'],
