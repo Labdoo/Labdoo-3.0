@@ -97,6 +97,9 @@ test.describe('site palette administration', () => {
     await page.getByLabel('Palette name', { exact: true }).fill(name + ' revised');
     await page.getByRole('button', { name: 'Save configuration', exact: true }).click();
     await expect(page.locator('body')).toContainText('A palette with this name already exists.');
+    // A validation response can paint before its behavior script attaches.
+    // Wait until the JS editor has replaced the no-JS load button.
+    await expect(page.getByRole('button', { name: 'Load palette', exact: true, includeHidden: true })).toBeHidden();
     // Built-in palettes can also be loaded, edited and saved.
     await page.getByLabel('Create a new palette', { exact: true }).uncheck();
     await page.getByLabel('Active palette', { exact: true }).selectOption('plum');

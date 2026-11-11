@@ -1,0 +1,3 @@
+# Preserve upstream assets exactly, including PNG bytes and source whitespace.
+* -text -whitespace
+*.png binary

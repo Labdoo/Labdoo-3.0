@@ -1,8 +1,9 @@
-(function (Drupal, once) {
+(function () {
   'use strict';
 
   const storageKey = 'labdoo.educationQuote.last';
   const requests = new Map();
+  const initialized = new WeakSet();
   function remember(id) {
     try { sessionStorage.setItem(storageKey, id); }
     catch (error) { /* Quote loading also works when storage is disabled. */ }
@@ -15,7 +16,10 @@
       try { previous = sessionStorage.getItem(storageKey) || previous; }
       catch (error) { /* Exclude the fallback when storage is disabled. */ }
       url.searchParams.set('exclude', previous);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
       requests.set(endpoint, fetch(url, {
+        signal: controller.signal,
         cache: 'no-store',
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
@@ -31,11 +35,12 @@
         }
         remember(quote.id);
         return quote;
-      }));
+      }).finally(() => clearTimeout(timeout)));
     }
     return requests.get(endpoint);
   }
   function load(element) {
+    element.setAttribute('data-quote-pending', '');
     element.setAttribute('aria-busy', 'true');
     requestQuote(element).then(quote => {
       if (!element.isConnected) return;
@@ -47,17 +52,36 @@
       element.querySelector('blockquote').setAttribute('cite', quote.source);
     }).catch(() => {
       // Keep the translated server-rendered quote on network or server failure.
-    }).finally(() => element.setAttribute('aria-busy', 'false'));
+    }).finally(() => {
+      element.removeAttribute('data-quote-pending');
+      element.setAttribute('aria-busy', 'false');
+    });
   }
-  Drupal.behaviors.labdooEducationQuotes = {
-    attach(context) {
-      once('labdoo-education-quote', '.labdoo-quote', context).forEach(load);
-    },
-  };
+  function initialize(element) {
+    // A parser mutation may arrive before the figure's children are complete.
+    if (document.readyState === 'loading' && !element.querySelector('[data-quote-ready]')) return;
+    if (initialized.has(element) || !element.querySelector('.labdoo-quote__text') ||
+        !element.querySelector('.labdoo-quote__author')) return;
+    initialized.add(element);
+    load(element);
+  }
+  function discover(context) {
+    if (context.nodeType !== Node.ELEMENT_NODE && context.nodeType !== Node.DOCUMENT_NODE) return;
+    const figure = context.closest?.('.labdoo-quote');
+    if (figure) initialize(figure);
+    context.querySelectorAll('.labdoo-quote').forEach(initialize);
+  }
+  // Start as the HTML parser reaches the quote, independently of Drupal's
+  // footer libraries. This also handles widgets inserted by AJAX later.
+  new MutationObserver(records => {
+    records.forEach(record => record.addedNodes.forEach(discover));
+  }).observe(document.documentElement, {childList: true, subtree: true});
+  discover(document);
+  document.addEventListener('DOMContentLoaded', () => discover(document), {once: true});
   window.addEventListener('pageshow', event => {
     if (event.persisted) {
       requests.clear();
       document.querySelectorAll('.labdoo-quote').forEach(load);
     }
   });
-})(Drupal, once);
+})();

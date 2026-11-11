@@ -10,6 +10,11 @@
  */
 function labdoo_next_preprocess_html(array &$variables): void {
   $variables['attributes']['class'][] = 'labdoo-next';
+  // The public design does not show the inherited administration toolbar.
+  // Omit its render array as well, so hidden controls do not load their assets.
+  if (\Drupal::currentUser()->isAnonymous() && is_array($variables['page_top'] ?? NULL)) {
+    unset($variables['page_top']['toolbar']);
+  }
   if (\Drupal::hasService('labdoo_theme_preview.palettes')) {
     $palette = \Drupal::service('labdoo_theme_preview.palettes')->active();
     $variables['attributes']['data-ldn-palette'] = $palette['id'];
@@ -27,6 +32,44 @@ function labdoo_next_preprocess_html(array &$variables): void {
  */
 function labdoo_next_page_attachments_alter(array &$attachments): void {
   $attachments['#cache']['tags'][] = 'config:labdoo_theme_preview.palettes';
+  $map_script = \Drupal::service('extension.list.theme')->getPath('labdoo') . '/js/labdoo-map.js';
+  $attachments['#attached']['drupalSettings']['labdooNext']['mapBehavior'] = $map_script . '?v=' . substr(hash_file('sha256', DRUPAL_ROOT . '/' . $map_script), 0, 16);
+  if (\Drupal::moduleHandler()->moduleExists('charts_chartjs')) {
+    $attachments['#attached']['drupalSettings']['labdooNext']['chartsBridge'] = '/' . \Drupal::service('extension.list.module')->getPath('charts_chartjs') . '/js/charts_chartjs.js';
+  }
+  $attachments['#cache']['contexts'][] = 'user.roles:authenticated';
+  // Keep consent controls, but display them without a delayed slide animation.
+  if (isset($attachments['#attached']['drupalSettings']['eu_cookie_compliance'])) {
+    $attachments['#attached']['drupalSettings']['eu_cookie_compliance']['popup_delay'] = 0;
+  }
+  if (\Drupal::currentUser()->isAnonymous()) {
+    $attachments['#attached']['library'][] = 'labdoo_next/public';
+    $unused = ['gin/gin_init', 'gin/gin_custom_css', 'gin/sticky'];
+    $attachments['#attached']['library'] = array_values(array_diff($attachments['#attached']['library'] ?? [], $unused));
+    foreach (array_keys($attachments['#attached']['drupalSettings']['lang_dropdown'] ?? []) as $key) {
+      $attachments['#attached']['drupalSettings']['lang_dropdown'][$key]['widget'] = 'native';
+    }
+  }
+  $route = \Drupal::routeMatch()->getRouteObject();
+  $title = $route ? \Drupal::service('title_resolver')->getTitle(\Drupal::request(), $route) : NULL;
+  $title = is_scalar($title) || $title instanceof \Stringable ? strip_tags((string) $title) : \Drupal::config('system.site')->get('name');
+  $description = (string) t('Explore @title on @site: reusing technology to support education worldwide.', ['@title' => $title, '@site' => \Drupal::config('system.site')->get('name')]);
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node instanceof \Drupal\node\NodeInterface) {
+    $node = \Drupal::service('entity.repository')->getTranslationFromContext($node);
+    if ($node->hasField('body') && $node->get('body')->access('view') && !$node->get('body')->isEmpty()) {
+      $body = $node->get('body')->first();
+      $summary = $body->summary ?: $body->value;
+      $summary = preg_replace('/\s+/u', ' ', trim(\Drupal\Component\Utility\Html::decodeEntities(strip_tags($summary))));
+      if ($summary !== '') {
+        $description = \Drupal\Component\Utility\Unicode::truncate($summary, 160, TRUE, TRUE);
+      }
+    }
+  }
+  $attachments['#attached']['html_head'][] = [
+    ['#tag' => 'meta', '#attributes' => ['name' => 'description', 'content' => $description]],
+    'labdoo_next_description',
+  ];
   if (empty($attachments['#attached']['html_head_link'])) {
     return;
   }
@@ -81,7 +124,7 @@ function labdoo_next_preprocess_page(array &$variables): void {
   unset($query['theme'], $query['palette']);
   $variables['next_original_url'] = $request->getPathInfo()
     . ($query ? '?' . http_build_query($query) : '');
-  $variables['next_logo'] = base_path() . 'themes/custom/labdoo/img/labdoo-site-logo.png';
+  $variables['next_logo'] = base_path() . 'themes/custom/labdoo_next/images/labdoo-wordmark.webp';
 }
 
 /**
@@ -90,5 +133,118 @@ function labdoo_next_preprocess_page(array &$variables): void {
 function labdoo_next_preprocess_block(array &$variables): void {
   if (($variables['plugin_id'] ?? '') === 'labdoo_footer_acts_block' && isset($variables['content']['image'])) {
     $variables['content']['image']['#uri'] = '/' . \Drupal::service('extension.list.theme')->getPath('labdoo') . '/img/footer-acts-transparent.png';
+    $variables['content']['image']['#width'] = 1342;
+    $variables['content']['image']['#height'] = 74;
+    $variables['content']['image']['#attributes']['loading'] = 'lazy';
+    $variables['content']['image']['#attributes']['decoding'] = 'async';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function labdoo_next_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, string $form_id): void {
+  if (!\Drupal::currentUser()->isAnonymous()) {
+    return;
+  }
+  labdoo_next_native_selects($form);
+  foreach (array_keys($form['#attached']['drupalSettings']['lang_dropdown'] ?? []) as $key) {
+    $form['#attached']['drupalSettings']['lang_dropdown'][$key]['widget'] = 'native';
+  }
+}
+
+/**
+ * Keeps public single selects keyboard-accessible without the Chosen wrapper.
+ */
+function labdoo_next_native_selects(array &$element): void {
+  if (($element['#type'] ?? '') === 'select' && empty($element['#multiple'])) {
+    $element['#chosen'] = FALSE;
+    $element['#attributes']['class'][] = 'chosen-disable';
+  }
+  foreach (\Drupal\Core\Render\Element::children($element) as $key) {
+    labdoo_next_native_selects($element[$key]);
+  }
+}
+
+/**
+ * Implements hook_preprocess_pager().
+ */
+function labdoo_next_preprocess_pager(array &$variables): void {
+  $variables['pagination_heading_level'] = 'h2';
+}
+
+/**
+ * Implements hook_preprocess_views_mini_pager().
+ */
+function labdoo_next_preprocess_views_mini_pager(array &$variables): void {
+  $variables['pagination_heading_level'] = 'h2';
+}
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ */
+function labdoo_next_preprocess_views_view_field(array &$variables): void {
+  $output = (string) ($variables['output'] ?? '');
+  if (!str_contains($output, '/themes/custom/labdoo/img/')) {
+    return;
+  }
+  // Stored activity bodies predate accessible decorative icon markup. Fix the
+  // rendered field rather than rewriting content or its revision history.
+  $document = \Drupal\Component\Utility\Html::load($output);
+  foreach ($document->getElementsByTagName('img') as $image) {
+    $src = $image->getAttribute('src');
+    if (str_starts_with($src, '/themes/custom/labdoo/img/') && !$image->hasAttribute('alt')) {
+      $image->setAttribute('alt', '');
+      $image->setAttribute('loading', 'lazy');
+      $image->setAttribute('decoding', 'async');
+    }
+  }
+  $variables['output'] = \Drupal\Core\Render\Markup::create(\Drupal\Component\Utility\Html::serialize($document));
+}
+
+/**
+ * Implements hook_js_settings_alter().
+ */
+function labdoo_next_js_settings_alter(array &$settings, \Drupal\Core\Asset\AttachedAssetsInterface $assets): void {
+  // These settings bubble from field render arrays after page attachments.
+  foreach (array_keys($settings['geolocation']['maps'] ?? []) as $map_id) {
+    if (($settings['geolocation']['maps'][$map_id]['conditional_initialization'] ?? 'no') === 'no') {
+      $settings['geolocation']['maps'][$map_id]['conditional_initialization'] = 'viewport';
+      $settings['geolocation']['maps'][$map_id]['conditional_viewport_threshold'] = 0.01;
+    }
+  }
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function labdoo_next_css_alter(array &$css, \Drupal\Core\Asset\AttachedAssetsInterface $assets): void {
+  if (!\Drupal::currentUser()->isAnonymous()) {
+    return;
+  }
+  // Public Next pages keep Claro's form, table, pager and dialog components.
+  // Gin's administrative skin duplicates those components and is not part of
+  // this design. Keep all custom and contributed feature styles untouched.
+  $gin_path = \Drupal::service('extension.list.theme')->getPath('gin') . '/dist/css/';
+  $admin_components = [
+    'layout/system-admin--layout.css',
+    'layout/card-list.css',
+    'components/system-admin--admin-list.css',
+    'components/system-admin--links.css',
+    'components/system-admin--modules.css',
+    'components/system-admin--panel.css',
+    'components/modules-page.css',
+    'components/search-admin-settings.css',
+    'components/system-status-report-general-info.css',
+    'components/system-status-report.css',
+    'components/system-status-counter.css',
+    'components/system-status-report-counters.css',
+  ];
+  $admin_paths = array_map(static fn(string $path): string => 'core/themes/claro/css/' . $path, $admin_components);
+  foreach ($css as $key => $asset) {
+    $path = $asset['data'];
+    if (str_starts_with($path, $gin_path) || in_array($path, $admin_paths, TRUE)) {
+      unset($css[$key]);
+    }
   }
 }

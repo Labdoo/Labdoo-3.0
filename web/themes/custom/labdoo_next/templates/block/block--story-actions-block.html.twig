@@ -1,0 +1,26 @@
+<div id="block-story-actions" class="block block-actions-block-block">
+    <div class="views-exposed-form block-views">
+        <div class="block-title-wrapper block-actions-toggle">
+            <span class="block-title">{{ "Actions available for this story:"|t }}</span>
+            <span class="toggle-icon"></span>
+        </div>
+        <div class="block-actions-content">
+            <div class="actions">
+            {% if edit_link is not empty %}
+            <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo/img/house.png" alt="" loading="lazy" decoding="async" width="154" height="116">{{ "Edit this story"|t }}</a></div>
+            {% endif %}
+            {% if next_link is not empty %}
+            <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png" alt="" loading="lazy" decoding="async" width="94" height="114">{{ "Next story"|t }}</a></div>
+            {% endif %}
+            {% if previous_link is not empty %}
+            <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png" alt="" loading="lazy" decoding="async" width="94" height="114">{{ "Previous story"|t }}</a></div>
+            {% endif %}
+            {% if parent_link is not empty %}
+                <div class="action"><a href="{{ parent_link }}"><img class="icon" src="/themes/custom/labdoo/img/{{ parent_type }}.png" alt="" loading="lazy" decoding="async">{{ parent_type == 'hub' ? 'Go to hub'|t : 'Go to edoovillage'|t }}</a></div>
+            {% endif %}
+            <div class="action"><strong>{{ 'Date it was created:'|t }}</strong> {{ created }}</div>
+            <div class="action"><strong>{{ 'Date it was last updated:'|t }}</strong> {{ updated }}</div>
+        </div>
+        </div>
+    </div>
+</div>
