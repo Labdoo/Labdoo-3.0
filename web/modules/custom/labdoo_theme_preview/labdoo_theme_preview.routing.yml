@@ -1,0 +1,9 @@
+labdoo_theme_preview.palettes:
+  path: '/admin/appearance/labdoo-next/palettes'
+  defaults:
+    _form: '\Drupal\labdoo_theme_preview\Form\PaletteSettingsForm'
+    _title: 'Labdoo Next color palettes'
+  requirements:
+    _permission: 'administer themes'
+  options:
+    _admin_route: TRUE

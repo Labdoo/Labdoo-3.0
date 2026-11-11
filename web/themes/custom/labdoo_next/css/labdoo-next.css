@@ -7,8 +7,13 @@ body.labdoo-next {
   --ldn-line: #dce4dc;
   --ldn-paper: #fff;
   --ldn-canvas: #f6f7f2;
+  --ldn-primary-hover: #19442e;
+  --ldn-soft: #edf2e9;
+  --ldn-preview: #e9eee5;
+  --ldn-control-border: #aebfaf;
+  --ldn-focus: #245c4024;
   --gin-color-primary: var(--ldn-green);
-  --gin-color-primary-hover: #19442e;
+  --gin-color-primary-hover: var(--ldn-primary-hover);
   --gin-color-text: var(--ldn-ink);
   --gin-bg-app: var(--ldn-canvas);
   --gin-bg-layer: var(--ldn-paper);
@@ -43,8 +48,8 @@ body.labdoo-next {
   margin-inline: auto;
 }
 .labdoo-next .ldn-preview {
-  background: #e9eee5;
-  color: #365240;
+  background: var(--ldn-preview);
+  color: var(--ldn-ink);
   font-size: .75rem;
   letter-spacing: .015em;
 }
@@ -164,7 +169,7 @@ body.labdoo-next {
 }
 .labdoo-next .ldn-menu a:hover,
 .labdoo-next .ldn-menu summary:hover {
-  background: #edf3eb;
+  background: var(--ldn-soft);
   color: var(--ldn-green);
 }
 .labdoo-next .ldn-menu-group {
@@ -181,10 +186,10 @@ body.labdoo-next {
   top: calc(100% + 8px);
   width: 270px;
   max-width: calc(100vw - 40px);
-  background: #fff;
+  background: var(--ldn-paper);
   border: 1px solid var(--ldn-line);
   border-radius: 12px;
-  box-shadow: 0 16px 40px #20332c1a;
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--ldn-ink) 10%, transparent);
   padding: 8px;
 }
 .labdoo-next .ldn-menu--nested {
@@ -250,7 +255,7 @@ body.labdoo-next {
   height: 44px !important;
   line-height: 28px !important;
   padding: 7px 32px 7px 12px !important;
-  border: 1px solid #aebfaf !important;
+  border: 1px solid var(--ldn-control-border) !important;
   border-radius: 7px !important;
   background: transparent;
   box-shadow: none;
@@ -269,10 +274,10 @@ body.labdoo-next {
   display: none;
 }
 .labdoo-next .ldn-utilities .chosen-drop {
-  background: #fff;
+  background: var(--ldn-paper);
   border: 1px solid var(--ldn-line);
   border-radius: 7px;
-  box-shadow: 0 8px 24px #20332c1a;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--ldn-ink) 10%, transparent);
 }
 .labdoo-next .ldn-utilities .chosen-results li.highlighted {
   background: var(--ldn-green);
@@ -303,7 +308,7 @@ body.labdoo-next {
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid #aebfaf !important;
+  border: 1px solid var(--ldn-control-border) !important;
   border-radius: 7px;
   background: transparent;
   color: var(--ldn-green);
@@ -322,8 +327,8 @@ body.labdoo-next {
 }
 .labdoo-next .ldn-impact {
   padding: 22px 26px;
-  background: #edf2e9;
-  border: 1px solid #d9e3d4;
+  background: var(--ldn-soft);
+  border: 1px solid var(--ldn-line);
   border-radius: 14px;
 }
 .labdoo-next .ldn-section-label {
@@ -345,7 +350,7 @@ body.labdoo-next {
   flex-direction: column;
   text-decoration: none;
   padding-inline-end: 26px;
-  border-inline-end: 1px solid #cfddc9;
+  border-inline-end: 1px solid var(--ldn-line);
   min-width: 80px;
 }
 .labdoo-next .ldn-metric:hover,
@@ -367,7 +372,7 @@ body.labdoo-next {
   font-variant-numeric: tabular-nums;
 }
 .labdoo-next .ldn-metric span {
-  color: #52634f;
+  color: var(--ldn-muted);
   font-size: .72rem;
   margin-block-start: 6px;
 }
@@ -448,14 +453,14 @@ body.labdoo-next {
   padding: 20px;
   border: 1px solid var(--ldn-line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--ldn-paper);
 }
 .labdoo-next .ldn-main > .region-content > .is-expanded {
   flex-basis: 100% !important;
   max-width: 100% !important;
 }
 .labdoo-next .ldn-sidebar .block {
-  background: #fff;
+  background: var(--ldn-paper);
   border: 1px solid var(--ldn-line);
   border-radius: 12px;
   box-shadow: none;
@@ -486,7 +491,7 @@ body.labdoo-next {
   line-height: 1.4;
 }
 .labdoo-next .ldn-sidebar .action a:hover {
-  background: #eef4eb;
+  background: var(--ldn-soft);
 }
 .labdoo-next .ldn-sidebar .views-exposed-form {
   padding: 18px;
@@ -500,7 +505,7 @@ body.labdoo-next {
 }
 .labdoo-next .labdoo-content-box,
 .labdoo-next .ldn-main article:not(.comment) {
-  background: #fff;
+  background: var(--ldn-paper);
   border: 1px solid var(--ldn-line);
   border-radius: 14px;
   box-shadow: none;
@@ -512,7 +517,7 @@ body.labdoo-next {
   padding: 0;
 }
 .labdoo-next .labdoo-dates-box {
-  background: #f1f4ed;
+  background: var(--ldn-soft);
   border-color: var(--ldn-line);
   border-radius: 8px;
   box-shadow: none;
@@ -525,7 +530,7 @@ body.labdoo-next {
   line-height: 1.65;
 }
 .labdoo-next .field__label {
-  color: #344b3d;
+  color: var(--ldn-ink);
   font-size: .875rem;
   font-weight: 650;
 }
@@ -533,7 +538,7 @@ body.labdoo-next {
   overflow-wrap: anywhere;
 }
 .labdoo-next .ldn-main .field--name-body {
-  color: #3c4b42;
+  color: var(--ldn-ink);
   font-size: 1rem;
   line-height: 1.85;
 }
@@ -557,7 +562,7 @@ body.labdoo-next {
 }
 .labdoo-next .ldn-main .tabs .is-active a,
 .labdoo-next .ldn-main .tabs a.is-active {
-  background: #e7efe3;
+  background: var(--ldn-soft);
   color: var(--ldn-green);
 }
 .labdoo-next .views-exposed-form {
@@ -565,7 +570,7 @@ body.labdoo-next {
   flex-wrap: wrap;
   align-items: end;
   gap: 16px;
-  background: #fff;
+  background: var(--ldn-paper);
   border: 1px solid var(--ldn-line);
   border-radius: 12px;
   padding: 22px;
@@ -591,9 +596,9 @@ body.labdoo-next {
 .labdoo-next input[type="number"],
 .labdoo-next select,
 .labdoo-next textarea {
-  border: 1px solid #aebfaf;
+  border: 1px solid var(--ldn-control-border);
   border-radius: 7px;
-  background: #fff;
+  background: var(--ldn-paper);
   color: var(--ldn-ink);
   font: inherit;
   min-height: 44px;
@@ -604,7 +609,7 @@ body.labdoo-next {
 .labdoo-next .form-item__label {
   font-size: .8rem;
   font-weight: 600;
-  color: #415247;
+  color: var(--ldn-muted);
 }
 .labdoo-next .button,
 .labdoo-next input[type="submit"],
@@ -621,7 +626,7 @@ body.labdoo-next {
 }
 .labdoo-next .button:hover,
 .labdoo-next input[type="submit"]:hover {
-  background: #19442e;
+  background: var(--ldn-primary-hover);
   color: #fff;
 }
 .labdoo-next .ldn-table-scroll {
@@ -629,9 +634,9 @@ body.labdoo-next {
   overflow-x: auto;
   border: 1px solid var(--ldn-line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--ldn-paper);
   margin-block-end: 24px;
-  scrollbar-color: #b8cbb3 #f1f4ed;
+  scrollbar-color: var(--ldn-control-border) var(--ldn-soft);
 }
 .labdoo-next .ldn-table-scroll table {
   border: 0;
@@ -654,12 +659,12 @@ body.labdoo-next {
   margin-block-end: 0;
 }
 .labdoo-next table th {
-  background: #eaf0e5;
-  color: #2d4738;
+  background: var(--ldn-soft);
+  color: var(--ldn-ink);
   font-size: .72rem;
   line-height: 1.45;
   padding: 16px;
-  border-bottom: 1px solid #ceddca;
+  border-bottom: 1px solid var(--ldn-line);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -668,14 +673,14 @@ body.labdoo-next {
 }
 .labdoo-next table td {
   padding: 16px;
-  border-bottom: 1px solid #e7ece3;
+  border-bottom: 1px solid var(--ldn-line);
   line-height: 1.55;
 }
 .labdoo-next table tbody tr:nth-child(even) {
-  background: #fafbf8;
+  background: var(--ldn-canvas);
 }
 .labdoo-next table tbody tr:hover {
-  background: #f0f5eb;
+  background: var(--ldn-soft);
 }
 .labdoo-next table td img {
   max-width: 110px;
@@ -741,13 +746,13 @@ body.labdoo-next {
 .labdoo-next .ldn-site textarea:focus {
   outline: none !important;
   border-color: var(--ldn-green) !important;
-  box-shadow: 0 0 0 2px #245c4024 !important;
+  box-shadow: 0 0 0 2px var(--ldn-focus) !important;
 }
 .labdoo-next .ldn-utilities .chosen-single:focus,
 .labdoo-next .ldn-utilities .chosen-container-active .chosen-single {
   outline: none !important;
   border-color: var(--ldn-green) !important;
-  box-shadow: 0 0 0 2px #245c4024 !important;
+  box-shadow: 0 0 0 2px var(--ldn-focus) !important;
 }
 /* The base theme uses important declarations for generic controls. */
 .labdoo-next .ldn-site .button,
@@ -763,7 +768,7 @@ body.labdoo-next {
 .labdoo-next .ldn-site input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="hidden"]),
 .labdoo-next .ldn-site select,
 .labdoo-next .ldn-site textarea {
-  border-color: #aebfaf !important;
+  border-color: var(--ldn-control-border) !important;
   border-radius: 7px !important;
 }
 .labdoo-next .ldn-header a,
@@ -771,7 +776,7 @@ body.labdoo-next {
   border-bottom: 0 !important;
 }
 .labdoo-next .ldn-header .ldn-menu-toggle {
-  background: #fff !important;
+  background: var(--ldn-paper) !important;
   color: var(--ldn-green) !important;
 }
 .labdoo-next .messages {
@@ -779,7 +784,7 @@ body.labdoo-next {
   box-shadow: none;
 }
 .labdoo-next .eu-cookie-compliance-banner {
-  background: #234f39;
+  background: var(--ldn-primary-hover);
   color: #fff;
 }
 .labdoo-next .eu-cookie-compliance-banner a {
@@ -916,7 +921,7 @@ body.labdoo-next {
     gap: 14px;
     border: 1px solid var(--ldn-line);
     border-radius: 7px;
-    background: #fff;
+    background: var(--ldn-paper);
     color: var(--ldn-green);
     padding: 10px 14px;
     font: inherit;
@@ -1005,7 +1010,7 @@ body.labdoo-next {
 }
 @media print {
   .labdoo-next {
-    background: #fff;
+    background: var(--ldn-paper);
     font-size: 11pt;
 }
   .labdoo-next .ldn-preview,

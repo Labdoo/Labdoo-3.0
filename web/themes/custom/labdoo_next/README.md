@@ -22,9 +22,21 @@ Abrir cualquier página pública añadiendo `?theme=labdoo_next`, o `&theme=labd
 /en/node/748?theme=labdoo_next
 ```
 
-El enlace «Back to original» elimina exclusivamente ese parámetro. No se usan cookies ni preferencias de usuario para seleccionar el tema. Los enlaces internos y filtros GET mantienen el parámetro mediante JavaScript; sin JavaScript se puede probar cada página añadiéndolo explícitamente. Los enlaces externos, las rutas administrativas y los documentos de impresión/exportación conservan su comportamiento habitual.
+El enlace «Back to original» elimina los parámetros de tema y paleta, conservando los filtros de la página. No se usan cookies ni preferencias de usuario para seleccionar el tema. Los enlaces internos y filtros GET mantienen el parámetro mediante JavaScript; sin JavaScript se puede probar cada página añadiéndolo explícitamente. Los enlaces externos, las rutas administrativas y los documentos de impresión/exportación conservan su comportamiento habitual.
 
 El módulo es opcional y no se añade automáticamente a `core.extension` de este repositorio. Si el despliegue importa configuración, habilitarlo después de la importación para una prueba puntual. Para conservarlo en siguientes importaciones, exportar en el entorno de configuración `core.extension` y los bloques `labdoo_next_*` generados, revisándolos antes de incorporarlos a Git. No exportar configuración desde la base de datos de E2E.
+
+## Creación y selección de paletas en administración
+
+Abrir **Apariencia → Labdoo Next palettes** (`/admin/appearance/labdoo-next/palettes`). Requiere el permiso de Drupal `administer themes`. El selector **Active palette** incluye Forest, Ocean, Terracotta, Plum y las paletas creadas. Seleccionar una carga inmediatamente su nombre y colores en el formulario. Guardar actualiza esa misma paleta y aplica la elección a todos los visitantes que usan Labdoo Next. También se pueden editar las predefinidas. Sin JavaScript, el botón **Load palette** carga la selección antes de editarla. No hay selector público y el parámetro `palette` ya no cambia los colores.
+
+Para crear una paleta, marcar **Create a new palette**, introducir un nombre único y elegir los colores de texto, acento, fondos, bordes y botones. Los valores iniciales se copian de la paleta seleccionada; se pueden ajustar antes de guardar la copia. Al guardar, la paleta se conserva con nombre y queda activa; puede seleccionarse otra sin perder las creadas. Se conserva el logotipo y el significado de los colores de estado de los equipos.
+
+Las paletas se guardan como configuración de Drupal en `labdoo_theme_preview.palettes`, exportable por el flujo habitual de configuración. La selección se invalida mediante su etiqueta de caché al guardar. Solo se aplican colores hexadecimales validados, nunca CSS libre. La combinación de colores personalizados queda a elección del administrador.
+
+Tras desplegar el código, ejecutar `vendor/bin/drush cr` para registrar rutas, servicios, esquema y plantillas. El módulo de vista previa ya habilitado no requiere reinstalación; se usa Forest hasta guardar la primera elección. Se mantiene la activación opcional del tema mediante `?theme=labdoo_next`.
+
+Las pruebas `tests/e2e/theme-palette.spec.ts` cubren creación, carga automática al seleccionar, edición de nombres y colores, persistencia, selección global, nombres duplicados, permisos y uso sin JavaScript. Los cambios de configuración de las pruebas se restauran al terminar.
 
 ## Caché y CDN
 
@@ -53,3 +65,6 @@ La comprobación visual de mapas valida su estructura; las pruebas aisladas cont
 Resultados del 08/11/2026: **50/50 pruebas aprobadas**, sin omisiones ni reintentos, en `theme-next-final`; tras ajustar el formato de las cifras en móvil, **17/17 comprobaciones responsive aprobadas** en `theme-next-responsive-final`. PHP, YAML y JavaScript validados; PHPCS Drupal/DrupalPractice sin errores en el módulo, helpers del tema y CSS nuevos. Capturas revisadas en 1440 px y 390 px. Los artefactos completos y los datos del laboratorio permanecen fuera de Git.
 
 Revisión de cabecera y footer del 09/11/2026: **26/26 E2E aprobadas** en `theme-next-header-verified`, sin omisiones ni reintentos. Menú de administración completo comprobado entre 390 y 1842 px, controles de idioma Chosen y búsqueda alineados, foco verde, etiqueta de impacto sin viñeta y footer con el recurso transparente existente. Se mantienen el número y el máximo ID de nodos, y el tema predeterminado.
+
+
+Administración de paletas del 11/11/2026: **30/30 E2E aprobadas** (20 de escritorio y 10 de móvil), sin fallos, omisiones ni reintentos, en `theme-admin-palette-edit-final`. Verificadas creación, carga de campos al seleccionar, edición de paletas propias y predefinidas, selección global, fondos personalizados, duplicados, permisos y carga/guardado sin JavaScript. La configuración de las pruebas se restaura al terminar; las comprobaciones del tema mantienen el número y máximo ID de nodos y el tema predeterminado. Sintaxis PHP/JavaScript, YAML y `git diff --check` correctos. Cambios locales en `feature/labdoo-next-theme`, pendientes de despliegue.

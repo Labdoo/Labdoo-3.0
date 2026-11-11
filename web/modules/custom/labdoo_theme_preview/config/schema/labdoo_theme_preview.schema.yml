@@ -1,0 +1,22 @@
+labdoo_theme_preview.palettes:
+  type: config_object
+  label: 'Labdoo Next palettes'
+  mapping:
+    active:
+      type: string
+      label: 'Active palette'
+    custom:
+      type: sequence
+      label: 'Custom palettes'
+      sequence:
+        type: mapping
+        mapping:
+          label:
+            type: label
+            label: 'Palette name'
+          colors:
+            type: sequence
+            label: 'Colors'
+            sequence:
+              type: string
+              label: 'Hexadecimal color'
