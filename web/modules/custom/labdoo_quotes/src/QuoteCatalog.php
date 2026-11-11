@@ -59,6 +59,7 @@ final class QuoteCatalog {
     $attributes += [
       'lang' => $language->getId(),
       'dir' => $language->getDirection(),
+      'data-quote-pending' => '',
       'data-quote-url' => Url::fromRoute('labdoo_quotes.random', ['langcode' => $language->getId()], ['language' => $language])->toString(),
     ];
     return [

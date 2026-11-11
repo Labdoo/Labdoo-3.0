@@ -1,0 +1,4 @@
+.labdoo-quotes-js .labdoo-quote[data-quote-pending] > blockquote,
+.labdoo-quotes-js .labdoo-quote[data-quote-pending] > figcaption {
+  visibility: hidden;
+}

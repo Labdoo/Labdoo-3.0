@@ -23,3 +23,12 @@ regions:
   footer: Footer
 regions_hidden:
   - sidebar_first
+
+# Keep existing map versions, now served locally in Drupal aggregates.
+libraries-override:
+  labdoo/labdoo_map: labdoo_next/map
+  gin/gin_base:
+    css:
+      component:
+        dist/css/theme/font.css: false
+  charts_chartjs/chartjs: labdoo_next/lazy_chartjs

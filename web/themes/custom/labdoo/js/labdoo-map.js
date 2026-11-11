@@ -1,7 +1,8 @@
 (function ($, Drupal, once) {
   Drupal.behaviors.labdooMap = {
     attach: function (context, settings) {
-      const elements = once('labdoo-map', '.labdoo-map-container', context);
+      const target = context.matches?.('.labdoo-map-container') ? [context] : '.labdoo-map-container';
+      const elements = once('labdoo-map', target, context);
 
       elements.forEach(function (el) {
         var $container = $(el);
@@ -13,150 +14,179 @@
           return;
         }
 
-        // If NID is present, we look for an existing Leaflet map on this element
-        // or its children, or we initialize a new one.
-        if (nid) {
-          // Geolocation module might have already initialized a map.
-          // We check multiple times to ensure we catch it.
-          var checkCount = 0;
-          var maxChecks = 10;
-          var checkInterval = setInterval(function() {
-            checkCount++;
-            var map;
-            
-            // Try to find the map in various common locations
-            if (el._leaflet_map) {
-              map = el._leaflet_map;
-            } else if (el.geolocationMap && el.geolocationMap.leafletMap) {
-              map = el.geolocationMap.leafletMap;
-            } else {
-              // Geolocation might store it in data
-              var geoData = $(el).data('geolocation-map');
-              if (geoData && geoData.leafletMap) {
-                map = geoData.leafletMap;
+        function initializeMap() {
+          var nativeWrapper = el.querySelector('.geolocation-map-wrapper');
+          if (nid && nativeWrapper && document.body.classList.contains('labdoo-next') && Drupal.geolocation && Drupal.geolocation.maps) {
+            // Wait for the provider's real map, including deferred imports.
+            // A timer can otherwise create a second map before it is ready.
+            Drupal.geolocation.maps.getMap(nativeWrapper.id).then(function (provider) {
+              if (!el.isConnected || !provider.leafletMap) return;
+              var nativeMap = provider.leafletMap;
+              el._leaflet_map = nativeMap;
+              enableInteractions(nativeMap);
+              loadAndDrawTrajectory(nativeMap, nid);
+            });
+            return;
+          }
+          // If NID is present, we look for an existing Leaflet map on this element
+          // or its children, or we initialize a new one.
+          if (nid) {
+            // Geolocation module might have already initialized a map.
+            // We check multiple times to ensure we catch it.
+            var checkCount = 0;
+            var maxChecks = 10;
+            var checkInterval = setInterval(function() {
+              checkCount++;
+              var map;
+
+              // Try to find the map in various common locations
+              if (el._leaflet_map) {
+                map = el._leaflet_map;
+              } else if (el.geolocationMap && el.geolocationMap.leafletMap) {
+                map = el.geolocationMap.leafletMap;
               } else {
-                $container.find('*').each(function() {
-                  if (this._leaflet_map) {
-                    map = this._leaflet_map;
-                    return false;
-                  }
-                  if (this.geolocationMap && this.geolocationMap.leafletMap) {
-                    map = this.geolocationMap.leafletMap;
-                    return false;
-                  }
-                  var childGeoData = $(this).data('geolocation-map');
-                  if (childGeoData && childGeoData.leafletMap) {
-                    map = childGeoData.leafletMap;
-                    return false;
-                  }
-                });
+                // Geolocation might store it in data
+                var geoData = $(el).data('geolocation-map');
+                if (geoData && geoData.leafletMap) {
+                  map = geoData.leafletMap;
+                } else {
+                  $container.find('*').each(function() {
+                    if (this._leaflet_map) {
+                      map = this._leaflet_map;
+                      return false;
+                    }
+                    if (this.geolocationMap && this.geolocationMap.leafletMap) {
+                      map = this.geolocationMap.leafletMap;
+                      return false;
+                    }
+                    var childGeoData = $(this).data('geolocation-map');
+                    if (childGeoData && childGeoData.leafletMap) {
+                      map = childGeoData.leafletMap;
+                      return false;
+                    }
+                  });
+                }
               }
-            }
 
-            if (!map && checkCount === 1) {
-              if (!$container.hasClass('leaflet-container')) {
-                map = L.map(el).setView([20, 0], 2);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
+              if (!map && checkCount === 1) {
+                if (!$container.hasClass('leaflet-container')) {
+                  map = L.map(el).setView([20, 0], 2);
+                  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  }).addTo(map);
+                }
               }
-            }
 
-            if (map) {
-              console.log('Labdoo Map: Found map (check ' + checkCount + ')', map);
-              
-              // Ensure we have a reference on the element for future behaviors
-              if (!el._leaflet_map) el._leaflet_map = map;
+              if (map) {
 
-              // We need to re-enable interactions even if we already did, 
-              // just in case another script disabled them in between.
-              // But we only want to do the heavy setup (like wheel listeners) once.
-              forceInteractions(map);
-              
-              if (!map._labdooInteractionsEnabled) {
-                enableInteractions(map);
-              }
-              
-              if (checkCount === 1) {
-                loadAndDrawTrajectory(map, nid);
-              }
-              
-              // We keep checking a few times even if found, because Geolocation might
-              // re-initialize or override settings shortly after creation.
-              if (checkCount >= maxChecks) {
+                // Ensure we have a reference on the element for future behaviors
+                if (!el._leaflet_map) el._leaflet_map = map;
+
+                // We need to re-enable interactions even if we already did,
+                // just in case another script disabled them in between.
+                // But we only want to do the heavy setup (like wheel listeners) once.
+                forceInteractions(map);
+
+                if (!map._labdooInteractionsEnabled) {
+                  enableInteractions(map);
+                }
+
+                if (checkCount === 1) {
+                  loadAndDrawTrajectory(map, nid);
+                }
+
+                // We keep checking a few times even if found, because Geolocation might
+                // re-initialize or override settings shortly after creation.
+                if (checkCount >= maxChecks) {
+                  clearInterval(checkInterval);
+                }
+              } else if (checkCount >= maxChecks) {
                 clearInterval(checkInterval);
               }
-            } else if (checkCount >= maxChecks) {
-              clearInterval(checkInterval);
-              console.log('Labdoo Map: No map found after ' + maxChecks + ' checks');
-            }
-          }, 1000);
-        }
-        else {
-          // Standard map with all points of a type
-          // Initialize map
-          var map = L.map(el).setView([20, 0], 2);
+            }, 1000);
+          }
+          else {
+            // Standard map with all points of a type
+            // Initialize map
+            var map = L.map(el).setView([20, 0], 2);
 
-          enableInteractions(map);
+            enableInteractions(map);
 
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          }).addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
 
-          // Ensure map is correctly rendered
-          setTimeout(function() {
-            map.invalidateSize();
-          }, 200);
+            // Ensure map is correctly rendered
+            setTimeout(function() {
+              map.invalidateSize();
+            }, 200);
 
-          var markers = L.markerClusterGroup();
+            var markers = L.markerClusterGroup({chunkedLoading: true, chunkInterval: 8, chunkDelay: 8});
 
-          // Use absolute path for API and append query parameters to support filtering.
-          var apiUrl = '/api/map-points/' + type + window.location.search;
+            // Use absolute path for API and append query parameters to support filtering.
+            var apiUrl = Drupal.url('api/map-points/' + type) + window.location.search;
 
-          var getPopupUrl = function(pointId) {
-            return (type === 'labdooer' || type === 'user') ? '/user/' + pointId : '/node/' + pointId;
-          };
+            var getPopupUrl = function(pointId) {
+              return (type === 'labdooer' || type === 'user') ? '/user/' + pointId : '/node/' + pointId;
+            };
 
-          $.getJSON(apiUrl, function (data) {
-            $.each(data, function (index, point) {
-              if (point.lat && point.lon) {
-                var marker = L.marker([point.lat, point.lon])
-                  .bindPopup('<a href="' + getPopupUrl(point.id) + '">' + point.title + '</a>');
-                markers.addLayer(marker);
+            function addPoints(data) {
+              var queue = [];
+              var bounds = L.latLngBounds([]);
+              var index = 0;
+              // Marker creation and clustering both yield to input and painting.
+              // Titles are inserted as text only when a popup is opened.
+              function createChunk() {
+                var started = performance.now();
+                while (index < data.length && performance.now() - started < 8) {
+                  var point = data[index++];
+                  if (point.lat !== null && point.lat !== '' && point.lon !== null && point.lon !== '' && Number.isFinite(Number(point.lat)) && Number.isFinite(Number(point.lon))) {
+                    (function (location) {
+                      var marker = L.marker([location.lat, location.lon]).bindPopup(function () {
+                        var link = document.createElement('a');
+                        link.href = Drupal.url(getPopupUrl(location.id).replace(/^\//, ''));
+                        link.textContent = location.title;
+                        return link;
+                      });
+                      queue.push(marker);
+                    })(point);
+                    bounds.extend([point.lat, point.lon]);
+                  }
+                }
+                if (index < data.length) {
+                  setTimeout(createChunk, 0);
+                } else {
+                  map.addLayer(markers);
+                  if (bounds.isValid()) map.fitBounds(bounds, {padding: [50, 50], maxZoom: 15});
+                  markers.addLayers(queue);
+                }
               }
+              createChunk();
+            }
+            $.getJSON(apiUrl, addPoints).fail(function () {
+              // Retain the legacy fallback for installations without language prefixes.
+              if (apiUrl.indexOf('/api/') === 0) $.getJSON('/en' + apiUrl, addPoints);
             });
-            map.addLayer(markers);
+          }
 
-            if (data.length > 0) {
-              try {
-                map.fitBounds(markers.getBounds(), {padding: [50, 50], maxZoom: 15});
-              } catch (e) {
-                console.error('Error fitting bounds:', e);
-              }
+        }
+        // Public maps below the fold load as they approach the viewport. The
+        // observer also waits for maps that the dashboard toggle has collapsed.
+        if (document.body.classList.contains('labdoo-next') && 'IntersectionObserver' in window) {
+          var observer = new IntersectionObserver(function (entries) {
+            if (entries.some(function (entry) { return entry.isIntersecting; })) {
+              observer.disconnect();
+              initializeMap();
             }
-          }).fail(function() {
-            // Retry with /en/ prefix if it fails (just in case)
-            if (apiUrl.indexOf('/en/') === -1) {
-              $.getJSON('/en' + apiUrl, function(data) {
-                 $.each(data, function (index, point) {
-                   if (point.lat && point.lon) {
-                     var marker = L.marker([point.lat, point.lon])
-                       .bindPopup('<a href="' + getPopupUrl(point.id) + '">' + point.title + '</a>');
-                     markers.addLayer(marker);
-                   }
-                 });
-                 map.addLayer(markers);
-                 if (data.length > 0) { map.fitBounds(markers.getBounds(), {padding: [50, 50], maxZoom: 15}); }
-              });
-            }
-          });
+          }, {rootMargin: '0px'});
+          observer.observe(el);
+        } else {
+          initializeMap();
         }
 
         function enableInteractions(map) {
           if (map._labdooInteractionsEnabled) return;
           map._labdooInteractionsEnabled = true;
-
-          console.log('Labdoo Map: Enabling interactions', map);
 
           forceInteractions(map);
 
@@ -217,7 +247,7 @@
 
         function forceInteractions(map) {
           var container = map.getContainer();
-          
+
           if (map.dragging) {
             map.dragging.enable();
           }
@@ -228,7 +258,7 @@
               map.gestureHandling.disable();
             }
           }
-          
+
           // Geolocation specific override
           if (map.options.gestureHandling) {
             map.options.gestureHandling = false;
@@ -247,7 +277,7 @@
         }
 
         function loadAndDrawTrajectory(map, nid) {
-          $.getJSON('/api/node-trajectory/' + nid, function (trajectory) {
+          $.getJSON(Drupal.url('api/node-trajectory/' + nid), function (trajectory) {
             if (trajectory.length > 0) {
               var latlngs = [];
               var trajectoryMarkers = L.featureGroup();
