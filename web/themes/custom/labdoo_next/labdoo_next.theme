@@ -43,6 +43,25 @@ function labdoo_next_page_attachments_alter(array &$attachments): void {
     $attachments['#attached']['drupalSettings']['eu_cookie_compliance']['popup_delay'] = 0;
   }
   if (\Drupal::currentUser()->isAnonymous()) {
+    // The configured opt-in banner decides when analytics is allowed to load.
+    // Keep gtag's existing configuration queue and event handlers unchanged.
+    if (($attachments['#attached']['drupalSettings']['eu_cookie_compliance']['method'] ?? '') === 'opt_in') {
+      $deferred_analytics = FALSE;
+      $attachments['#attached']['html_head'] ??= [];
+      foreach ($attachments['#attached']['html_head'] as &$head) {
+        if (($head[1] ?? '') === 'google_analytics_tracking_file' && !empty($head[0]['#attributes']['src'])) {
+          $head[0]['#attributes']['data-labdoo-analytics-src'] = $head[0]['#attributes']['src'];
+          unset($head[0]['#attributes']['src'], $head[0]['#attributes']['async']);
+          $head[0]['#attributes']['type'] = 'text/plain';
+          $deferred_analytics = TRUE;
+        }
+      }
+      unset($head);
+      if ($deferred_analytics) {
+        $attachments['#attached']['library'][] = 'labdoo_next/analytics_consent';
+        $attachments['#attached']['drupalSettings']['labdooNext']['analyticsAccounts'] = array_values(array_map(static fn($account): string => (string) $account, \Drupal::service('google_analytics.accounts')->getAccounts()));
+      }
+    }
     $attachments['#attached']['library'][] = 'labdoo_next/public';
     $unused = ['gin/gin_init', 'gin/gin_custom_css', 'gin/sticky'];
     $attachments['#attached']['library'] = array_values(array_diff($attachments['#attached']['library'] ?? [], $unused));

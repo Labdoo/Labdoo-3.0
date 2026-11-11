@@ -9,6 +9,26 @@ function translations(language: string): Map<string, string> {
   const po = fs.readFileSync(path.join(moduleDir, 'translations', `labdoo_quotes.${language}.po`), 'utf8');
   return new Map([...po.matchAll(/msgctxt "Labdoo education quotes"\nmsgid ("[^\n]*")\nmsgstr ("[^\n]*")/g)].map(m => [JSON.parse(m[1]), JSON.parse(m[2])]));
 }
+test('quote request starts while styles are still blocked and is reused by the widget @responsive', async ({ page }, info) => {
+  let releaseStyles!: () => void;
+  const styles = new Promise<void>(resolve => { releaseStyles = resolve; });
+  let requests = 0;
+  await page.route('**/*.css?*', async route => {
+    await styles;
+    await route.continue();
+  });
+  page.on('request', request => {
+    if (request.url().includes('/labdoo/education-quote/')) requests++;
+  });
+  try {
+    await page.goto('/es/content/dootronics-dashboard?theme=labdoo_next', { waitUntil: 'commit' });
+    await expect.poll(() => requests).toBe(1);
+  } finally { releaseStyles(); }
+  await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('.labdoo-quote')).not.toHaveAttribute('data-quote-id', 'mandela');
+  expect(requests).toBe(1);
+});
+
 for (const language of languages) {
   test(`uncached quote endpoint uses ${language} translations and excludes the previous quote`, async ({ request }) => {
     const expected = translations(language);

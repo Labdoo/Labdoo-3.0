@@ -11,22 +11,26 @@
   function requestQuote(element) {
     const endpoint = element.dataset.quoteUrl;
     if (!requests.has(endpoint)) {
-      const url = new URL(endpoint, document.baseURI);
-      let previous = element.dataset.quoteId;
-      try { previous = sessionStorage.getItem(storageKey) || previous; }
-      catch (error) { /* Exclude the fallback when storage is disabled. */ }
-      url.searchParams.set('exclude', previous);
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
-      requests.set(endpoint, fetch(url, {
-        signal: controller.signal,
-        cache: 'no-store',
-        credentials: 'same-origin',
-        headers: { Accept: 'application/json' },
-      }).then(response => {
-        if (!response.ok) throw new Error('Quote request failed');
-        return response.json();
-      }).then(data => {
+      let pending = window.labdooEducationQuoteRequests?.get(endpoint);
+      if (!pending) {
+        const url = new URL(endpoint, document.baseURI);
+        let previous = element.dataset.quoteId;
+        try { previous = sessionStorage.getItem(storageKey) || previous; }
+        catch (error) { /* Exclude the fallback when storage is disabled. */ }
+        url.searchParams.set('exclude', previous);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        pending = fetch(url, {
+          signal: controller.signal,
+          cache: 'no-store',
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' },
+        }).then(response => {
+          if (!response.ok) throw new Error('Quote request failed');
+          return response.json();
+        }).finally(() => clearTimeout(timeout));
+      }
+      requests.set(endpoint, pending.then(data => {
         const quote = data.quote;
         if (data.language !== element.lang || !quote ||
             !['id', 'text', 'author', 'source'].every(key => typeof quote[key] === 'string') ||
@@ -35,7 +39,7 @@
         }
         remember(quote.id);
         return quote;
-      }).finally(() => clearTimeout(timeout)));
+      }));
     }
     return requests.get(endpoint);
   }
@@ -105,6 +109,7 @@
   window.addEventListener('pageshow', event => {
     if (event.persisted) {
       requests.clear();
+      window.labdooEducationQuoteRequests?.clear();
       document.querySelectorAll('.labdoo-quote').forEach(load);
     }
   });
