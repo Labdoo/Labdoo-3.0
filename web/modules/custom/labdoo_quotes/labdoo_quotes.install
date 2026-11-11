@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Makes bundled translations available immediately on installation.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function labdoo_quotes_install(): void {
+  \Drupal::service('labdoo_quotes.importer')->import();
+}

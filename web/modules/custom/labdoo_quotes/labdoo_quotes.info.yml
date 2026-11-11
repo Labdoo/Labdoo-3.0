@@ -1,0 +1,8 @@
+name: Labdoo education quotes
+type: module
+description: Sourced education quotes with bundled translations and per-page selection.
+package: Labdoo
+core_version_requirement: ^10
+dependencies:
+  - drupal:locale
+  - drupal:block
