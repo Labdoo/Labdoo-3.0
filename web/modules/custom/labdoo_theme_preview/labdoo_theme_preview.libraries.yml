@@ -1,0 +1,10 @@
+palette-editor:
+  css:
+    theme:
+      css/palette-editor.css: {}
+  js:
+    js/palette-editor.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings

@@ -1,0 +1,4 @@
+labdoo_theme_preview.palettes:
+  title: 'Labdoo Next palettes'
+  route_name: labdoo_theme_preview.palettes
+  base_route: system.themes_page

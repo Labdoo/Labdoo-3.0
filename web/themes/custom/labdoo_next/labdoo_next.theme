@@ -10,12 +10,23 @@
  */
 function labdoo_next_preprocess_html(array &$variables): void {
   $variables['attributes']['class'][] = 'labdoo-next';
+  if (\Drupal::hasService('labdoo_theme_preview.palettes')) {
+    $palette = \Drupal::service('labdoo_theme_preview.palettes')->active();
+    $variables['attributes']['data-ldn-palette'] = $palette['id'];
+    $styles = [];
+    foreach ($palette['colors'] as $key => $color) {
+      $styles[] = '--ldn-' . $key . ':' . $color;
+    }
+    $styles[] = '--ldn-focus:' . $palette['colors']['green'] . '24';
+    $variables['attributes']['style'] = implode(';', $styles);
+  }
 }
 
 /**
  * Implements hook_page_attachments_alter().
  */
 function labdoo_next_page_attachments_alter(array &$attachments): void {
+  $attachments['#cache']['tags'][] = 'config:labdoo_theme_preview.palettes';
   if (empty($attachments['#attached']['html_head_link'])) {
     return;
   }
@@ -64,7 +75,7 @@ function labdoo_next_preprocess_page(array &$variables): void {
     ])->build();
   $request = \Drupal::request();
   $query = $request->query->all();
-  unset($query['theme']);
+  unset($query['theme'], $query['palette']);
   $variables['next_original_url'] = $request->getPathInfo()
     . ($query ? '?' . http_build_query($query) : '');
   $variables['next_logo'] = base_path() . 'themes/custom/labdoo/img/labdoo-site-logo.png';
