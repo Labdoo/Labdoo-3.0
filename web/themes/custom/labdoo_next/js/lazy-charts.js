@@ -28,6 +28,10 @@
   Drupal.behaviors.labdooNextCharts = {
     attach(context) {
       once('labdoo-next-chart', '.charts-chartjs', context).forEach((element) => {
+        const config = JSON.parse(element.dataset.chart || '{}');
+        const options = config.options || {};
+        const square = ['pie', 'doughnut', 'polarArea', 'radar'].includes(config.type);
+        element.style.aspectRatio = String(options.aspectRatio || (square ? 1 : 2));
         function render() {
           loadCharts().then(() => {
             if (element.isConnected && element.parentElement) {
@@ -43,7 +47,7 @@
               observer.disconnect();
               render();
             }
-          }, { rootMargin: '120px' });
+          }, { rootMargin: '0px' });
           observer.observe(element);
         } else {
           render();

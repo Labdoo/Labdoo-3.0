@@ -1,93 +1,75 @@
-# Evaluación de Lighthouse: Labdoo Next
+# Evaluación actual: rendimiento móvil
 
-Comparación del 11/11/2026 sobre la copia aislada, partiendo de development
-`861c784e`. Lighthouse 12.8.2, Chrome 157.0.8103.38, perfiles estándar móvil
-y escritorio, misma base de contenido, agregación CSS/JS activada y el mismo
-transporte local con gzip. Cada resultado es la mediana de tres ejecuciones
-con navegador nuevo. Se mantienen las peticiones externas reales.
+URL exacta facilitada por el usuario, como visitante:
 
-Son resultados de laboratorio local, no puntuaciones verificadas en AWS.
-El acceso público al servidor requiere autenticación; no se ha puntuado su
-respuesta de autenticación como si fuera la aplicación.
+`http://127.0.0.1:18381/es/content/dootronics-dashboard?palette=ocean&theme=labdoo_next`
 
-## Resultados
+Medición directa en el puerto 18381, sin el proxy adicional de la primera
+evaluación. Chrome 157.0.8103.38, perfiles estándar de Lighthouse, navegador
+nuevo por ejecución y red externa real. Las ejecuciones se realizan de forma
+secuencial y se informa la mediana, conservando todos los valores.
 
-Orden: **rendimiento / accesibilidad / buenas prácticas / SEO**.
+## Resultado
 
-| Página | Perfil | Antes | Después |
-| --- | --- | --- | --- |
-| home | mobile | 48 / 88 / 96 / 83 | 81 / 100 / 100 / 100 |
-| home | desktop | 89 / 88 / 96 / 75 | 92 / 100 / 100 / 100 |
-| dashboard | mobile | 37 / 88 / 96 / 83 | 74 / 100 / 100 / 100 |
-| dashboard | desktop | 73 / 88 / 96 / 75 | 90 / 100 / 100 / 100 |
-| school | mobile | 53 / 93 / 96 / 85 | 76 / 100 / 100 / 100 |
-| school | desktop | 98 / 94 / 96 / 77 | 100 / 100 / 100 / 100 |
-| wiki | mobile | 78 / 90 / 96 / 85 | 98 / 100 / 100 / 100 |
-| wiki | desktop | 100 / 91 / 96 / 77 | 100 / 100 / 100 / 100 |
-
-Las tres categorías de accesibilidad, buenas prácticas y SEO alcanzan 100
-en las páginas auditadas. El rendimiento móvil sigue siendo el área con margen
-de mejora; los números anteriores corresponden a la versión final del widget
-compacto, sin escoger los mejores resultados de iteraciones anteriores.
-
-## Estabilidad de la versión final
-
-| Página | Perfil | FCP (s) | LCP (s) | TBT (ms) | CLS |
+| Versión / perfil | Rendimiento de cada ejecución | Mediana | Accesibilidad | Buenas prácticas | SEO |
 | --- | --- | --- | --- | --- | --- |
-| home | mobile | 1.66 | 3.78 | 328 | 0.006 |
-| home | desktop | 0.41 | 1.79 | 0 | 0.001 |
-| dashboard | mobile | 1.66 | 4.79 | 364 | 0.006 |
-| dashboard | desktop | 0.42 | 2.04 | 3 | 0.001 |
-| school | mobile | 1.66 | 5.39 | 176 | 0.000 |
-| school | desktop | 0.42 | 0.71 | 0 | 0.034 |
-| wiki | mobile | 1.51 | 2.04 | 97 | 0.020 |
-| wiki | desktop | 0.37 | 0.47 | 0 | 0.000 |
+| 13.6.0 / mobile | 96, 95, 97 | **96** | 100 | 100 | 100 |
+| 13.6.0 / desktop | 91, 91, 91 | **91** | 100 | 100 | 100 |
+| 12.8.2 / mobile | 94, 93, 93 | **93** | 100 | 100 | 100 |
 
-## Cambios
+La referencia inicial reproducida con Lighthouse 12.8.2 fue **53** en móvil
+(una ejecución), con FCP de 7.66 s
+y LCP de 13.30 s. La comprobación
+final con esa misma versión alcanza una mediana de **93**. La versión reciente
+13.6.0 obtiene **96**. Se indican las versiones para no mezclar métodos.
 
-- Omitir el renderizado de la barra de administración oculta para visitantes,
-  con sus dependencias innecesarias; conservar las herramientas de usuarios
-  autenticados y el tema de administración.
-- Servir localmente las mismas versiones de Leaflet y Chart.js, con sus licencias.
-  Cargar gráficos al acercarse al área visible y repartir la creación y agrupación
-  de marcadores entre tareas cortas.
-- Usar la inicialización por visibilidad del proveedor nativo de Geolocation y
-  esperar su mapa real antes de añadir trayectorias, evitando un segundo mapa.
-- Corregir contraste, textos alternativos, encabezados y semántica de paginación.
-  Los selectores públicos simples usan controles nativos; las descripciones SEO
-  se obtienen del contenido traducido o de un respaldo descriptivo.
-- Usar el logotipo oficial con resolución suficiente y dimensiones explícitas.
-- Mantener el autor junto a la frase y usar la altura natural del texto. El script
-  de cabecera oculta el respaldo antes de pintar; se revela únicamente la cita
-  AJAX final o el respaldo si falla la petición. Sin JavaScript se ve el respaldo
-  traducido. Una petición bloqueada tiene un límite de ocho segundos.
-- Establecer el estado del menú móvil antes de pintar para evitar que primero
-  aparezca abierto y después se cierre.
+La descarga inicial móvil pasa de **5.93 MB** a
+**0.51 MB**, aproximadamente un **91% menos**.
+Las peticiones pasan de **217 a 21**, y los estilos de **120 archivos a 2**.
+El mapa fuera de pantalla no descarga su biblioteca ni sus puntos al inicio.
 
-## Validación
+## Correcciones
 
-74 casos funcionales verificados entre las suites de frases, paletas, diseño
-y rendimiento, en escritorio y móvil. Incluyen los veinte idiomas, contenido
-AJAX y sin JavaScript, errores de red, ausencia de cita provisional visible,
-altura compacta, autor cercano, administración de paletas, filtros, galerías,
-menús, etiquetas imprimibles, mapa con 2.000 marcadores y trayectoria sobre
-el proveedor nativo con dos marcadores numerados y su línea.
+- La configuración exportada activa la agregación de CSS y JavaScript; el
+  entorno aislado también la tiene activa, incluyendo sus overrides locales.
+- El router local sirve los recursos estáticos y las respuestas HTML/JSON con
+  gzip, conservando las cabeceras privadas de Drupal. La compresión dinámica se
+  inicia después de preparar la respuesta del kernel, como transporte externo a
+  su renderizado. Las descargas binarias mantienen su tratamiento habitual.
+- Las páginas públicas anónimas omiten la piel administrativa de Gin y componentes
+  administrativos de Claro. Conservan los componentes públicos de formularios,
+  tablas, paginación y diálogos. La caché de recursos distingue este perfil del
+  de los usuarios autenticados, que conservan sus estilos editoriales.
+- El gráfico reserva su tamaño real mientras llega Chart.js. Esto evita que el
+  mapa situado debajo entre temporalmente en pantalla y descargue todos los puntos.
+- Leaflet y la integración del mapa se cargan cuando el mapa se hace visible.
+  Los mapas nativos esperan a su proveedor, sin cargar otra implementación.
+- La petición de la frase empieza al analizar el HTML, sin esperar a las
+  bibliotecas de Drupal del pie de página. Conserva el autor cercano, el tamaño
+  compacto, el respaldo sin JavaScript y la protección frente a la cita provisional.
+- Los enlaces del panel lateral usan un color de la paleta con contraste suficiente.
 
-También pasan la sintaxis PHP/JavaScript y la comprobación de diferencias.
-Los recursos de terceros conservan sus bytes originales y licencias.
+## Verificación y alcance
 
-## Límites de la medición
+**78 pruebas E2E aprobadas, sin omisiones ni fallos**, después del cambio de
+transporte. Incluyen los veinte idiomas, AJAX sin los scripts de Drupal,
+respaldo sin JavaScript y por fallo de red, paletas, formularios, filtros,
+galerías, menús, mapas, 2.000 marcadores y trayectorias sobre el proveedor nativo.
+Se comprueba que el mapa fuera de pantalla no descargue datos ni Leaflet antes
+del desplazamiento y que funcione al entrar en pantalla.
 
-La portada muestra actualmente el dashboard; se mide de forma independiente.
-La ficha de escuela usa `/en/node/749`, que redirige a su alias en ambas
-revisiones. Lighthouse señala esta redirección en sus seis ejecuciones.
+La mejora incluye cambios del tema/módulo y la corrección de la configuración y
+el transporte del entorno local. Apache ya contempla compresión en producción;
+no se atribuye al código del tema toda la diferencia de puntuación del servidor local.
+Los estilos y scripts innecesarios, la descarga prematura del mapa y el inicio
+tardío de la frase sí se han corregido en el código del proyecto.
 
-Las auditorías aún detectan CSS y JavaScript heredados sin utilizar, trabajo
-de terceros y coste de renderizado de los mapas. Se conservan la analítica
-y los datos completos de los mapas. La red externa produce variaciones
-apreciables en LCP; los tres valores de cada combinación están disponibles
-en los JSON. Estas puntuaciones no garantizan resultados idénticos en AWS.
+Los datos completos del mapa, la analítica y el aviso de cookies siguen activos.
+En escritorio el mapa está visible al cargar, por lo que sus datos y las teselas
+externas influyen en el LCP. Son resultados de laboratorio sobre esta URL local;
+no representan una verificación del despliegue AWS.
 
-[Reproducción y condiciones](README.md). Los informes HTML/JSON completos
-quedan privados en `.e2e-lab/state/lighthouse-next/final/`; los JSON publicados
-contienen exclusivamente puntuaciones, métricas y metadatos de ejecución.
+[Reproducción](README.md) · [Datos publicados](current.json). Los informes
+completos quedan privados en `.e2e-lab/state/lighthouse-next/phase2-final-13/`
+y `phase2-final-12/`. Los JSON `before.json` y `after.json` conservan la primera
+evaluación incluida en el commit `4ef2f78d`, con rutas y transporte distintos.

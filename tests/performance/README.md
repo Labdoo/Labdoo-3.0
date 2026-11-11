@@ -1,64 +1,63 @@
-# Labdoo Next Lighthouse checks
+# Auditorías de Labdoo Next
 
-This benchmark compares anonymous Labdoo Next pages on the isolated integration
-copy. It does not audit the Basic Auth response from AWS or bypass authentication.
-There are three fresh-browser runs per route/profile, performed sequentially to
-avoid CPU contention. Report the median, not the best run.
+La medición actual usa directamente la aplicación aislada en
+`http://127.0.0.1:18381`, sin el proxy adicional de la primera evaluación.
+El router local aplica gzip a HTML, JSON, CSS y JavaScript y caducidad a los
+recursos estáticos, como el servidor Apache. Conserva los encabezados de caché
+privados de Drupal. La configuración versionada activa la agregación CSS/JS.
 
-## Reproduce
+## Reproducir la URL del usuario
 
-Requirements: an isolated integration site on loopback port 18381 with header
-`X-Labdoo-E2E: integration`, its real content/database, Chrome, and Lighthouse
-12.8.2. The baseline is development commit `861c784e`. Use identical content,
-Chrome/Lighthouse versions, aggregation settings and transport for both revisions.
-Do not use the production database for browser tests.
+Con la copia de integración preparada, los usuarios de prueba sembrados y Chrome
+instalado, usar `tests/e2e/support/local-lab/router.php` como router del servidor
+local. Si la copia existente usa `.e2e-lab/tools`, actualizar allí el router.
+Confirmar que los overrides de `settings.php` también permiten la agregación;
+reconstruir las cachés después de copiar el código.
 
-1. Copy the revision's custom code into the isolated site. Set both
-   `system.performance.css.preprocess` and `system.performance.js.preprocess` to
-   `true`, including any settings.php overrides, and rebuild Drupal caches. This
-   matches the live release's aggregation. Back up and restore the isolated
-   configuration/settings around the benchmark.
-2. Start the PHP site on port 18381 using the local-lab server documented under
-   `tests/e2e/support/local-lab`. Start the transport in a separate terminal:
+Se puede usar una instalación temporal y fijada de Lighthouse:
 
-   ```sh
-   python3 tests/performance/serve.py
-   ```
+```sh
+npm install --ignore-scripts --prefix /tmp/labdoo-lighthouse-13 lighthouse@13.6.0
+python3 tests/performance/lighthouse.py \
+  --base-url http://127.0.0.1:18381 \
+  --path '/es/content/dootronics-dashboard?palette=ocean&theme=labdoo_next' \
+  --lighthouse /tmp/labdoo-lighthouse-13/node_modules/.bin/lighthouse \
+  --output /tmp/labdoo-lighthouse --runs 3
+```
 
-3. Run the audit with a private output directory outside Git:
+`--path` permite reproducir una URL concreta, incluyendo su consulta. Si no se
+indica, se miden las cuatro rutas representativas definidas en el script.
+`--profiles mobile` limita la ejecución al móvil.
 
-   ```sh
-   python3 tests/performance/lighthouse.py --output /tmp/labdoo-lighthouse --runs 3
-   ```
+El runner comprueba HTTP 200 y `X-Labdoo-E2E: integration`, prepara los agregados
+del servidor y después ejecuta las auditorías de forma secuencial, con navegador
+nuevo en cada ejecución. No precarga la caché del navegador, acepta cookies antes
+de medir ni sustituye la red externa. Los datos de mapas y la analítica permanecen
+operativos. Informar la mediana y todas las ejecuciones; no seleccionar la mejor.
 
-The runner checks HTTP 200 and the isolation header, warms server-side local CSS/JS
-aggregates, and then runs Lighthouse's default mobile profile and desktop preset.
-It does not warm the browser cache, stub network resources, accept cookies before
-measurement, remove analytics, or suppress audits. The school route includes the
-existing node-to-alias redirect in both revisions. The homepage currently renders
-the dashboard; it is measured independently.
+## Regresión
 
-The PHP development server does not implement Drupal's Apache `.htaccess`. The
-read-only loopback proxy adds gzip and static expiry consistently for both
-revisions. This approximates the origin transport, not CloudFront or AWS latency.
-External analytics and map tiles are real network requests and introduce variance.
-Raw reports can contain third-party URL parameters: retain them privately; only
-scores, metrics and run metadata are committed in `before.json` / `after.json`.
-
-## Regression coverage
-
-Run from the isolated site's `tests/e2e`, with seeded test users and auth states:
+Desde `tests/e2e` de la copia aislada:
 
 ```sh
 E2E_RUN_ID=lighthouse-regression npm test -- education-quotes.spec.ts theme-palette.spec.ts theme-preview.spec.ts theme-performance.spec.ts --project=integration --project=mobile --no-deps
 ```
 
-The new checks exercise deferred chart rendering, filtered map URLs, coordinates
-on the equator, text-only marker titles and complete insertion of 2,000 points, and native school maps with numbered
-trajectory markers and a polyline after deferred initialization.
-Existing checks cover twenty quote languages, AJAX/no-JS fallback, hidden pending
-quotes, compact author placement and natural widget height, palette admin,
-anonymous access, menus, filters, content, gallery, printable labels and admin
-theme boundaries.
+78 casos comprueban los veinte idiomas, el respaldo sin JavaScript, las frases
+con el JavaScript de Drupal bloqueado, el tamaño compacto del widget, las paletas,
+los formularios, la navegación, las galerías, los mapas y las trayectorias.
+Se verifica expresamente que un mapa fuera de pantalla no descargue Leaflet ni
+sus puntos antes del desplazamiento y que se inserten los 2.000 puntos de prueba.
 
-See [RESULTS.md](RESULTS.md) for measured medians and remaining constraints.
+## Informes y límites
+
+[RESULTS.md](RESULTS.md) contiene la evaluación actual de la URL exacta.
+Los JSON publicados solo incluyen puntuaciones, métricas y metadatos; los
+informes completos quedan privados, porque pueden incluir parámetros de terceros.
+Son resultados locales, no una verificación del servidor AWS con autenticación.
+
+`before.json` y `after.json` conservan la primera evaluación incluida en el commit
+`4ef2f78d`, realizada con Lighthouse 12.8.2 y el proxy `serve.py` en el puerto
+18385. Esos archivos documentan una revisión anterior; sus condiciones no deben
+mezclarse con las de la medición directa actual. El proxy se conserva para
+reproducir ese histórico, usando `--base-url http://127.0.0.1:18385`.

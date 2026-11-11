@@ -16,12 +16,19 @@ ROUTES = {
     'wiki': '/en/content/labdoo-social-network-how-it-works?theme=labdoo_next',
 }
 parser = argparse.ArgumentParser()
-parser.add_argument('--base-url', default='http://127.0.0.1:18385')
+parser.add_argument('--base-url', default='http://127.0.0.1:18381')
 parser.add_argument('--output', required=True, type=Path)
+parser.add_argument('--path', help='Audit one exact application path, including its query string')
+parser.add_argument('--lighthouse', default='lighthouse', help='Lighthouse executable, including a pinned alternate version')
 parser.add_argument('--routes', nargs='+', choices=ROUTES, default=list(ROUTES))
 parser.add_argument('--profiles', nargs='+', choices=['mobile', 'desktop'], default=['mobile', 'desktop'])
 parser.add_argument('--runs', type=int, default=1)
 args = parser.parse_args()
+if args.path:
+    if not args.path.startswith('/') or args.path.startswith('//'):
+        raise SystemExit('The audit path must be relative to the isolated application origin')
+    ROUTES = {'requested': args.path}
+    args.routes = ['requested']
 if urlsplit(args.base_url).hostname not in {'127.0.0.1', 'localhost'}:
     raise SystemExit('Use the isolated loopback site; authenticated production audits need a separate explicit setup')
 args.output.mkdir(parents=True, exist_ok=True)
@@ -58,7 +65,7 @@ for route, suffix in ((name, ROUTES[name]) for name in args.routes):
     for profile in args.profiles:
         for run in range(1, args.runs + 1):
             output = args.output / f'{route}-{profile}-{run}'
-            command = ['lighthouse', args.base_url + suffix, '--chrome-flags=--headless --no-sandbox --disable-dev-shm-usage', '--only-categories=performance,accessibility,best-practices,seo', '--output=json', '--output=html', '--output-path=' + str(output), '--quiet']
+            command = [args.lighthouse, args.base_url + suffix, '--chrome-flags=--headless --no-sandbox --disable-dev-shm-usage', '--only-categories=performance,accessibility,best-practices,seo', '--output=json', '--output=html', '--output-path=' + str(output), '--quiet']
             if profile == 'desktop': command.append('--preset=desktop')
             subprocess.run(command, env=env, check=True)
             report = json.loads(Path(str(output) + '.report.json').read_text())

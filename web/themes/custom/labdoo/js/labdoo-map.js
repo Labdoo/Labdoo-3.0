@@ -1,7 +1,8 @@
 (function ($, Drupal, once) {
   Drupal.behaviors.labdooMap = {
     attach: function (context, settings) {
-      const elements = once('labdoo-map', '.labdoo-map-container', context);
+      const target = context.matches?.('.labdoo-map-container') ? [context] : '.labdoo-map-container';
+      const elements = once('labdoo-map', target, context);
 
       elements.forEach(function (el) {
         var $container = $(el);
@@ -177,7 +178,7 @@
               observer.disconnect();
               initializeMap();
             }
-          }, {rootMargin: '120px'});
+          }, {rootMargin: '0px'});
           observer.observe(el);
         } else {
           initializeMap();

@@ -13,9 +13,7 @@ design:
 
 map:
   js:
-    vendor/leaflet-1.0.3/dist/leaflet.js: { minified: true }
-    vendor/markercluster-1.5.3/dist/leaflet.markercluster.js: { minified: true }
-    /themes/custom/labdoo/js/labdoo-map.js: {}
+    js/lazy-maps.js: {}
   css:
     theme:
       vendor/leaflet-1.0.3/dist/leaflet.css: {}
@@ -42,3 +40,8 @@ early:
   header: true
   js:
     js/early.js: {}
+
+# Separate the CSS asset cache for anonymous public pages and editorial pages.
+public:
+  dependencies:
+    - labdoo_next/design

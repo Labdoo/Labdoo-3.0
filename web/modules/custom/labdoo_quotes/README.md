@@ -58,3 +58,8 @@ recupera la frase definitiva. La frase y su autor aparecen juntos al terminar
 la petición; si falla o supera ocho segundos, se muestra el respaldo traducido.
 Sin JavaScript, el respaldo permanece visible desde el principio. Labdoo Next
 mantiene el autor junto al final del texto y ajusta la altura al contenido.
+
+La petición AJAX se inicia al encontrar la frase durante el análisis del HTML,
+sin depender de los scripts de Drupal situados al final de la página. Un marcador
+invisible al final del autor garantiza que el parser haya terminado ese contenido
+antes de sustituirlo. El observador también descubre bloques insertados por AJAX.

@@ -86,6 +86,22 @@ test('AJAX failure leaves a translated quote visible', async ({ page }, info) =>
   await expect(widget.locator('.labdoo-quote__text')).toBeVisible();
 });
 
+test('the fresh quote appears even while Drupal footer scripts are unavailable @responsive', async ({ page }, info) => {
+  let blocked = 0;
+  await page.route('**/sites/default/files/js/**', route => {
+    if (new URL(route.request().url()).searchParams.get('scope') === 'footer') {
+      blocked++;
+      return route.fulfill({ contentType: 'application/javascript', body: '' });
+    }
+    return route.continue();
+  });
+  await goto(page, '/es/content/dootronics-dashboard?theme=labdoo_next', info);
+  await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('.labdoo-quote__text')).toBeVisible();
+  await expect(page.locator('.labdoo-quote')).not.toHaveAttribute('data-quote-id', 'mandela');
+  expect(blocked).toBeGreaterThan(0);
+});
+
 test('only the final AJAX quote is shown and its author stays close @responsive', async ({ page }, info) => {
   let release: () => void;
   const gate = new Promise<void>(resolve => { release = resolve; });

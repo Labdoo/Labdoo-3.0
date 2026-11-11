@@ -1,5 +1,28 @@
 import { test, expect, goto } from './helpers';
 
+test('an offscreen dashboard map downloads neither Leaflet nor points before scrolling @responsive', async ({ page }, info) => {
+  await page.setViewportSize({ width: 412, height: 823 });
+  let points = false;
+  let leaflet = false;
+  page.on('request', request => {
+    if (request.url().includes('/vendor/leaflet-1.0.3/dist/leaflet.js')) leaflet = true;
+  });
+  await page.route('**/api/map-points/**', route => {
+    points = true;
+    return route.fulfill({ json: [] });
+  });
+  await goto(page, '/es/content/dootronics-dashboard?palette=ocean&theme=labdoo_next', info);
+  await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  const map = page.locator('.labdoo-map-container').first();
+  expect((await map.boundingBox())!.y).toBeGreaterThanOrEqual(823);
+  expect(points).toBe(false);
+  expect(leaflet).toBe(false);
+  await map.scrollIntoViewIfNeeded();
+  await expect.poll(() => points).toBe(true);
+  await expect(map).toHaveClass(/leaflet-container/);
+});
+
 test('public maps preserve filtered points, equator coordinates and safe popups @responsive', async ({ page }, info) => {
   const points = [
     { id: 749, lat: 60, lon: -150, title: 'School <strong>one</strong>' },

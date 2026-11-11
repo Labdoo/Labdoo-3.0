@@ -1080,3 +1080,14 @@ body.labdoo-next {
 .labdoo-next .block-actions-block-block .edoovillage-status-open {
   color: #a32929;
 }
+
+/* Keep the chart's footprint while its renderer loads. Without this, the map
+   below it temporarily enters the viewport and downloads every point. */
+.labdoo-next div.charts-chartjs {
+  aspect-ratio: 2 / 1;
+}
+
+.labdoo-next .ldn-sidebar a:not(.button),
+.labdoo-next .ldn-sidebar a:not(.button):visited {
+  color: var(--ldn-green);
+}
