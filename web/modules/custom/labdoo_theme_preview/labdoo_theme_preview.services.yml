@@ -6,7 +6,7 @@ services:
       - { name: theme_negotiator, priority: 1100 }
   labdoo_theme_preview.response:
     class: Drupal\labdoo_theme_preview\EventSubscriber\PreviewResponseSubscriber
-    arguments: ['@theme.manager', '@page_cache_kill_switch']
+    arguments: ['@theme.manager', '@page_cache_kill_switch', '@labdoo_theme_preview.negotiator', '@current_route_match']
     tags:
       - { name: event_subscriber }
   labdoo_theme_preview.palettes:

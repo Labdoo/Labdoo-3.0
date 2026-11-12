@@ -20,18 +20,10 @@
     "requests": 217
   },
   "functional_tests": {
-    "passed": 90,
+    "passed": 94,
     "failed": 0,
     "skipped": 0,
-    "regression": {
-      "passed": 85,
-      "report": "lighthouse-phase4-final/playwright-results.json"
-    },
-    "analytics": {
-      "passed": 5,
-      "report": "lighthouse-phase4-consent-validated/playwright-results.json"
-    },
-    "note": "85 regression cases passed in the broad run. Its four analytics test failures were fixed by retaining the consent banner and using the provider string status values; all five analytics cases passed on the targeted final rerun."
+    "report": "next-style-recovery-final/playwright-results.json"
   },
   "historical_phase2_lighthouse_13_6_0": [
     {
@@ -155,17 +147,17 @@
       "profile": "mobile",
       "run": 1,
       "scores": {
-        "performance": 98,
+        "performance": 97,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "first-contentful-paint": 1369.3691,
-        "largest-contentful-paint": 2371.3691,
-        "total-blocking-time": 55,
-        "cumulative-layout-shift": 0.002930562019329294,
-        "speed-index": 1369.3691
+        "first-contentful-paint": 1378.8377,
+        "largest-contentful-paint": 2171.3377,
+        "total-blocking-time": 132.5,
+        "cumulative-layout-shift": 0.00340379434893946,
+        "speed-index": 1378.8377
       },
       "lighthouse_version": "13.6.0"
     },
@@ -174,17 +166,17 @@
       "profile": "mobile",
       "run": 2,
       "scores": {
-        "performance": 98,
+        "performance": 97,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "first-contentful-paint": 1373.1578,
-        "largest-contentful-paint": 2226.1578,
-        "total-blocking-time": 71,
+        "first-contentful-paint": 1371.6738999999998,
+        "largest-contentful-paint": 2406.6739,
+        "total-blocking-time": 110.5,
         "cumulative-layout-shift": 0.0004732323296101662,
-        "speed-index": 1373.1578
+        "speed-index": 1371.6738999999998
       },
       "lighthouse_version": "13.6.0"
     },
@@ -193,22 +185,22 @@
       "profile": "mobile",
       "run": 3,
       "scores": {
-        "performance": 97,
+        "performance": 98,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "first-contentful-paint": 1372.4736000000003,
-        "largest-contentful-paint": 2164.4736000000003,
-        "total-blocking-time": 126,
-        "cumulative-layout-shift": 0.0004732323296101662,
-        "speed-index": 1372.4736000000003
+        "first-contentful-paint": 1364.5732000000003,
+        "largest-contentful-paint": 2134.5732,
+        "total-blocking-time": 91,
+        "cumulative-layout-shift": 0.00340379434893946,
+        "speed-index": 1364.5732000000003
       },
       "lighthouse_version": "13.6.0"
     }
   ],
-  "current_note": "2026-11-12: mobile median 98 for a fresh anonymous visitor before opt-in consent. Standard Lighthouse, no blocked analytics patterns. Analytics loads normally once consent is granted; this score does not measure that case.",
+  "current_note": "After preview initialization fix: mobile 97, 97, 98 (median 97), all other categories 100. Fresh anonymous visitor before opt-in consent; standard Lighthouse 13.6.0. Public AWS Lighthouse remains unverified.",
   "historical_phase2_functional_tests": {
     "passed": 78,
     "skipped": 0,
@@ -582,6 +574,86 @@
         "speed-index": 1463.7702620640068
       },
       "lighthouse_version": "12.8.2"
+    }
+  ],
+  "historical_phase4_functional_tests": {
+    "passed": 90,
+    "failed": 0,
+    "skipped": 0,
+    "regression": {
+      "passed": 85,
+      "report": "lighthouse-phase4-final/playwright-results.json"
+    },
+    "analytics": {
+      "passed": 5,
+      "report": "lighthouse-phase4-consent-validated/playwright-results.json"
+    },
+    "note": "85 regression cases passed in the broad run. Its four analytics test failures were fixed by retaining the consent banner and using the provider string status values; all five analytics cases passed on the targeted final rerun."
+  },
+  "style_recovery": {
+    "reproduced_url": "/en?palette=ocean&theme=labdoo_next",
+    "fix": "Initialize the explicitly negotiated preview after routing and before DPC, then evict incomplete cached responses.",
+    "aws_origin_visual_checked": true,
+    "logo_width": 120,
+    "scope": "Private origin connection; no public CloudFront Lighthouse claim."
+  },
+  "historical_phase4_before_style_guard": [
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 1,
+      "scores": {
+        "performance": 98,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1369.3691,
+        "largest-contentful-paint": 2371.3691,
+        "total-blocking-time": 55,
+        "cumulative-layout-shift": 0.002930562019329294,
+        "speed-index": 1369.3691
+      },
+      "lighthouse_version": "13.6.0"
+    },
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 2,
+      "scores": {
+        "performance": 98,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1373.1578,
+        "largest-contentful-paint": 2226.1578,
+        "total-blocking-time": 71,
+        "cumulative-layout-shift": 0.0004732323296101662,
+        "speed-index": 1373.1578
+      },
+      "lighthouse_version": "13.6.0"
+    },
+    {
+      "route": "requested",
+      "profile": "mobile",
+      "run": 3,
+      "scores": {
+        "performance": 97,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": 1372.4736000000003,
+        "largest-contentful-paint": 2164.4736000000003,
+        "total-blocking-time": 126,
+        "cumulative-layout-shift": 0.0004732323296101662,
+        "speed-index": 1372.4736000000003
+      },
+      "lighthouse_version": "13.6.0"
     }
   ]
 }

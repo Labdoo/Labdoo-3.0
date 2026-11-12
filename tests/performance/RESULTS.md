@@ -9,9 +9,37 @@ evaluación. Chrome 157.0.8103.38, perfiles estándar de Lighthouse, navegador
 nuevo por ejecución y red externa real. Las ejecuciones se realizan de forma
 secuencial y se informa la mediana, conservando todos los valores.
 
+## Recuperación de la portada de Next
+
+Se reprodujo `/en?palette=ocean&theme=labdoo_next` en AWS con una respuesta
+cacheada incompleta: la plantilla era de Next, pero faltaban la clase
+`labdoo-next` del cuerpo y las variables del logo y de la navegación. Los
+archivos CSS y el wordmark estaban presentes y Apache los servía con HTTP 200.
+Las peticiones nuevas con otra clave de caché sí preparaban el tema completo.
+
+La selección explícita de Next se inicializa ahora en `kernel.request`, después
+del enrutado (32) y antes de Dynamic Page Cache (27), con prioridad 28. Utiliza
+la negociación normal de Drupal, que registra también los namespaces de los
+temas. Mantiene las exclusiones de administración e impresión y la caché
+contextual con respuestas privadas/no-store.
+
+Se limpiaron las respuestas afectadas y se comprobó visualmente la portada de
+AWS mediante una conexión privada al origen: cabecera, colores, logo de 120 px
+y frase traducida. La verificación inicial del rendimiento no cubría este
+recorrido de la portada; se ha añadido expresamente.
+
+**94 pruebas E2E aprobadas, sin fallos ni omisiones**, en
+`state/runs/next-style-recovery-final/`. Incluyen la portada y la secuencia
+original → Next → Next con DPC HIT, comprobando clases, variables, estilos,
+logo y frase, en escritorio y móvil. Los originales y las rutas administrativas
+conservan su selección de tema. La comprobación móvil posterior al ajuste
+obtiene **97, 97 y 98** (mediana **97**), con las otras tres categorías en
+100, en el mismo escenario local de primera visita antes del consentimiento.
+Informes privados: `lighthouse-next/style-recovery-mobile/`.
+
 ## 12/11/2026: analítica según el consentimiento configurado
 
-La tanda final obtiene **98, 98 y 97** en móvil (mediana **98**), con
+La tanda previa a la corrección de la portada obtuvo **98, 98 y 97** en móvil (mediana **98**), con
 accesibilidad, buenas prácticas y SEO en **100** en las tres ejecuciones.
 TBT: **55, 71 y 126 ms**. LCP: **2.37, 2.23 y 2.16 s**.
 La descarga inicial es de unos **0.26 MB en 15 peticiones**, con una sola
