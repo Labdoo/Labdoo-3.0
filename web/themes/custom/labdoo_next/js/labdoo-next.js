@@ -44,6 +44,19 @@
       });
       once('labdoo-next-menu', '.ldn-menu-toggle', context).forEach((toggle) => {
         const nav = document.getElementById(toggle.getAttribute('aria-controls'));
+        const utilities = toggle.closest('.ldn-header__inner').querySelector('.ldn-utilities');
+        const mobile = window.matchMedia('(max-width: 1100px)');
+        if (utilities) {
+          // Move the existing controls so their forms and event handlers stay intact.
+          const home = document.createComment('Header utilities');
+          utilities.before(home);
+          const placeUtilities = () => {
+            if (mobile.matches) nav.prepend(utilities);
+            else home.after(utilities);
+          };
+          mobile.addEventListener('change', placeUtilities);
+          placeUtilities();
+        }
         toggle.addEventListener('click', () => {
           const open = toggle.getAttribute('aria-expanded') !== 'true';
           toggle.setAttribute('aria-expanded', String(open));
