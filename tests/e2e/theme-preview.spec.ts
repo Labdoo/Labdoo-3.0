@@ -16,6 +16,7 @@ test.afterAll(async () => {
 });
 
 const routes = [
+  ['home', '/en'],
   ['dashboard', '/en/content/dootronics-dashboard'],
   ['school', '/en/node/749'],
   ['hub', '/en/node/440'],
@@ -41,6 +42,26 @@ for (const [name, url] of routes) {
     await page.screenshot({ path: info.outputPath(`next-${name}.png`), fullPage: false });
   });
 }
+
+test('the home page keeps its design and logo across default and cached preview visits @responsive', async ({ page }, info) => {
+  await goto(page, '/en', info);
+  await expect(page.locator('body')).not.toHaveClass(/labdoo-next/);
+  const url = '/en?palette=ocean&theme=labdoo_next';
+  for (let visit = 0; visit < 2; visit++) {
+    const response = await goto(page, url, info);
+    expect(response.headers()['x-labdoo-theme']).toBe('labdoo_next');
+    if (visit === 1) expect(response.headers()['x-drupal-dynamic-cache']).toBe('HIT');
+    await expect(page.locator('body')).toHaveClass(/labdoo-next/);
+    const logo = page.locator('.ldn-brand img');
+    await expect(logo).toHaveAttribute('src', /labdoo-wordmark\.webp$/);
+    await expect.poll(() => logo.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBeGreaterThan(0);
+    expect((await logo.boundingBox())!.width).toBeLessThan(200);
+    await expect(page.locator('.ldn-navigation')).not.toBeEmpty();
+    await expect(page.locator('.ldn-header .labdoo-quote')).toHaveAttribute('aria-busy', 'false');
+    expect((await page.locator('.ldn-shell').first().boundingBox())!.x).toBeGreaterThan(0);
+  }
+  await page.screenshot({ path: info.outputPath('next-home-cached.png') });
+});
 
 test('preview is isolated from the default across anonymous sessions', async ({ page, browser, baseURL }, info) => {
   const url = '/en/content/dootronics-dashboard';
