@@ -174,3 +174,46 @@ function labdoo_common_update_9004(): void {
     ->set('js.preprocess', TRUE)
     ->save();
 }
+
+/**
+ * Link footer entries to their published pages and contact form.
+ */
+function labdoo_common_update_9005(): void {
+  $menus = \Drupal::entityTypeManager()->getStorage('menu_link_content');
+  $nodes = \Drupal::entityTypeManager()->getStorage('node');
+  $wiki_pages = \Drupal::entityTypeManager()->getStorage('mini_wiki_page');
+
+  // Resolve destinations by title and type so node IDs may differ by site.
+  $about_pages = $wiki_pages->loadByProperties([
+    'label' => 'About Labdoo',
+    'status' => 1,
+  ]);
+  $about_page = reset($about_pages);
+  $source_pages = $nodes->loadByProperties([
+    'title' => 'source code and development team',
+    'type' => 'team_post',
+    'status' => 1,
+  ]);
+  $source_page = reset($source_pages);
+
+  $destinations = [
+    'About Labdoo' => $about_page ? '/wiki-page/' . $about_page->id() : NULL,
+    'Source Code / Development Team' => $source_page ? '/node/' . $source_page->id() : NULL,
+    'Contact Labdoo' => '/contact',
+  ];
+
+  foreach ($destinations as $title => $uri) {
+    if (!$uri) {
+      \Drupal::logger('labdoo_common')->warning('Footer update skipped for "%title": published destination was not found.', ['%title' => $title]);
+      continue;
+    }
+    $links = $menus->loadByProperties([
+      'menu_name' => $title === 'Contact Labdoo' ? 'footer-right' : 'footer-left',
+      'title' => $title,
+    ]);
+    foreach ($links as $link) {
+      $link->set('link', ['uri' => 'internal:' . $uri]);
+      $link->save();
+    }
+  }
+}
