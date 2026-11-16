@@ -549,6 +549,10 @@ body.labdoo-next {
   color: var(--ldn-green);
   text-underline-offset: 3px;
 }
+.labdoo-next .ldn-main article p a:not(.button),
+.labdoo-next .ldn-main article .alert a:not(.button):not(.close) {
+  text-decoration: underline;
+}
 .labdoo-next .ldn-main a:not(.button):hover {
   color: var(--ldn-orange);
 }
