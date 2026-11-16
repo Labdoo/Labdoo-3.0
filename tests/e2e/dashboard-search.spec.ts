@@ -10,6 +10,20 @@ test('master, table and map displays keep the same filtered device', async ({}, 
 });
 
 const dashboard = '/en/content/dootronics-dashboard';
+test('search autocomplete suggestions use the stacked layout @responsive', async ({ page }, info) => {
+  await goto(page, '/en', info);
+  await page.getByRole('link', { name: 'Open search' }).click();
+  const search = page.locator('#edit-search-api-fulltext');
+  await expect(search).toBeVisible();
+  await search.pressSequentially('Dootrip');
+
+  const suggestion = page.locator('.search-api-autocomplete-suggestion').first();
+  await expect(suggestion).toBeVisible();
+  await expect.poll(() => suggestion.evaluate(element => getComputedStyle(element).display)).toBe('flex');
+  await expect.poll(() => suggestion.evaluate(element => getComputedStyle(element).flexDirection)).toBe('column');
+  await expect(suggestion.locator('.autocomplete-suggestion-label')).toHaveCSS('display', 'block');
+});
+
 test('dootronic ID search returns the matching device and preserves sorting', async ({ page }, info) => {
   const device = fixtures(info).nodes['Laptop Main'];
   const response = await goto(page, `${dashboard}?combine=${device.title}`, info);
