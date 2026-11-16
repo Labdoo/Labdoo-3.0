@@ -8,9 +8,9 @@
       const $mapBlock = $region.find('.labdoo-map-container, [id*="map"]').first().closest('.region-content > *');
 
       if ($chartBlock.length && $mapBlock.length) {
-        // Contenedor para botones de restauración si ambos se ocultan (opcional, pero mejor manejamos visibilidad)
+        // Container for restore buttons when both blocks are hidden (optional, but visibility is better managed explicitly)
         
-        // Función para inyectar botón
+        // Function to insert a button
         const addToggleButton = ($block, targetName, toggleClass) => {
           if (!$block.find('.' + toggleClass).length) {
             const $btn = $('<button class="toggle-visibility ' + toggleClass + '" title="Ocultar ' + targetName + '">×</button>');
@@ -21,11 +21,11 @@
         addToggleButton($chartBlock, 'gráfico', 'hide-chart');
         addToggleButton($mapBlock, 'mapa', 'hide-map');
 
-        // Botón de restauración para el gráfico (si está oculto)
+        // Restore button for the chart (when hidden)
         const $restoreChartBtn = $('<button class="restore-visibility restore-chart" style="display:none">Mostrar Gráfico</button>');
         const $restoreMapBtn = $('<button class="restore-visibility restore-map" style="display:none">Mostrar Mapa</button>');
         
-        // Insertar botones de restauración antes de la región si no existen
+        // Insert restore buttons before the region if they do not exist
         let $restoreControls = $('.restore-controls');
         if (!$restoreControls.length) {
             $restoreControls = $('<div class="restore-controls"></div>');

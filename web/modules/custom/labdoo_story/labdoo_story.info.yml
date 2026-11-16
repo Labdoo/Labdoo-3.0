@@ -2,5 +2,5 @@ name: 'Labdoo Story'
 type: module
 description: 'Through this content type, schools can write their own stories and share them with the world.'
 package: 'Labdoo'
-core_version_requirement: ^10
+core_version_requirement: ^10 || ^11
 dependencies: {}

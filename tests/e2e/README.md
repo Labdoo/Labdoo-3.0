@@ -1,5 +1,7 @@
 # Labdoo E2E
 
+For the isolated Drupal 10 → 11 regression suite and local web runner, see [the upgrade laboratory](../upgrade/README.md).
+
 Browser coverage for the 38 MEJORAS cards (translations excluded), plus baseline regression and responsive checks. Each feature test carries a Todoist task annotation; `support/coverage.py RUN_ID` checks that every card has successful browser coverage.
 
 The integration branch contains all feature branches based on `development` at `1582fd13`, plus corrections discovered by these tests. It is a review branch, not a deployment branch.

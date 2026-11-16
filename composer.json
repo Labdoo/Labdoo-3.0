@@ -22,7 +22,7 @@
         "drupal/admin_toolbar": "^3.4",
         "drupal/amazon_ses": "^3.1",
         "drupal/auto_entitylabel": "^3.0",
-        "drupal/better_exposed_filters": "^6.0",
+        "drupal/better_exposed_filters": "^7.2",
         "drupal/blazy": "^3.0",
         "drupal/book": "^2.0@alpha",
         "drupal/captcha": "^2.0",
@@ -32,16 +32,16 @@
         "drupal/computed_field": "^4.0@alpha",
         "drupal/conditional_fields": "^4.0@alpha",
         "drupal/config_ignore": "^3.3",
-        "drupal/core-composer-scaffold": "10.6.21",
-        "drupal/core-project-message": "10.6.21",
-        "drupal/core-recommended": "10.6.21",
+        "drupal/core-composer-scaffold": "^11.4",
+        "drupal/core-project-message": "^11.4",
+        "drupal/core-recommended": "^11.4",
         "drupal/core_views_facets": "^2.1",
         "drupal/country": "^2.1",
         "drupal/csv_serialization": "^4.0",
-        "drupal/customerror": "^1.0@beta",
+        "drupal/customerror": "1.x-dev",
         "drupal/devel": "^5.1",
         "drupal/diff": "^2.1.1",
-        "drupal/dropdown_language": "^4.0",
+        "drupal/dropdown_language": "^4.1",
         "drupal/email_registration": "^2.0@RC",
         "drupal/entity": "^1.4",
         "drupal/eu_cookie_compliance": "^1.24",
@@ -50,11 +50,11 @@
         "drupal/field_permissions": "^1.4",
         "drupal/flexible_permissions": "^2.0",
         "drupal/geocoder": "^4.23",
-        "drupal/geofield": "10.3.5",
-        "drupal/geofield_map": "11.1.9",
-        "drupal/geolocation": "4.1.0",
-        "drupal/gin": "^4.1.4",
-        "drupal/gin_toolbar": "^2.1",
+        "drupal/geofield": "^1.57",
+        "drupal/geofield_map": "^11.0",
+        "drupal/geolocation": "^4.0@beta",
+        "drupal/gin": "^5.0",
+        "drupal/gin_toolbar": "^3.0",
         "drupal/gin_toolbar_custom_menu": "^1.0",
         "drupal/google_analytics": "^4.0",
         "drupal/honeypot": "^2.1",
@@ -67,7 +67,6 @@
         "drupal/mailsystem": "^4.5",
         "drupal/markdown_easy": "^2.0",
         "drupal/masquerade": "^2.0@RC",
-        "drupal/masquerade_float_block": "^2.0",
         "drupal/media_entity_slideshow": "^2.6",
         "drupal/media_library_edit": "^3.0",
         "drupal/menu_per_role": "^1.8",
@@ -85,17 +84,21 @@
         "drupal/token": "^1.13",
         "drupal/toolbar_menu": "^3.0",
         "drupal/ultimate_cron": "^2.0@alpha",
-        "drupal/variationcache": "^1.5",
         "drupal/verf": "^2.0",
         "drupal/views_bulk_operations": "^4.3",
         "drupal/webform": "^6.3@beta",
         "drupal/workbench": "^1.6",
-        "drush/drush": "^12.4",
+        "drush/drush": "^13.8",
         "firebase/php-jwt": "^7.0",
         "geocoder-php/free-geoip-provider": "^4.5",
         "geocoder-php/google-maps-provider": "^4.7",
         "league/commonmark": "^2.5",
-        "predis/predis": "^2.2"
+        "predis/predis": "^2.2",
+        "doctrine/annotations": "^2.0",
+        "drupal/jquery_ui_datepicker": "^2.1",
+        "drupal/jquery_ui_slider": "^2.1",
+        "drupal/jquery_ui_touch_punch": "^1.1",
+        "php": ">=8.3"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -110,7 +113,8 @@
             "phpstan/extension-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "php-http/discovery": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "symfony/runtime": true
         },
         "sort-packages": true
     },
@@ -156,7 +160,7 @@
             ],
             "post-create-project-cmd-message": [
                 "<bg=blue;fg=white>                                                         </>",
-                "<bg=blue;fg=white>  Congratulations, you’ve installed the Drupal codebase  </>",
+                "<bg=blue;fg=white>  Congratulations, you\u2019ve installed the Drupal codebase  </>",
                 "<bg=blue;fg=white>  from the drupal/recommended-project template!          </>",
                 "<bg=blue;fg=white>                                                         </>",
                 "",
@@ -178,28 +182,26 @@
             "drupal/core": {
                 "Call to a member function getCacheTags() on null": "patches/core-getCacheTags-on-null.patch"
             },
+            "drupal/aws": {
+                "Register the AWS profile canonical entity route": "patches/aws-profile-view-route.patch"
+            },
             "drupal/markdown": {
                 "Fixes a bug with CoreSubformState undeclared abstract methods": "patches/markdown-abstract-methods.patch"
             },
-            "drupal/lang_dropdown": {
-                "Issue #3500174": "patches/lang_dropdown-fix-error-get-library-name-3500174-2.patch"
-            },
             "drupal/quick_node_clone": {
-              "Fixes a bug when cloning user-reference fields": "patches/quick_node_clone-handle-user-reference.patch"
+                "Fixes a bug when cloning user-reference fields": "patches/quick_node_clone-handle-user-reference.patch"
             },
             "drupal/gin": {
-              "Fix chosen select height issue": "patches/gin-chosen-height-fix.patch",
-              "Fix sidebar JS errors when trigger is missing": "patches/gin-fix-sidebar-null-errors.patch"
+                "Fix chosen select height issue": "patches/gin-chosen-height-fix.patch",
+                "Fix sidebar JS errors when trigger is missing": "patches/gin-fix-sidebar-null-errors.patch"
             },
             "drupal/geocoder": {
                 "Fix TypeError in reverse() method for PHP 8+": "patches/geocoder-fix-type-error-reverse.patch"
             },
             "drupal/linkchecker": {
                 "Include base field overrides when building extraction targets": "patches/linkchecker-include-base-field-overrides-in-cron-extraction.patch"
-            },
-            "drupal/honeypot": {
-                "Restore official 2.1.4 updates for sites still at schema 8102": "patches/honeypot-legacy-schema-updates.patch"
             }
-        }
+        },
+        "composer-exit-on-patch-failure": true
     }
 }

@@ -99,7 +99,7 @@ class FilterContentForm extends FormBase {
       }, $bundles);
     }
     catch (\Exception $e) {
-      // Registrar el error y mostrar un mensaje al usuario.
+      // Log the error and display a message to the user.
       $this->getLogger('natiboo_migrate_data')->error('Error loading bundles: @message', [
         '@message' => $e->getMessage(),
       ]);

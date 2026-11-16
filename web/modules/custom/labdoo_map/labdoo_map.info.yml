@@ -2,7 +2,7 @@ name: 'Labdoo Map'
 type: module
 description: 'Provides mapping functionality for Labdoo dashboards.'
 package: Labdoo
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^9 || ^10 || ^11
 dependencies:
   - drupal:node
   - drupal:block

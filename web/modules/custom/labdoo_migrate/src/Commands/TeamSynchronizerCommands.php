@@ -578,7 +578,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->setNewRevision(FALSE);
       }
 
-      // Evita que Drupal sobrescriba la fecha de modificación al guardar.
+      // Prevent Drupal from overwriting the modification date when saving.
       if (method_exists($destinationEntity, 'setSyncing')) {
         $destinationEntity->setSyncing(TRUE);
       }
@@ -977,7 +977,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->setNewRevision(FALSE);
       }
 
-      // Evita que Drupal sobrescriba la fecha de modificación al guardar.
+      // Prevent Drupal from overwriting the modification date when saving.
       if (method_exists($destinationEntity, 'setSyncing')) {
         $destinationEntity->setSyncing(TRUE);
       }
@@ -1382,7 +1382,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->setNewRevision(FALSE);
       }
 
-      // Evita que Drupal sobrescriba la fecha de modificación al guardar.
+      // Prevent Drupal from overwriting the modification date when saving.
       if (method_exists($destinationEntity, 'setSyncing')) {
         $destinationEntity->setSyncing(TRUE);
       }

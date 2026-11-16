@@ -8,3 +8,13 @@
      display: block;
      line-height: 1.5rem;
      padding-block: calc(var(--input-padding-vertical) - 1px);
+--- a/dist/css/components/chosen.css
++++ b/dist/css/components/chosen.css
+@@ -9,7 +9,6 @@
+   border: none;
+   box-shadow: none;
+   width: 100%;
+-  height: 100%;
+   display: block;
+   line-height: 1.5rem;
+   padding-block: calc(var(--input-padding-vertical) - 1px);

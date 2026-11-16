@@ -1,13 +1,18 @@
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Labdoo/Labdoo-3.0)
 
 # Labdoo 3.0
-### Moving the Labdoo platform to Drupal 9/10
-This project is the Labdoo 3.0 source code base for the Labdoo platform using Drupal 9 (and eventually Drupal 10).
+### Labdoo platform on Drupal 11
+This project is the Labdoo 3.0 source code base for the Labdoo platform on Drupal 11.
+
+The local regression laboratory used to verify this upgrade is documented in [tests/upgrade/README.md](tests/upgrade/README.md). It provides a loopback-only browser runner, full menu inventory, entity workflows and before/after comparison.
 
 You can install and develop locally using DDEV or entirely in the Cloud using Gitpod.
 
+Local regression and performance tests (Playwright E2E, k6 and Lighthouse) are
+available through the Makefile; see [the local test lab guide](docs/local-test-lab.md).
+
 ## Custom Code Static Checking
-Before submitting a pull request, please make sure any custom code meets [Drupal Coding Standards](https://drupal.org/coding-standards) and is using the latest Drupal APIs in anticipation of the project being released on Drupal 10 when it is released December 2022, using phpstan with phpstan-drupal.  To run those tests use the following commands:
+Before submitting a pull request, make sure custom code meets [Drupal Coding Standards](https://drupal.org/coding-standards) and uses the current Drupal 11 APIs. The project uses PHPStan with phpstan-drupal for static analysis. Run these commands:
 ````
 ddev ssh
 phpcs --standard="Drupal,DrupalPractice" --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/modules/custom
@@ -23,7 +28,7 @@ Pull requests that have errors will not be approved and merged.
 
 ## Installing and developing locally using DDEV
 ### Prerequisites:
-1. [DDEV](https://ddev.readthedocs.io/en/stable/), which itself requires
+1. [DDEV](https://ddev.readthedocs.io/en/stable/) with PHP 8.3 and MySQL 8.0, which itself requires
 2. [Docker](https://docs.docker.com/)
 
 Once those are installed and this repository is cloned, from the project root you cloned the repository into, start the DDEV environment using the command

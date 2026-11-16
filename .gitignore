@@ -231,3 +231,12 @@ install_ddev.sh
 .ddev/docker-compose.xdebug-ip.yaml
 .ddev/config.fqdns.yaml
 .ddev/config.gitpod-overrides.yaml
+
+# Private upgrade laboratory and dependencies
+/tests/upgrade/.local/
+/tests/performance/.local/
+/tests/e2e/node_modules/
+/web/modules/custom/labdoo_e2e
+/.e2e-lab/
+
+/tests/upgrade/__pycache__/

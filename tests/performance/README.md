@@ -1,5 +1,19 @@
 # Auditorías de Labdoo Next
 
+## Acceso desde el Makefile del checkout principal
+
+Desde `/var/www/html/labdoo3`, la suite aislada se controla con `make e2e-serve`
+(Drupal en primer terminal), `make e2e` (Playwright), `make k6` o
+`make lighthouse`. Para el panel web, ejecuta `make e2e-dashboard` en otro
+terminal y abre `http://127.0.0.1:18412`. La primera vez, instala Playwright con
+`make e2e-deps`. El laboratorio debe estar preparado según
+[`tests/upgrade/README.md`](../upgrade/README.md).
+
+El escenario k6 conserva las cinco rutas y los umbrales existentes. Por
+seguridad, solo admite el clon aislado en `127.0.0.1:18411`; el objetivo se
+puede cambiar con `LAB_BASE_URL` únicamente si sigue siendo ese origen. Genera
+el resumen en `tests/performance/.local/`.
+
 La medición actual usa directamente la aplicación aislada en
 `http://127.0.0.1:18381`, sin el proxy adicional de la primera evaluación.
 El router local aplica gzip a HTML, JSON, CSS y JavaScript y caducidad a los

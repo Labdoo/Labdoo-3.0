@@ -2,7 +2,7 @@ name: 'Labdoo Dootrip'
 type: module
 description: "A dootrip is a travel performed by a person or an organization which can be used to carry one or more laptops.  Dootrips enable Labdoo's CO2-neutral transportation system."
 package: 'Labdoo'
-core_version_requirement: ^10
+core_version_requirement: ^10 || ^11
 dependencies:
   - geocoder:geocoder_geofield
   - drupal:labdoo_common

@@ -1,8 +1,6 @@
-diff --git a/modules/views/src/Plugin/views/cache/CachePluginBase.php b/modules/views/src/Plugin/views/cache/CachePluginBase.php
-index 6cd39aa1a3..2864e26945 100644
 --- a/modules/views/src/Plugin/views/cache/CachePluginBase.php
 +++ b/modules/views/src/Plugin/views/cache/CachePluginBase.php
-@@ -317,7 +317,9 @@ abstract class CachePluginBase extends PluginBase {
+@@ -326,7 +326,9 @@
  
      if (!empty($row->_relationship_entities)) {
        foreach ($row->_relationship_entities as $entity) {
@@ -13,11 +11,9 @@ index 6cd39aa1a3..2864e26945 100644
        }
      }
  
-diff --git a/modules/views/src/Plugin/views/query/Sql.php b/modules/views/src/Plugin/views/query/Sql.php
-index af57e33ec4..7e472960dd 100644
 --- a/modules/views/src/Plugin/views/query/Sql.php
 +++ b/modules/views/src/Plugin/views/query/Sql.php
-@@ -1695,7 +1695,9 @@ class Sql extends QueryPluginBase {
+@@ -1724,7 +1724,9 @@
      // Add cache tags for each row, if there is an entity associated with it.
      if (!$this->hasAggregate) {
        foreach ($this->getAllEntities() as $entity) {
@@ -28,7 +24,7 @@ index af57e33ec4..7e472960dd 100644
        }
      }
  
-@@ -1708,7 +1710,9 @@ class Sql extends QueryPluginBase {
+@@ -1737,7 +1739,9 @@
    public function getCacheMaxAge() {
      $max_age = parent::getCacheMaxAge();
      foreach ($this->getAllEntities() as $entity) {
