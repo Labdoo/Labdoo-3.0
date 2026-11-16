@@ -31,6 +31,12 @@ class LighthouseRunnerTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'not running this checkout'):
                 self.execute(output, 'another-checkout', lambda *args, **kwargs: self.fail('Browser must not start'))
 
+    def test_rejects_remote_targets(self):
+        with tempfile.TemporaryDirectory() as output:
+            args = [str(RUNNER), '--base-url', 'https://v3.labdoo.org', '--output', output, '--routes', 'home', '--profiles', 'mobile']
+            with patch('sys.argv', args), self.assertRaisesRegex(SystemExit, 'restricted to a local HTTP loopback site'):
+                runpy.run_path(str(RUNNER), run_name='__main__')
+
     def test_records_real_report_failures_and_warnings_in_the_summary(self):
         def command(args, **kwargs):
             prefix = next(arg.split('=', 1)[1] for arg in args if arg.startswith('--output-path='))

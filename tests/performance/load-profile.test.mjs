@@ -41,5 +41,5 @@ test('an unguarded server and an HTTP error fail validation', () => {
 });
 test('local runs require checkout identity and reject arbitrary origins', () => {
   assert.throws(() => scenario({}, {}), /LABDOO_EXPECTED_ROOT/);
-  assert.throws(() => scenario({ ...environment, BASE_URL: 'https://production.example' }, {}), /k6 accepts/);
+  assert.throws(() => scenario({ ...environment, BASE_URL: 'https://v3.labdoo.org' }, {}), /restricted to the isolated local clone/);
 });
