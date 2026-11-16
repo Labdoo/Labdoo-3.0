@@ -4,21 +4,23 @@ import { spawn, execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadEnvironments } from './environments.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const local = path.join(root, 'tests/upgrade/.local');
 const state = path.join(local, 'state');
 fs.mkdirSync(state, { recursive: true, mode: 0o700 });
+const { environments, defaultId: defaultEnvironment } = loadEnvironments();
 const token = randomBytes(24).toString('hex');
 const port = Number(process.env.LABDOO_TEST_LAB_PORT || 18412);
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('LABDOO_TEST_LAB_PORT must be a valid local port.');
-const baseUrl = 'http://127.0.0.1:18411';
 const suites = {
   all: [],
   navigation: ['upgrade-navigation.spec.ts'],
   entities: ['upgrade-entities.spec.ts', 'upgrade-workflows.spec.ts'],
   search: ['upgrade-workflows.spec.ts', 'dashboard-search.spec.ts', 'dashboards.spec.ts', 'regression.spec.ts'],
   regression: ['--grep-invert', 'upgrade:'],
+  'remote-smoke': [],
 };
 const descriptions = {
   'auth.setup.ts': ['Test account setup', 'Signs in to the isolated Drupal roles and saves browser sessions for the test projects.'],
@@ -31,6 +33,7 @@ const descriptions = {
   'gallery-lightbox.spec.ts': ['Gallery lightbox', 'Checks gallery browsing and image viewing when JavaScript is unavailable.'],
   'labels-and-bulk.spec.ts': ['Labels and bulk operations', 'Covers label printing and bulk dootronic actions.'],
   'regression.spec.ts': ['Core regression checks', 'Runs the established regression scenarios against the isolated application.'],
+  'remote-smoke.spec.ts': ['Remote read-only smoke checks', 'Checks public pages on the selected HTTPS environment without creating or changing content.'],
   'revision-access.spec.ts': ['Revision access control', 'Checks revision visibility for anonymous, basic, and administrator roles.'],
   'theme-analytics.spec.ts': ['Analytics consent behavior', 'Verifies analytics loading and event behavior across consent changes.'],
   'theme-palette.spec.ts': ['Theme palette settings', 'Checks palette creation, selection, permissions, and responsive rendering.'],
@@ -45,7 +48,7 @@ const descriptions = {
 const toolInfo = {
   k6: {
     name: 'k6 load test',
-    description: 'Runs the existing 13-minute load profile against five Labdoo routes on the isolated local clone.',
+    description: 'Runs the existing 13-minute load profile against five Labdoo routes. Remote environments must explicitly enable k6 in .env.',
     tests: ['Ramp from 20 to 100 virtual users, then ramp down.', 'Thresholds: p95 response time below 2 seconds; failed requests below 2%.'],
     executable: 'k6',
   },
@@ -94,14 +97,20 @@ function collectSpecs(suite, output = []) {
   for (const child of suite.suites || []) collectSpecs(child, output);
   return output;
 }
-function discoverPlaywright() {
+function publicEnvironment(environment) {
+  return { id: environment.id, name: environment.name, url: environment.url, mode: environment.mode, allowK6: environment.allowK6, allowLighthouse: environment.allowLighthouse };
+}
+function authentication(environment) {
+  return environment.httpUser ? `Basic ${Buffer.from(`${environment.httpUser}:${environment.httpPassword}`).toString('base64')}` : null;
+}
+function discoverPlaywright(environment) {
   try {
     const raw = execFileSync(process.execPath, [
       path.join(root, 'tests/e2e/node_modules/@playwright/test/cli.js'),
       'test', '-c', 'upgrade.config.ts', '--list', '--reporter=json',
     ], {
       cwd: path.join(root, 'tests/e2e'),
-      env: { ...process.env, E2E_STATE_DIR: state },
+      env: { ...process.env, E2E_STATE_DIR: state, E2E_TARGET_MODE: environment.mode, E2E_BASE_URL: environment.url },
       maxBuffer: 16 * 1024 * 1024,
     });
     const discovered = JSON.parse(raw.toString());
@@ -124,12 +133,13 @@ function discoverPlaywright() {
     return { files: [], error: 'Playwright discovery failed. Install its dependencies with make e2e-deps.' };
   }
 }
-function catalog() {
+function catalog(environmentId = defaultEnvironment) {
+  const environment = environments[environmentId] || environments[defaultEnvironment];
   const tools = Object.fromEntries(Object.entries(toolInfo).map(([id, info]) => [id, {
     ...info,
-    available: executableExists(info.executable),
+    available: executableExists(info.executable) && (id === 'k6' ? environment.allowK6 : id === 'lighthouse' ? environment.allowLighthouse : true),
   }]));
-  return { playwright: discoverPlaywright(), tools };
+  return { environment: publicEnvironment(environment), environments: Object.values(environments).map(publicEnvironment), playwright: discoverPlaywright(environment), tools };
 }
 function version() {
   const source = fs.readFileSync(path.join(root, 'web/core/lib/Drupal.php'), 'utf8');
@@ -146,7 +156,8 @@ function fingerprint() {
     }
   };
   walk(path.join(root, 'tests/e2e'));
-  hash.update(fs.readFileSync(path.join(state, 'inventory.json')));
+  const inventory = path.join(state, 'inventory.json');
+  if (fs.existsSync(inventory)) hash.update(fs.readFileSync(inventory));
   return hash.digest('hex');
 }
 function contentType(file) {
@@ -182,7 +193,9 @@ const server = http.createServer(async (req, res) => {
     } : null;
     return json({ running: active, history: history(), inventory: read(path.join(state, 'inventory.json'), null) });
   }
-  if (req.method === 'GET' && url.pathname === '/api/catalog') return json(catalog());
+  if (req.method === 'GET' && url.pathname === '/api/catalog') {
+    return json(catalog(url.searchParams.get('environment')));
+  }
   if (req.method === 'GET' && url.pathname === '/api/log') {
     const id = url.searchParams.get('id');
     if (!/^[\w-]+$/.test(id || '')) return json({ error: 'Invalid id' }, 400);
@@ -216,18 +229,32 @@ const server = http.createServer(async (req, res) => {
     let input;
     try { input = JSON.parse(body); } catch { return json({ error: 'Invalid JSON' }, 400); }
     const tool = input.tool;
+    const environment = environments[input.environment || defaultEnvironment];
+    if (!environment) return json({ error: 'Choose an environment configured in .env.' }, 400);
     if (!['playwright', 'k6', 'lighthouse'].includes(tool)) return json({ error: 'Choose a supported test tool.' }, 400);
     if (tool === 'playwright' && !Object.hasOwn(suites, input.suite)) return json({ error: 'Choose a supported Playwright suite.' }, 400);
-    if (!fs.existsSync(path.join(state, 'connection.json')) || !fs.existsSync(path.join(state, 'inventory.json'))) {
+    if (environment.mode === 'readonly' && tool === 'playwright' && input.suite !== 'remote-smoke') {
+      return json({ error: 'Remote environments only support the read-only smoke suite.' }, 400);
+    }
+    if (environment.mode === 'isolated' && input.suite === 'remote-smoke') return json({ error: 'Remote smoke checks require an HTTPS environment.' }, 400);
+    if (tool === 'k6' && !environment.allowK6) return json({ error: 'k6 is disabled for this environment in .env.' }, 403);
+    if (tool === 'lighthouse' && !environment.allowLighthouse) {
+      const message = environment.mode === 'readonly' && environment.httpUser
+        ? 'Lighthouse is unavailable for HTTP Basic Auth targets because its browser headers can reach third-party assets.'
+        : 'Lighthouse is disabled for this environment in .env.';
+      return json({ error: message }, 403);
+    }
+    if (environment.mode === 'isolated' && (!fs.existsSync(path.join(state, 'connection.json')) || !fs.existsSync(path.join(state, 'inventory.json')))) {
       return json({ error: 'Prepare the isolated test lab first.' }, 412);
     }
     if (tool !== 'playwright' && !executableExists(toolInfo[tool].executable)) return json({ error: `${toolInfo[tool].executable} is not installed or available on PATH.` }, 412);
     let site;
     try {
-      site = await fetch(baseUrl, { signal: AbortSignal.timeout(5000) });
-      if (!site.ok || site.headers.get('x-labdoo-e2e') !== 'integration') throw new Error();
+      const headers = authentication(environment) ? { Authorization: authentication(environment) } : {};
+      site = await fetch(`${environment.url}/`, { headers, signal: AbortSignal.timeout(10000) });
+      if (new URL(site.url).origin !== environment.url || !site.ok || (environment.mode === 'isolated' && site.headers.get('x-labdoo-e2e') !== 'integration')) throw new Error();
     } catch {
-      return json({ error: `Start the isolated Drupal server at ${baseUrl} first.` }, 412);
+      return json({ error: `The configured environment ${environment.name} is unavailable or did not return an allowed response.` }, 412);
     }
 
     const id = `${tool}-${Date.now()}`;
@@ -237,7 +264,10 @@ const server = http.createServer(async (req, res) => {
       tool,
       toolName: tool === 'playwright' ? 'Playwright E2E' : toolInfo[tool].name,
       suite: tool === 'playwright' ? input.suite : null,
-      core: version(),
+      environment: environment.id,
+      environmentName: environment.name,
+      baseUrl: environment.url,
+      core: environment.mode === 'isolated' ? version() : 'remote environment',
       started: new Date().toISOString(),
       commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
     };
@@ -255,13 +285,26 @@ const server = http.createServer(async (req, res) => {
       command = process.execPath;
       args = [path.join(root, 'tests/e2e/node_modules/@playwright/test/cli.js'), 'test', '-c', 'upgrade.config.ts', ...suites[input.suite]];
       cwd = path.join(root, 'tests/e2e');
-      env = { ...env, E2E_RUN_ID: id, E2E_STATE_DIR: state, E2E_LOCAL_PORT: '18411' };
+      env = { ...env, E2E_RUN_ID: id, E2E_STATE_DIR: state, E2E_TARGET_MODE: environment.mode, E2E_BASE_URL: environment.url };
+      if (environment.mode === 'isolated') env.E2E_LOCAL_PORT = '18411';
+      if (environment.httpUser) {
+        env.E2E_HTTP_AUTH_USER = environment.httpUser;
+        env.E2E_HTTP_AUTH_PASSWORD = environment.httpPassword;
+      }
     } else if (tool === 'k6') {
       command = 'k6';
-      args = ['run', '--summary-export', path.join(dir, 'k6-summary.json'), '-e', `BASE_URL=${baseUrl}`, path.join(root, 'tests/performance/labdoo-load.js')];
+      args = ['run', '--summary-export', path.join(dir, 'k6-summary.json'), '-e', `BASE_URL=${environment.url}`, '-e', `LABDOO_TARGET_MODE=${environment.mode}`, path.join(root, 'tests/performance/labdoo-load.js')];
+      if (environment.httpUser) {
+        env.LABDOO_HTTP_AUTH_USER = environment.httpUser;
+        env.LABDOO_HTTP_AUTH_PASSWORD = environment.httpPassword;
+      }
     } else {
       command = 'python3';
-      args = [path.join(root, 'tests/performance/lighthouse.py'), '--base-url', baseUrl, '--output', path.join(dir, 'lighthouse'), '--lighthouse', 'lighthouse'];
+      args = [path.join(root, 'tests/performance/lighthouse.py'), '--base-url', environment.url, '--target-mode', environment.mode, '--output', path.join(dir, 'lighthouse'), '--lighthouse', 'lighthouse'];
+      if (environment.httpUser) {
+        env.LABDOO_HTTP_AUTH_USER = environment.httpUser;
+        env.LABDOO_HTTP_AUTH_PASSWORD = environment.httpPassword;
+      }
     }
     const child = spawn(command, args, { cwd, env, stdio: ['ignore', output, output] });
     fs.closeSync(output);

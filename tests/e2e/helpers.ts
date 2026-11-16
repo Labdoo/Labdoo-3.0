@@ -12,9 +12,11 @@ export function fixtures(info: TestInfo): any {
 }
 export function authPath(kind: string, role: string): string { return path.join(stateDir, `auth-${kind}-${role}.json`); }
 export async function networkGuard(context: BrowserContext) {
+  const configuredOrigin = process.env.E2E_BASE_URL ? new URL(process.env.E2E_BASE_URL).origin : null;
   await context.route('**/*', async route => {
     const request = route.request();
     const url = new URL(request.url());
+    if (configuredOrigin && url.origin === configuredOrigin) return route.continue();
     if (url.hostname === '127.0.0.1' && (process.env.E2E_LOCAL_PORT ? [process.env.E2E_LOCAL_PORT] : ['18380', '18381']).includes(url.port)) return route.continue();
     if (['data:', 'blob:'].includes(url.protocol)) return route.continue();
     if (request.method() === 'GET' && ['unpkg.com', 'cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'].includes(url.hostname) && ['script', 'stylesheet', 'font'].includes(request.resourceType())) return route.continue();
@@ -25,7 +27,9 @@ export async function networkGuard(context: BrowserContext) {
 export async function goto(page: Page, url: string, info: TestInfo) {
   const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
   expect(response, 'A Drupal response is required').not.toBeNull();
-  expect(response!.headers()['x-labdoo-e2e'], 'Refusing browser writes outside the isolated site').toBe(variant(info));
+  if (process.env.E2E_TARGET_MODE !== 'readonly') {
+    expect(response!.headers()['x-labdoo-e2e'], 'Refusing browser writes outside the isolated site').toBe(variant(info));
+  }
   expect(response!.status(), `HTTP status for ${url}`).toBeLessThan(500);
   await expect(page.locator('body')).not.toContainText('The website encountered an unexpected error');
   const cookieChoice = page.getByRole('button', { name: 'No, thanks', exact: true });
