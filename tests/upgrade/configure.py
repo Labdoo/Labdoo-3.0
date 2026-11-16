@@ -10,6 +10,10 @@ s=p.read_text().replace('theme:\n','theme:\n  labdoo_next: 0\n').replace('module
 p.write_text(s)
 drush('config:import','--source='+str(target),'-y')
 drush('updatedb','-y')
+# Config import restores the production CAPTCHA element. Reapply the test-only
+# fixture after seeding, while keeping fresh-lab setup ordering intact.
+if (LAB/'state/integration-fixtures.json').exists():
+    drush('php:script',str(ROOT/'tests/upgrade/prepare.php'))
 # Recopy placements after importing the base theme's final block configuration.
 # Installation during config import happens before those blocks are imported.
 drush('php:eval', r"if(\Drupal::config('system.theme')->get('default')==='labdoo_next')throw new \RuntimeException('The lab expects labdoo as the default theme'); \Drupal::service('theme_installer')->uninstall(['labdoo_next']); \Drupal::service('theme_installer')->install(['labdoo_next']);")
