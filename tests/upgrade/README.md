@@ -17,9 +17,7 @@ In another terminal:
 node tests/upgrade/dashboard.mjs
 ```
 
-Open **http://127.0.0.1:18412**. The Drupal clone runs at **http://127.0.0.1:18411**. The English-only Test Lab has environment, suite, and tool selectors for Playwright, k6, and Lighthouse. The local environment runs the full writable E2E suite. Remote HTTPS environments run only read-only Playwright smoke checks; Lighthouse can be enabled per environment, and k6 requires explicit opt-in in `.env`. The dashboard shows test names and descriptions, live output, previous runs, and reports. The progress bar counts completed Playwright tests and Lighthouse route/profile audits; k6 uses an indeterminate bar because its load profile has no fixed iteration count. Runs use one worker, no retries, and retain failure screenshots and traces. Failed, skipped, and unstable tests remain distinct.
-
-Configure targets in the repository root `.env` using `LABDOO_TEST_ENVIRONMENTS`, `LABDOO_TEST_ENV_<ID>_NAME`, `LABDOO_TEST_ENV_<ID>_URL`, and `LABDOO_TEST_ENV_<ID>_MODE`. Remote URLs must be HTTPS origins. Optional HTTP Basic Auth credentials are supported for Playwright and k6; Lighthouse is disabled for Basic Auth targets to keep authorization headers away from third-party assets. Do not configure production for k6.
+Open **http://127.0.0.1:18412**. The Drupal clone runs at **http://127.0.0.1:18411**. The English-only Test Lab runs Playwright, k6, and Lighthouse against this isolated local clone only. The dashboard shows test names and descriptions, live output, previous runs, and reports. The progress bar counts completed Playwright tests and Lighthouse route/profile audits; k6 uses an indeterminate bar because its load profile has no fixed iteration count. Runs use one worker, no retries, and retain failure screenshots and traces. Failed, skipped, and unstable tests remain distinct.
 
 ## Reconstruct a laboratory
 

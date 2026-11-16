@@ -9,11 +9,7 @@ terminal y abre `http://127.0.0.1:18412`. La primera vez, instala Playwright con
 `make e2e-deps`. El laboratorio debe estar preparado según
 [`tests/upgrade/README.md`](../upgrade/README.md).
 
-El escenario k6 conserva las cinco rutas y los umbrales de latencia/error; exige además que todos los checks funcionales y de aislamiento pasen. La identidad del checkout servido se comprueba antes de generar carga. Los
-comandos directos del Makefile usan el clon aislado en `127.0.0.1:18411` por
-defecto. El panel puede seleccionar un entorno HTTPS remoto si su variable
-`LABDOO_TEST_ENV_<ID>_ALLOW_K6=1` lo habilita en `.env`; no habilites k6 para
-producción. Genera el resumen en `tests/performance/.local/`.
+El escenario k6 conserva las cinco rutas y los umbrales de latencia/error; exige además que todos los checks funcionales y de aislamiento pasen. La identidad del checkout servido se comprueba antes de generar carga. Los comandos usan únicamente el clon aislado en `127.0.0.1:18411`. Genera el resumen en `tests/performance/.local/`.
 
 La evaluación histórica descrita a continuación usó directamente la aplicación aislada en
 `http://127.0.0.1:18381`, sin el proxy adicional de la primera evaluación.
