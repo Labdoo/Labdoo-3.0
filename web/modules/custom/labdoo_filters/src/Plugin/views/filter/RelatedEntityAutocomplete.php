@@ -36,16 +36,16 @@ class RelatedEntityAutocomplete extends FilterPluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    // Entidad destino del autocomplete (hub, edoovillage, dootrip...).
+    // Target entity for autocomplete (hub, edoovillage, dootrip...).
     $options['target_entity_type'] = ['default' => 'node'];
     $options['target_bundles'] = ['default' => []];
 
-    // Entidad origen de la relación (dootronic).
+    // Source entity of the relationship (dootronic).
     $options['source_entity_type'] = ['default' => 'node'];
     $options['source_bundle'] = ['default' => 'dootronic'];
     $options['source_reference_field'] = ['default' => ''];
 
-    // Tabla/columna donde se guarda el target_id.
+    // Table/column where target_id is stored.
     $options['reference_table'] = ['default' => ''];
     $options['reference_target_column'] = ['default' => ''];
 

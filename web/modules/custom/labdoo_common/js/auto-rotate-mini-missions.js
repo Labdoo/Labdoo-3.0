@@ -16,7 +16,7 @@
       const $block = $(once('auto-rotate-mini-missions', blockSelector, context));
       // Time in milliseconds between rotations
       const ROTATION_INTERVAL = 4000;
-      // Maximum number of pages to rotate (1-indexed, página 10)
+      // Maximum number of pages to rotate (1-indexed, page 10)
       const MAX_PAGE = 10;
 
       if ($block.length) {
