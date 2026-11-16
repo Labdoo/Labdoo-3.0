@@ -252,6 +252,7 @@ const server = http.createServer(async (req, res) => {
     try {
       const headers = authentication(environment) ? { Authorization: authentication(environment) } : {};
       site = await fetch(`${environment.url}/`, { headers, signal: AbortSignal.timeout(10000) });
+      if (environment.mode === 'isolated' && site.headers.get('x-labdoo-e2e-root') !== createHash('sha256').update(root).digest('hex')) throw new Error('The server is running another checkout');
       if (new URL(site.url).origin !== environment.url || !site.ok || (environment.mode === 'isolated' && site.headers.get('x-labdoo-e2e') !== 'integration')) throw new Error();
     } catch {
       return json({ error: `The configured environment ${environment.name} is unavailable or did not return an allowed response.` }, 412);
@@ -280,7 +281,7 @@ const server = http.createServer(async (req, res) => {
     let command;
     let args;
     let cwd = root;
-    let env = { ...process.env };
+    let env = { ...process.env, LABDOO_EXPECTED_ROOT: root };
     if (tool === 'playwright') {
       command = process.execPath;
       args = [path.join(root, 'tests/e2e/node_modules/@playwright/test/cli.js'), 'test', '-c', 'upgrade.config.ts', ...suites[input.suite]];

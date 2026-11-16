@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Run real Lighthouse navigation audits against the isolated loopback site."""
+import hashlib
 import argparse
 import base64
 import json
@@ -69,6 +70,9 @@ for route in args.routes:
     with urllib.request.urlopen(request, timeout=60) as response:
         if response.status != 200 or (args.target_mode == 'isolated' and response.headers.get('X-Labdoo-E2E') != 'integration'):
             raise RuntimeError('Audit target returned an unexpected response')
+        expected_root = hashlib.sha256(str(Path(__file__).resolve().parents[2]).encode()).hexdigest()
+        if args.target_mode == 'isolated' and response.headers.get('X-Labdoo-E2E-Root') != expected_root:
+            raise RuntimeError('Lighthouse target is not running this checkout')
         assets = Assets()
         assets.feed(response.read().decode())
     for asset in assets.urls:

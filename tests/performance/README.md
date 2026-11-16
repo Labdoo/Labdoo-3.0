@@ -2,20 +2,20 @@
 
 ## Acceso desde el Makefile del checkout principal
 
-Desde `/var/www/html/labdoo3`, la suite aislada se controla con `make e2e-serve`
+Desde `/var/www/html/labdoo3`, la suite del checkout actual, con datos aislados, se controla con `make e2e-serve`
 (Drupal en primer terminal), `make e2e` (Playwright), `make k6` o
 `make lighthouse`. Para el panel web, ejecuta `make e2e-dashboard` en otro
 terminal y abre `http://127.0.0.1:18412`. La primera vez, instala Playwright con
 `make e2e-deps`. El laboratorio debe estar preparado según
 [`tests/upgrade/README.md`](../upgrade/README.md).
 
-El escenario k6 conserva las cinco rutas y los umbrales existentes. Los
+El escenario k6 conserva las cinco rutas y los umbrales de latencia/error; exige además que todos los checks funcionales y de aislamiento pasen. La identidad del checkout servido se comprueba antes de generar carga. Los
 comandos directos del Makefile usan el clon aislado en `127.0.0.1:18411` por
 defecto. El panel puede seleccionar un entorno HTTPS remoto si su variable
 `LABDOO_TEST_ENV_<ID>_ALLOW_K6=1` lo habilita en `.env`; no habilites k6 para
 producción. Genera el resumen en `tests/performance/.local/`.
 
-La medición actual usa directamente la aplicación aislada en
+La evaluación histórica descrita a continuación usó directamente la aplicación aislada en
 `http://127.0.0.1:18381`, sin el proxy adicional de la primera evaluación.
 El router local aplica gzip a HTML, JSON, CSS y JavaScript y caducidad a los
 recursos estáticos, como el servidor Apache. Conserva los encabezados de caché
@@ -76,3 +76,9 @@ Son resultados locales, no una verificación del servidor AWS con autenticación
 18385. Esos archivos documentan una revisión anterior; sus condiciones no deben
 mezclarse con las de la medición directa actual. El proxy se conserva para
 reproducir ese histórico, usando `--base-url http://127.0.0.1:18385`.
+
+## Current-checkout validation
+
+Routine runs use this checkout at `http://127.0.0.1:18411` with the isolated E2E site. The older port 18381 and results above describe historical measurements, not the default target. k6 and Lighthouse reject a local server belonging to another checkout. Direct k6 calls must pass `-e LABDOO_EXPECTED_ROOT="/absolute/path/to/checkout"`; the Makefile and dashboard supply it.
+
+Follow [tests/AGENTS.md](../AGENTS.md) for mandatory testing. Inspect k6 thresholds and failed checks; inspect Lighthouse `summary.json`, failed audits and same-condition before/after metrics. A successful Lighthouse process is not an automatic regression pass. Keep all repeated runs and report medians rather than the best score.

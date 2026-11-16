@@ -1,34 +1,23 @@
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Labdoo/Labdoo-3.0)
 
 # Labdoo 3.0
-### Labdoo platform on Drupal 11
-This project is the Labdoo 3.0 source code base for the Labdoo platform on Drupal 11.
+This branch targets Drupal 11 and includes custom modules and themes. Check `composer.json` and `composer.lock` on the active branch for pinned runtime dependencies. The current-checkout regression laboratory is documented in [tests/upgrade/README.md](tests/upgrade/README.md).
 
-The local regression laboratory used to verify this upgrade is documented in [tests/upgrade/README.md](tests/upgrade/README.md). It provides a loopback-only browser runner, full menu inventory, entity workflows and before/after comparison.
+## Agent and contributor guidance
 
-You can install and develop locally using DDEV or entirely in the Cloud using Gitpod.
+Start with [AGENTS.md](AGENTS.md). Shared task skills live in [.agents/skills](.agents/skills), with environment boundaries and validation requirements in [docs/agent-workflow.md](docs/agent-workflow.md).
 
-Local regression and performance tests (Playwright E2E, k6 and Lighthouse) are
-available through the Makefile; see [the local test lab guide](docs/local-test-lab.md).
+[TECHNICAL.md](TECHNICAL.md) maps the domain and modules; [the review process](docs/dev-process/CodeReviewProcess.md) describes focused review expectations. Historical setup notes below should be checked against the active branch before running commands.
 
-## Custom Code Static Checking
-Before submitting a pull request, make sure custom code meets [Drupal Coding Standards](https://drupal.org/coding-standards) and uses the current Drupal 11 APIs. The project uses PHPStan with phpstan-drupal for static analysis. Run these commands:
-````
-ddev ssh
-phpcs --standard="Drupal,DrupalPractice" --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/modules/custom
-phpstan --level=5 analyze web/modules/custom
-````
+## Custom code checking
 
-If a PR is modifying code in the theme, add the command
-````
-phpcs --standard="Drupal,DrupalPractice" --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/modules/themes
-````
+Use Drupal coding standards for custom modules and themes. See the [validation matrix and tool prerequisites](docs/agent-workflow.md#validation) for PHPCS, PHPStan, syntax and behavior checks. Missing development tools must be reported rather than treated as passing checks.
 
-Pull requests that have errors will not be approved and merged.
+For isolated local regression and performance tooling, see [the local test lab guide](docs/local-test-lab.md). Where the branch provides `tests/e2e/README.md`, read its harness-specific isolation instructions as well.
 
 ## Installing and developing locally using DDEV
 ### Prerequisites:
-1. [DDEV](https://ddev.readthedocs.io/en/stable/) with PHP 8.3 and MySQL 8.0, which itself requires
+1. [DDEV](https://ddev.readthedocs.io/en/stable/), which itself requires
 2. [Docker](https://docs.docker.com/)
 
 Once those are installed and this repository is cloned, from the project root you cloned the repository into, start the DDEV environment using the command

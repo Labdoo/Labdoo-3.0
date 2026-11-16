@@ -1,8 +1,8 @@
 # Local Labdoo test lab
 
-The E2E and performance tools use the isolated Drupal 11 worktree at
-`.e2e-lab/drupal11`. The default environment has a dedicated database clone
-and local-only full E2E runs; it does not use the active checkout's database.
+The E2E, k6 and Lighthouse runners use `./tests` and the application code in the active checkout. The local server selects a separate Drupal site at `web/sites/labdoo_e2e`, with its own restricted database clone, uploads and private state. The default site's settings and database are not used by the test processes.
+
+The server returns a hashed checkout identity that the local runners verify before accepting results. Restart `make e2e-serve` from this checkout if another server is using port 18411.
 
 The web dashboard offers the local clone and any extra targets listed in the
 root `.env` file. Remote targets must use HTTPS and run only the read-only
@@ -26,8 +26,7 @@ The dashboard never accepts a free-form URL. k6 remains disabled for remote
 targets unless explicitly enabled because its load profile creates sustained
 traffic. Keep credentials in the ignored `.env` file.
 
-Prepare the lab once using the instructions in the isolated worktree's
-`tests/upgrade/README.md`. Then, from `/var/www/html/labdoo3`:
+Prepare the lab once using [tests/upgrade/README.md](../tests/upgrade/README.md). Then, from `/var/www/html/labdoo3`:
 
 | Command | Purpose |
 | --- | --- |
@@ -36,15 +35,14 @@ Prepare the lab once using the instructions in the isolated worktree's
 | `make e2e-dashboard` | Start the local dashboard on `127.0.0.1:18412`. |
 | `make k6` | Run the existing 13 minute k6 load profile against the isolated clone. |
 | `make lighthouse` | Run mobile and desktop Lighthouse audits on the standard routes. |
-| `make e2e-deps` | Install the Playwright dependencies in the isolated worktree. |
+| `make e2e-deps` | Install the Playwright dependencies in this checkout. |
 
 The k6 target uses the test clone by default; the dashboard permits a remote
 target only when `ALLOW_K6=1` is set for that named HTTPS environment in `.env`.
 Its five routes and p95/error thresholds are retained from the previous
 `labdoo-load.js`. Lighthouse and k6 outputs are written under
-`.e2e-lab/drupal11/tests/performance/.local/`.
+`tests/performance/.local/`.
 
-Override `LAB_WORKTREE` if the upgrade worktree lives elsewhere. The Playwright
-target expects the clone and its inventory to have already been prepared, and
-the Drupal server to be running. The existing `make tests` target continues to
-run PHPUnit.
+The Playwright target requires the isolated site and fixtures to be prepared and this checkout's Drupal server to be running. `LAB_ROOT` resolves to the current directory; routine commands do not select a hidden upgrade worktree. `make tests` remains the PHPUnit target where its toolchain is installed.
+
+See [the regression-testing skill](../.agents/skills/regression-testing/SKILL.md) for mandatory coverage and report-review requirements.

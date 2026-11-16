@@ -84,7 +84,7 @@ test('gallery thumbnails paginate as 25, 25 and 3 pictures @responsive', covers(
   const grid = page.locator('.labdoo-gallery-grid');
   await expect(grid.locator('img')).toHaveCount(25);
   await expect(grid.getByAltText('E2E Photo 01', { exact: true })).toBeVisible();
-  expect(await grid.locator('a').first().getAttribute('href')).toContain('/sites/default/files/');
+  expect(await grid.locator('a').first().getAttribute('href')).toMatch(/\/sites\/[^/]+\/files\//);
   await page.locator('.field--name-field-images .pager__item--next a').first().click();
   await expect(grid.locator('img')).toHaveCount(25);
   await expect(grid.getByAltText('E2E Photo 26', { exact: true })).toBeVisible();

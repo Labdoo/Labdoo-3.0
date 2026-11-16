@@ -1,5 +1,9 @@
 # Labdoo E2E
 
+> Current default: run the suites and application from this checkout using [the current regression lab](../upgrade/README.md) and `upgrade.config.ts`. The database and public files are isolated through the E2E site; a separate upgrade worktree is no longer the default. Follow [tests/AGENTS.md](../AGENTS.md) for required coverage and report review.
+>
+> The baseline/integration ports, worktree setup and `playwright.config.ts` instructions below describe the historical comparison harness. Use them only for an explicitly intended historical comparison.
+
 For the isolated Drupal 10 → 11 regression suite and local web runner, see [the upgrade laboratory](../upgrade/README.md).
 
 Browser coverage for the 38 MEJORAS cards (translations excluded), plus baseline regression and responsive checks. Each feature test carries a Todoist task annotation; `support/coverage.py RUN_ID` checks that every card has successful browser coverage.

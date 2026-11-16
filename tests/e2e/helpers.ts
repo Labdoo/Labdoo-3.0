@@ -1,5 +1,6 @@
 import { test as base, expect, BrowserContext, Page, TestInfo } from '@playwright/test';
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 export type Role = 'anonymous' | 'superadmin' | 'admin' | 'basic' | 'laptop' | 'hub' | 'school' | 'wiki' | 'team';
@@ -28,6 +29,10 @@ export async function goto(page: Page, url: string, info: TestInfo) {
   const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
   expect(response, 'A Drupal response is required').not.toBeNull();
   if (process.env.E2E_TARGET_MODE !== 'readonly') {
+    if (process.env.E2E_LOCAL_PORT === '18411') {
+      const expectedRoot = createHash('sha256').update(path.resolve(__dirname, '../..')).digest('hex');
+      expect(response!.headers()['x-labdoo-e2e-root'], 'The server must run the checkout containing these tests').toBe(expectedRoot);
+    }
     expect(response!.headers()['x-labdoo-e2e'], 'Refusing browser writes outside the isolated site').toBe(variant(info));
   }
   expect(response!.status(), `HTTP status for ${url}`).toBeLessThan(500);

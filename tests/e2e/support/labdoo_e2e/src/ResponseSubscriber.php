@@ -18,6 +18,7 @@ final class ResponseSubscriber implements EventSubscriberInterface {
     if (!Settings::get('labdoo_e2e') || !str_starts_with($database, 'labdoo_e2e_')) {
       throw new \RuntimeException('E2E isolation failed');
     }
+    $event->getResponse()->headers->set('X-Labdoo-E2E-Root', hash('sha256', dirname(\Drupal::root())));
     $event->getResponse()->headers->set('X-Labdoo-E2E', Settings::get('labdoo_e2e_variant'));
   }
 }
