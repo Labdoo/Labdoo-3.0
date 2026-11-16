@@ -25,13 +25,12 @@ const expectedRoot = __ENV.LABDOO_EXPECTED_ROOT;
 if (localTarget && !expectedRoot) throw new Error('Set LABDOO_EXPECTED_ROOT to the checkout being tested');
 const requestParams = {};
 
-// Keep the routes from the existing Labdoo load scenario.
 const paths = [
   '/',
   '/en/actions',
   '/en/content/dootronics-dashboard',
-  '/en/content/000000011-0',
-  '/de/content/informare-edoovillages-proiecte',
+  '/en/content/000046648',
+  '/de/content/information-fuer-edoovillages-schulen',
 ];
 
 // Refuse a stale or unguarded local server before generating sustained load.
