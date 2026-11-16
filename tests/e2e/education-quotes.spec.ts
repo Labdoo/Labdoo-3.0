@@ -82,7 +82,12 @@ test('fresh AJAX quotes replace the same cached page HTML on every load @respons
   let previous = await widget.getAttribute('data-quote-id');
   await page.route(url, route => route.fulfill({
     status: 200,
-    headers: { 'content-type': 'text/html; charset=UTF-8', 'x-labdoo-e2e': 'integration', 'cache-control': 'public, max-age=3600' },
+    headers: {
+      'content-type': 'text/html; charset=UTF-8',
+      'x-labdoo-e2e': response.headers()['x-labdoo-e2e'],
+      ...(response.headers()['x-labdoo-e2e-root'] ? { 'x-labdoo-e2e-root': response.headers()['x-labdoo-e2e-root'] } : {}),
+      'cache-control': 'public, max-age=3600',
+    },
     body: html,
   }));
   for (let i = 0; i < 3; i++) {
@@ -108,7 +113,7 @@ test('AJAX failure leaves a translated quote visible', async ({ page }, info) =>
 
 test('the fresh quote appears even while Drupal footer scripts are unavailable @responsive', async ({ page }, info) => {
   let blocked = 0;
-  await page.route('**/sites/default/files/js/**', route => {
+  await page.route('**/sites/*/files/js/**', route => {
     if (new URL(route.request().url()).searchParams.get('scope') === 'footer') {
       blocked++;
       return route.fulfill({ contentType: 'application/javascript', body: '' });

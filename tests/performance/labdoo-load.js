@@ -1,6 +1,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import encoding from 'k6/encoding';
+import crypto from 'k6/crypto';
 
 export const options = {
   stages: [
@@ -12,6 +13,7 @@ export const options = {
   thresholds: {
     http_req_duration: ['p(95)<2000'],
     http_req_failed: ['rate<0.02'],
+    checks: ['rate==1'],
   },
 };
 
@@ -22,6 +24,8 @@ const remoteTarget = TARGET_MODE === 'readonly' && /^https:\/\/[A-Za-z0-9.-]+(?:
 if (!(TARGET_MODE === 'isolated' && localTarget) && !remoteTarget) {
   throw new Error('k6 accepts the local clone, or a configured HTTPS read-only environment.');
 }
+const expectedRoot = __ENV.LABDOO_EXPECTED_ROOT;
+if (localTarget && !expectedRoot) throw new Error('Set LABDOO_EXPECTED_ROOT to the checkout being tested');
 const headers = {};
 if (__ENV.LABDOO_HTTP_AUTH_USER && __ENV.LABDOO_HTTP_AUTH_PASSWORD) {
   headers.Authorization = `Basic ${encoding.b64encode(`${__ENV.LABDOO_HTTP_AUTH_USER}:${__ENV.LABDOO_HTTP_AUTH_PASSWORD}`)}`;
@@ -38,13 +42,24 @@ const paths = [
   '/de/content/informare-edoovillages-proiecte',
 ];
 
+// Refuse a stale or unguarded local server before generating sustained load.
+export function setup() {
+  if (remoteTarget) return;
+  const response = http.get(`${BASE_URL}/`, requestParams);
+  const identity = Object.fromEntries(Object.entries(response.headers).map(([name, value]) => [name.toLowerCase(), value]));
+  if (response.status !== 200 || identity['x-labdoo-e2e'] !== 'integration' || identity['x-labdoo-e2e-root'] !== crypto.sha256(expectedRoot, 'hex')) {
+    throw new Error('k6 target is not the isolated site for this checkout');
+  }
+}
+
 export default function () {
   const path = paths[Math.floor(Math.random() * paths.length)];
   const response = http.get(`${BASE_URL}${path}`, requestParams);
 
   check(response, {
     'status is below 400': (r) => r.status >= 200 && r.status < 400,
-    'response is from the isolated E2E clone': (r) => remoteTarget || r.headers['X-Labdoo-E2E'] === 'integration',
+    'response is from this checkout': (r) => remoteTarget || Object.entries(r.headers).some(([name, value]) => name.toLowerCase() === 'x-labdoo-e2e-root' && value === crypto.sha256(expectedRoot, 'hex')),
+    'response is from the isolated E2E clone': (r) => remoteTarget || Object.entries(r.headers).some(([name, value]) => name.toLowerCase() === 'x-labdoo-e2e' && value === 'integration'),
   });
 
   sleep(1);

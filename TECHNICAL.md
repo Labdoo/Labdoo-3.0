@@ -1,10 +1,12 @@
 # Labdoo Technical Documentation
 
-This document provides technical information about the Labdoo platform, including its architecture, main entities, custom modules, and available Drush commands.
+This document is a domain and module overview. Read [AGENTS.md](AGENTS.md) for contributor instructions and verify operational details against the active branch. Module summaries describe responsibilities rather than a guaranteed inventory of implemented features.
 
 ## Project Overview
 
-Labdoo is a collaborative platform built on Drupal 10 that helps manage the collection, refurbishment, and distribution of electronic devices (dootronics) to educational projects worldwide. The platform coordinates volunteers, hubs, and educational villages to facilitate the donation process and track the lifecycle of devices.
+Labdoo is a collaborative Drupal platform that helps manage the collection, refurbishment, and distribution of electronic devices (dootronics) to educational projects worldwide. The platform coordinates volunteers, hubs, and educational villages to facilitate the donation process and track the lifecycle of devices.
+
+The target Drupal version is pinned in `composer.lock`. Compare it with the installed runtime before testing; an unaligned checkout does not establish compatibility with the locked target.
 
 ## Main Entities
 
@@ -173,85 +175,19 @@ Provides slideshow functionality for media presentation:
 - Configuration options
 - Display integration
 
-## Drush Commands
+## Drush commands and operational scope
 
-### Migration Commands
+Inspect command annotations in the affected module's `src/Commands` directory before choosing a command. The old command examples in this document were illustrative and did not consistently match registered commands. For example, the current source declares `labdoo-synchronize-basic-pages` and `labdoo-search:fix-index`; verify names and options on the active branch.
 
-#### SynchronizerCommands
-General content synchronization commands for migrating data.
-```
-drush migrate:sync [options]
-```
-
-#### BasicPageSynchronizerCommands
-Commands for migrating basic pages from Drupal 7.
-```
-drush migrate:sync-page [options]
-```
-
-#### StorySynchronizerCommands
-Commands for migrating stories.
-```
-drush migrate:sync-story [options]
-```
-
-#### TeamSynchronizerCommands
-Commands for migrating team data from Organic Groups.
-```
-drush migrate:sync-team [options]
-```
-
-#### GallerySynchronizerCommands
-Commands for migrating gallery content.
-```
-drush migrate:sync-gallery [options]
-```
-
-#### ImportPermissionsCommands
-Commands for migrating user permissions.
-```
-drush migrate:import-permissions [options]
-```
-
-#### NodeDeleteCommands
-Commands for deleting nodes during migration.
-```
-drush migrate:delete-node [options]
-```
-
-### Entity-specific Commands
-
-#### labdoo_dootrip/ComputeCommands
-Commands for dootrip computations and operations.
-```
-drush dootrip:compute [options]
-```
-
-#### labdoo_dootronics/ComputeCommands
-Commands for dootronics computations and operations.
-```
-drush dootronics:compute [options]
-```
-
-### Utility Commands
-
-#### labdoo_search_fix/SearchFixCommands
-Commands for fixing search API configuration.
-```
-drush search-fix:rebuild-index [options]
-```
+Consult the [agent workflow](docs/agent-workflow.md) before running operations. Bootstrapping Drush, saving an entity or processing a queue can touch a live database or external services. Use an identified isolated environment for tests. Migration and repair guidance lives in `.agents/skills/migrations/SKILL.md`; deployment guidance lives in `.agents/skills/operations/SKILL.md`.
 
 ## Database Structure
 
 The Labdoo platform uses Drupal's entity system to store data. The main content types are implemented as custom entities with fields for specific attributes. The database follows Drupal's standard schema with additional tables for custom entities and fields.
 
-## API Integration
+## API integration
 
-The platform provides REST API endpoints for integration with external systems. These endpoints allow for:
-- Device registration and updates
-- Trip coordination
-- Project management
-- Data retrieval for reporting
+Inspect the active branch's routing, enabled modules and access requirements before relying on an endpoint. This overview does not define a supported external API contract.
 
 ## Multilingual Support
 

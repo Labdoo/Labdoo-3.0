@@ -1,10 +1,10 @@
-# Drupal 11 regression laboratory
+# Current-checkout regression laboratory
 
 This is a local development tool. It is outside the Drupal document root and binds exclusively to `127.0.0.1`. Do not expose it through Apache, a reverse proxy or a public tunnel. The runner can mutate only the dedicated database clone; it never accepts a site URL or an arbitrary command from the browser.
 
 ## Start the existing laboratory
 
-From the `upgrade/drupal-11` worktree:
+From the active repository checkout (the code under test):
 
 ```sh
 npm ci --prefix tests/e2e
@@ -23,7 +23,7 @@ Configure targets in the repository root `.env` using `LABDOO_TEST_ENVIRONMENTS`
 
 ## Reconstruct a laboratory
 
-Use an independent worktree under `.e2e-lab`, based on `development`. Install Composer dependencies from the Drupal 10 lock first; do not share or symlink vendor, core or contrib with another site. Prepare a private JSON containing a local Drupal database connection (`source` or `connection` key, with Drupal connection options) and a MySQL administrator defaults file. No credentials belong in Git.
+Use the active checkout and its installed dependencies. The runner selects `web/sites/labdoo_e2e` only in dedicated loopback test processes; it never overwrites or includes `web/sites/default/settings.php` or `settings.local.php`. Public uploads and private files are separate from the default site. Do not reuse connection state from another checkout. Prepare a private JSON containing a local Drupal database connection (`source` or `connection` key, with Drupal connection options) and a MySQL administrator defaults file. No credentials belong in Git.
 
 ```sh
 LABDOO_SOURCE_JSON=/private/source.json \
@@ -32,11 +32,11 @@ LABDOO_SOURCE_FILES=/private/source-web/sites/default/files \
 python3 tests/upgrade/lab.py prepare
 ```
 
-Preparation refuses an existing lab. It creates `labdoo_e2e_drupal11_20261113`, a dedicated restricted account, a consistent source snapshot, independent settings, the branch configuration, fixture users, content and uploads. The lab profile also enables `labdoo_quotes`, `labdoo_theme_preview` and `labdoo_next` so the optional feature tests run against installed extensions. It never imports into or modifies the source database. The source must be local. Required tools: PHP 8.3+, Composer, MySQL 8, Node, Python, ffmpeg and Chrome at `/usr/bin/google-chrome`.
+Preparation refuses an existing lab. The connection manifest records this checkout; the runner rejects state copied from another root. It creates a `labdoo_e2e_<checkout-hash>` database and a dedicated restricted account for this checkout, a consistent source snapshot, independent settings, the branch configuration, fixture users, content and uploads. The lab profile also enables `labdoo_quotes`, `labdoo_theme_preview` and `labdoo_next` so the optional feature tests run against installed extensions. It never imports into or modifies the source database. The source must be local. Required tools: PHP 8.3+, Composer, MySQL 8, Node, Python, ffmpeg and Chrome at `/usr/bin/google-chrome`.
 
 The clone has a test mail collector, deterministic geocoding and a fixed YouTube oEmbed response. Other outgoing backend HTTP is blocked. Asset aggregation follows the branch configuration. Contributed geocoder presave is disabled to preserve controlled fixture addresses; the deterministic geocoder and custom queue flows remain available. Optional theme block placements are recopied after the base configuration import. The contact CAPTCHA is removed only from the clone. These tests certify the local application flows, not delivery by mail providers, CAPTCHA providers, map providers or YouTube. The gallery creation UI is tested with a separate uid 1 session because its existing implementation restricts that operation to uid 1.
 
-If an older source has Honeypot schema 8102 with newer code, run the intermediate 2.1.4 updates before the reference run:
+Historical upgrade verification only: an older source with Honeypot schema 8102 may require intermediate 2.1.4 updates. The following command changes contributed code temporarily; use it only in a disposable upgrade checkout, not as part of routine current-checkout regression:
 
 ```sh
 python3 tests/upgrade/preflight.py
@@ -46,7 +46,7 @@ This uses the official release archive with a pinned SHA-256, temporarily instal
 
 ## Run tests over time
 
-Use the same local lab whenever you need to check the current application. Select a Playwright group, k6 load profile, or Lighthouse audit in the dashboard and run it against the isolated Drupal clone. Individual reports and run history are kept in ignored local state.
+Use the test site in the active checkout whenever you need to check the current application. `make e2e`, `make k6` and `make lighthouse` no longer select `.e2e-lab/drupal11`. The local runners verify the server checkout identity, so a server left running from another checkout is rejected. Start this checkout's server with `make e2e-serve`. Select a Playwright group, k6 load profile, or Lighthouse audit in the dashboard and run it against the isolated Drupal clone. Individual reports and run history are kept in ignored local state.
 
 The completed Drupal 10/11 migration runs, entity-count integrity check, and compatibility notes are recorded in [RESULTS.md](RESULTS.md). Those migration results document the one-time upgrade verification; the dashboard itself is intended for ongoing regression checks.
 
@@ -69,3 +69,7 @@ The panel adds version, source commit, tool, suite, and (for Playwright) suite f
 Internal entities such as geocoder caches, legal acceptance, search tasks, file usage and paragraphs are created through their owning operations rather than through invented administration forms. An inventory entry alone is not proof that its workflow passed. The optional V2 migration suite is kept separate because it needs another private source database.
 
 The report and migration record list remaining baseline defects and verification limits. This suite cannot establish coverage of unknown business rules or prove absence of every possible regression.
+
+## Required change validation
+
+Follow [tests/AGENTS.md](../AGENTS.md) and the [regression-testing skill](../../.agents/skills/regression-testing/SKILL.md). Create/adapt relevant tests, execute the affected regression suites, and inspect their reports before claiming a change is verified. Missing tools or an unprepared test database leave validation incomplete.
