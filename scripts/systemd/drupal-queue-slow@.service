@@ -1,0 +1,40 @@
+[Unit]
+Description=Drupal Queue Worker (Slow API Batch): %I
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/var/www/html/labdoo/web
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/var/www/html/labdoo
+Environment=DRUSH_OPTIONS_URI=https://v3.labdoo.org
+# Strict limit of 50 items for Google Maps quota
+ExecStart=/var/www/html/labdoo/vendor/bin/drush queue:run %i --items-limit=50 --time-limit=110
+TimeoutStartSec=130
+
+# Hardening
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+ReadOnlyPaths=/var/www/html/labdoo/vendor /var/www/html/labdoo/web/core /var/www/html/labdoo/web/modules/contrib
+ReadWritePaths=/var/www/html/labdoo/web/sites/default/files /tmp
+
+# Low priority
+Nice=12
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+
+# Resource limits
+MemoryAccounting=true
+MemoryLimit=768M
+CPUAccounting=true
+CPUQuota=40%
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

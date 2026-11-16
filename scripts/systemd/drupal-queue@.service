@@ -1,0 +1,42 @@
+[Unit]
+Description=Drupal Queue Worker: %I
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/var/www/html/labdoo/web
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+# WorkingDirectory at project root so Drush finds vendor/autoload.php correctly
+WorkingDirectory=/var/www/html/labdoo
+Environment=DRUSH_OPTIONS_URI=https://v3.labdoo.org
+ExecStart=/var/www/html/labdoo/vendor/bin/drush queue:run %i --items-limit=100 --time-limit=55
+TimeoutStartSec=70
+
+# Systemd Hardening for Production
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+# Read-only access to core and vendor code
+ReadOnlyPaths=/var/www/html/labdoo/vendor /var/www/html/labdoo/web/core /var/www/html/labdoo/web/modules/contrib
+# Read-write access required by Drupal/Drush
+ReadWritePaths=/var/www/html/labdoo/web/sites/default/files /tmp
+
+# Performance settings (Low priority)
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=4
+
+# Resource limits
+MemoryAccounting=true
+MemoryLimit=512M
+CPUAccounting=true
+CPUQuota=30%
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
