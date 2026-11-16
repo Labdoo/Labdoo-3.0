@@ -7,7 +7,6 @@ dependencies:
     - node.type.action
   module:
     - address
-third_party_settings: {  }
 id: node.action.field_address
 field_name: field_address
 entity_type: node
