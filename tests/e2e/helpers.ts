@@ -2,8 +2,8 @@ import { test as base, expect, BrowserContext, Page, TestInfo } from '@playwrigh
 import fs from 'node:fs';
 import path from 'node:path';
 
-export type Role = 'anonymous' | 'admin' | 'basic' | 'laptop' | 'hub' | 'school' | 'wiki' | 'team';
-export const stateDir = path.resolve(__dirname, '../../../state');
+export type Role = 'anonymous' | 'superadmin' | 'admin' | 'basic' | 'laptop' | 'hub' | 'school' | 'wiki' | 'team';
+export const stateDir = process.env.E2E_STATE_DIR || path.resolve(__dirname, '../../../state');
 export function variant(info: TestInfo): string { return String(info.project.metadata.variant || 'integration'); }
 export function fixtures(info: TestInfo): any {
   const value = JSON.parse(fs.readFileSync(path.join(stateDir, `${variant(info)}-fixtures.json`), 'utf8'));
@@ -15,10 +15,10 @@ export async function networkGuard(context: BrowserContext) {
   await context.route('**/*', async route => {
     const request = route.request();
     const url = new URL(request.url());
-    if (url.hostname === '127.0.0.1' && ['18380', '18381'].includes(url.port)) return route.continue();
+    if (url.hostname === '127.0.0.1' && (process.env.E2E_LOCAL_PORT ? [process.env.E2E_LOCAL_PORT] : ['18380', '18381']).includes(url.port)) return route.continue();
     if (['data:', 'blob:'].includes(url.protocol)) return route.continue();
     if (request.method() === 'GET' && ['unpkg.com', 'cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'].includes(url.hostname) && ['script', 'stylesheet', 'font'].includes(request.resourceType())) return route.continue();
-    if (request.resourceType() === 'image') return route.fulfill({ status: 200, contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lZ0AAAAASUVORK5CYII=', 'base64') });
+    if (request.resourceType() === 'image') return route.fulfill({ status: 200, contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFklEQVR4nGNQmBlKEmIY1TCqYfhqAABWQw4QqWAGPwAAAABJRU5ErkJggg==', 'base64') });
     return route.abort('blockedbyclient');
   });
 }
@@ -42,7 +42,7 @@ export const test = base.extend<{ role: Role; guard: void }>({
 export { expect };
 
 export function covers(...branches: string[]) {
-  const cards = JSON.parse(fs.readFileSync(path.join(stateDir, 'cards.json'), 'utf8'));
+  const cards = JSON.parse(fs.readFileSync(path.join(__dirname, 'support/cards.json'), 'utf8'));
   const matching = cards.filter((card: any) => branches.includes(card.branch.replace('feature/', '')));
   if (matching.length !== branches.length) throw new Error(`Unknown card mapping: ${branches}`);
   return { annotation: matching.map((card: any) => ({ type: 'todoist', description: card.id })) };

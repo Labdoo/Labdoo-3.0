@@ -1,0 +1,10 @@
+--- a/src/Entity/Profile.php
++++ b/src/Entity/Profile.php
+@@ -30,6 +30,7 @@
+  *       "edit" = "Drupal\aws\Entity\Form\ProfileForm",
+  *       "delete" = "Drupal\aws\Entity\Form\ProfileDeleteConfirmForm",
+  *     },
++ *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
+  *     "route_provider" = {
+  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
+  *     },

@@ -144,14 +144,12 @@ module:
   ultimate_cron: 0
   update: 0
   user: 0
-  variationcache: 0
   verf: 0
   views_bulk_operations: 0
   views_ui: 0
   webform: 0
   webform_ui: 0
   pathauto: 1
-  webform_bootstrap: 1
   content_translation: 10
   views: 10
   paragraphs: 11

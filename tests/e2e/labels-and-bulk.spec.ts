@@ -37,7 +37,7 @@ test.describe('bulk dootronics', () => {
     await page.locator('[name="original_dootronic"]').fill(`${source.title} (${source.id})`);
     await page.locator('[name="dootronics_number"]').fill('2');
     await page.locator('form').filter({ has: page.locator('[name="original_dootronic"]') }).getByRole('button', { name: 'Clone', exact: true }).click();
-    const message = page.locator('[role="status"]').filter({ hasText: 'Dootronics successfully cloned' });
+    const message = page.locator('.messages--status').filter({ hasText: 'Dootronics successfully cloned' });
     await expect(message).toContainText('Dootronics cloned are:');
     const ids = (await message.innerText()).match(/\d{9}/g) || [];
     expect(ids).toHaveLength(2); expect(new Set(ids).size).toBe(2); expect(ids).not.toContain(source.title);
@@ -50,7 +50,7 @@ test.describe('bulk dootronics', () => {
     await expect(page.locator('main')).toContainText(/e2e-update(?:_\d+)?\.json/);
     await page.locator('[name="edoovillage_only"]').check();
     await page.locator('main').getByRole('button', { name: 'Upload and execute', exact: true }).click();
-    const updated = page.locator('[role="status"]').filter({ hasText: 'Dootronics successfully updated' });
+    const updated = page.locator('.messages--status').filter({ hasText: 'Dootronics successfully updated' });
     await expect(updated).toContainText('Dootronics updated are:');
     for (const id of ids) await expect(updated).toContainText(id);
     for (const id of ids) {

@@ -3,7 +3,7 @@ base theme: gin
 name: Labdoo Theme
 description: Theme for Labdoo project
 package: labdoo
-core_version_requirement: ^8 || ^9 || ^10
+core_version_requirement: ^8 || ^9 || ^10 || ^11
 version: 10.x-1.0-beta1
 project: labdoo
 

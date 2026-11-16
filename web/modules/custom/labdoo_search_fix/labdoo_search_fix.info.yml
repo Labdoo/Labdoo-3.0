@@ -2,7 +2,7 @@ name: Labdoo Search Fix
 type: module
 description: 'Fixes Search API configuration issues.'
 package: Labdoo
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^9 || ^10 || ^11
 dependencies:
   - drupal:search_api
   - drupal:search_api_autocomplete

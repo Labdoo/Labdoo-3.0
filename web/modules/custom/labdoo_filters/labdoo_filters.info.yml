@@ -1,7 +1,7 @@
 name: 'Labdoo Filters'
 type: module
 description: 'Exposed filters with entity_autocomplete limited to actually related entities.'
-core_version_requirement: ^10
+core_version_requirement: ^10 || ^11
 package: 'Labdoo'
 dependencies:
   - drupal:views

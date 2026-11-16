@@ -70,7 +70,7 @@ class UpdateDootronicForm extends FormBase {
       '#upload_location' => 'public://temp',
       '#progress_message' => $this->t('Processing...'),
       '#upload_validators' => [
-        'file_validate_extensions' => ['json'],
+        'FileExtension' => ['extensions' => 'json'],
       ],
       '#required' => TRUE,
     ];

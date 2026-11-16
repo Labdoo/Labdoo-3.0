@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\node\NodeInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -75,10 +76,17 @@ class ParentEntityManager {
    * @throws \Exception
    */
   public function resolveParentEntity(): EntityInterface {
-    $parentId = $this->requestStack
-      ->getCurrentRequest()
-      ->query
-      ->get('parent_id');
+    $request = $this->requestStack->getCurrentRequest();
+    $parentId = $request->query->get('parent_id');
+
+    // The query parameter is present on the story creation route. On an edit
+    // route, resolve the parent from the story being edited instead.
+    if (!$parentId) {
+      $story = $request->attributes->get('node');
+      if ($story instanceof NodeInterface && $story->bundle() === 'labdoo_story' && $story->hasField('field_parent') && !$story->get('field_parent')->isEmpty()) {
+        $parentId = $story->get('field_parent')->target_id;
+      }
+    }
 
     try {
       $parentEntity = $this->entityTypeManager

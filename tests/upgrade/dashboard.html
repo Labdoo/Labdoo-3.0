@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Labdoo · Test Lab</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#18322a;background:#f3f6f1;font-synthesis:none}*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(120deg,#163e31,#1b503d);color:#fff;padding:34px max(24px,calc((100vw - 1240px)/2));display:flex;justify-content:space-between;align-items:center;gap:24px}header small{color:#c3ddcb;letter-spacing:.16em;font-size:11px;font-weight:700}h1{font-size:34px;letter-spacing:-.03em;margin:8px 0 4px}header p{margin:0;color:#d2e4d7}.badge{border:1px solid #8fb39c;border-radius:30px;padding:8px 14px;font-size:13px;white-space:nowrap}main{max-width:1290px;margin:auto;padding:28px 24px 44px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card,section{background:#fff;border:1px solid #dce5dc;border-radius:16px;box-shadow:0 2px 8px #173d3010}.card{padding:18px 20px}.card strong{display:block;font-size:30px;margin:7px 0 2px;letter-spacing:-.03em}.muted{color:#687a70;font-size:13px}.columns{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,1fr);gap:20px;margin-top:22px}section{padding:22px}h2{font-size:19px;letter-spacing:-.02em;margin:0 0 5px}.section-note{margin:0 0 17px;color:#687a70;font-size:13px;line-height:1.5}.controls{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin:18px 0 12px}button,select,input{font:inherit;border:1px solid #c5d2c7;border-radius:9px;padding:10px 12px;background:#fff;color:inherit}select{min-width:0}button{background:#246c49;color:white;border:0;font-weight:650;cursor:pointer;padding-inline:18px}button:hover{background:#195a3a}button:disabled{opacity:.52;cursor:wait}input{width:100%;margin:0 0 12px}.tool-card{padding:15px 16px;margin:12px 0;border:1px solid #e1e8e0;border-radius:12px;background:#fbfcfa}.tool-card h3{font-size:15px;margin:0 0 6px}.tool-card p,.tool-card ul{font-size:13px;color:#586d61;line-height:1.5}.tool-card p{margin:0}.tool-card ul{padding-left:20px;margin:8px 0 0}.tool-meta{color:#6e7e74;font-size:12px;margin-top:10px}.test{overflow-wrap:anywhere;font-size:13px;padding:8px 0 8px 13px;border-left:2px solid #c2dc9c;margin:7px 0;color:#385348}.case-list{margin-top:8px}.case-list .test{font-size:12px;padding-block:5px}.file-card{border:1px solid #e1e8e0;border-radius:11px;padding:12px 14px;margin:10px 0;background:#fff}.file-title{font-weight:700;color:#244a37}.file-description{color:#687a70;font-size:13px;line-height:1.45;margin:5px 0 0}details{margin-top:8px}summary{cursor:pointer;font-size:12px;color:#456554;font-weight:650}#notice{min-height:22px;color:#a03d2c;font-size:13px}pre{background:#132b24;color:#c4edcf;border-radius:10px;padding:15px;white-space:pre-wrap;word-break:break-word;max-height:330px;overflow:auto;font-size:12px}.run{border-top:1px solid #e5ebe3;padding:13px 0}.run strong{font-size:13px}.run p{margin:5px 0;color:#687a70;font-size:12px}.run a{color:#236d48;font-weight:650;font-size:12px}.pass{color:#25753c!important}.fail{color:#b53f30!important}.coverage{margin-top:22px}.coverage-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.coverage-list{max-height:370px;overflow:auto}.coverage-list .test{font-size:12px}a{color:#236d48}@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.columns{grid-template-columns:1fr}header{padding:25px 24px;align-items:flex-start;flex-direction:column}}@media(max-width:600px){main{padding:18px 14px 32px}.cards{gap:9px}.card{padding:14px}.card strong{font-size:24px}section{padding:17px}.controls{grid-template-columns:1fr}.coverage-grid{grid-template-columns:1fr}h1{font-size:29px}}
+#notice.notice-success{color:#1d7049;font-weight:650}#notice.notice-error{color:#b53f30;font-weight:650}.progress-panel{margin:4px 0 14px;padding:13px 14px;border:1px solid #cfe1d2;border-radius:11px;background:#f4faf5}.progress-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#205c3d;font-weight:700;font-size:13px}.progress-count{font-size:12px;color:#536f5d;font-variant-numeric:tabular-nums}.progress-track{height:9px;margin-top:10px;border-radius:8px;background:#dce9df;overflow:hidden}.progress-fill{height:100%;width:0;border-radius:8px;background:#268252;transition:width .35s ease}.progress-fill.indeterminate{width:32%;background:linear-gradient(90deg,#268252,#79bd87,#268252);animation:progress-slide 1.35s ease-in-out infinite alternate}.progress-note{margin:8px 0 0;color:#687a70;font-size:12px}@keyframes progress-slide{from{transform:translateX(-8%)}to{transform:translateX(225%)}}@media(prefers-reduced-motion:reduce){.progress-fill{transition:none}.progress-fill.indeterminate{animation:none;width:45%}}
+.run-config{border:1px solid #dce7de;border-radius:12px;background:#f8fbf8;padding:14px;margin:12px 0}.run-config.active-config{border-color:#b8d8c0;background:#f1f9f2}.config-label{font-size:10px;letter-spacing:.12em;font-weight:750;color:#6c8173}.config-title{font-size:15px;font-weight:750;color:#234a36;margin-top:5px}.config-subtitle{font-size:13px;font-weight:650;color:#456554;margin-top:4px}.config-description{font-size:12px;line-height:1.5;color:#687a70;margin:7px 0 0}.config-meta{font-size:11px;color:#7a8980;margin-top:8px;overflow-wrap:anywhere}
+</style>
+<header>
+  <div><small>LABDOO / QUALITY TOOLS</small><h1>Test Lab</h1><p>Explore, run, and review Labdoo checks.</p></div>
+  <span class="badge">● Local only</span>
+</header>
+<main>
+  <div class="cards">
+    <div class="card"><span class="muted">Discovered test cases</span><strong id="count">—</strong><span class="muted">Playwright desktop and mobile</span></div>
+    <div class="card"><span class="muted">Content types</span><strong id="bundles">—</strong><span class="muted">From the local Drupal inventory</span></div>
+    <div class="card"><span class="muted">Menu links</span><strong id="menus">—</strong><span class="muted">All discovered menu levels</span></div>
+    <div class="card"><span class="muted">Latest run</span><strong id="last">—</strong><span class="muted" id="lastDetail">No runs yet</span></div>
+  </div>
+  <div class="columns">
+    <section>
+      <h2>Browse and run</h2>
+      <p class="section-note">Choose a suite and a test tool. All runs use the isolated local test site.</p>
+      <div class="controls">
+        <select id="suite" aria-label="Playwright suite">
+          <option value="all">Full E2E suite</option>
+          <option value="navigation">Menu tree</option>
+          <option value="entities">Entity lifecycle</option>
+          <option value="search">Search and dashboards</option>
+          <option value="regression">Existing regression checks</option>
+        </select>
+        <select id="tool" aria-label="Test tool">
+          <option value="playwright">Playwright E2E</option>
+          <option value="k6">k6 load test</option>
+          <option value="lighthouse">Lighthouse audits</option>
+        </select>
+        <button id="run">Run tests</button>
+      </div>
+      <div id="notice" role="status" aria-live="polite"></div>
+      <div id="progressPanel" class="progress-panel" hidden aria-live="polite">
+        <div class="progress-heading"><span id="progressLabel">Test run in progress</span><span id="progressCount" class="progress-count"></span></div>
+        <div id="progressTrack" class="progress-track" role="progressbar" aria-label="Test run progress" aria-valuemin="0" aria-valuemax="100">
+          <div id="progressFill" class="progress-fill indeterminate"></div>
+        </div>
+        <p id="progressNote" class="progress-note">The progress indicator will update as tests finish.</p>
+      </div>
+      <input id="filter" placeholder="Search test names and descriptions…" aria-label="Search tests">
+      <div id="catalog">Discovering tests…</div>
+    </section>
+    <section>
+      <h2>Run activity</h2>
+      <p id="activity" class="section-note">No active run</p>
+      <article id="activeRunCard" class="run-config active-config" hidden>
+        <div class="config-label">CURRENT RUN</div>
+        <div id="activeTool" class="config-title"></div>
+        <div id="activeSuite" class="config-subtitle"></div>
+        <p id="activeDescription" class="config-description"></p>
+        <div id="activeMeta" class="config-meta"></div>
+      </article>
+      <article class="run-config">
+        <div class="config-label">SELECTED FOR NEXT RUN</div>
+        <div id="selectedTool" class="config-title">Playwright E2E</div>
+        <div id="selectedSuite" class="config-subtitle">Full E2E suite</div>
+        <p id="selectedDescription" class="config-description"></p>
+      </article>
+      <pre id="log" hidden></pre>
+      <h2 style="margin-top:22px">Recent runs</h2>
+      <div id="history"></div>
+    </section>
+  </div>
+  <section class="coverage">
+    <h2>Coverage map</h2>
+    <p class="section-note">Menu destinations and Drupal content types discovered in the isolated test clone. External links and destructive administration actions are listed but not opened.</p>
+    <div class="coverage-grid"><div><h3>Menu destinations</h3><div id="menu" class="coverage-list"></div></div><div><h3>Content bundles</h3><div id="bundleList" class="coverage-list"></div></div></div>
+  </section>
+</main>
+<script>
+const token='__TOKEN__', $=id=>document.getElementById(id);let currentCatalog=null;
+const suiteDetails={
+  all:['Full E2E suite','Runs all discovered browser scenarios across desktop and mobile projects.'],
+  navigation:['Menu tree','Visits internal destinations discovered across the active Drupal menu tree.'],
+  entities:['Entity lifecycle','Exercises entity creation, viewing, editing, and deletion workflows.'],
+  search:['Search and dashboards','Checks search, dashboard filters, sorting, and result states.'],
+  regression:['Existing regression checks','Runs the established regression scenarios outside the upgrade-specific group.'],
+};
+function el(tag,text,cls){const node=document.createElement(tag);node.textContent=text;if(cls)node.className=cls;return node;}
+function setNotice(message,type=''){const note=$('notice');note.textContent=message;note.className=type?`notice-${type}`:'';}
+function renderSelection(){
+  const tool=$('tool').value,suite=$('suite').value,isPlaywright=tool==='playwright';
+  $('selectedTool').textContent=$('tool').selectedOptions[0].textContent;
+  $('selectedSuite').textContent=isPlaywright?suiteDetails[suite][0]:'Suite selection does not apply to this tool';
+  $('selectedDescription').textContent=isPlaywright?suiteDetails[suite][1]:(currentCatalog?.tools?.[tool]?.description||'Runs against the isolated local test site.');
+}
+function renderCatalog(){
+  const root=$('catalog');root.replaceChildren();if(!currentCatalog)return;
+  const selected=$('tool').value, filter=$('filter').value.trim().toLowerCase();
+  if(selected==='playwright'){
+    const data=currentCatalog.playwright;
+    if(data.error){root.textContent=data.error;return;}
+    for(const file of data.files){
+      const searchable=[file.name,file.description,...file.cases].join(' ').toLowerCase();if(filter&&!searchable.includes(filter))continue;
+      const card=el('article','','file-card');card.append(el('div',file.name,'file-title'));card.append(el('p',file.description,'file-description'));
+      const details=el('details','');details.append(el('summary',`${file.cases.length} test cases · ${file.count} browser runs`));
+      const list=el('div','','case-list');for(const test of file.cases)list.append(el('div',test,'test'));details.append(list);card.append(details);root.append(card);
+    }
+    return;
+  }
+  const info=currentCatalog.tools[selected];const card=el('article','','tool-card');card.append(el('h3',info.name));card.append(el('p',info.description));
+  const list=el('ul','');for(const item of info.tests)list.append(el('li',item));card.append(list);
+  const availability=info.available?'Ready on this machine':'Required command is not installed';card.append(el('div',availability,'tool-meta'));root.append(card);
+}
+async function loadCatalog(){
+  try{currentCatalog=await fetch('/api/catalog').then(response=>response.json());const files=currentCatalog.playwright.files||[];$('count').textContent=files.reduce((sum,file)=>sum+file.count,0);renderCatalog();renderSelection();}
+  catch(error){$('catalog').textContent=error.message;}
+}
+$('filter').oninput=renderCatalog;$('suite').onchange=renderSelection;$('tool').onchange=()=>{const playwright=$('tool').value==='playwright';$('suite').disabled=!playwright;$('suite').style.opacity=playwright?'1':'.55';$('run').textContent=playwright?'Run tests':$('tool').value==='k6'?'Run load test':'Run audits';renderCatalog();renderSelection();};
+$('run').onclick=async()=>{try{const response=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json','X-Labdoo-Token':token},body:JSON.stringify({tool:$('tool').value,suite:$('suite').value})});const result=await response.json();if(!response.ok){setNotice(result.error||'The test run could not be started.','error');return;}setNotice(`${$('tool').selectedOptions[0].textContent} run accepted · ${result.id}`,'success');await refresh();}catch(error){setNotice(error.message,'error');}};
+function suiteName(value){return ({all:'Full E2E suite',navigation:'Menu tree',entities:'Entity lifecycle',search:'Search and dashboards',regression:'Existing regression checks'})[value]||'Historical run';}
+async function refresh(){
+  try{
+    const status=await fetch('/api/status').then(response=>response.json());const active=status.running;
+    $('run').disabled=!!active;$('activity').textContent=active?`Running ${active.toolName} · ${active.id}`:'Ready to run';
+    $('activeRunCard').hidden=!active;
+    if(active){
+      const suite=active.suite?suiteDetails[active.suite]:null;
+      const tool=currentCatalog?.tools?.[active.tool];
+      $('activeTool').textContent=active.toolName;
+      $('activeSuite').textContent=suite?.[0]||'Load and performance checks';
+      $('activeDescription').textContent=suite?.[1]||tool?.description||'Running against the isolated local test site.';
+      $('activeMeta').textContent=`Run ID: ${active.id} · Drupal ${active.core||'version unavailable'}`;
+    }
+    $('progressPanel').hidden=!active;
+    if(active){
+      const progress=active.progress,total=progress?.total||0,completed=progress?.completed||0,determinate=total>0;
+      $('progressLabel').textContent=`${active.toolName} is running`;
+      $('progressCount').textContent=determinate?`${completed} of ${total} tests complete`:'';
+      $('progressFill').classList.toggle('indeterminate',!determinate);
+      $('progressFill').style.width=determinate?`${Math.min(100,Math.round(completed/total*100))}%`:'';
+      if(determinate)$('progressTrack').setAttribute('aria-valuenow',String(Math.min(100,Math.round(completed/total*100))));else $('progressTrack').removeAttribute('aria-valuenow');
+      $('progressTrack').setAttribute('aria-valuetext',determinate?`${completed} of ${total} tests complete`:'Run is in progress; total work is not countable.');
+      $('progressNote').textContent=determinate?`${progress.passed||0} passed · ${progress.failed||0} failed · ${progress.skipped||0} skipped`:active.tool==='k6'?'Virtual users are following the configured load stages.':active.tool==='lighthouse'?'The audit is running; its fixed route count is not available yet.':'Live Playwright test counts are not available from this dashboard process.';
+    }
+    if(active){$('log').hidden=false;$('log').textContent=await fetch('/api/log?id='+encodeURIComponent(active.id)).then(response=>response.text());$('log').scrollTop=$('log').scrollHeight;}else{$('log').hidden=true;}
+    const bundles=status.inventory?.bundles||{};$('bundles').textContent=Object.keys(bundles).length;$('menus').textContent=status.inventory?.menus?.length||0;
+    $('menu').replaceChildren();for(const item of status.inventory?.menus||[])$('menu').append(el('div',`${item.menu} / ${[...item.parents,item.title].join(' → ')} · ${item.path}${item.external?' (external)':''}`,'test'));
+    $('bundleList').replaceChildren();for(const [id,name] of Object.entries(bundles))$('bundleList').append(el('div',`${name} · ${id}`,'test'));
+    $('history').replaceChildren();for(const run of status.history.slice(0,12)){
+      const activeRun=run.id===active?.id;const progress=run.progress;const row=el('div','','run');row.append(el('strong',`${run.toolName||'Playwright E2E'} · ${suiteName(run.suite)}${activeRun?' · Running now':''}`));
+      const summary=activeRun&&progress?.total?`${progress.completed} of ${progress.total} complete · ${progress.total-progress.completed} pending · ${progress.failed||0} failed`:activeRun?`${run.toolName||'Test'} is running`:run.stats?`${run.stats.expected} passed · ${run.stats.unexpected} failed · ${run.stats.skipped} skipped`:run.exitCode===0?'Completed successfully':run.exitCode==null?'No report available':`Exited with code ${run.exitCode}`;
+      row.append(el('p',`${new Date(run.started||Date.now()).toLocaleString()} · ${summary}`,activeRun?'pass':run.exitCode===0||run.stats?.unexpected===0?'pass':run.exitCode>0||run.stats?.unexpected?'fail':'muted'));
+      if(run.hasReport){const link=el('a','Open Playwright report ↗');link.href=`/reports/${run.id}/index.html`;link.target='_blank';link.rel='noopener';row.append(link);}
+      if(run.hasK6Summary){const link=el('a','Open k6 summary ↗');link.href=`/artifacts/${run.id}/k6-summary.json`;link.target='_blank';link.rel='noopener';row.append(link);}
+      if(run.hasLighthouseSummary){const link=el('a','Open Lighthouse summary ↗');link.href=`/artifacts/${run.id}/lighthouse/summary.json`;link.target='_blank';link.rel='noopener';row.append(link);}
+      $('history').append(row);
+    }
+    const last=status.history.find(run=>run.exitCode!==undefined||run.stats);if(last){const passed=last.exitCode===0||last.stats?.unexpected===0;$('last').textContent=passed?'✓':'!';$('last').className=passed?'pass':'fail';$('lastDetail').textContent=`${last.toolName||'Playwright E2E'} · ${last.exitCode===0?'completed':last.exitCode>0?'failed':'results available'}`;}
+  }catch(error){setNotice(error.message,'error');}
+}
+renderSelection();loadCatalog();refresh();setInterval(refresh,2500);
+</script>
+</html>

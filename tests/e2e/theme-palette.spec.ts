@@ -45,7 +45,7 @@ test.describe('site palette administration', () => {
     await page.getByLabel('Card background', { exact: true }).blur();
     await page.screenshot({ path: info.outputPath('admin-palette-editor.png'), fullPage: true });
     await page.getByRole('button', { name: 'Save configuration', exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('saved');
+    await expect(page.locator('.messages--status')).toContainText('saved');
     const selected = await page.getByLabel('Active palette', { exact: true }).inputValue();
     expect(selected).toMatch(/^custom_[a-f0-9]{12}$/);
     await expect(page.getByLabel('Active palette', { exact: true }).locator('option:checked')).toHaveText(name);
