@@ -229,6 +229,7 @@ final class MiniWikiPage extends RevisionableContentEntityBase implements MiniWi
       ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', FALSE)
       ->setTranslatable(TRUE)
+      ->setRevisionable(TRUE)
       ->setRequired(TRUE);
 
     $fields['body'] = BaseFieldDefinition::create('text_long')
@@ -290,6 +291,8 @@ final class MiniWikiPage extends RevisionableContentEntityBase implements MiniWi
 
     $fields['path'] = BaseFieldDefinition::create('path')
       ->setLabel(t('URL alias'))
+      ->setTranslatable(TRUE)
+      ->setComputed(TRUE)
       ->setDisplayOptions('form', [
         'type' => 'pathauto',
         'weight' => 10,

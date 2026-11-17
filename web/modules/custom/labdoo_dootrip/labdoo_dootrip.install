@@ -66,3 +66,42 @@ function labdoo_dootrip_update_9001() {
 
   return t('Field field_expired configuration imported and initialized to 0 for all dootrips.');
 }
+
+/**
+ * Increase the stored dootrip weight limit without truncating existing values.
+ */
+function labdoo_dootrip_update_9002() {
+  $database = \Drupal::database();
+  $table = 'node__field_dootrip_weight';
+  if (!$database->schema()->tableExists($table)) {
+    throw new RuntimeException('The dootrip weight field table is missing.');
+  }
+
+  $maximum_existing_value = (int) $database->query(
+    'SELECT MAX(CHAR_LENGTH(field_dootrip_weight_value)) FROM {node__field_dootrip_weight} WHERE deleted = 0',
+  )->fetchField();
+  if ($maximum_existing_value > 255) {
+    throw new RuntimeException(sprintf(
+      'Cannot increase the dootrip weight field to 255 characters: an existing value has %d characters.',
+      $maximum_existing_value,
+    ));
+  }
+
+  \Drupal::configFactory()
+    ->getEditable('field.storage.node.field_dootrip_weight')
+    ->set('settings.max_length', 255)
+    ->save();
+
+  $field_manager = \Drupal::service('entity_field.manager');
+  $field_manager->clearCachedFieldDefinitions();
+  $definition = $field_manager->getFieldStorageDefinitions('node')['field_dootrip_weight'];
+  // Existing values were checked above; the schema update widens the column.
+  $definition->setSetting('column_changes_handled', TRUE);
+  \Drupal::entityDefinitionUpdateManager()->updateFieldStorageDefinition($definition);
+
+  // Do not retain the one-time schema-update override in installed metadata.
+  $definition->setSetting('column_changes_handled', FALSE);
+  \Drupal::service('entity.last_installed_schema.repository')->setLastInstalledFieldStorageDefinition($definition);
+
+  return t('Increased the dootrip weight limit to 255 characters without truncating existing values.');
+}

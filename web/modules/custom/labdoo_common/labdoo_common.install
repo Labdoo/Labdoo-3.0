@@ -217,3 +217,41 @@ function labdoo_common_update_9005(): void {
     }
   }
 }
+
+/**
+ * Restore missing installed-schema metadata for two existing node fields.
+ */
+function labdoo_common_update_9006() {
+  $database = \Drupal::database();
+  if ($database->databaseType() !== 'mysql') {
+    throw new RuntimeException('This schema metadata repair is verified only for MySQL.');
+  }
+
+  $expected_columns = [
+    ['node__field_co2_savings_dootrip', 'field_co2_savings_dootrip_value', 'varchar', 'varchar(100)'],
+    ['node_revision__field_co2_savings_dootrip', 'field_co2_savings_dootrip_value', 'varchar', 'varchar(100)'],
+    ['node__field_project_manager_s_', 'field_project_manager_s__target_id', 'int', 'int unsigned'],
+    ['node_revision__field_project_manager_s_', 'field_project_manager_s__target_id', 'int', 'int unsigned'],
+  ];
+  $database_name = $database->getConnectionOptions()['database'];
+  foreach ($expected_columns as [$table, $column, $data_type, $column_type]) {
+    $actual = $database->query(
+      'SELECT DATA_TYPE, COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = :database AND TABLE_NAME = :table AND COLUMN_NAME = :column',
+      [':database' => $database_name, ':table' => $table, ':column' => $column],
+    )->fetchAssoc();
+    if (!$actual || strtolower($actual['DATA_TYPE']) !== $data_type || strtolower($actual['COLUMN_TYPE']) !== $column_type) {
+      throw new RuntimeException(sprintf('Unexpected schema for %s.%s; refusing to rebuild its field metadata.', $table, $column));
+    }
+  }
+
+  $definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('node');
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  foreach (['field_co2_savings_dootrip', 'field_project_manager_s_'] as $field_name) {
+    if (!isset($definitions[$field_name])) {
+      throw new RuntimeException(sprintf('The node field storage definition %s is missing.', $field_name));
+    }
+    $update_manager->updateFieldStorageDefinition($definitions[$field_name]);
+  }
+
+  return t('Rebuilt installed-schema metadata for the existing dootrip CO2 and village project-manager fields.');
+}
