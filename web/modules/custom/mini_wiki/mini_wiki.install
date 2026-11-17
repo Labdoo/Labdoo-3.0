@@ -129,3 +129,36 @@ function mini_wiki_update_10002() {
     );
   }
 }
+
+/**
+ * Remove the non-stored path field from installed schema metadata.
+ */
+function mini_wiki_update_10003() {
+  $entity_type_id = 'mini_wiki_page';
+  $definitions = \Drupal::service('entity.last_installed_schema.repository')
+    ->getLastInstalledFieldStorageDefinitions($entity_type_id);
+  if (!isset($definitions['path'])) {
+    return t('The mini wiki path field is not present in installed storage metadata.');
+  }
+
+  $path = \Drupal::service('entity_field.manager')
+    ->getFieldDefinitions($entity_type_id, $entity_type_id)['path'] ?? NULL;
+  if (!$path || $path->getType() !== 'path' || !$path->isComputed() || !$path->isTranslatable()) {
+    throw new RuntimeException('The mini wiki path field does not match Drupal’s computed, translatable path field definition.');
+  }
+  $installed_schema = $definitions['path']->getSchema();
+  if (!empty($installed_schema['columns']) || !empty($installed_schema['unique keys']) || !empty($installed_schema['indexes']) || !empty($installed_schema['foreign keys'])) {
+    throw new RuntimeException('The installed mini wiki path field has a non-empty schema; refusing to remove its storage metadata.');
+  }
+
+  // Path aliases are stored as path_alias entities. This obsolete installed
+  // definition has no SQL columns, so remove only its schema metadata and
+  // preserve the aliases and all mini wiki content.
+  $repository = \Drupal::service('entity.last_installed_schema.repository');
+  $repository->deleteLastInstalledFieldStorageDefinition($definitions['path']);
+  \Drupal::keyValue('entity.storage_schema.sql')->delete($entity_type_id . '.field_schema_data.path');
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+  \Drupal::entityTypeManager()->clearCachedDefinitions();
+
+  return t('Removed the non-stored mini wiki path field from installed storage metadata.');
+}
