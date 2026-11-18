@@ -219,7 +219,18 @@ function labdoo_common_update_9005(): void {
 }
 
 /**
- * Restore missing installed-schema metadata for two existing node fields.
+ * Normalizes MySQL integer display widths for schema comparisons.
+ *
+ * @return string
+ *   The normalized SQL column type.
+ */
+function labdoo_common_normalize_mysql_column_type(string $column_type): string {
+  // MySQL 8.0 and earlier releases differ on INT display-width reporting.
+  return preg_replace('/\b(tinyint|smallint|mediumint|int|bigint)\(\d+\)/i', '$1', strtolower($column_type));
+}
+
+/**
+ * Restores missing installed-schema metadata for existing node fields.
  */
 function labdoo_common_update_9006() {
   $database = \Drupal::database();
@@ -239,7 +250,9 @@ function labdoo_common_update_9006() {
       'SELECT DATA_TYPE, COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = :database AND TABLE_NAME = :table AND COLUMN_NAME = :column',
       [':database' => $database_name, ':table' => $table, ':column' => $column],
     )->fetchAssoc();
-    if (!$actual || strtolower($actual['DATA_TYPE']) !== $data_type || strtolower($actual['COLUMN_TYPE']) !== $column_type) {
+    if (!$actual
+      || strtolower($actual['DATA_TYPE']) !== $data_type
+      || labdoo_common_normalize_mysql_column_type($actual['COLUMN_TYPE']) !== $column_type) {
       throw new RuntimeException(sprintf('Unexpected schema for %s.%s; refusing to rebuild its field metadata.', $table, $column));
     }
   }
