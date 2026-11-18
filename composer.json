@@ -50,7 +50,7 @@
         "drupal/field_permissions": "^1.4",
         "drupal/flexible_permissions": "^2.0",
         "drupal/geocoder": "^4.23",
-        "drupal/geofield": "^1.57",
+        "drupal/geofield": "^10.3.5",
         "drupal/geofield_map": "^11.0",
         "drupal/geolocation": "^4.0@beta",
         "drupal/gin": "^5.0",
