@@ -92,6 +92,26 @@ test('charts still render after scrolling with local libraries @responsive', asy
   expect(errors).toEqual([]);
 });
 
+test('the default Labdoo theme loads Chart.js from the local library directory @responsive', async ({ page }, info) => {
+  const requests: string[] = [];
+  page.on('request', request => {
+    if (/chart|unpkg\.com\/chartjs-/i.test(request.url())) requests.push(request.url());
+  });
+  await page.route('**/api/map-points/**', route => route.fulfill({ json: [] }));
+  await goto(page, '/en/content/dootronics-dashboard?theme=labdoo', info);
+  const chart = page.locator('.charts-chartjs').first();
+  await chart.scrollIntoViewIfNeeded();
+  await expect(page.locator('canvas.charts-chartjs').first()).toBeVisible();
+  expect(await page.evaluate(() => {
+    const canvas = document.querySelector('canvas.charts-chartjs') as HTMLCanvasElement;
+    return Boolean((window as any).Chart.getChart(canvas));
+  })).toBe(true);
+  const localLibrary = await page.request.get('/libraries/chart.js/dist/chart.umd.js');
+  expect(localLibrary.ok()).toBe(true);
+  expect(await localLibrary.text()).toContain('4.5.1');
+  expect(requests.some(url => /unpkg\.com\/chart\.js@|unpkg\.com\/chartjs-/.test(url))).toBe(false);
+});
+
 test('an AJAX chart can load dates and data labels after the simple dashboard chart @responsive', async ({ page }, info) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
