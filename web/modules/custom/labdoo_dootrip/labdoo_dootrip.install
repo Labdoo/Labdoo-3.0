@@ -70,7 +70,7 @@ function labdoo_dootrip_update_9001() {
 /**
  * Increase the stored dootrip weight limit without truncating existing values.
  */
-function labdoo_dootrip_update_9002() {
+function labdoo_dootrip_update_9003() {
   $database = \Drupal::database();
   $table = 'node__field_dootrip_weight';
   if (!$database->schema()->tableExists($table)) {
