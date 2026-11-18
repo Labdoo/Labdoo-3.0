@@ -24,6 +24,7 @@ AddEncoding gzip svgz
 
 # Add correct encoding for webp.
 AddType image/webp .webp
+
 # PHP settings that cannot be changed at runtime can be set here. See
 # sites/default/default.settings.php and
 # Drupal\Core\DrupalKernel::bootEnvironment() for settings that can be
