@@ -17,7 +17,6 @@ module:
   breakpoint: 0
   captcha: 0
   charts: 0
-  charts_c3: 0
   charts_chartjs: 0
   charts_twig: 0
   chosen: 0
@@ -65,7 +64,6 @@ module:
   gin_toolbar_custom_menu: 0
   google_analytics: 0
   help: 0
-  history: 0
   honeypot: 0
   image: 0
   jquery_ui: 0
