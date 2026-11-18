@@ -234,6 +234,7 @@ install_ddev.sh
 
 # Private upgrade laboratory and dependencies
 /tests/upgrade/.local/
+/tests/upgrade/.private/
 /tests/performance/.local/
 /tests/e2e/node_modules/
 /web/modules/custom/labdoo_e2e
