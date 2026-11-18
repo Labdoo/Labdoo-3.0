@@ -1,26 +1,26 @@
 # Supported geographic dependencies on Drupal 11.4
 
-This release upgrades Geofield, which V3's Drupal release-history report identified as unsupported. The deployed V3 baseline was different from the earlier local health checkout, so only Geofield is changed here; Geofield Map and Geolocation remain at their existing compatible versions.
+This release upgrades Geofield, which V3's Drupal release-history report identified as unsupported, and applies the latest stable Geolocation bug-fix release. The deployed V3 baseline was different from the earlier local health checkout.
 
 | Package | V3 before | V3 after |
 |---|---|---|
 | drupal/geofield | 8.x-1.67 | 10.3.5 |
 | drupal/geofield_map | 11.1.9 | 11.1.9 |
-| drupal/geolocation | 4.1.0 | 4.1.0 |
+| drupal/geolocation | 4.1.0 | 4.1.1 |
 
-Composer changes only `drupal/geofield` from `^1.57` to `^10.3.5`; the lock file pins 10.3.5. No core, theme, GeoPHP or unrelated dependency version is changed.
+Composer changes `drupal/geofield` from `^1.57` to `^10.3.5` and pins Geolocation 4.1.1. Drupal core 11.4.13 is a separate security update described below.
 
 Official compatibility and support information:
 
 - Geofield: https://www.drupal.org/project/geofield — the 8.x-1.x branch is no longer maintained; 10.3.5 supports Drupal ^10.3 and is covered by the security team.
 - Geofield Map 11.1.9: https://www.drupal.org/project/geofield_map/releases/11.1.9 — already present on V3 and compatible with the upgraded Geofield.
-- Geolocation 4.1.0: https://www.drupal.org/project/geolocation — already present on V3.
+- Geolocation 4.1.1: https://www.drupal.org/project/geolocation/releases/4.1.1 — stable and compatible with Drupal 10, 11 and 12; fixes unreliable marker addition.
 
 ## Validation
 
 Before changing dependencies, the isolated health database was backed up and gzip integrity checked. All four geographic fields and their eight current/revision SQL tables were inventoried: **711,466 rows**. Column schemas, full ordered-row SHA256 hashes, field definitions, node/revision counts and maxima are identical after the upgrade. There are no new pending database updates and no entity definition changes. No content was created or saved.
 
-The read-only integration test `vendor/bin/drush --uri=http://labdoo3.local php:script tests/php/geofield-upgrade-regression.php` exercises the custom migration adapter, WKT generator and Geofield 10.3.5: coordinate axis order, multiple points, rejection of invalid coordinates and trip line generation. Its five assertions pass against the isolated local database on Drupal 11.4.12; it saves no content. This local result does not replace the post-deployment V3 smoke checks.
+The read-only integration test `vendor/bin/drush --uri=http://labdoo3.local php:script tests/php/geofield-upgrade-regression.php` exercises the custom migration adapter, WKT generator and Geofield 10.3.5: coordinate axis order, multiple points, rejection of invalid coordinates and trip line generation. Its five assertions pass against the isolated local database on Drupal 11.4.13; it saves no content. The focused common-schema regression also passes four assertions. These local results do not replace the post-deployment V3 smoke checks.
 
 Browser checks cover public dashboards, search, administration, existing entity forms, Wiki revisions, Webform, both themes and mobile aggregation. Additional checks exercise existing dootronic/trip/school/hub maps and their retained coordinate widget values. Maps in a legacy school's inactive Location tab are opened through that tab before checking the visible Leaflet map. External map tiles and Google API requests stay disabled in isolated tests; deterministic geocoding is used, and no paid geocoding request is made.
 
