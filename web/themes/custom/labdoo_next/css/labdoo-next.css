@@ -468,8 +468,27 @@ body.labdoo-next {
   background: var(--ldn-soft);
 }
 .labdoo-next .ldn-sidebar .views-exposed-form {
+  flex-direction: column;
+  align-items: stretch;
   padding: 18px;
   border-radius: 12px;
+}
+.labdoo-next .ldn-sidebar .views-exposed-form .form-item {
+  /* The horizontal form's flex basis must not become a sidebar row height. */
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.labdoo-next .ldn-sidebar .views-exposed-form .form-type--boolean {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  float: none;
+  width: auto;
+}
+.labdoo-next .ldn-sidebar .views-exposed-form .form-boolean {
+  flex: 0 0 auto;
+  float: none;
+  margin: 4px 0;
 }
 .labdoo-next .ldn-sidebar .action .icon {
   width: 19px;
