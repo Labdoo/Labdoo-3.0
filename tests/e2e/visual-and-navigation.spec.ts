@@ -1,14 +1,14 @@
 import { test, expect, fixtures, goto, covers } from './helpers';
 
-test('wiki paragraphs are dark gray and headings black @responsive', covers('wiki-text-color'), async ({ page }, info) => {
+test('wiki paragraphs and headings use the Labdoo Next text palette @responsive', covers('wiki-text-color'), async ({ page }, info) => {
   await goto(page, fixtures(info).wiki.Book.path, info);
   const body = page.locator('.field--name-body').first();
-  await expect(body.locator('p').first()).toHaveCSS('color', 'rgb(68, 68, 68)');
+  await expect(body.locator('p').first()).toHaveCSS('color', 'rgb(32, 51, 44)');
   await expect(body.locator('h2').first()).toHaveCSS('color', 'rgb(0, 0, 0)');
 });
 
 test('wiki text and alert links are underlined @responsive', covers('wiki-link-distinction'), async ({ page }, info) => {
-  await goto(page, `${fixtures(info).wiki.Book.path}?theme=labdoo_next`, info);
+  await goto(page, `${fixtures(info).wiki.Book.path}`, info);
   const alertLink = page.locator('article > .alert a:not(.close)').first();
   await expect(alertLink).toHaveCSS('text-decoration-line', 'underline');
 
@@ -81,6 +81,7 @@ test('Edoovillages dashboard uses the expected capitalization', covers('edoovill
 test('school semaphore is reduced to at most 120px @responsive', covers('dootrip-semaphore-size'), async ({ page }, info) => {
   await goto(page, fixtures(info).nodes.School.path, info);
   const image = page.locator('img.semaphore').first();
+  await image.scrollIntoViewIfNeeded();
   await expect(image).toBeVisible();
   expect((await image.boundingBox())!.width).toBeLessThanOrEqual(120);
 });
@@ -132,7 +133,7 @@ test.describe('administrator views and forms', () => {
   test.use({ role: 'admin' });
   test('global statistics appear above the page title @responsive', covers('statistics-position'), async ({ page }, info) => {
     await goto(page, fixtures(info).nodes['Hub Alpha'].path, info);
-    const stats = page.locator('#block-labdoo-statistics');
+    const stats = page.locator('#block-labdoo-next-statistics');
     await expect(stats).toHaveCount(1);
     const box = await stats.boundingBox();
     const title = await page.getByRole('heading', { level: 1 }).first().boundingBox();
@@ -174,9 +175,9 @@ test.describe('administrator views and forms', () => {
     await expect(page.getByRole('button', { name: /Preview/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Save', exact: true }).first()).toBeVisible();
   });
-  test('team post title matches the V2 red @responsive', covers('team-title-color'), async ({ page }, info) => {
+  test('team post title uses the Labdoo Next text palette @responsive', covers('team-title-color'), async ({ page }, info) => {
     await goto(page, fixtures(info).nodes['Team Post'].path, info);
-    await expect(page.getByRole('heading', { level: 1 }).first()).toHaveCSS('color', 'rgb(255, 0, 0)');
+    await expect(page.getByRole('heading', { level: 1 }).first()).toHaveCSS('color', 'rgb(32, 51, 44)');
   });
   test('team About action uses the canonical friendly URL', covers('team-nice-urls'), async ({ page }, info) => {
     const team = fixtures(info).nodes.Team;

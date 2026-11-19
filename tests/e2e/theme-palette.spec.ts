@@ -19,12 +19,12 @@ test.afterAll(async () => {
 });
 
 const admin = '/en/admin/appearance/labdoo-next/palettes';
-const preview = '/en/content/dootronics-dashboard?theme=labdoo_next';
+const preview = '/en/content/dootronics-dashboard';
 
 test('anonymous visitors cannot administer palettes or override the site choice', async ({ page }, info) => {
   const response = await goto(page, admin, info);
   expect(response.status()).toBe(403);
-  await goto(page, `${preview}&palette=plum`, info);
+  await goto(page, `${preview}?palette=plum`, info);
   await expect(page.locator('.ldn-palette')).toHaveCount(0);
   const active = await php('echo "PALETTE:".\\Drupal::service("labdoo_theme_preview.palettes")->active()["id"];');
   await expect(page.locator('body')).toHaveAttribute('data-ldn-palette', active);
@@ -56,7 +56,7 @@ test.describe('site palette administration', () => {
     await networkGuard(context);
     const visitor = await context.newPage();
     try {
-      await goto(visitor, `${preview}&palette=plum`, info);
+      await goto(visitor, `${preview}?palette=plum`, info);
       await expect(visitor.locator('body')).toHaveAttribute('data-ldn-palette', selected);
       const colors = await visitor.locator('body').evaluate(el => {
         const css = getComputedStyle(el);
@@ -87,7 +87,7 @@ test.describe('site palette administration', () => {
       expect(await visitor.locator('body').evaluate(el => getComputedStyle(el).getPropertyValue('--ldn-green').trim())).toBe('#5a367d');
       await expect(page.getByLabel('Active palette', { exact: true }).locator('option:checked')).toHaveText(name + ' revised');
       await goto(visitor, '/en/content/dootronics-dashboard', info);
-      await expect(visitor.locator('body')).not.toHaveClass(/labdoo-next/);
+      await expect(visitor.locator('body')).toHaveClass(/labdoo-next/);
     }
     finally {
       await context.close();

@@ -5,7 +5,7 @@ test('results can be scrolled horizontally without JavaScript @responsive', asyn
   await networkGuard(context);
   const page = await context.newPage();
   try {
-    await goto(page, '/en/content/dootronics-dashboard?theme=labdoo_next', info);
+    await goto(page, '/en/content/dootronics-dashboard', info);
     const region = page.getByRole('region', { name: 'Results table', exact: true }).first();
     await region.scrollIntoViewIfNeeded();
     await expect(region).toBeVisible();
@@ -28,7 +28,7 @@ test('an offscreen dashboard map downloads neither Leaflet nor points before scr
     points = true;
     return route.fulfill({ json: [] });
   });
-  await goto(page, '/es/content/dootronics-dashboard?palette=ocean&theme=labdoo_next', info);
+  await goto(page, '/es/content/dootronics-dashboard?palette=ocean', info);
   await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
   await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
   const map = page.locator('.labdoo-map-container').first();
@@ -51,7 +51,7 @@ test('public maps preserve filtered points, equator coordinates and safe popups 
     requested = route.request().url();
     await route.fulfill({ json: points });
   });
-  await goto(page, '/en/content/dootronics-dashboard?theme=labdoo_next&combine=school', info);
+  await goto(page, '/en/content/dootronics-dashboard?combine=school', info);
   const map = page.locator('.labdoo-map-container').first();
   await map.scrollIntoViewIfNeeded();
   await expect(map.locator('.leaflet-marker-icon:not(.marker-cluster)')).toHaveCount(3);
@@ -80,7 +80,7 @@ test('charts still render after scrolling with local libraries @responsive', asy
     if (/chartjs-(adapter-date-fns|plugin-datalabels)/.test(request.url())) optional.push(request.url());
   });
   await page.route('**/api/map-points/**', route => route.fulfill({ json: [] }));
-  await goto(page, '/en/content/dootronics-dashboard?theme=labdoo_next', info);
+  await goto(page, '/en/content/dootronics-dashboard', info);
   const chart = page.locator('.charts-chartjs').first();
   await chart.scrollIntoViewIfNeeded();
   await expect(page.locator('canvas.charts-chartjs').first()).toBeVisible();
@@ -92,13 +92,13 @@ test('charts still render after scrolling with local libraries @responsive', asy
   expect(errors).toEqual([]);
 });
 
-test('the default Labdoo theme loads Chart.js from the local library directory @responsive', async ({ page }, info) => {
+test('the default Labdoo Next theme loads Chart.js from the local library directory @responsive', async ({ page }, info) => {
   const requests: string[] = [];
   page.on('request', request => {
     if (/chart|unpkg\.com\/chartjs-/i.test(request.url())) requests.push(request.url());
   });
   await page.route('**/api/map-points/**', route => route.fulfill({ json: [] }));
-  await goto(page, '/en/content/dootronics-dashboard?theme=labdoo', info);
+  await goto(page, '/en/content/dootronics-dashboard', info);
   const chart = page.locator('.charts-chartjs').first();
   await chart.scrollIntoViewIfNeeded();
   await expect(page.locator('canvas.charts-chartjs').first()).toBeVisible();
@@ -116,7 +116,7 @@ test('an AJAX chart can load dates and data labels after the simple dashboard ch
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.route('**/api/map-points/**', route => route.fulfill({ json: [] }));
-  await goto(page, '/en/content/dootronics-dashboard?theme=labdoo_next', info);
+  await goto(page, '/en/content/dootronics-dashboard', info);
   await page.locator('.charts-chartjs').first().scrollIntoViewIfNeeded();
   await expect(page.locator('canvas.charts-chartjs').first()).toBeVisible();
   await page.evaluate(() => {
@@ -143,27 +143,20 @@ test('an AJAX chart can load dates and data labels after the simple dashboard ch
   expect(errors).toEqual([]);
 });
 
-test('preview HTML uses contextual dynamic caching while remaining private', async ({ request }) => {
-  const token = Date.now().toString();
-  const a = `/en/content/dootronics-dashboard?theme=labdoo_next&cache_probe=a${token}`;
-  const b = `/en/content/dootronics-dashboard?theme=labdoo_next&cache_probe=b${token}`;
-  await request.get(a);
-  const cached = await request.get(a);
-  expect(cached.headers()['x-drupal-dynamic-cache']).toBe('HIT');
-  expect(cached.headers()['x-drupal-cache']).not.toBe('HIT');
-  expect(cached.headers()['cache-control']).toContain('private');
-  expect(cached.headers()['cache-control']).toContain('no-store');
-  const html = await (await request.get(b)).text();
-  expect(html).toContain(`cache_probe=b${token}`);
-  expect(html).not.toContain(`cache_probe=a${token}`);
-  const original = await request.get(`/en/content/dootronics-dashboard?cache_probe=a${token}`);
-  expect(await original.text()).not.toContain('class="ldn-site"');
+test('default theme HTML is publicly cacheable without a theme selector', async ({ request }) => {
+  const first = await request.get('/en');
+  const cached = await request.get('/en');
+  expect(first.headers()['cache-control']).toContain('public');
+  expect(cached.headers()['x-drupal-cache']).toBe('HIT');
+  expect(cached.headers()['cache-control']).not.toContain('private');
+  expect(cached.headers()['cache-control']).not.toContain('no-store');
+  expect(await cached.text()).toMatch(/class="[^"]*\blabdoo-next\b/);
 });
 
 test('a large marker collection completes without dropping points @responsive', async ({ page }, info) => {
   const points = Array.from({ length: 2000 }, (_, i) => ({ id: i + 1, lat: 40 + i / 100000, lon: -3 + i / 100000, title: `School ${i}` }));
   await page.route('**/api/map-points/**', route => route.fulfill({ json: points }));
-  await goto(page, '/en/content/dootronics-dashboard?theme=labdoo_next', info);
+  await goto(page, '/en/content/dootronics-dashboard', info);
   const map = page.locator('.labdoo-map-container').first();
   await map.scrollIntoViewIfNeeded();
   await expect.poll(async () => map.locator('.leaflet-marker-icon').evaluateAll(markers => markers.reduce((count, marker) => count + (marker.classList.contains('marker-cluster') ? Number(marker.textContent) : 1), 0))).toBe(2000);
@@ -180,7 +173,7 @@ test('a school map initializes its native provider on scroll and keeps trajector
       { lat: 40, lon: -3, index: 2, date: '2026-11-12' },
     ] });
   });
-  await goto(page, '/en/node/749?theme=labdoo_next', info);
+  await goto(page, '/en/node/749', info);
   const wrapper = page.locator('.geolocation-map-wrapper').first();
   const mapId = await wrapper.getAttribute('id');
   await wrapper.scrollIntoViewIfNeeded();

@@ -7,6 +7,7 @@ test('upgrade: global search finds seeded content and an unmatched query is empt
  await search.fill('E2E searchable post text');
  await search.locator('xpath=ancestor::form').locator('[type=submit]').first().press('Enter');
  await expect(page.locator('main')).toContainText(fixtures(info).nodes['Team Post'].title);
+ await goto(page,'/en',info);
  await page.getByRole('link',{name:'Open search',exact:true}).first().click();
  await search.fill('E2Eunmatched928374928374');await search.locator('xpath=ancestor::form').locator('[type=submit]').first().press('Enter');
  await expect(page.locator('main .views-row')).toHaveCount(0);

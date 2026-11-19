@@ -21,7 +21,7 @@ test('quote request starts while styles are still blocked and is reused by the w
     if (request.url().includes('/labdoo/education-quote/')) requests++;
   });
   try {
-    await page.goto('/es/content/dootronics-dashboard?theme=labdoo_next', { waitUntil: 'commit' });
+    await page.goto('/es/content/dootronics-dashboard', { waitUntil: 'commit' });
     await expect.poll(() => requests).toBe(1);
   } finally { releaseStyles(); }
   await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
@@ -55,7 +55,7 @@ for (const language of languages) {
 }
 for (const language of ['es', 'de', 'ar', 'zh-hans']) {
   test(`widget loads translated AJAX content in ${language} @responsive`, async ({ page }, info) => {
-    await goto(page, `/${language}/node/749?theme=labdoo_next`, info);
+    await goto(page, `/${language}/node/749`, info);
     const widget = page.locator('.ldn-header .labdoo-quote');
     await expect(widget).toHaveCount(1);
     await expect(widget).toHaveAttribute('aria-busy', 'false');
@@ -74,7 +74,7 @@ for (const language of ['es', 'de', 'ar', 'zh-hans']) {
 }
 
 test('fresh AJAX quotes replace the same cached page HTML on every load @responsive', async ({ page }, info) => {
-  const response = await goto(page, '/en/node/749?theme=labdoo_next', info);
+  const response = await goto(page, '/en/node/749', info);
   const html = await response.text();
   const url = page.url();
   const widget = page.locator('.labdoo-quote');
@@ -103,7 +103,7 @@ test('fresh AJAX quotes replace the same cached page HTML on every load @respons
 
 test('AJAX failure leaves a translated quote visible', async ({ page }, info) => {
   await page.route('**/labdoo/education-quote/**', route => route.abort());
-  await goto(page, '/es/node/749?theme=labdoo_next', info);
+  await goto(page, '/es/node/749', info);
   const widget = page.locator('.labdoo-quote');
   await expect(widget).toHaveAttribute('aria-busy', 'false');
   await expect(widget).toHaveAttribute('data-quote-id', 'mandela');
@@ -120,7 +120,7 @@ test('the fresh quote appears even while Drupal footer scripts are unavailable @
     }
     return route.continue();
   });
-  await goto(page, '/es/content/dootronics-dashboard?theme=labdoo_next', info);
+  await goto(page, '/es/content/dootronics-dashboard', info);
   await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
   await expect(page.locator('.labdoo-quote__text')).toBeVisible();
   await expect(page.locator('.labdoo-quote')).not.toHaveAttribute('data-quote-id', 'mandela');
@@ -135,7 +135,7 @@ test('only the final AJAX quote is shown and its author stays close @responsive'
     await gate;
     await route.fulfill({ response });
   });
-  await goto(page, '/en/content/labdoo-social-network-how-it-works?theme=labdoo_next', info);
+  await goto(page, '/en/content/labdoo-social-network-how-it-works', info);
   const widget = page.locator('.labdoo-quote');
   const text = widget.locator('.labdoo-quote__text');
   await expect(widget).toHaveAttribute('data-quote-pending', '');
@@ -168,7 +168,7 @@ for (const language of ['es', 'ar']) {
     await networkGuard(context);
     const page = await context.newPage();
     try {
-      await goto(page, `/${language}/node/749?theme=labdoo_next`, info);
+      await goto(page, `/${language}/node/749`, info);
       await expect(page.locator('.labdoo-quote__text')).toHaveText(translations(language).get(source[0].text)!);
       await expect(page.locator('.labdoo-quote__author')).toHaveText(translations(language).get(source[0].author)!);
     }

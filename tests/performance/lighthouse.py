@@ -11,10 +11,10 @@ import subprocess
 from urllib.parse import urlsplit, urljoin
 
 ROUTES = {
-    'home': '/en?theme=labdoo_next',
-    'dashboard': '/en/content/dootronics-dashboard?theme=labdoo_next',
-    'school': '/en/node/749?theme=labdoo_next',
-    'wiki': '/en/content/labdoo-social-network-how-it-works?theme=labdoo_next',
+    'home': '/en',
+    'dashboard': '/en/content/dootronics-dashboard',
+    'school': '/en/node/749',
+    'wiki': '/en/content/labdoo-social-network-how-it-works',
 }
 parser = argparse.ArgumentParser()
 parser.add_argument('--base-url', default='http://127.0.0.1:18381')
