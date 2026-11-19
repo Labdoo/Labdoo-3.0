@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test';
 import { test, expect, goto, stateDir, variant, authPath, networkGuard } from './helpers';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -14,10 +15,78 @@ async function fixture(op: string, id = ''): Promise<any> {
   return result ? JSON.parse(result.slice(7)) : {};
 }
 
+async function reviewEstimate(page: Page) {
+  await page.getByRole('button', { name: 'Estimate cost', exact: true }).click();
+  await expect(page.getByRole('table', { name: 'Estimated usage and cost', exact: true })).toBeVisible();
+  await page.locator('input[name="confirm_estimate"]').check();
+}
+
 test.describe('administrative translation jobs', () => {
   test.use({ role: 'basic' });
   test.beforeEach(async () => { await fixture('prepare'); });
   test.afterEach(async () => { await fixture('cleanup'); });
+
+  test('cost review counts selected work without calling an agent @responsive', async ({ page }, info) => {
+    test.setTimeout(120000);
+    await goto(page, '/es' + route, info);
+    await page.locator('input[name="languages[es]"]').check();
+    await page.locator('input[name="languages[fr]"]').check();
+    await page.locator('select[name="agent"]').selectOption('fixture', { force: true });
+    await expect(page.locator('select[name="model"] option[value="test-model"]')).toHaveCount(1);
+    await page.locator('select[name="model"]').selectOption('test-model', { force: true });
+    await expect(page.getByRole('button', { name: 'Start translation', exact: true })).toBeDisabled();
+    await page.getByRole('button', { name: 'Estimate cost', exact: true }).click();
+    const review = page.locator('[data-translation-estimate]');
+    await expect(review).toContainText('USD');
+    await expect(review).toContainText('2026-11-19');
+    await expect(review.getByRole('table')).toContainText('Total');
+    const total = review.getByRole('row', { name: /^Total/ });
+    await expect(total.locator('td').nth(1)).toHaveText('30');
+    await expect(total.locator('td').nth(2)).toHaveText('4');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
+    expect((await fixture('inspect')).calls).toBe(0);
+    expect((await fixture('inspect')).queue).toBe(0);
+    await page.getByRole('button', { name: 'Start translation', exact: true }).click();
+    await expect(page.getByText('Review and confirm the estimated usage and billing information before starting.', { exact: true }).first()).toBeVisible();
+    expect((await fixture('inspect')).queue).toBe(0);
+    await page.locator('select[name="model"]').selectOption('', { force: true });
+    await expect(page.getByRole('button', { name: 'Start translation', exact: true })).toBeDisabled();
+    await page.getByRole('button', { name: 'Estimate cost', exact: true }).click();
+    await expect(page.locator('[data-translation-estimate]')).toContainText('monetary cost cannot be estimated');
+    await expect(page.getByRole('table', { name: 'Estimated usage and cost', exact: true })).toContainText('No disponible');
+    expect((await fixture('inspect')).calls).toBe(0);
+    expect((await fixture('inspect')).translations).toEqual({});
+  });
+
+  test('changed inventory, selection and rates require a fresh estimate', async ({ page }, info) => {
+    test.setTimeout(180000);
+    await goto(page, '/en' + route, info);
+    await page.locator('input[name="languages[es]"]').check();
+    await page.locator('select[name="agent"]').selectOption('fixture', { force: true });
+    await expect(page.locator('select[name="model"] option[value="test-model"]')).toHaveCount(1);
+    await page.locator('select[name="model"]').selectOption('test-model', { force: true });
+    await reviewEstimate(page);
+    const body = await page.locator('form#labdoo-translation-jobs').evaluate(form => Object.fromEntries(new FormData(form as HTMLFormElement).entries()) as Record<string, string>);
+    const changed = await page.request.post('/en' + route, { form: { ...body, start: 'Start translation', model: '' } });
+    expect(await changed.text()).toContain('Estimate again before starting');
+    expect((await fixture('inspect')).queue).toBe(0);
+    await goto(page, '/en' + route, info);
+    await page.locator('input[name="languages[es]"]').check();
+    await page.locator('select[name="agent"]').selectOption('fixture', { force: true });
+    await expect(page.locator('select[name="model"] option[value="test-model"]')).toHaveCount(1);
+    await page.locator('select[name="model"]').selectOption('test-model', { force: true });
+    await reviewEstimate(page);
+    await fixture('add-pending');
+    await page.getByRole('button', { name: 'Start translation', exact: true }).click();
+    await expect(page.getByText('The selection, pending translations or pricing have changed. Estimate again before starting.', { exact: true }).first()).toBeVisible();
+    expect((await fixture('inspect')).queue).toBe(0);
+    await reviewEstimate(page);
+    await fixture('pricing-change');
+    await page.getByRole('button', { name: 'Start translation', exact: true }).click();
+    await expect(page.getByText('The selection, pending translations or pricing have changed. Estimate again before starting.', { exact: true }).first()).toBeVisible();
+    expect((await fixture('inspect')).calls).toBe(0);
+    expect((await fixture('inspect')).queue).toBe(0);
+  });
 
   test('preview, background translation, private review and confirmed import @responsive', async ({ page }, info) => {
     test.setTimeout(180000);
@@ -31,6 +100,7 @@ test.describe('administrative translation jobs', () => {
     await page.locator('select[name="agent"]').selectOption('fixture', { force: true });
     await expect(page.locator('select[name="model"] option[value="test-model"]')).toHaveCount(1);
     await page.locator('select[name="model"]').selectOption('test-model', { force: true });
+    await reviewEstimate(page);
     const body = await page.locator('form#labdoo-translation-jobs').evaluate(form => Object.fromEntries(new FormData(form as HTMLFormElement).entries()) as Record<string, string>);
     body.start = 'Start translation';
     await page.getByRole('button', { name: 'Start translation', exact: true }).click();
@@ -89,6 +159,7 @@ test.describe('administrative translation jobs', () => {
     await page.locator('input[name="languages[es]"]').check();
     await page.locator('select[name="agent"]').selectOption('fixture', { force: true });
     await expect(page.locator('select[name="model"] option[value="test-model"]')).toHaveCount(1);
+    await reviewEstimate(page);
     await page.getByRole('button', { name: 'Start translation', exact: true }).click();
     await expect(page.locator('[data-translation-job]')).toHaveAttribute('data-translation-job', 'queued');
     const id = new URL(page.url()).pathname.split('/').pop()!;
@@ -118,6 +189,7 @@ test.describe('administrative translation jobs', () => {
     await page.locator('input[name="languages[es]"]').check();
     await page.locator('select[name="agent"]').selectOption('fixture', { force: true });
     await expect(page.locator('select[name="model"] option[value="test-model"]')).toHaveCount(1);
+    await reviewEstimate(page);
     await page.getByRole('button', { name: 'Start translation', exact: true }).click();
     await expect(page.locator('[data-translation-job]')).toHaveAttribute('data-translation-job', 'queued');
     const jobUrl = page.url();
@@ -141,6 +213,7 @@ test.describe('administrative translation jobs', () => {
     await page.locator('input[name="languages[es]"]').check();
     await page.locator('select[name="agent"]').selectOption('fixture', { force: true });
     await expect(page.locator('select[name="model"] option[value="test-model"]')).toHaveCount(1);
+    await reviewEstimate(page);
     await page.getByRole('button', { name: 'Start translation', exact: true }).click();
     await expect(page.locator('[data-translation-job]')).toHaveAttribute('data-translation-job', 'queued');
     const jobUrl = page.url(); const id = new URL(jobUrl).pathname.split('/').pop()!;
@@ -162,7 +235,8 @@ test.describe('administrative translation jobs', () => {
       await page.getByRole('button', { name: 'Check pending strings', exact: true }).click();
       await expect(page.getByRole('table', { name: 'Pending strings' })).toContainText('15');
       await page.locator('select[name="model"]').selectOption('test-model');
-      await page.getByRole('button', { name: 'Start translation', exact: true }).click();
+      await reviewEstimate(page);
+    await page.getByRole('button', { name: 'Start translation', exact: true }).click();
       await expect(page.locator('[data-translation-job]')).toHaveAttribute('data-translation-job', 'queued');
       await fixture('drain');
       await page.getByRole('link', { name: 'Refresh status', exact: true }).click();

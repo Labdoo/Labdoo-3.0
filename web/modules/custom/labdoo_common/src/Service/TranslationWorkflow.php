@@ -80,6 +80,13 @@ class TranslationWorkflow {
 
   /** Translates copies of entries, respecting existing and reviewed values. */
   public function translate(array $items, string $language, PoHeader $header, array $options): array {
+    $items = $this->translationItems($items, $language);
+    $plurals = preg_match('/nplurals\s*=\s*(\d+)/', $header->getPluralForms(), $match) ? (int) $match[1] : 2;
+    return $this->translationAgent->translate($items, $language, $plurals, (string) $options['agent'], (string) ($options['agent-binary'] ?? ''), (string) ($options['agent-model'] ?? ''), (int) ($options['batch-size'] ?? 20), (int) ($options['agent-timeout'] ?? 180), $header->getPluralForms());
+  }
+
+  /** Resolves existing and reviewed values before costing or translating. */
+  public function translationItems(array $items, string $language): array {
     $items = array_map(static fn(PoItem $item): PoItem => clone $item, $items);
     foreach ($items as $item) {
       $reviewed = $this->catalogTranslation($item, $language);
@@ -91,8 +98,7 @@ class TranslationWorkflow {
         $item->setTranslation($item->isPlural() ? $forms : $forms[0]);
       }
     }
-    $plurals = preg_match('/nplurals\s*=\s*(\d+)/', $header->getPluralForms(), $match) ? (int) $match[1] : 2;
-    return $this->translationAgent->translate($items, $language, $plurals, (string) $options['agent'], (string) ($options['agent-binary'] ?? ''), (string) ($options['agent-model'] ?? ''), (int) ($options['batch-size'] ?? 20), (int) ($options['agent-timeout'] ?? 180), $header->getPluralForms());
+    return $items;
   }
 
   /** Reads one checkpointed PO batch without reparsing all earlier entries. */

@@ -37,4 +37,19 @@ class TranslationAgentRegistry {
     return ['agent' => $profile['adapter'], 'agent-binary' => $profile['binary'], 'agent-model' => $model, 'batch-size' => 100, 'agent-timeout' => 120];
   }
 
+  /** Returns optional operator-maintained rates; missing prices never mean free. */
+  public function pricing(string $id, string $model): array {
+    $this->options($id, $model);
+    $rate = $this->profiles()[$id]['pricing'][$model] ?? [];
+    if (!is_array($rate)) { return ['billing' => 'unknown']; }
+    if (($rate['billing'] ?? '') === 'subscription') { return ['billing' => 'subscription']; }
+    if (($rate['billing'] ?? '') !== 'metered' || !is_string($rate['currency'] ?? NULL) || !preg_match('/^[A-Z]{3}$/D', $rate['currency'])) {
+      return ['billing' => 'unknown'];
+    }
+    foreach (['input_per_million', 'output_per_million'] as $key) {
+      if (!is_numeric($rate[$key] ?? NULL) || !is_finite((float) $rate[$key]) || $rate[$key] < 0) { return ['billing' => 'unknown']; }
+    }
+    return ['billing' => 'metered', 'currency' => $rate['currency'], 'input_per_million' => (float) $rate['input_per_million'], 'output_per_million' => (float) $rate['output_per_million'], 'as_of' => is_string($rate['as_of'] ?? NULL) ? $rate['as_of'] : '', 'source' => is_string($rate['source'] ?? NULL) ? $rate['source'] : ''];
+  }
+
 }

@@ -14,6 +14,8 @@ const state = JSON.parse(await fs.readFile(authFile, 'utf8'));
 const cookies = state.cookies.filter(cookie => /^S?SESS/.test(cookie.name) && cookie.domain === '127.0.0.1');
 if (!cookies.length) throw new Error('No isolated loopback operator session');
 const routes = { form: '/en/admin/config/regional/labdoo-translations', review: `/en/admin/config/regional/labdoo-translations/${job}/es/review` };
+const costReview = process.argv.includes('--cost-review');
+if (costReview) delete routes.review;
 for (const suffix of Object.values(routes)) {
   const response = await fetch(base + suffix, { redirect: 'manual', headers: { Cookie: cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ') } });
   if (response.status !== 200 || response.headers.get('x-labdoo-e2e') !== 'integration' || response.headers.get('x-labdoo-e2e-root') !== expected) throw new Error('Invalid isolated authenticated route');
@@ -22,6 +24,7 @@ for (const suffix of Object.values(routes)) {
 const main = process.env.LIGHTHOUSE_MODULE || '/usr/lib/node_modules/lighthouse/core/index.js';
 const require = createRequire(main);
 const lighthouse = (await import(pathToFileURL(main).href)).default;
+const { snapshot } = await import(pathToFileURL(main).href);
 const desktopConfig = (await import(pathToFileURL(path.join(path.dirname(main), 'config/desktop-config.js')).href)).default;
 const puppeteer = (await import(pathToFileURL(require.resolve('puppeteer-core')).href)).default;
 const launcher = await import(pathToFileURL(require.resolve('chrome-launcher')).href);
@@ -47,6 +50,32 @@ for (const [route, suffix] of Object.entries(routes)) {
         summary.push({ route, profile, run, lighthouse_version: report.lighthouseVersion, scores: Object.fromEntries(Object.entries(report.categories).map(([key, value]) => [key, Math.round(value.score * 100)])), metrics: Object.fromEntries(['first-contentful-paint', 'largest-contentful-paint', 'total-blocking-time', 'cumulative-layout-shift'].map(key => [key, report.audits[key].numericValue])), failed_audits: Object.entries(report.audits).filter(([, audit]) => audit.score !== null && audit.score < 1 && !['notApplicable', 'manual', 'informative'].includes(audit.scoreDisplayMode)).map(([key]) => key), warnings: report.runWarnings });
         await fs.writeFile(path.join(output, 'summary.json'), JSON.stringify(summary, null, 2));
         console.log(JSON.stringify(summary.at(-1)));
+        if (costReview) {
+          const browser = await puppeteer.connect({ browserURL: `http://127.0.0.1:${chrome.port}` });
+          try {
+            const page = await browser.newPage();
+            await page.setViewport(profile === 'mobile' ? { width: 390, height: 844, isMobile: true, hasTouch: true } : { width: 1350, height: 940 });
+            await page.goto(base + suffix, { waitUntil: 'networkidle2' });
+            await page.click('input[name="languages[es]"]');
+            await page.click('input[name="languages[fr]"]');
+            await page.select('select[name="agent"]', 'fixture');
+            await page.waitForSelector('select[name="model"] option[value="test-model"]');
+            await page.select('select[name="model"]', 'test-model');
+            await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle2' }), page.click('[name="estimate"]')]);
+            const review = await page.$('[data-translation-estimate]');
+            if (!review || !(await page.$eval('[data-translation-estimate]', element => element.textContent.includes('USD')))) throw new Error('Priced estimate did not render');
+            if (!(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2))) throw new Error('Estimate overflows the viewport');
+            await review.screenshot({ path: path.join(output, `estimate-${profile}-${run}.png`) });
+            const result = await snapshot(page, { config, flags: { output: ['json', 'html'], onlyCategories: ['accessibility'], logLevel: 'error' } });
+            const report = result.lhr;
+            if (report.runtimeError) throw new Error(report.runtimeError.message);
+            await fs.writeFile(path.join(output, `estimate-${profile}-${run}.report.json`), result.report[0], { mode: 0o600 });
+            await fs.writeFile(path.join(output, `estimate-${profile}-${run}.report.html`), result.report[1], { mode: 0o600 });
+            summary.push({ route: 'estimate', profile, run, mode: 'snapshot', scores: { accessibility: Math.round(report.categories.accessibility.score * 100) }, failed_audits: Object.entries(report.audits).filter(([, audit]) => audit.score !== null && audit.score < 1 && !['notApplicable', 'manual', 'informative'].includes(audit.scoreDisplayMode)).map(([key]) => key), warnings: report.runWarnings, lighthouse_version: report.lighthouseVersion });
+            await fs.writeFile(path.join(output, 'summary.json'), JSON.stringify(summary, null, 2));
+            console.log(JSON.stringify(summary.at(-1)));
+          } finally { await browser.disconnect(); }
+        }
       } finally { await chrome.kill(); }
     }
   }

@@ -7,6 +7,9 @@ services:
   labdoo_common.translation_agents:
     class: Drupal\labdoo_common\Service\TranslationAgentRegistry
     arguments: ['@settings']
+  labdoo_common.translation_estimate:
+    class: Drupal\labdoo_common\Service\TranslationEstimate
+    arguments: ['@labdoo_common.translation_workflow', '@labdoo_common.translation_agents', '@labdoo_common.local_translation_agent']
   labdoo_common.translation_jobs:
     class: Drupal\labdoo_common\Service\TranslationJobs
     arguments: ['@keyvalue', '@queue', '@lock', '@uuid', '@file_system', '@labdoo_common.translation_workflow', '@labdoo_common.translation_agents', '@entity_type.manager', '@module_handler', '@logger.factory']

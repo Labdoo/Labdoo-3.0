@@ -1,5 +1,19 @@
 (function (Drupal, once) {
   'use strict';
+  Drupal.behaviors.labdooTranslationEstimate = {
+    attach(context) {
+      once('translation-estimate', '[data-translation-estimate-form]', context).forEach(form => {
+        form.addEventListener('change', event => {
+          if (!event.target.matches('[name^="languages["], [name="agent"], [name="model"]')) return;
+          const review = form.querySelector('[data-translation-estimate]');
+          if (!review) return;
+          review.hidden = true;
+          form.querySelector('[data-estimate-changed]').hidden = false;
+          form.querySelector('[name="start"]').disabled = true;
+        });
+      });
+    },
+  };
   Drupal.behaviors.labdooTranslationJobs = {
     attach(context) {
       once('translation-job', '[data-translation-job]', context).forEach(element => {

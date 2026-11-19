@@ -81,6 +81,54 @@ documented `response` field; see the [official headless-mode reference](https://
 
 ## Administrative translation jobs
 
+### Estimate before starting
+
+After selecting languages, an approved profile and a model, click **Estimate
+cost**. The form calculates missing entries, plural forms, application requests,
+and indicative input/output token ranges without launching a CLI, queueing a job
+or writing a PO. Existing nonempty and reviewed portable values are resolved
+using the same workflow as execution. Requests use the worker's ten-entry
+batches and the exact application prompt, including context, JSON and plural
+rules. Token ranges assume 2–4 UTF-8 bytes per input token and output JSON of
+one to two times the source response size. They are heuristics, not provider
+tokenization or a spending cap; hidden CLI context, reasoning, translation
+expansion, retries, taxes and queued inventory changes are not guaranteed bounds.
+
+Metered cost requires explicit operator-maintained rates for the selected model:
+
+```php
+$settings['labdoo_translation_agents']['claude']['pricing']['APPROVED_MODEL'] = [
+  'billing' => 'metered',
+  'currency' => 'USD',
+  'input_per_million' => 2.0,
+  'output_per_million' => 8.0,
+  'as_of' => '2026-11-19',
+  'source' => 'Example fixture rates; replace with verified account pricing',
+];
+```
+
+These numbers are illustrative, not a statement of any provider's current
+prices. Configure the empty model key `''` separately if the CLI default model
+is known and priced. An unconfigured default must not inherit the price of
+another model. Rates use the specified currency without exchange conversion;
+the interface shows their reference date/source. Restart workers after changing
+server settings, as described below.
+
+For a subscription-backed CLI, configure `['billing' => 'subscription']` for
+the selected model. The UI shows estimated usage and a plan-limits notice;
+it does not equate a subscription with free or unlimited usage. Missing or
+invalid tariffs show **Not available** for monetary cost, while preserving
+the workload estimate. No live pricing endpoint or provider is contacted.
+
+Review and acknowledge the estimate before **Start translation**. Server-side
+validation recalculates its fingerprint and rejects changed selections,
+inventory or rates; JavaScript also invalidates the visible review on input
+changes. The step works without JavaScript. Queue processing retains its normal
+at-least-once semantics and can see inventory changes after job creation; this
+estimate does not introduce an execution budget or provider quota enforcement.
+
+### Run and review a job
+
 Open `/admin/config/regional/labdoo-translations` (with the site's language
 prefix). The restricted `administer labdoo translations` permission grants
 access; each operator can access only their own jobs, with a user 1 override.

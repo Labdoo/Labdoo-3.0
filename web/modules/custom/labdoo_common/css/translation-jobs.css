@@ -10,3 +10,8 @@
 .translation-results td {
   overflow-wrap: anywhere;
 }
+[data-translation-estimate] {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+

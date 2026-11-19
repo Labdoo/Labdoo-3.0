@@ -52,7 +52,7 @@ AGENT);
   $role = Role::create(['id' => 'translation_ui_operator', 'label' => 'Translation UI operator']);
   $role->grantPermission(TranslationJobs::PERMISSION)->save();
   foreach (['basic', 'wiki'] as $kind) { $user = User::load($fixtures['accounts'][$kind]['id']); $user->addRole($role->id())->save(); }
-  $data = ['context' => $context, 'lids' => $lids, 'profiles' => ['fixture' => ['label' => 'Simulated translator', 'adapter' => 'custom', 'binary' => $binary, 'models' => ['test-model']]], 'plural_before' => \Drupal::state()->get('locale.translation.formulae')];
+  $data = ['context' => $context, 'lids' => $lids, 'profiles' => ['fixture' => ['label' => 'Simulated translator', 'adapter' => 'custom', 'binary' => $binary, 'models' => ['test-model'], 'pricing' => ['test-model' => ['billing' => 'metered', 'currency' => 'USD', 'input_per_million' => 2, 'output_per_million' => 8, 'as_of' => '2026-11-19', 'source' => 'Simulated fixture rates, not provider prices']]]], 'plural_before' => \Drupal::state()->get('locale.translation.formulae')];
   file_put_contents($manifest, json_encode($data, JSON_THROW_ON_ERROR));
   echo "fixture_ready\n";
 }
@@ -81,6 +81,14 @@ elseif ($operation === 'clear-failure') { if (is_file($directory . '/fail')) { u
 elseif ($operation === 'duplicate') {
   \Drupal::queue(TranslationJobs::QUEUE)->createItem(['job_id' => $id]);
   \Drupal::queue(TranslationJobs::QUEUE)->createItem(['job_id' => '00000000-0000-0000-0000-000000000000']);
+}
+elseif ($operation === 'add-pending') {
+  $storage->createString(['source' => 'New pending translation @name', 'context' => $context])->save();
+}
+elseif ($operation === 'pricing-change') {
+  $data = json_decode(file_get_contents($manifest), TRUE, 512, JSON_THROW_ON_ERROR);
+  $data['profiles']['fixture']['pricing']['test-model']['input_per_million'] = 9;
+  file_put_contents($manifest, json_encode($data, JSON_THROW_ON_ERROR));
 }
 elseif ($operation === 'protect') {
   $data = json_decode(file_get_contents($manifest), TRUE, 512, JSON_THROW_ON_ERROR);
