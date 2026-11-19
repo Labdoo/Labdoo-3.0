@@ -82,7 +82,6 @@ final class PaletteSettingsForm extends ConfigFormBase {
       'canvas' => $this->t('Page background'),
       'paper' => $this->t('Card background'),
       'soft' => $this->t('Soft background (tables and metrics)'),
-      'preview' => $this->t('Preview bar background'),
       'line' => $this->t('Borders'),
       'control-border' => $this->t('Form control borders'),
       'primary-hover' => $this->t('Button hover color'),

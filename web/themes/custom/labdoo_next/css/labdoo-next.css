@@ -9,7 +9,6 @@ body.labdoo-next {
   --ldn-canvas: #f6f7f2;
   --ldn-primary-hover: #19442e;
   --ldn-soft: #edf2e9;
-  --ldn-preview: #e9eee5;
   --ldn-control-border: #aebfaf;
   --ldn-focus: #245c4024;
   --gin-color-primary: var(--ldn-green);
@@ -46,31 +45,6 @@ body.labdoo-next {
 .labdoo-next .ldn-shell {
   width: min(1440px, calc(100% - 80px));
   margin-inline: auto;
-}
-.labdoo-next .ldn-preview {
-  background: var(--ldn-preview);
-  color: var(--ldn-ink);
-  font-size: .75rem;
-  letter-spacing: .015em;
-}
-.labdoo-next .ldn-preview__inner {
-  min-height: 34px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
-.labdoo-next .ldn-preview__dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: var(--ldn-green);
-  border-radius: 50%;
-  margin-inline-end: 8px;
-}
-.labdoo-next .ldn-preview a {
-  color: inherit;
-  font-weight: 600;
 }
 .labdoo-next .ldn-header {
   background: var(--ldn-canvas) !important;
@@ -1021,7 +995,6 @@ body.labdoo-next {
     background: var(--ldn-paper);
     font-size: 11pt;
 }
-  .labdoo-next .ldn-preview,
   .labdoo-next .ldn-header,
   .labdoo-next .ldn-sidebar,
   .labdoo-next .ldn-footer {

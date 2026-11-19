@@ -12,6 +12,8 @@ test('master, table and map displays keep the same filtered device', async ({}, 
 const dashboard = '/en/content/dootronics-dashboard';
 test('search autocomplete suggestions use the stacked layout @responsive', async ({ page }, info) => {
   await goto(page, '/en', info);
+  const menuToggle = page.getByRole('button', { name: 'Menu' });
+  if (await menuToggle.isVisible()) await menuToggle.click();
   await page.getByRole('link', { name: 'Open search' }).click();
   const search = page.locator('#edit-search-api-fulltext');
   await expect(search).toBeVisible();

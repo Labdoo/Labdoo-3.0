@@ -1,6 +1,6 @@
-name: Labdoo theme preview
+name: Labdoo Next palettes
 type: module
-description: Selects the installed Labdoo Next theme with an explicit URL parameter.
+description: Provides configurable palettes for the Labdoo Next theme.
 package: Labdoo
 core_version_requirement: ^10 || ^11
 dependencies:

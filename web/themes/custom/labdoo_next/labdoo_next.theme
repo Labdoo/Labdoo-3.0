@@ -138,11 +138,6 @@ function labdoo_next_preprocess_page(array &$variables): void {
       'depth' => 3,
       'expand_all_items' => TRUE,
     ])->build();
-  $request = \Drupal::request();
-  $query = $request->query->all();
-  unset($query['theme'], $query['palette']);
-  $variables['next_original_url'] = $request->getPathInfo()
-    . ($query ? '?' . http_build_query($query) : '');
   $variables['next_logo'] = base_path() . 'themes/custom/labdoo_next/images/labdoo-wordmark.webp';
 }
 

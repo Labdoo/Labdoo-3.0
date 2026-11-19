@@ -31,7 +31,7 @@ Se puede usar una instalación temporal y fijada de Lighthouse:
 npm install --ignore-scripts --prefix /tmp/labdoo-lighthouse-13 lighthouse@13.6.0
 python3 tests/performance/lighthouse.py \
   --base-url http://127.0.0.1:18381 \
-  --path '/es/content/dootronics-dashboard?palette=ocean&theme=labdoo_next' \
+  --path '/es/content/dootronics-dashboard?palette=ocean' \
   --lighthouse /tmp/labdoo-lighthouse-13/node_modules/.bin/lighthouse \
   --output /tmp/labdoo-lighthouse --runs 3
 ```

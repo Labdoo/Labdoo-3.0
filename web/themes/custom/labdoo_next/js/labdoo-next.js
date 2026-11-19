@@ -7,31 +7,8 @@
     });
   }
 
-  const excluded = /\/(?:admin(?:\/|$)|user\/logout|dootronics\/(?:print-labels|export)|content\/tag-one-dooject)|\.(?:pdf|png|jpe?g|gif|svg|zip|csv)$/i;
   Drupal.behaviors.labdooNext = {
     attach(context) {
-      once('labdoo-next-link', 'a[href]', context).forEach((link) => {
-        if (link.hasAttribute('data-labdoo-original') || link.hasAttribute('download')) return;
-        const raw = link.getAttribute('href');
-        if (!raw || raw.startsWith('#') || /^(?:mailto:|tel:|javascript:)/i.test(raw)) return;
-        const url = new URL(raw, document.baseURI);
-        if (url.origin !== location.origin || excluded.test(url.pathname)) return;
-        url.searchParams.set('theme', 'labdoo_next');
-        link.href = url.href;
-      });
-      once('labdoo-next-form', 'form', context).forEach((form) => {
-        if ((form.getAttribute('method') || 'get').toLowerCase() !== 'get') return;
-        const url = new URL(form.action || location.href, document.baseURI);
-        if (url.origin !== location.origin || excluded.test(url.pathname)) return;
-        let input = form.querySelector('input[name="theme"]');
-        if (!input) {
-          input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'theme';
-          form.append(input);
-        }
-        input.value = 'labdoo_next';
-      });
       once('labdoo-next-table', '.ldn-main table', context).forEach((table) => {
         if (table.closest('.ldn-table-scroll')) return;
         const scroll = document.createElement('div');

@@ -29,7 +29,7 @@ async function observeAnalytics(page: any) {
 test('opt-in loads analytics once after accepting and stops events after withdrawal @responsive', async ({ page }, info) => {
   const requests = await observeAnalytics(page);
   // The shared navigation helper declines cookies; this test needs the banner.
-  const response = await page.goto('/en/content/dootronics-dashboard?theme=labdoo_next', { waitUntil: 'domcontentloaded' });
+  const response = await page.goto('/en/content/dootronics-dashboard', { waitUntil: 'domcontentloaded' });
   expect(response!.headers()['x-labdoo-e2e']).toBe(info.project.metadata.variant);
   expect(response!.status()).toBe(200);
   await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
@@ -48,22 +48,14 @@ test('opt-in loads analytics once after accepting and stops events after withdra
   expect(await page.evaluate(() => (window as any).__testAnalyticsEvents)).toEqual(['after_accepting', 'after_accepting_again']);
   expect(requests).toHaveLength(1);
 });
-
 test('returning visitors with consent keep analytics @responsive', async ({ page, context, baseURL }, info) => {
   await context.addCookies([{ name: 'cookie-agreed', value: '2', url: baseURL! }]);
   const requests = await observeAnalytics(page);
-  const response = await page.goto('/en/content/dootronics-dashboard?theme=labdoo_next', { waitUntil: 'domcontentloaded' });
+  const response = await page.goto('/en/content/dootronics-dashboard', { waitUntil: 'domcontentloaded' });
   expect(response!.headers()['x-labdoo-e2e']).toBe(info.project.metadata.variant);
   expect(response!.status()).toBe(200);
   await expect.poll(() => requests.length).toBe(1);
   await expect.poll(() => page.evaluate(() => (window as any).__testAnalyticsConfigs)).toBeGreaterThan(0);
   await page.evaluate(() => (window as any).gtag('event', 'returning_visitor'));
   await expect.poll(() => page.evaluate(() => (window as any).__testAnalyticsEvents)).toEqual(['returning_visitor']);
-});
-
-test('the original theme keeps its existing analytics loading', async ({ page }, info) => {
-  const requests = await observeAnalytics(page);
-  await goto(page, '/en/content/dootronics-dashboard', info);
-  await expect.poll(() => requests.length).toBe(1);
-  await expect(page.locator('script[data-labdoo-analytics-src]')).toHaveCount(0);
 });
