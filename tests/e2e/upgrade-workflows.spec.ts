@@ -11,10 +11,14 @@ test('upgrade: global search finds seeded content and an unmatched query is empt
  await search.fill('E2Eunmatched928374928374');await search.locator('xpath=ancestor::form').locator('[type=submit]').first().press('Enter');
  await expect(page.locator('main .views-row')).toHaveCount(0);
 });
-test('upgrade: contact webform validates and stores a submission with local mail',async({page},info)=>{
+test('upgrade: contact webform validates and stores a submission with local mail @responsive',async({page},info)=>{
  await goto(page,'/en/content/contact-labdoo',info);
  const form=page.locator('form.webform-submission-contact-labdoo-add-form');
  await expect(form).toBeVisible();
+ await expect(form).toHaveAttribute('novalidate','');
+ await form.locator('[type=submit]').first().click();
+ await expect(page.locator('.messages--error')).toBeVisible();
+ await expect(page.locator('.webform-confirmation')).toHaveCount(0);
  await form.locator('[name=name]').fill('E2E contact');
  for(const input of await form.locator('input[type=email]').all())await input.fill('e2e-contact@example.invalid');
  await form.locator('select[name="country[country]"]').selectOption('Spain',{force:true});

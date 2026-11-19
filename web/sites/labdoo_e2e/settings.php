@@ -26,6 +26,7 @@ $settings['file_private_path'] = $labdoo_e2e_root . '/tests/upgrade/.local/priva
 $settings['labdoo_e2e'] = TRUE;
 $settings['labdoo_e2e_variant'] = 'integration';
 $settings['labdoo_e2e_state'] = $labdoo_e2e_state;
+$settings['enable_html5_validation'] = FALSE;
 $class_loader->addPsr4('Drupal\\labdoo_e2e\\', $labdoo_e2e_root . '/tests/e2e/support/labdoo_e2e/src');
 $GLOBALS['conf']['container_service_providers']['LabdooE2eLast'] = 'Drupal\labdoo_e2e\LabdooE2eServiceProvider';
 $config['automated_cron.settings']['interval'] = 0;
