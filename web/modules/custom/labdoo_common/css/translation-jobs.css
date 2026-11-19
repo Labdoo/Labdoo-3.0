@@ -1,0 +1,12 @@
+.translation-preview {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.translation-review-cell {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-width: 12rem;
+}
+.translation-results td {
+  overflow-wrap: anywhere;
+}

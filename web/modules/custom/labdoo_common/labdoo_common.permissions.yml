@@ -1,0 +1,4 @@
+administer labdoo translations:
+  title: 'Manage Labdoo translation jobs'
+  description: 'Submit local-agent translation jobs, review private results and explicitly import translations.'
+  restrict access: true

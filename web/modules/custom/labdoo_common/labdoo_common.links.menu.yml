@@ -1,3 +1,8 @@
+labdoo_common.translations:
+  title: 'Labdoo translations'
+  description: 'Translate interface strings with configured agents and review the generated files.'
+  route_name: labdoo_common.translations
+  parent: system.admin_config_regional
 labdoo_common.admin_dashboard:
   title: 'Administration'
   route_name: system.admin

@@ -610,3 +610,13 @@ function labdoo_common_views_data_alter(array &$data): void {
     $data['node__field_hub']['field_hub']['field']['id'] = 'labdoo_sortable_hub';
   }
 }
+
+/**
+ * Implements hook_file_download().
+ */
+function labdoo_common_file_download($uri) {
+  // Job files are served exclusively by the owner-authorized controller.
+  if (str_starts_with($uri, 'private://labdoo-translations/')) {
+    return -1;
+  }
+}

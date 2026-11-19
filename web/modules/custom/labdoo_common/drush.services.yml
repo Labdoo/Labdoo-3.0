@@ -14,8 +14,10 @@ services:
     arguments: ['@entity_type.manager']
     tags:
       - { name: drush.command }
+  labdoo_common.local_translation_agent:
+    class: \Drupal\labdoo_common\Service\LocalTranslationAgent
   labdoo_common.translation_commands:
     class: \Drupal\labdoo_common\Commands\TranslationCommands
-    arguments: ['@language_manager', '@config.factory', '@module_handler']
+    arguments: ['@language_manager', '@config.factory', '@module_handler', '@labdoo_common.local_translation_agent', '@?labdoo_translations.catalog', '@?labdoo_common.translation_workflow']
     tags:
       - { name: drush.command }

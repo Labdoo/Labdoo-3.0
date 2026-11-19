@@ -1,0 +1,60 @@
+labdoo_common.translations:
+  path: '/admin/config/regional/labdoo-translations'
+  defaults:
+    _form: '\Drupal\labdoo_common\Form\TranslationJobsForm'
+    _title: 'Labdoo translations'
+  requirements:
+    _permission: 'administer labdoo translations'
+  options:
+    _admin_route: true
+labdoo_common.translation_job:
+  path: '/admin/config/regional/labdoo-translations/{job}'
+  defaults:
+    _controller: '\Drupal\labdoo_common\Controller\TranslationJobController::view'
+    _title: 'Translation job'
+  requirements:
+    _permission: 'administer labdoo translations'
+    job: '[a-f0-9-]{36}'
+  options:
+    _admin_route: true
+labdoo_common.translation_status:
+  path: '/admin/config/regional/labdoo-translations/{job}/status'
+  defaults:
+    _controller: '\Drupal\labdoo_common\Controller\TranslationJobController::status'
+  requirements:
+    _permission: 'administer labdoo translations'
+    job: '[a-f0-9-]{36}'
+  methods: [GET]
+labdoo_common.translation_download:
+  path: '/admin/config/regional/labdoo-translations/{job}/{langcode}/download'
+  defaults:
+    _controller: '\Drupal\labdoo_common\Controller\TranslationJobController::download'
+  requirements:
+    _permission: 'administer labdoo translations'
+    job: '[a-f0-9-]{36}'
+    langcode: '[a-z][a-z0-9-]{0,19}'
+  methods: [GET]
+labdoo_common.translation_review:
+  path: '/admin/config/regional/labdoo-translations/{job}/{langcode}/review'
+  defaults:
+    _controller: '\Drupal\labdoo_common\Controller\TranslationJobController::review'
+    _title: 'Review translations'
+  requirements:
+    _permission: 'administer labdoo translations'
+    job: '[a-f0-9-]{36}'
+    langcode: '[a-z][a-z0-9-]{0,19}'
+  options:
+    _admin_route: true
+labdoo_common.translation_action:
+  path: '/admin/config/regional/labdoo-translations/{job}/{action}/{langcode}'
+  defaults:
+    _form: '\Drupal\labdoo_common\Form\TranslationActionForm'
+    _title: 'Confirm translation action'
+    langcode: '-'
+  requirements:
+    _permission: 'administer labdoo translations'
+    job: '[a-f0-9-]{36}'
+    action: 'import|retry'
+    langcode: '-|[a-z][a-z0-9-]{0,19}'
+  options:
+    _admin_route: true

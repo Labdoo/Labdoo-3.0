@@ -43,3 +43,17 @@ test('local runs require checkout identity and reject arbitrary origins', () => 
   assert.throws(() => scenario({}, {}), /LABDOO_EXPECTED_ROOT/);
   assert.throws(() => scenario({ ...environment, BASE_URL: 'https://v3.labdoo.org' }, {}), /restricted to the isolated local clone/);
 });
+
+test('authenticated status load rejects foreign paths and another checkout', () => {
+  const statusSource = fs.readFileSync(new URL('./translation-status-load.js', import.meta.url), 'utf8')
+    .replace(/^import .*;$/gm, '').replace('export const options', 'const options')
+    .replace('export function setup', 'function setup').replace('export default function ()', 'function iteration()');
+  const build = new Function('__ENV', 'http', 'check', 'sleep', 'crypto', statusSource + '\nreturn {options, setup, iteration};');
+  const env = { LABDOO_EXPECTED_ROOT: root, TRANSLATION_COOKIE: 'SESSfixture=fixture', TRANSLATION_STATUS_PATH: '/en/admin/config/regional/labdoo-translations/00000000-0000-0000-0000-000000000000/status' };
+  const hash = { sha256: value => createHash('sha256').update(value).digest('hex') };
+  assert.throws(() => build({ ...env, TRANSLATION_STATUS_PATH: 'https://example.org/status' }, {}, null, null, hash), /local translation status path/);
+  const response = { status: 200, headers: { ...headers, 'X-Labdoo-E2e-Root': 'another-checkout' } };
+  const run = build(env, { get: () => response }, () => {}, () => {}, hash);
+  assert.throws(() => run.setup(), /Incorrect isolated status target/);
+  assert.deepEqual(run.options.thresholds, { http_req_duration: ['p(95)<2000'], http_req_failed: ['rate<0.02'], checks: ['rate==1'] });
+});

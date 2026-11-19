@@ -16,5 +16,11 @@ final class LabdooE2eServiceProvider extends ServiceProviderBase {
       $container->getDefinition('labdoo_common.geocoder_decorator')->setClass(FixtureGeocoder::class)->setArguments([]);
     }
     $container->getDefinition('plugin.manager.mail')->setClass(Mail\CollectorMailManager::class);
+    if ($container->hasDefinition('labdoo_common.translation_workflow')) {
+      $container->getDefinition('labdoo_common.translation_workflow')->setClass(FixtureTranslationWorkflow::class);
+    }
+    if ($container->hasDefinition('labdoo_common.translation_agents')) {
+      $container->getDefinition('labdoo_common.translation_agents')->setClass(FixtureTranslationAgentRegistry::class);
+    }
   }
 }
