@@ -22,14 +22,13 @@ endif
 ENVIRONMENT ?= dev
 THEME_NAME ?= wingsuit
 
-# The upgrade regression lab lives in an isolated worktree so it never shares
-# Drupal dependencies or its database with the active checkout.
-LAB_WORKTREE ?= $(CURDIR)/.e2e-lab/drupal11
+# Test the active checkout; Drupal uses a separate E2E site and cloned database.
+LAB_ROOT := $(CURDIR)
 LAB_BASE_URL ?= $(if $(BASE_URL),$(BASE_URL),http://127.0.0.1:18411)
 LAB_K6 ?= k6
 LAB_LIGHTHOUSE ?= lighthouse
 LAB_RUN_ID ?= $(shell date +%Y%m%d-%H%M%S)
-LAB_PERF_OUTPUT ?= $(LAB_WORKTREE)/tests/performance/.local
+LAB_PERF_OUTPUT ?= $(LAB_ROOT)/tests/performance/.local
 
 # Colors and styles
 YELLOW := $(shell tput setaf 3)
@@ -335,29 +334,29 @@ tests: ## 🧪 Run project tests.
 
 .PHONY: e2e e2e-serve e2e-dashboard e2e-deps k6 lighthouse
 e2e-serve: ## 🌐 Serve the isolated Drupal test clone on loopback.
-	@test -f "$(LAB_WORKTREE)/tests/upgrade/.local/state/connection.json" || (echo "Prepare the isolated lab first; see $(LAB_WORKTREE)/tests/upgrade/README.md" >&2; exit 1)
-	cd "$(LAB_WORKTREE)" && python3 tests/upgrade/lab.py serve
+	@test -f "$(LAB_ROOT)/tests/upgrade/.local/state/connection.json" || (echo "Prepare the isolated lab first; see $(LAB_ROOT)/tests/upgrade/README.md" >&2; exit 1)
+	cd "$(LAB_ROOT)" && python3 tests/upgrade/lab.py serve
 
 e2e-dashboard: ## 🖥️ Start the local E2E dashboard on loopback.
-	@test -f "$(LAB_WORKTREE)/tests/upgrade/.local/state/inventory.json" || (echo "Prepare the isolated lab first; see $(LAB_WORKTREE)/tests/upgrade/README.md" >&2; exit 1)
-	cd "$(LAB_WORKTREE)" && node tests/upgrade/dashboard.mjs
+	@test -f "$(LAB_ROOT)/tests/upgrade/.local/state/inventory.json" || (echo "Prepare the isolated lab first; see $(LAB_ROOT)/tests/upgrade/README.md" >&2; exit 1)
+	cd "$(LAB_ROOT)" && node tests/upgrade/dashboard.mjs
 
-e2e-deps: ## 📦 Install the isolated Playwright dependencies.
-	@test -d "$(LAB_WORKTREE)/tests/e2e" || (echo "Drupal 11 worktree not found: $(LAB_WORKTREE)" >&2; exit 1)
-	npm ci --prefix "$(LAB_WORKTREE)/tests/e2e"
+e2e-deps: ## 📦 Install Playwright dependencies for this checkout.
+	@test -d "$(LAB_ROOT)/tests/e2e" || (echo "Test checkout not found: $(LAB_ROOT)" >&2; exit 1)
+	npm ci --prefix "$(LAB_ROOT)/tests/e2e"
 
 e2e: ## 🧪 Run isolated Playwright E2E suite (start e2e-serve first).
-	@test -f "$(LAB_WORKTREE)/tests/upgrade/.local/state/inventory.json" || (echo "Prepare the isolated lab first; see $(LAB_WORKTREE)/tests/upgrade/README.md" >&2; exit 1)
-	cd "$(LAB_WORKTREE)/tests/e2e" && E2E_RUN_ID="$(LAB_RUN_ID)" ./node_modules/.bin/playwright test -c upgrade.config.ts $(E2E_ARGS)
+	@test -f "$(LAB_ROOT)/tests/upgrade/.local/state/inventory.json" || (echo "Prepare the isolated lab first; see $(LAB_ROOT)/tests/upgrade/README.md" >&2; exit 1)
+	cd "$(LAB_ROOT)/tests/e2e" && E2E_RUN_ID="$(LAB_RUN_ID)" ./node_modules/.bin/playwright test -c upgrade.config.ts $(E2E_ARGS)
 
 k6: ## 📈 Run the existing k6 load scenario against the local clone.
 	@test -x "$(shell command -v $(LAB_K6) 2>/dev/null)" || (echo "k6 executable not found: $(LAB_K6)" >&2; exit 1)
 	mkdir -p "$(LAB_PERF_OUTPUT)"
-	cd "$(LAB_WORKTREE)" && $(LAB_K6) run --summary-export "$(LAB_PERF_OUTPUT)/k6-$(LAB_RUN_ID).json" -e BASE_URL="$(LAB_BASE_URL)" tests/performance/labdoo-load.js
+	cd "$(LAB_ROOT)" && $(LAB_K6) run --summary-export "$(LAB_PERF_OUTPUT)/k6-$(LAB_RUN_ID).json" -e BASE_URL="$(LAB_BASE_URL)" -e LABDOO_EXPECTED_ROOT="$(LAB_ROOT)" tests/performance/labdoo-load.js
 
 lighthouse: ## 🔦 Audit the isolated local clone with Lighthouse.
 	@test -x "$(shell command -v $(LAB_LIGHTHOUSE) 2>/dev/null)" || (echo "Lighthouse executable not found: $(LAB_LIGHTHOUSE)" >&2; exit 1)
-	python3 "$(LAB_WORKTREE)/tests/performance/lighthouse.py" --base-url "$(LAB_BASE_URL)" --output "$(LAB_PERF_OUTPUT)/lighthouse-$(LAB_RUN_ID)" --lighthouse "$(LAB_LIGHTHOUSE)" $(LIGHTHOUSE_ARGS)
+	python3 "$(LAB_ROOT)/tests/performance/lighthouse.py" --base-url "$(LAB_BASE_URL)" --output "$(LAB_PERF_OUTPUT)/lighthouse-$(LAB_RUN_ID)" --lighthouse "$(LAB_LIGHTHOUSE)" $(LIGHTHOUSE_ARGS)
 
 .PHONY: audit
 audit: ## 🔍 Run site audit (site_audit).

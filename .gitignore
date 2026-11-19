@@ -241,3 +241,6 @@ install_ddev.sh
 /.e2e-lab/
 
 /tests/upgrade/__pycache__/
+
+# Uploaded files and generated caches for the same-checkout E2E site.
+/web/sites/labdoo_e2e/files/

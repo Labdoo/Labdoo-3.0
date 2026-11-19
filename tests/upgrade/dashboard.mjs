@@ -4,15 +4,16 @@ import { spawn, execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { localTarget, selectTarget } from './local-target.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const local = path.join(root, 'tests/upgrade/.local');
 const state = path.join(local, 'state');
+const baseUrl = localTarget.url;
 fs.mkdirSync(state, { recursive: true, mode: 0o700 });
 const token = randomBytes(24).toString('hex');
 const port = Number(process.env.LABDOO_TEST_LAB_PORT || 18412);
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('LABDOO_TEST_LAB_PORT must be a valid local port.');
-const baseUrl = 'http://127.0.0.1:18411';
 const suites = {
   all: [],
   navigation: ['upgrade-navigation.spec.ts'],
@@ -45,7 +46,7 @@ const descriptions = {
 const toolInfo = {
   k6: {
     name: 'k6 load test',
-    description: 'Runs the existing 13-minute load profile against five Labdoo routes on the isolated local clone.',
+    description: 'Runs the existing 13-minute load profile against five routes on the isolated local clone.',
     tests: ['Ramp from 20 to 100 virtual users, then ramp down.', 'Thresholds: p95 response time below 2 seconds; failed requests below 2%.'],
     executable: 'k6',
   },
@@ -101,7 +102,7 @@ function discoverPlaywright() {
       'test', '-c', 'upgrade.config.ts', '--list', '--reporter=json',
     ], {
       cwd: path.join(root, 'tests/e2e'),
-      env: { ...process.env, E2E_STATE_DIR: state },
+      env: { ...process.env, E2E_STATE_DIR: state, E2E_LOCAL_PORT: '18411' },
       maxBuffer: 16 * 1024 * 1024,
     });
     const discovered = JSON.parse(raw.toString());
@@ -129,7 +130,7 @@ function catalog() {
     ...info,
     available: executableExists(info.executable),
   }]));
-  return { playwright: discoverPlaywright(), tools };
+  return { environment: localTarget, playwright: discoverPlaywright(), tools };
 }
 function version() {
   const source = fs.readFileSync(path.join(root, 'web/core/lib/Drupal.php'), 'utf8');
@@ -146,7 +147,8 @@ function fingerprint() {
     }
   };
   walk(path.join(root, 'tests/e2e'));
-  hash.update(fs.readFileSync(path.join(state, 'inventory.json')));
+  const inventory = path.join(state, 'inventory.json');
+  if (fs.existsSync(inventory)) hash.update(fs.readFileSync(inventory));
   return hash.digest('hex');
 }
 function contentType(file) {
@@ -216,6 +218,8 @@ const server = http.createServer(async (req, res) => {
     let input;
     try { input = JSON.parse(body); } catch { return json({ error: 'Invalid JSON' }, 400); }
     const tool = input.tool;
+    try { selectTarget(input.environment); }
+    catch (error) { return json({ error: error.message }, 400); }
     if (!['playwright', 'k6', 'lighthouse'].includes(tool)) return json({ error: 'Choose a supported test tool.' }, 400);
     if (tool === 'playwright' && !Object.hasOwn(suites, input.suite)) return json({ error: 'Choose a supported Playwright suite.' }, 400);
     if (!fs.existsSync(path.join(state, 'connection.json')) || !fs.existsSync(path.join(state, 'inventory.json'))) {
@@ -224,8 +228,9 @@ const server = http.createServer(async (req, res) => {
     if (tool !== 'playwright' && !executableExists(toolInfo[tool].executable)) return json({ error: `${toolInfo[tool].executable} is not installed or available on PATH.` }, 412);
     let site;
     try {
-      site = await fetch(baseUrl, { signal: AbortSignal.timeout(5000) });
-      if (!site.ok || site.headers.get('x-labdoo-e2e') !== 'integration') throw new Error();
+      site = await fetch(baseUrl, { signal: AbortSignal.timeout(10000) });
+      if (site.headers.get('x-labdoo-e2e-root') !== createHash('sha256').update(root).digest('hex')) throw new Error('The server is running another checkout');
+      if (new URL(site.url).origin !== baseUrl || !site.ok || site.headers.get('x-labdoo-e2e') !== 'integration') throw new Error();
     } catch {
       return json({ error: `Start the isolated Drupal server at ${baseUrl} first.` }, 412);
     }
@@ -237,6 +242,9 @@ const server = http.createServer(async (req, res) => {
       tool,
       toolName: tool === 'playwright' ? 'Playwright E2E' : toolInfo[tool].name,
       suite: tool === 'playwright' ? input.suite : null,
+      environment: 'local',
+      environmentName: 'Local test clone',
+      baseUrl,
       core: version(),
       started: new Date().toISOString(),
       commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
@@ -250,7 +258,7 @@ const server = http.createServer(async (req, res) => {
     let command;
     let args;
     let cwd = root;
-    let env = { ...process.env };
+    let env = { ...process.env, LABDOO_EXPECTED_ROOT: root };
     if (tool === 'playwright') {
       command = process.execPath;
       args = [path.join(root, 'tests/e2e/node_modules/@playwright/test/cli.js'), 'test', '-c', 'upgrade.config.ts', ...suites[input.suite]];
@@ -258,7 +266,7 @@ const server = http.createServer(async (req, res) => {
       env = { ...env, E2E_RUN_ID: id, E2E_STATE_DIR: state, E2E_LOCAL_PORT: '18411' };
     } else if (tool === 'k6') {
       command = 'k6';
-      args = ['run', '--summary-export', path.join(dir, 'k6-summary.json'), '-e', `BASE_URL=${baseUrl}`, path.join(root, 'tests/performance/labdoo-load.js')];
+      args = ['run', '--summary-export', path.join(dir, 'k6-summary.json'), '-e', `BASE_URL=${baseUrl}`, '-e', `LABDOO_EXPECTED_ROOT=${root}`, path.join(root, 'tests/performance/labdoo-load.js')];
     } else {
       command = 'python3';
       args = [path.join(root, 'tests/performance/lighthouse.py'), '--base-url', baseUrl, '--output', path.join(dir, 'lighthouse'), '--lighthouse', 'lighthouse'];

@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.media.embedded_content
+    - core.entity_view_mode.media.media_library
     - core.entity_view_mode.media.wiki_medium
   module:
     - blazy
@@ -98,6 +99,7 @@ filters:
       default_view_mode: embedded_content
       allowed_view_modes:
         embedded_content: embedded_content
+        media_library: media_library
         wiki_medium: wiki_medium
       allowed_media_types:
         image: image

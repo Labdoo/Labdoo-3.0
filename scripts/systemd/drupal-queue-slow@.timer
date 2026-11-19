@@ -1,0 +1,14 @@
+[Unit]
+Description=Run Drupal Queue %I every 15 minutes (Slow Batch)
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+AccuracySec=1s
+# Persistent=true to ensure Google Maps processing resumes after reboot
+Persistent=true
+RandomizedDelaySec=5
+Unit=drupal-queue-slow@%i.service
+
+[Install]
+WantedBy=timers.target

@@ -1,10 +1,16 @@
 # V3 code deployment
 
-Run on the AWS server in `/mnt/data/labdoo`, as the deployment user:
+Run on the AWS server in `/mnt/data/labdoo`, as the deployment user, with the
+checkout on `development`:
 
 ```sh
-bash scripts/deploy-v3-code.sh deploy/v3-prelaunch-20261109
+git switch development
+bash scripts/deploy-v3-code.sh
 ```
+
+For the initial connection, create the local tracking branch with
+`git switch --track origin/development` if it does not exist yet. The wrapper
+refuses to run when the checkout is on a different branch.
 
 The wrapper sets `umask 0022` **before Git replaces files**, refuses unexpected
 tracked edits, preserves private `web/sites/default/settings.php`, checks the
@@ -13,11 +19,10 @@ PHP-FPM. It then checks the Next home page, dashboard, original theme and fresh
 quote endpoint through the **actual PHP-FPM socket**, also as `www-data`.
 It does not install dependencies, import configuration or run database updates.
 
-For the first deployment of this wrapper, set `umask 0022` before fetching and
-fast-forwarding the release branch, then run the command above. Keep private
-backups and their restrictive permissions separate from this shell's code
-checkout operations. Never make settings.php or uploads public to fix a code
-readability failure.
+The wrapper sets `umask 0022` before fetching and fast-forwarding
+`origin/development`. Keep private backups and their restrictive permissions
+separate from this shell's code checkout operations. Never make settings.php
+or uploads public to fix a code-readability failure.
 
 ## Permission incident on 12 November 2026
 

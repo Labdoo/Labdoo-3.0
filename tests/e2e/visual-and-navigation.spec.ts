@@ -7,6 +7,24 @@ test('wiki paragraphs are dark gray and headings black @responsive', covers('wik
   await expect(body.locator('h2').first()).toHaveCSS('color', 'rgb(0, 0, 0)');
 });
 
+test('wiki text and alert links are underlined @responsive', covers('wiki-link-distinction'), async ({ page }, info) => {
+  await goto(page, `${fixtures(info).wiki.Book.path}?theme=labdoo_next`, info);
+  const alertLink = page.locator('article > .alert a:not(.close)').first();
+  await expect(alertLink).toHaveCSS('text-decoration-line', 'underline');
+
+  const paragraphLink = await page.locator('article .field--name-body').evaluate(body => {
+    const paragraph = document.createElement('p');
+    const link = document.createElement('a');
+    link.href = '#wiki-link-style-check';
+    link.textContent = 'Wiki link style check';
+    paragraph.append(link);
+    body.append(paragraph);
+    return link.textContent;
+  });
+  await expect(page.locator('article .field--name-body p').last().getByRole('link', { name: paragraphLink! }))
+    .toHaveCSS('text-decoration-line', 'underline');
+});
+
 test('wiki line length is bounded and stays inside the viewport @responsive', covers('wiki-reading-width'), async ({ page }, info) => {
   await goto(page, fixtures(info).wiki.Book.path, info);
   const body = page.locator('.field--name-body').first();
@@ -84,7 +102,7 @@ test('gallery thumbnails paginate as 25, 25 and 3 pictures @responsive', covers(
   const grid = page.locator('.labdoo-gallery-grid');
   await expect(grid.locator('img')).toHaveCount(25);
   await expect(grid.getByAltText('E2E Photo 01', { exact: true })).toBeVisible();
-  expect(await grid.locator('a').first().getAttribute('href')).toContain('/sites/default/files/');
+  expect(await grid.locator('a').first().getAttribute('href')).toMatch(/\/sites\/[^/]+\/files\//);
   await page.locator('.field--name-field-images .pager__item--next a').first().click();
   await expect(grid.locator('img')).toHaveCount(25);
   await expect(grid.getByAltText('E2E Photo 26', { exact: true })).toBeVisible();

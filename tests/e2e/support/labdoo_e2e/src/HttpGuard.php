@@ -19,6 +19,7 @@ final class HttpGuard {
       if ($host === 'www.youtube.com' && $request->getUri()->getPath() === '/oembed' && str_contains(urldecode($request->getUri()->getQuery()), 'h4UAOvLoAbc')) {
         $data = ['version' => '1.0', 'type' => 'video', 'provider_name' => 'YouTube', 'title' => 'E2E video fixture', 'width' => 300, 'height' => 150, 'html' => '<iframe src="https://www.youtube-nocookie.com/embed/h4UAOvLoAbc" width="300" height="150"></iframe>'];
         return new \GuzzleHttp\Promise\FulfilledPromise(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], json_encode($data)));
+      }
       // Controlled oEmbed fixture for the remote-video creation workflow.
       if ($request->getMethod() === 'GET' && $request->getUri()->getHost() === 'www.youtube.com' && $request->getUri()->getPath() === '/oembed') {
         parse_str($request->getUri()->getQuery(), $query);

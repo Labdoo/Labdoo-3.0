@@ -1,5 +1,9 @@
 # Labdoo E2E
 
+> Current default: run the suites and application from this checkout using [the current regression lab](../upgrade/README.md) and `upgrade.config.ts`. The database and public files are isolated through the E2E site; a separate upgrade worktree is no longer the default. Follow [tests/AGENTS.md](../AGENTS.md) for required coverage and report review.
+>
+> The baseline/integration ports, worktree setup and `playwright.config.ts` instructions below describe the historical comparison harness. Use them only for an explicitly intended historical comparison.
+
 For the isolated Drupal 10 → 11 regression suite and local web runner, see [the upgrade laboratory](../upgrade/README.md).
 
 Browser coverage for the 38 MEJORAS cards (translations excluded), plus baseline regression and responsive checks. Each feature test carries a Todoist task annotation; `support/coverage.py RUN_ID` checks that every card has successful browser coverage.
@@ -41,6 +45,8 @@ Tests require the base snapshots and account fixture JSON to remain available; t
 ## Real V2 address verification
 
 The optional `legacy-v2` project reads a dedicated V2 database populated from a private SQL dump. It is excluded from the regular integration project; select `legacy-v2` when running against the private V2 clone. Prepare its database using `support/local-lab/prepare-v2-import.py` and import the dump with `support/local-lab/import-v2.py`; `LABDOO_E2E_V2_DUMP` can override the default local dump path. Both scripts require the private connection exported to `.e2e-lab/state/external-connection.json` and use the local V2 Docker instance on port 3317. The importer can write only its dedicated database; the migration reader has only SELECT permissions and enforces read-only sessions.
+
+The `address-backfill.spec.ts` and `dootrip-location-text.spec.ts` checks also require the prepared, local, read-only V2 fixture under `tests/upgrade/.local/state`. They report an explicit skip when that fixture is absent; never point them at a remote V2 database.
 
 ```sh
 E2E_RUN_ID=real-v2 npm test -- --project=legacy-v2

@@ -5,16 +5,21 @@ set -euo pipefail
 umask 0022
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$project_root"
-release_branch="${1:-deploy/v3-prelaunch-20261109}"
-git check-ref-format --branch "$release_branch" >/dev/null
+deployment_branch="${1:-development}"
+git check-ref-format --branch "$deployment_branch" >/dev/null
+current_branch="$(git branch --show-current)"
+if [[ "$current_branch" != "$deployment_branch" ]]; then
+  printf 'Checkout is on %s; switch to %s before deploying.\n' "$current_branch" "$deployment_branch" >&2
+  exit 1
+fi
 # Preserve the server's private settings and refuse other tracked local edits.
 git diff --quiet -- . ':!web/sites/default/settings.php'
 git diff --cached --quiet -- . ':!web/sites/default/settings.php'
 settings_before="$(sha256sum web/sites/default/settings.php)"
 printf 'Previous revision: '
 git rev-parse HEAD
-git fetch origin "$release_branch"
-git merge --ff-only "origin/$release_branch"
+git fetch origin "$deployment_branch"
+git merge --ff-only "origin/$deployment_branch"
 # Check effective access as PHP's user, including traversal and ACLs. Do not
 # change settings.php, upload permissions or ownership to make this check pass.
 git ls-files -z -- web/modules/custom web/themes/custom |

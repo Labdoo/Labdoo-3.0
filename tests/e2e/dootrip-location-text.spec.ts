@@ -1,7 +1,13 @@
 import { test, expect, goto, stateDir } from './helpers';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import fs from 'node:fs';
 import path from 'node:path';
+
+test.skip(
+  !fs.existsSync(path.join(stateDir, 'v2-readonly-connection.json')),
+  'Requires the prepared, local, read-only V2 fixture described in tests/e2e/README.md.',
+);
 
 test('existing dootrips show origin and destination in the correct order @responsive', async ({ page }, info) => {
   await page.context().addCookies([{ name: 'cookie-agreed', value: '0', url: 'http://127.0.0.1:18381' }]);

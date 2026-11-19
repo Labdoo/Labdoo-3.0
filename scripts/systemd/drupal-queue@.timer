@@ -1,0 +1,16 @@
+[Unit]
+Description=Run Drupal Queue %I every minute
+ConditionPathExists=/var/www/html/labdoo/web
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+# AccuracySec=1s ensures precision without overlap (Type=oneshot)
+AccuracySec=1s
+# Persistent=false to avoid massive bursts after long downtime on 1min timers
+Persistent=false
+RandomizedDelaySec=2
+Unit=drupal-queue@%i.service
+
+[Install]
+WantedBy=timers.target

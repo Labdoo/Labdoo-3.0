@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Run real Lighthouse navigation audits against the isolated loopback site."""
+import hashlib
 import argparse
 import json
 import os
@@ -29,8 +30,10 @@ if args.path:
         raise SystemExit('The audit path must be relative to the isolated application origin')
     ROUTES = {'requested': args.path}
     args.routes = ['requested']
-if urlsplit(args.base_url).hostname not in {'127.0.0.1', 'localhost'}:
-    raise SystemExit('Use the isolated loopback site; authenticated production audits need a separate explicit setup')
+target = urlsplit(args.base_url)
+is_loopback = target.hostname in {'127.0.0.1', 'localhost', '::1'}
+if target.scheme != 'http' or not is_loopback:
+    raise SystemExit('Lighthouse audits are restricted to a local HTTP loopback site')
 args.output.mkdir(parents=True, exist_ok=True)
 env = dict(os.environ, CHROME_PATH='/usr/bin/google-chrome', XDG_CONFIG_HOME='/tmp/lighthouse-labdoo-config', XDG_CACHE_HOME='/tmp/lighthouse-labdoo-cache')
 # Compile local aggregates before measuring, as on the production release. Do not
@@ -49,15 +52,20 @@ class Assets(HTMLParser):
 
 for route in args.routes:
     page_url = args.base_url + ROUTES[route]
-    with urllib.request.urlopen(page_url, timeout=60) as response:
+    request = urllib.request.Request(page_url)
+    with urllib.request.urlopen(request, timeout=60) as response:
         if response.status != 200 or response.headers.get('X-Labdoo-E2E') != 'integration':
-            raise RuntimeError('Audit target must be the isolated integration application, HTTP 200')
+            raise RuntimeError('Audit target returned an unexpected response')
+        expected_root = hashlib.sha256(str(Path(__file__).resolve().parents[2]).encode()).hexdigest()
+        if response.headers.get('X-Labdoo-E2E-Root') != expected_root:
+            raise RuntimeError('Lighthouse target is not running this checkout')
         assets = Assets()
         assets.feed(response.read().decode())
     for asset in assets.urls:
         url = urljoin(page_url, asset)
         if urlsplit(url).netloc == urlsplit(args.base_url).netloc:
-            with urllib.request.urlopen(url, timeout=60) as response:
+            request = urllib.request.Request(url)
+            with urllib.request.urlopen(request, timeout=60) as response:
                 response.read()
 
 summary = []
