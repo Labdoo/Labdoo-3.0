@@ -1,0 +1,27 @@
+{# Global search keeps the ordinary results page available without JavaScript. #}
+{{ attach_library('labdoo/global_search') }}
+{% set dialog_id = (attributes.id|default('labdoo-global-search')) ~ '-dialog' %}
+<div{{ attributes.removeClass('views-exposed-form').addClass('block', 'block-views', 'block-views-exposed-filter-blocksearch-results-page-1', 'search-overlay-block', 'ldn-search-block') }}>
+  {{ title_prefix }}
+  {{ title_suffix }}
+  <div class="search-icon-wrapper">
+    <a href="{{ path('view.search_results.page_1') }}" class="search-icon-trigger" aria-label="{{ 'Open search'|t }}" aria-haspopup="dialog" aria-controls="{{ dialog_id }}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </a>
+  </div>
+  <dialog id="{{ dialog_id }}" class="search-overlay ldn-search-dialog" aria-labelledby="{{ dialog_id }}-title">
+    <div class="search-overlay-content">
+      <header class="ldn-search-heading">
+        <h2 id="{{ dialog_id }}-title">{% if label %}{{ label }}{% else %}{{ 'Search'|t }}{% endif %}</h2>
+        <button type="button" class="search-overlay-close" aria-label="{{ 'Close search'|t }}"><span aria-hidden="true">&times;</span></button>
+      </header>
+      {{ content }}
+    </div>
+  </dialog>
+  <noscript>
+    <form class="ldn-search-fallback" action="{{ path('view.search_results.page_1') }}" method="get">
+      <label>{{ 'Search'|t }}<input type="search" name="search_api_fulltext" maxlength="128"/></label>
+      <button type="submit" class="button">{{ 'Search'|t }}</button>
+    </form>
+  </noscript>
+</div>

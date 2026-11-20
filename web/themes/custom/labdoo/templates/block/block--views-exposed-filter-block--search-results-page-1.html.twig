@@ -4,6 +4,7 @@
  * Custom block template for the search results exposed filter.
  */
 #}
+{{ attach_library('labdoo/global_search') }}
 <div{{ attributes.addClass('views-exposed-form', 'block', 'block-views', 'block-views-exposed-filter-blocksearch-results-page-1', 'search-overlay-block') }}>
   {{ title_prefix }}
   {% if label %}
@@ -13,7 +14,7 @@
 
   {# Search icon that will be placed near the language switcher #}
   <div class="search-icon-wrapper">
-    <a href="#" class="search-icon-trigger" aria-label="Open search">
+    <a href="{{ path('view.search_results.page_1') }}" class="search-icon-trigger" aria-label="{{ 'Open search'|t }}">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     </a>
   </div>
@@ -21,7 +22,7 @@
   {# The actual form in an overlay #}
   <div class="search-overlay">
     <div class="search-overlay-content">
-      <a href="#" class="search-overlay-close" aria-label="Close search">&times;</a>
+      <a href="#" class="search-overlay-close" aria-label="{{ 'Close search'|t }}">&times;</a>
       {% block content %}
         {{ content }}
       {% endblock %}

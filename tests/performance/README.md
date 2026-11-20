@@ -78,3 +78,29 @@ reproducir ese histórico, usando `--base-url http://127.0.0.1:18385`.
 Routine runs use this checkout at `http://127.0.0.1:18411` with the isolated E2E site. The older port 18381 and results above describe historical measurements, not the default target. k6 and Lighthouse reject a local server belonging to another checkout. Direct k6 calls must pass `-e LABDOO_EXPECTED_ROOT="/absolute/path/to/checkout"`; the Makefile and dashboard supply it.
 
 Follow [tests/AGENTS.md](../AGENTS.md) for mandatory testing. Inspect k6 thresholds and failed checks; inspect Lighthouse `summary.json`, failed audits and same-condition before/after metrics. A successful Lighthouse process is not an automatic regression pass. Keep all repeated runs and report medians rather than the best score.
+
+## Open global-search dialog
+
+`node tests/performance/global-search-audit.mjs PRIVATE_OUTPUT` audits the open
+global-search dialog on this checkout's isolated site at port 18411. It records
+three fresh-browser desktop/mobile accessibility snapshots for the empty dialog
+and real autocomplete suggestions, plus private screenshots and JSON/HTML reports.
+It verifies the checkout identity and blocks external browser requests. Keep its
+output under the ignored `.local` directory: search suggestions may contain
+private fixture content. These snapshots complement navigation audits and the
+interaction tests in `tests/e2e/global-search.spec.ts`; they do not measure page
+loading performance or replace manual keyboard/visual checks.
+
+The following exercises the actual autocomplete endpoint discovered from the
+guarded homepage:
+
+```sh
+k6 run --summary-export tests/performance/.local/k6-global-search.json \
+  -e LABDOO_EXPECTED_ROOT=/absolute/path/to/checkout \
+  tests/performance/global-search-load.js
+```
+
+It uses five users for 30 seconds and retains the standard latency, HTTP error
+and functional/isolation budgets. It checks positive indexed suggestions for
+Dootrip and Dootronics. This checks backend stability; browser tests cover the
+client's debounce, cancellation, failure recovery and suggestion selection.

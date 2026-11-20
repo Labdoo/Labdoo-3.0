@@ -18,6 +18,17 @@ labdoo_ui:
     - core/drupal
     - core/once
 
+global_search:
+  js:
+    js/global-search.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+    - core/drupal.autocomplete
+    - search_api_autocomplete/search_api_autocomplete
+
 labdoo_map:
   js:
     https://unpkg.com/leaflet@1.0.3/dist/leaflet.js: { type: external, minified: true }
