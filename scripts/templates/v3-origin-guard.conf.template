@@ -1,0 +1,6 @@
+# Include inside each public v3 VirtualHost, before existing rewrite rules.
+# The rendered token belongs only in a root-readable file outside the checkout.
+RewriteEngine On
+RewriteCond %{CONN_REMOTE_ADDR} !^(127\.0\.0\.1|::1)$
+RewriteCond %{HTTP:X-Origin-Verify} !^__LABDOO_ORIGIN_TOKEN__$
+RewriteRule ^ - [F,END]

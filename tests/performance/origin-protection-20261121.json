@@ -1,0 +1,276 @@
+{
+  "date_local": "2026-11-21",
+  "timezone": "Europe/Madrid",
+  "application_base_revision": "8ff3c6bee3a5fc6c39eddf6a3dfda7e7c2dabb0b",
+  "web_task": "6j3w9hXvfXhJ3VP3",
+  "deferred_ssh_task": "6j3vfF8Mr4qV6WGV",
+  "scope": "Only v3 origin web access; no SSH changes.",
+  "apache_version_local_and_target": "2.4.58",
+  "local_tests": {
+    "guard_and_installer_plan": 10,
+    "passed": 10,
+    "pre_guard_reference_failed_assertions_or_subtests": 11,
+    "fpm_verifier_unit_passed": 10
+  },
+  "network": {
+    "removed_world_ipv4_ports": [
+      80,
+      443
+    ],
+    "removed_rule_count": 2,
+    "all_other_rules_identical": true,
+    "ssh_identical": true,
+    "cloudfront_managed_https_rule_preserved": true,
+    "group_not_shared_outside_v3": true
+  },
+  "apache": {
+    "guarded_public_vhosts": 3,
+    "rendered_guard_mode": "0600",
+    "existing_token_reused": true,
+    "cloudfront_configuration_unchanged": true,
+    "root_private_rollback_prepared": true
+  },
+  "certbot_and_health": {
+    "/server-status": 200,
+    "/php-fpm-status": 200,
+    "certbot_dry_run_exit": 0,
+    "staging_renewal_success": true,
+    "production_certificate_unchanged": true
+  },
+  "external_probes": {
+    "baseline": [
+      {
+        "case": "edge_https_acme",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_http_acme",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": false
+      },
+      {
+        "case": "edge_viewer_wrong_token",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_en_basic_auth",
+        "curl_exit": 0,
+        "status": 401,
+        "canary_matches": false,
+        "basic_challenge": true,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_es_basic_auth",
+        "curl_exit": 0,
+        "status": 401,
+        "canary_matches": false,
+        "basic_challenge": true,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_https_missing",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_https_wrong",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_https_spoofed_via",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_http_missing",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": false
+      }
+    ],
+    "apache-guard": [
+      {
+        "case": "edge_https_acme",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_http_acme",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": false
+      },
+      {
+        "case": "edge_viewer_wrong_token",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_en_basic_auth",
+        "curl_exit": 0,
+        "status": 401,
+        "canary_matches": false,
+        "basic_challenge": true,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_es_basic_auth",
+        "curl_exit": 0,
+        "status": 401,
+        "canary_matches": false,
+        "basic_challenge": true,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_https_missing",
+        "curl_exit": 0,
+        "status": 403,
+        "canary_matches": false,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_https_wrong",
+        "curl_exit": 0,
+        "status": 403,
+        "canary_matches": false,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_https_spoofed_via",
+        "curl_exit": 0,
+        "status": 403,
+        "canary_matches": false,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_http_missing",
+        "curl_exit": 0,
+        "status": 403,
+        "canary_matches": false,
+        "basic_challenge": false,
+        "tls_verified": false
+      }
+    ],
+    "network-hardened": [
+      {
+        "case": "edge_https_acme",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_http_acme",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": false
+      },
+      {
+        "case": "edge_viewer_wrong_token",
+        "curl_exit": 0,
+        "status": 200,
+        "canary_matches": true,
+        "basic_challenge": false,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_en_basic_auth",
+        "curl_exit": 0,
+        "status": 401,
+        "canary_matches": false,
+        "basic_challenge": true,
+        "tls_verified": true
+      },
+      {
+        "case": "edge_es_basic_auth",
+        "curl_exit": 0,
+        "status": 401,
+        "canary_matches": false,
+        "basic_challenge": true,
+        "tls_verified": true
+      },
+      {
+        "case": "direct_https_missing",
+        "curl_exit": 28,
+        "status": 0,
+        "canary_matches": false,
+        "basic_challenge": false,
+        "tls_verified": false
+      },
+      {
+        "case": "direct_https_wrong",
+        "curl_exit": 28,
+        "status": 0,
+        "canary_matches": false,
+        "basic_challenge": false,
+        "tls_verified": false
+      },
+      {
+        "case": "direct_https_spoofed_via",
+        "curl_exit": 28,
+        "status": 0,
+        "canary_matches": false,
+        "basic_challenge": false,
+        "tls_verified": false
+      },
+      {
+        "case": "direct_http_missing",
+        "curl_exit": 28,
+        "status": 0,
+        "canary_matches": false,
+        "basic_challenge": false,
+        "tls_verified": false
+      }
+    ]
+  },
+  "source_sha256": {
+    "scripts/install-v3-origin-guard.py": "8167259ec52a34b441949c8e8fa324751777825449e3f7601a3459e280245c9c",
+    "scripts/templates/v3-origin-guard.conf.template": "39dfb9e351b62b393a6a5deafe70ac79f272ad1f66b5063d3ad0ff44dbf9a598",
+    "tests/operations/origin_guard_test.py": "aafe667d94bc8a809bb3ad553554f7885eb3b87249e00bd9d88b83ff4f0bebf2"
+  },
+  "limits": [
+    "Public authenticated browser flows were not exercised because no Basic Auth credentials were used; EN/ES gate status was compared before/after.",
+    "No new application E2E/load/audit-suite pass is claimed; dedicated Apache tests exercise the changed control.",
+    "Local maintenance connection exception uses actual CONN_REMOTE_ADDR; no viewer header grants this exception.",
+    "The old HTTP virtual-host secret storage is preserved; this is not a complete host-secret migration.",
+    "Final source deployment/FPM receipts and canary cleanup are recorded on Todoist."
+  ]
+}
