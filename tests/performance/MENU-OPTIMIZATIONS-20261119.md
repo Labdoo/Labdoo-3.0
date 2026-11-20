@@ -107,8 +107,13 @@ so this is not a guaranteed field-speed improvement. Its mobile CLS falls from
 0.057 to zero. Desktop LCP medians vary by +14 ms on Activities and +5 ms on Wiki,
 with other routes stable or faster. The final chart lifecycle correction was checked with 33 desktop/mobile cases,
 then the four affected dashboard routes were remeasured in 24 Lighthouse runs.
-Some mobile blocking-time and speed-index audits vary between repeated runs;
-all individual values and newly flagged audits remain in the JSON. Hubs/Stories
+The final mobile TBT medians are higher on chart dashboards: Dootronics
+49 → 96.5 ms (ranges 42.5–55.3 → 83.5–110.1), Dootrips 42.5 → 77 ms,
+Hubs 50 → 73 ms and Schools/redirected home 45 → 95 ms. Thus the mobile LCP
+improvement is accompanied by more observed blocking time on those routes;
+this is not a claim that every performance metric improved. The timing samples
+do not isolate a cause. All individual values, speed-index variations and newly
+flagged audits remain in the JSON. Hubs/Stories
 also show occasional short unattributed forced-reflow work. Accessibility is
 unchanged. The school alias redirects to `/es`, so its result describes that
 actual destination rather than a separately rendered school dashboard.
@@ -238,3 +243,20 @@ The actual isolated FPM deployment verifier passes all 12 checks without PHP
 stderr. PHPCS, PHPStan and PHPUnit are unavailable in this checkout; they are
 not reported as passing. PHP/JavaScript syntax checks, standalone assertions,
 operational unit tests and browser/FPM coverage provide the available checks.
+
+## Publication and actual v3 verification
+
+Published and deployed revision: `4e2c0594602b69c5e8974cb0e254a359ef0bed43`.
+Origin development and v3 HEAD match. SSM command
+`2ff03dd3-c8c0-461f-ac61-ac218128c7b7` completed successfully: 12 FPM checks as
+`www-data` returned HTTP 200 without PHP stderr, 7,406 tracked custom web files
+were readable, and all 59 source-manifest hashes matched. Private settings and
+backups remain the only pre-existing server changes. Public browser verification
+remains restricted by Basic Auth; the FPM checks are not a substitute for that.
+
+The initial checkout encountered owner-read-only public directories. Only the
+specific public parent directories needed by this commit received owner write;
+no recursive permission changes or private-data permission changes were made.
+The interrupted checkout's files were restored only after checking their exact
+content against the incoming commit. The maintained deployment wrapper then
+completed normally, preserving the settings checksum.
