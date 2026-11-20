@@ -1,3 +1,9 @@
+> Current implementation note (2026-11-20): DDEV remains a development option.
+> The maintained Playwright/k6/Lighthouse laboratory currently runs against a
+> guarded host-based clone, rather than a DDEV container. Follow the
+> [developer guide](../developer-guide.md) and [test lab guide](../local-test-lab.md)
+> for the active commands. The testing consequence below records the original decision.
+
 # Use DDEV for local environments
 
 The software development industry is continuing to move to containers both for production and local environments. It's clear that the bulk of new investment in local tooling is going towards container-focused solutions. While containers themselves add some complexity to local environments, they also reduce variance in development environments for teams with multiple developers.

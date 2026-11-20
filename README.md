@@ -1,75 +1,40 @@
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Labdoo/Labdoo-3.0)
-
 # Labdoo 3.0
-This branch targets Drupal 11 and includes custom modules and themes. Check `composer.json` and `composer.lock` on the active branch for pinned runtime dependencies. The current-checkout regression laboratory is documented in [tests/upgrade/README.md](tests/upgrade/README.md).
 
-## Agent and contributor guidance
+Labdoo coordinates donated devices, volunteer transport, hubs and educational
+projects. This branch targets Drupal 11; `composer.lock` pins the dependencies.
 
-Start with [AGENTS.md](AGENTS.md). Shared task skills live in [.agents/skills](.agents/skills), with environment boundaries and validation requirements in [docs/agent-workflow.md](docs/agent-workflow.md).
+## New developers and coding agents
 
-[TECHNICAL.md](TECHNICAL.md) maps the domain and modules; [the review process](docs/dev-process/CodeReviewProcess.md) describes focused review expectations. Historical setup notes below should be checked against the active branch before running commands.
+Start with the **[developer guide](docs/developer-guide.md)**. It covers:
 
-## Custom code checking
+- Preparing a dedicated local site with DDEV or LAMP.
+- Importing an approved sanitized dataset and checking the selected environment.
+- Finding custom modules, themes and configuration.
+- Running the isolated Playwright, k6 and Lighthouse laboratory.
+- Setting up a coding agent, repository guidance, permissions and shared skills.
+- Reviewing changes and distinguishing local work, publication and deployment.
 
-Use Drupal coding standards for custom modules and themes. See the [validation matrix and tool prerequisites](docs/agent-workflow.md#validation) for PHPCS, PHPStan, syntax and behavior checks. Missing development tools must be reported rather than treated as passing checks.
+The guide replaces the historical Gitpod/DDEV setup instructions and the missing
+`.scripts/dev-start.sh` reference. Installation uses locked Composer dependencies
+and `config/sync`; a standard Drupal install alone does not recreate Labdoo data.
 
-For isolated local regression and performance tooling, see [the local test lab guide](docs/local-test-lab.md). Where the branch provides `tests/e2e/README.md`, read its harness-specific isolation instructions as well.
+## Project references
 
-## Installing and developing locally using DDEV
-### Prerequisites:
-1. [DDEV](https://ddev.readthedocs.io/en/stable/), which itself requires
-2. [Docker](https://docs.docker.com/)
+| Reference | Purpose |
+| --- | --- |
+| [AGENTS.md](AGENTS.md) | Contributor and agent entry point, task skills and environment boundaries. |
+| [TECHNICAL.md](TECHNICAL.md) | Domain and custom-module overview. |
+| [Workflow and validation](docs/agent-workflow.md) | Required checks and operational scope. |
+| [Regression laboratory](tests/upgrade/README.md) | Prepare this checkout's isolated test site and fixtures. |
+| [Local test commands](docs/local-test-lab.md) | Playwright, k6, Lighthouse and the local dashboard. |
+| [Code review](docs/dev-process/CodeReviewProcess.md) | Review scope, conventions and evidence. |
+| [V3 deployment](docs/dev-process/V3CodeDeployment.md) | Separate, authorized server deployment procedure. |
+| [Onboarding validation](docs/dev-process/DeveloperOnboardingValidation.md) | Versions, executed setup checks and remaining limits. |
 
-Once those are installed and this repository is cloned, from the project root you cloned the repository into, start the DDEV environment using the command
-`ddev start`.
+Shared skills live in [.agents/skills](.agents/skills). Historical notes in
+[labdoo-development-notes.md](docs/labdoo-development-notes.md) and the ADRs explain
+past decisions; verify commands against the active implementation before use.
 
-Note that unlike the Gitpod start below, DDEV locally doesn't automatically install a Drupal site.  To setup for local development you can use the  `.scripts/dev-start.sh` script which will
-1.  Install Drupal using the standard profile
-2.  Run any Drupal database updates
-3.  Import the configuration in config/default (twice in case the first import enables additional configuration, e.g. for config_ignore & config_split)
-
-Remembering to prefix most commands like composer, drush, etc with ddev.
-## Developing entirely in the cloud using Gitpod.
-### Video Demo
-
-Watch a 5 minutes walkthrough video:
-
-<a href="http://www.youtube.com/watch?v=ifk5dF6rGy0"><img src="https://user-images.githubusercontent.com/22901/107867673-c6fc7080-6e4a-11eb-81c9-542cd779026b.png" width=300 alt="Setup a full Drupal dev environment in a browser"></a>
-
-### Prerequisites:
-1. [Sign up for gitpod.io](https://gitpod.io/login)
-
-### Try it out:
-1. Click on the following link
-  https://gitpod.io/#https://github.com/Labdoo/Labdoo-3.0
-1. Your environment is being prepared, wait a few minutes the first time, less than a minute after that. (A splash screen will appear)
-1. VScode IDE will be displayed, a few seconds later you will see an empty Drupal site.  User 1 login is admin/admin.
-1. Run in terminal `ddev xdebug on`
-1. Open VScode's debugger, place a new breakpoint in `web/index.php`
-1. Open your website's URL in a browser.
-1. :tada:
-
-### Do you like PhpStorm instead of Theia or VScode?
-1. Open a bash window at the bottom
-2. `.ddev/run-phpstorm.sh`
-
-### How does it work?
-1. Gitpod - development environment based on Docker
-    1. [.gitpod.yml](https://github.com/shaal/ddev-gitpod/blob/main/.gitpod.yml)
-        1. Defines the main docker image this environment is built on - `.gitpod.Dockerfile`
-        1. Run prebuild commands:
-            1. Start ddev
-            1. Run `composer install`
-            1. Install empty website using standard profile
-    1. [.gitpod.Dockerfile](https://github.com/shaal/ddev-gitpod/blob/main/.gitpod.Dockerfile)
-        1. Set base image to Gitpod's `workspace-full` ([link](https://github.com/gitpod-io/workspace-images/tree/master/full))
-        1. Install ddev using brew
-1. ddev - ridiculously simple setup for complex development environments, allows developers working locally or working with Gitpod in the cloud.
-    1. [.ddev/config.yaml](https://github.com/shaal/ddev-gitpod/blob/main/.ddev/config.yaml) - main ddev (default) configuration, can be generated by running `ddev config`
-
-### Thank you
-[@rfay](https://github.com/rfay) for your endless patience and relentless support that made this project possible.
-[@shaal](https://github.com/shaal) for the repository this one started out copying, [https://github.com/shaal/ddev-gitpod](https://github.com/shaal/ddev-gitpod)
-#### Persistent Storage:
-* Gitpod backs up the state of the `/workspace/` folder between workspace starts, so that you can revisit them later. Attention: Files in other locations will not be saved!
-* [Additional Storage Solutions](https://www.gitpod.io/docs/self-hosted/latest/install/storage)
+The historical Gitpod starter was based on
+[shaal/ddev-gitpod](https://github.com/shaal/ddev-gitpod), with contributions from
+[shaal](https://github.com/shaal) and [rfay](https://github.com/rfay).

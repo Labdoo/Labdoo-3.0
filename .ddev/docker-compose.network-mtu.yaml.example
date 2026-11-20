@@ -1,0 +1,11 @@
+# Optional override for a Gitpod environment that requires MTU 1440.
+# Copy to docker-compose.network-mtu.yaml only in that environment.
+# Ordinary local projects use their Docker daemon's network defaults.
+# Historical references:
+# https://github.com/gitpod-io/gitpod/pull/9356
+# https://github.com/gitpod-io/template-docker-compose/pull/4
+
+networks:
+  default:
+    driver_opts:
+      com.docker.network.driver.mtu: 1440

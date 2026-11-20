@@ -1,3 +1,7 @@
+> Historical implementation notes. For current onboarding, locked dependencies,
+> environments and tests, use the [developer guide](developer-guide.md).
+> Commands below describe earlier project versions and are not a startup procedure.
+
 ## Creation of the core Labdoo Objects
 
 The core Labdoo objects are: user, dootronic, hub, dootrip, edoovillage. 

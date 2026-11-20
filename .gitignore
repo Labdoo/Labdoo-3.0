@@ -224,6 +224,9 @@ circleci/database/*
 
 # DDev
 /web/sites/default/drushrc.php
+/web/sites/default/settings.ddev.php
+/.ddev/config.local.yaml
+/.ddev/docker-compose.network-mtu.yaml
 install_ddev.sh
 
 # Gitpod
