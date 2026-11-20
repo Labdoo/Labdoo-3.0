@@ -1,0 +1,1431 @@
+{
+  "environment": "Isolated same checkout; Lighthouse12.8.2; three runs/profile/path; dashboard reference is final performance-release run",
+  "comparisons": [
+    {
+      "route": "wiki",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1206.4548,
+            "largest-contentful-paint": 1684.4548,
+            "total-blocking-time": 34.386300000000006,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1206.4548
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1203.9718,
+            "largest-contentful-paint": 1653.9717999999998,
+            "total-blocking-time": 5.007050000000049,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1203.9718
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1202.7203999999997,
+            "largest-contentful-paint": 1675.7203999999997,
+            "total-blocking-time": 20.319900000000075,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1202.7203999999997
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1219.8741,
+            "largest-contentful-paint": 1572.842625,
+            "total-blocking-time": 16.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1219.8741
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1221.9787,
+            "largest-contentful-paint": 1580.473375,
+            "total-blocking-time": 8.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1221.9787
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1202.2762,
+            "largest-contentful-paint": 1673.2761999999998,
+            "total-blocking-time": 8.430950000000053,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1202.2762
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "largest-contentful-paint": 1675.7203999999997,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 20.319900000000075
+      },
+      "before_accessibility": 100,
+      "after_median": {
+        "largest-contentful-paint": 1580.473375,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 8.5
+      },
+      "after_accessibility": 100,
+      "new_failed_audits": []
+    },
+    {
+      "route": "wiki",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 285.1015,
+            "largest-contentful-paint": 406.876875,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 316.9252377018949
+          },
+          "failed_audits": [
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 289.3514,
+            "largest-contentful-paint": 402.8514,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 322.9852538559211
+          },
+          "failed_audits": [
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 303.6484,
+            "largest-contentful-paint": 422.5605,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 314.5075666049132
+          },
+          "failed_audits": [
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 288.6894,
+            "largest-contentful-paint": 402.6894,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 311.4179288228821
+          },
+          "failed_audits": [
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 289.2116,
+            "largest-contentful-paint": 403.7116,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 307.812055993341
+          },
+          "failed_audits": [
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 289.3691,
+            "largest-contentful-paint": 413.711375,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 314.62899386569427
+          },
+          "failed_audits": [
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "largest-contentful-paint": 406.876875,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 0
+      },
+      "before_accessibility": 100,
+      "after_median": {
+        "largest-contentful-paint": 403.7116,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 0
+      },
+      "after_accessibility": 100,
+      "new_failed_audits": [
+        "forced-reflow-insight"
+      ]
+    },
+    {
+      "route": "device",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 96,
+            "accessibility": 96,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1504.7526,
+            "largest-contentful-paint": 2672.7526,
+            "total-blocking-time": 33.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1504.7526
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "largest-contentful-paint-element",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 97,
+            "accessibility": 96,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1507.33635,
+            "largest-contentful-paint": 2433.059075,
+            "total-blocking-time": 20,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1507.33635
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 96,
+            "accessibility": 96,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1505.63925,
+            "largest-contentful-paint": 2636.63925,
+            "total-blocking-time": 22,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1505.63925
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "largest-contentful-paint-element",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 96,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1505.6305499999999,
+            "largest-contentful-paint": 1880.63055,
+            "total-blocking-time": 14.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1505.6305499999999
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 96,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1502.7375,
+            "largest-contentful-paint": 1877.7375,
+            "total-blocking-time": 17,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1502.7375
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 96,
+            "accessibility": 96,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1503.0051,
+            "largest-contentful-paint": 2625.0051000000003,
+            "total-blocking-time": 14,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1503.0051
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "largest-contentful-paint-element",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "largest-contentful-paint": 2636.63925,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 22
+      },
+      "before_accessibility": 96,
+      "after_median": {
+        "largest-contentful-paint": 1880.63055,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 14.5
+      },
+      "after_accessibility": 96,
+      "new_failed_audits": []
+    },
+    {
+      "route": "device",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 97,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 365.00565000000006,
+            "largest-contentful-paint": 565.00565,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.016522457136564,
+            "speed-index": 387.19240173280207
+          },
+          "failed_audits": [
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 97,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 364.48965000000004,
+            "largest-contentful-paint": 592.237925,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.016522457136564,
+            "speed-index": 394.85538963983197
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 97,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 370.38734999999997,
+            "largest-contentful-paint": 567.618575,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.016522457136564,
+            "speed-index": 405.016128727063
+          },
+          "failed_audits": [
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 97,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 370.2999,
+            "largest-contentful-paint": 585.1665,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.016522457136564,
+            "speed-index": 395.01514031103375
+          },
+          "failed_audits": [
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 97,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 366.58140000000003,
+            "largest-contentful-paint": 555.5814,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.016522457136564,
+            "speed-index": 393.2265020033651
+          },
+          "failed_audits": [
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 97,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 366.42285000000004,
+            "largest-contentful-paint": 618.2047500000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.016522457136564,
+            "speed-index": 453.76766832077357
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "redirects",
+            "target-size",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "document-latency-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/en/node/723666) was redirected to http://127.0.0.1:18411/en/content/000063348. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "largest-contentful-paint": 567.618575,
+        "cumulative-layout-shift": 0.016522457136564,
+        "total-blocking-time": 0
+      },
+      "before_accessibility": 97,
+      "after_median": {
+        "largest-contentful-paint": 585.1665,
+        "cumulative-layout-shift": 0.016522457136564,
+        "total-blocking-time": 0
+      },
+      "after_accessibility": 97,
+      "new_failed_audits": []
+    },
+    {
+      "route": "dashboard",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1367.8276,
+            "largest-contentful-paint": 1517.8276,
+            "total-blocking-time": 96.49999999999977,
+            "cumulative-layout-shift": 0.000626532943427544,
+            "speed-index": 1367.8276
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1366.2124,
+            "largest-contentful-paint": 2029.7124,
+            "total-blocking-time": 83.49999999999977,
+            "cumulative-layout-shift": 0.000846485998035086,
+            "speed-index": 1366.2124
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1357.4908999999998,
+            "largest-contentful-paint": 2195.9909,
+            "total-blocking-time": 110.12727500000005,
+            "cumulative-layout-shift": 0.0008198250217190203,
+            "speed-index": 1357.4908999999998
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1367.2537000000002,
+            "largest-contentful-paint": 1976.2537000000002,
+            "total-blocking-time": 66.5,
+            "cumulative-layout-shift": 0.000626532943427544,
+            "speed-index": 1367.2537000000002
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1367.4975,
+            "largest-contentful-paint": 2009.4975,
+            "total-blocking-time": 50.00000000000023,
+            "cumulative-layout-shift": 0.0008198250217190203,
+            "speed-index": 1367.4975
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1365.0418,
+            "largest-contentful-paint": 2146.0418,
+            "total-blocking-time": 61.23955000000001,
+            "cumulative-layout-shift": 0.0008198250217190203,
+            "speed-index": 1365.0418
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "largest-contentful-paint": 2029.7124,
+        "cumulative-layout-shift": 0.0008198250217190203,
+        "total-blocking-time": 96.49999999999977
+      },
+      "before_accessibility": 100,
+      "after_median": {
+        "largest-contentful-paint": 2009.4975,
+        "cumulative-layout-shift": 0.0008198250217190203,
+        "total-blocking-time": 61.23955000000001
+      },
+      "after_accessibility": 100,
+      "new_failed_audits": []
+    },
+    {
+      "route": "dashboard",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 341.4806,
+            "largest-contentful-paint": 1017.5601999999999,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 509.8971925256502
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 330.86750000000006,
+            "largest-contentful-paint": 941.1752500000002,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 455.2201979577345
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 324.5837,
+            "largest-contentful-paint": 947.2526499999999,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 476.0098036104407
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 328.4479,
+            "largest-contentful-paint": 956.9720500000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 462.747360486443
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 326.73070000000007,
+            "largest-contentful-paint": 948.3981500000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 436.6017015025485
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 335.2388,
+            "largest-contentful-paint": 966.8341,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 453.73573782224867
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "largest-contentful-paint": 947.2526499999999,
+        "cumulative-layout-shift": 0.001195556116651938,
+        "total-blocking-time": 0
+      },
+      "before_accessibility": 100,
+      "after_median": {
+        "largest-contentful-paint": 956.9720500000001,
+        "cumulative-layout-shift": 0.001195556116651938,
+        "total-blocking-time": 0
+      },
+      "after_accessibility": 100,
+      "new_failed_audits": []
+    }
+  ]
+}

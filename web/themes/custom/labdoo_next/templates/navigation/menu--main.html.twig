@@ -1,13 +1,13 @@
-{% macro links(items, depth) %}
+{% macro links(items, depth, group) %}
   {% if items %}
     <ul class="ldn-menu{% if depth %} ldn-menu--nested{% endif %}">
       {% for item in items %}
         <li class="ldn-menu__item">
           {% if item.below %}
-            <details class="ldn-menu-group">
+            <details class="ldn-menu-group" name="{{ group }}">
               <summary>{{ item.title }}<span aria-hidden="true">⌄</span></summary>
               <div class="ldn-menu-group__panel">
-                {{ _self.links(item.below, depth + 1) }}
+                {{ _self.links(item.below, depth + 1, group ~ '-' ~ loop.index) }}
               </div>
             </details>
           {% else %}
@@ -18,4 +18,4 @@
     </ul>
   {% endif %}
 {% endmacro %}
-{{ _self.links(items, 0) }}
+{{ _self.links(items, 0, 'ldn-main-menu') }}

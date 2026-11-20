@@ -103,6 +103,14 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
    */
   public function build() {
     $team = $this->linkHelper->getActiveNode();
+    // Metadata-only output lets Drupal omit unavailable actions altogether.
+    // Keep the source node tag: its team relationship can change later.
+    $empty = [
+      '#cache' => [
+        'contexts' => $this->getCacheContexts(),
+        'tags' => $team instanceof \Drupal\Core\Cache\CacheableDependencyInterface ? $team->getCacheTags() : [],
+      ],
+    ];
     if (!$this->isValidTeam($team)) {
       if (
         !empty($team)
@@ -125,16 +133,12 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
           $teamId = $this->linkHelper->getActiveNode('teamId');
         }
         if (empty($teamId)) {
-          return [
-            '#markup' => '',
-          ];
+          return $empty;
         }
 
         $team = $this->commonRepository->loadEntity($teamId);
         if (!$this->isValidTeam($team)) {
-          return [
-            '#markup' => '',
-          ];
+          return $empty;
         }
       }
     }
@@ -144,9 +148,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
     }
 
     if (empty($team)) {
-      return [
-        '#markup' => '',
-      ];
+      return $empty;
     }
 
     $editLink = $this->linkHelper->generateEditLink($team);
