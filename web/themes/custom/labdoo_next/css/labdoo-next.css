@@ -405,6 +405,7 @@ body.labdoo-next {
 }
 .labdoo-next .ldn-layout--sidebar .ldn-main {
   grid-area: content;
+  margin-block-start: 0;
 }
 .labdoo-next .ldn-sidebar {
   grid-area: sidebar;
@@ -415,6 +416,12 @@ body.labdoo-next {
   flex-wrap: wrap;
   gap: 22px;
 }
+.labdoo-next .ldn-layout--sidebar .ldn-main > .region-content {
+  margin-block-start: 0 !important;
+}
+/* Hidden restore buttons must not leave an empty row above the panels. */
+.labdoo-next .restore-controls { margin-block: 0; }
+.labdoo-next .restore-controls .restore-visibility { margin-block-end: 10px; }
 .labdoo-next .ldn-main > .region-content > * {
   width: 100%;
   max-width: 100%;
@@ -479,6 +486,7 @@ body.labdoo-next {
   align-items: stretch;
   padding: 18px;
   border-radius: 12px;
+  margin-block: 0;
 }
 /* Filter and action content already provides its own panel. */
 .labdoo-next .ldn-sidebar .block:has(> .views-exposed-form, > .block-actions-block-block) {

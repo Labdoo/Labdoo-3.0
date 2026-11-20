@@ -1,5 +1,44 @@
 import { test, expect, goto, fixtures } from './helpers';
 
+for (const target of ['Laptop Main', 'School', 'Hub Alpha', 'dootronics-dashboard', 'edoovillages-dashboard', 'dootrips-dashboard', 'hubs-dashboard']) {
+  test(`desktop main and sidebar panels share a top edge (${target})`, async ({ page }, info) => {
+    const path = target.endsWith('-dashboard') ? `/en/content/${target}` : `/en/node/${fixtures(info).nodes[target].id}`;
+    await goto(page, path, info);
+    const layout = page.locator('.ldn-layout--sidebar');
+    await expect(layout).toBeVisible();
+    const geometry = await layout.evaluate(element => {
+      const main = element.querySelector('.ldn-main > .region-content')!;
+      const panels = [...element.querySelectorAll('.ldn-sidebar .block, .ldn-sidebar .views-exposed-form')]
+        .filter(panel => panel.getClientRects().length && parseFloat(getComputedStyle(panel).borderTopWidth) > 0);
+      return { layout: element.getBoundingClientRect().y, main: main.getBoundingClientRect().y,
+        side: Math.min(...panels.map(panel => panel.getBoundingClientRect().y)), panelCount: panels.length };
+    });
+    expect(geometry.panelCount).toBeGreaterThan(0);
+    expect(Math.abs(geometry.main - geometry.side)).toBeLessThanOrEqual(1);
+    expect(Math.abs(geometry.main - geometry.layout)).toBeLessThanOrEqual(1);
+    const tabs = layout.locator('.horizontal-tabs').first();
+    if (await tabs.isVisible()) expect(Math.abs((await tabs.boundingBox())!.y - geometry.side)).toBeLessThanOrEqual(1);
+    await layout.screenshot({ path: info.outputPath('aligned-panels.png') });
+  });
+}
+
+test('chart and map restoration controls reserve space only while visible @responsive', async ({ page }, info) => {
+  await goto(page, '/en/content/dootronics-dashboard', info);
+  const controls = page.locator('.ldn-main > .restore-controls');
+  const region = page.locator('.ldn-main > .region-content');
+  const offset = () => region.evaluate(element => element.getBoundingClientRect().y - element.parentElement!.getBoundingClientRect().y);
+  await expect.poll(offset).toBe(0);
+  for (const target of ['chart', 'map']) {
+    await page.locator(`.ldn-main .hide-${target}`).click();
+    const restore = controls.locator(`.restore-${target}`);
+    await expect(restore).toBeVisible();
+    expect((await controls.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await restore.click();
+    await expect(restore).not.toBeVisible();
+    await expect.poll(offset).toBe(0);
+  }
+});
+
 for (const role of ['anonymous', 'superadmin'] as const) {
   test.describe(`device action typography as ${role}`, () => {
     test.use({ role });
