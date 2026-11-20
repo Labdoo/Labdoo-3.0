@@ -55,7 +55,9 @@ test('the default theme keeps its design and logo across cached visits @responsi
     expect(response.headers()['cache-control']).toContain('public');
     await expect(page.locator('body')).toHaveClass(/labdoo-next/);
     const logo = page.locator('.ldn-brand img');
-    await expect(logo).toHaveAttribute('src', /labdoo-wordmark\.webp$/);
+    await expect(logo).toHaveAttribute('src', /labdoo-wordmark-240\.webp$/);
+    await expect(logo).toHaveAttribute('srcset', /120w.*240w.*360w/);
+    await expect(logo).toHaveAttribute('sizes', '120px');
     await expect.poll(() => logo.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBeGreaterThan(0);
     expect((await logo.boundingBox())!.width).toBeLessThan(200);
     await expect(page.locator('.ldn-navigation')).not.toBeEmpty();
@@ -188,7 +190,9 @@ test.describe('administration and print boundaries', () => {
     }
     await expect(page.locator('.ldn-section-label')).toHaveText('Our shared impact');
     await expect(page.locator('.ldn-section-label span')).toHaveCount(0);
-    await expect(page.locator('.footer-acts-image')).toHaveAttribute('src', /footer-acts-transparent\.png$/);
+    await expect(page.locator('.footer-acts-image')).toHaveAttribute('src', /footer-acts-transparent-672\.webp$/);
+    await expect(page.locator('.footer-acts-image')).toHaveAttribute('srcset', /336w.*672w.*1342w/);
+    await expect(page.locator('.footer-acts-image')).toHaveAttribute('height', '74');
     await page.setViewportSize({ width: 1440, height: 1000 });
     await languageFocus(page);
   });

@@ -1,0 +1,4422 @@
+{
+  "environment": "Isolated current checkout; warm server assets, fresh browser cache; Lighthouse 12.8.2; 3 runs/profile/route",
+  "comparisons": [
+    {
+      "route": "actions",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1364.8757,
+            "largest-contentful-paint": 2234.8757,
+            "total-blocking-time": 20,
+            "cumulative-layout-shift": 0.06084261830202635,
+            "speed-index": 1364.8757
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1359.053,
+            "largest-contentful-paint": 2221.5530000000003,
+            "total-blocking-time": 12.5,
+            "cumulative-layout-shift": 0.06084261830202635,
+            "speed-index": 1359.053
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 96,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1353.3399999999997,
+            "largest-contentful-paint": 2373.01,
+            "total-blocking-time": 19,
+            "cumulative-layout-shift": 0.08361806975334168,
+            "speed-index": 1353.3399999999997
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1354.3484000000003,
+            "largest-contentful-paint": 1579.3484,
+            "total-blocking-time": 13.5,
+            "cumulative-layout-shift": 0.0006798296998244976,
+            "speed-index": 1354.3484000000003
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1352.7228999999998,
+            "largest-contentful-paint": 1526.4036249999997,
+            "total-blocking-time": 12,
+            "cumulative-layout-shift": 0.0005209434166180187,
+            "speed-index": 1352.7228999999998
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1351.9189,
+            "largest-contentful-paint": 1912.37835,
+            "total-blocking-time": 9.5,
+            "cumulative-layout-shift": 0.0007017450492322878,
+            "speed-index": 1351.9189
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 2234.8757,
+        "cls": 0.06084261830202635,
+        "tbt_ms": 19,
+        "performance": 97,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 1579.3484,
+        "cls": 0.0006798296998244976,
+        "tbt_ms": 12,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "actions",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 331.7097,
+            "largest-contentful-paint": 466.56455000000005,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.010574218165913217,
+            "speed-index": 331.7097
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 324.8265,
+            "largest-contentful-paint": 461.53312500000004,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.010574218165913217,
+            "speed-index": 324.8265
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 325.71669999999995,
+            "largest-contentful-paint": 463.64587499999993,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.010574218165913217,
+            "speed-index": 325.71669999999995
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 322.8872,
+            "largest-contentful-paint": 464.10900000000004,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.0034454387117107688,
+            "speed-index": 348.7889719880471
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 328.64830000000006,
+            "largest-contentful-paint": 444.8103750000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.0034454387117107688,
+            "speed-index": 342.6808640595848
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 323.1526,
+            "largest-contentful-paint": 466.44075,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.0034454387117107688,
+            "speed-index": 345.52975936804296
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 463.64587499999993,
+        "cls": 0.010574218165913217,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 464.10900000000004,
+        "cls": 0.0034454387117107688,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "activities",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 93,
+            "accessibility": 91,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 1364.0335,
+            "largest-contentful-paint": 3092.169875,
+            "total-blocking-time": 22,
+            "cumulative-layout-shift": 0.06095990576892929,
+            "speed-index": 1364.0335
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "offscreen-images",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 95,
+            "accessibility": 91,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 1361.1575,
+            "largest-contentful-paint": 2769.03925,
+            "total-blocking-time": 16,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1361.1575
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "cumulative-layout-shift",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "offscreen-images",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 94,
+            "accessibility": 91,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 1361.2515000000003,
+            "largest-contentful-paint": 2977.2090000000003,
+            "total-blocking-time": 16,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1361.2515000000003
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "cumulative-layout-shift",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "offscreen-images",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 96,
+            "accessibility": 91,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 1363.6311999999998,
+            "largest-contentful-paint": 2744.2955999999995,
+            "total-blocking-time": 22,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1363.6311999999998
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "offscreen-images",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 94,
+            "accessibility": 91,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 1365.7891999999997,
+            "largest-contentful-paint": 3041.4932,
+            "total-blocking-time": 19,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1365.7891999999997
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "offscreen-images",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 95,
+            "accessibility": 91,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 1363.2327,
+            "largest-contentful-paint": 2824.47685,
+            "total-blocking-time": 24,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1363.2327
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "offscreen-images",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 2977.2090000000003,
+        "cls": 0.05744640566822677,
+        "tbt_ms": 16,
+        "performance": 94,
+        "accessibility": 91
+      },
+      "after_median": {
+        "lcp_ms": 2824.47685,
+        "cls": 0,
+        "tbt_ms": 22,
+        "performance": 95,
+        "accessibility": 91
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "activities",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 92,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 324.0651,
+            "largest-contentful-paint": 771.1438999999998,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 327.66275512417803
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 92,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 327.7614,
+            "largest-contentful-paint": 755.9226000000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 327.7614
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 92,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 330.5531,
+            "largest-contentful-paint": 747.7244000000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 330.5531
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 92,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 331.3661,
+            "largest-contentful-paint": 770.4554,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 359.5832366762452
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 92,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 330.7587,
+            "largest-contentful-paint": 748.49945,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 339.5315233744339
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 92,
+            "best-practices": 100,
+            "seo": 92
+          },
+          "metrics": {
+            "first-contentful-paint": 331.9686,
+            "largest-contentful-paint": 783.0444,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 365.1435117444949
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "image-alt",
+            "link-in-text-block",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-optimized-images",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 755.9226000000001,
+        "cls": 6.167396838102503e-05,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 92
+      },
+      "after_median": {
+        "lcp_ms": 770.4554,
+        "cls": 0,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 92
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "dootrips",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1367.101,
+            "largest-contentful-paint": 2302.101,
+            "total-blocking-time": 41.724750000000085,
+            "cumulative-layout-shift": 0.06084261830202635,
+            "speed-index": 1367.101
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1361.5535,
+            "largest-contentful-paint": 2370.5535,
+            "total-blocking-time": 76,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1361.5535
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1373.7432,
+            "largest-contentful-paint": 2311.7432,
+            "total-blocking-time": 42.5,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1373.7432
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1368.1989,
+            "largest-contentful-paint": 2048.6989000000003,
+            "total-blocking-time": 77,
+            "cumulative-layout-shift": 0.000846485998035086,
+            "speed-index": 1368.1989
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1367.1394,
+            "largest-contentful-paint": 2178.1394,
+            "total-blocking-time": 67.71515,
+            "cumulative-layout-shift": 0.000626532943427544,
+            "speed-index": 1367.1394
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1369.0789,
+            "largest-contentful-paint": 2102.1183499999997,
+            "total-blocking-time": 92.99999999999977,
+            "cumulative-layout-shift": 0.000626532943427544,
+            "speed-index": 2606.097354486397
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "speed-index",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 2311.7432,
+        "cls": 0.05744640566822677,
+        "tbt_ms": 42.5,
+        "performance": 97,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 2102.1183499999997,
+        "cls": 0.000626532943427544,
+        "tbt_ms": 77,
+        "performance": 98,
+        "accessibility": 100
+      },
+      "new_failed_audits": [
+        "speed-index"
+      ]
+    },
+    {
+      "route": "dootrips",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 333.6037,
+            "largest-contentful-paint": 1219.8111000000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 492.61763768365046
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "largest-contentful-paint-element",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 337.9286,
+            "largest-contentful-paint": 1251.7857999999997,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 505.3148403708575
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "largest-contentful-paint-element",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 337.27150000000006,
+            "largest-contentful-paint": 1240.3145000000002,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 498.66748526216963
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "largest-contentful-paint-element",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 327.869,
+            "largest-contentful-paint": 1010.2455,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 459.2785846455182
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 328.341,
+            "largest-contentful-paint": 980.8165000000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 454.11651003584205
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 342.5293,
+            "largest-contentful-paint": 1033.10035,
+            "total-blocking-time": 35,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 484.9431141213406
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 1240.3145000000002,
+        "cls": 0.001195556116651938,
+        "tbt_ms": 0,
+        "performance": 97,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 1010.2455,
+        "cls": 0.001195556116651938,
+        "tbt_ms": 0,
+        "performance": 99,
+        "accessibility": 100
+      },
+      "new_failed_audits": [
+        "max-potential-fid"
+      ]
+    },
+    {
+      "route": "dootronics",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1373.0686999999998,
+            "largest-contentful-paint": 2129.0687,
+            "total-blocking-time": 42.5,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1373.0686999999998
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1365.9588,
+            "largest-contentful-paint": 2204.9382,
+            "total-blocking-time": 49,
+            "cumulative-layout-shift": 0.08361806975334168,
+            "speed-index": 1365.9588
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1364.9817,
+            "largest-contentful-paint": 2156.4725500000004,
+            "total-blocking-time": 55.25457499999993,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1364.9817
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1367.8276,
+            "largest-contentful-paint": 1517.8276,
+            "total-blocking-time": 96.49999999999977,
+            "cumulative-layout-shift": 0.000626532943427544,
+            "speed-index": 1367.8276
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1366.2124,
+            "largest-contentful-paint": 2029.7124,
+            "total-blocking-time": 83.49999999999977,
+            "cumulative-layout-shift": 0.000846485998035086,
+            "speed-index": 1366.2124
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1357.4908999999998,
+            "largest-contentful-paint": 2195.9909,
+            "total-blocking-time": 110.12727500000005,
+            "cumulative-layout-shift": 0.0008198250217190203,
+            "speed-index": 1357.4908999999998
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 2156.4725500000004,
+        "cls": 0.05744640566822677,
+        "tbt_ms": 49,
+        "performance": 98,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 2029.7124,
+        "cls": 0.0008198250217190203,
+        "tbt_ms": 96.49999999999977,
+        "performance": 99,
+        "accessibility": 100
+      },
+      "new_failed_audits": [
+        "total-blocking-time"
+      ]
+    },
+    {
+      "route": "dootronics",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 95,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 331.36069999999995,
+            "largest-contentful-paint": 1485.2624499999997,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 509.8936496398537
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "interactive",
+            "uses-rel-preconnect",
+            "largest-contentful-paint-element",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 333.6004,
+            "largest-contentful-paint": 1071.3490000000002,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 481.0979461939719
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 96,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 336.4621,
+            "largest-contentful-paint": 1451.8863,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 494.5982446628103
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "interactive",
+            "uses-rel-preconnect",
+            "largest-contentful-paint-element",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 341.4806,
+            "largest-contentful-paint": 1017.5601999999999,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 509.8971925256502
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 330.86750000000006,
+            "largest-contentful-paint": 941.1752500000002,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 455.2201979577345
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 324.5837,
+            "largest-contentful-paint": 947.2526499999999,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 476.0098036104407
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 1451.8863,
+        "cls": 0.001195556116651938,
+        "tbt_ms": 0,
+        "performance": 96,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 947.2526499999999,
+        "cls": 0.001195556116651938,
+        "tbt_ms": 0,
+        "performance": 99,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "hubs",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1361.3973,
+            "largest-contentful-paint": 2199.59595,
+            "total-blocking-time": 51.5,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1361.3973
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 94,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1377.8576000000003,
+            "largest-contentful-paint": 2695.7152000000006,
+            "total-blocking-time": 43.5,
+            "cumulative-layout-shift": 0.08361806975334168,
+            "speed-index": 1377.8576000000003
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "largest-contentful-paint-element",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1366.3115,
+            "largest-contentful-paint": 2345.8115000000003,
+            "total-blocking-time": 50,
+            "cumulative-layout-shift": 0.06095990576892929,
+            "speed-index": 1366.3115
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1366.9484000000002,
+            "largest-contentful-paint": 1516.9484000000002,
+            "total-blocking-time": 73,
+            "cumulative-layout-shift": 0.0008198250217190203,
+            "speed-index": 1366.9484000000002
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1366.6497,
+            "largest-contentful-paint": 2176.6497,
+            "total-blocking-time": 70,
+            "cumulative-layout-shift": 0.0008198250217190203,
+            "speed-index": 1366.6497
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1367.8446,
+            "largest-contentful-paint": 2201.8446,
+            "total-blocking-time": 132.5388499999999,
+            "cumulative-layout-shift": 0.0008198250217190203,
+            "speed-index": 1367.8446
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 2345.8115000000003,
+        "cls": 0.06095990576892929,
+        "tbt_ms": 50,
+        "performance": 97,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 2176.6497,
+        "cls": 0.0008198250217190203,
+        "tbt_ms": 73,
+        "performance": 98,
+        "accessibility": 100
+      },
+      "new_failed_audits": [
+        "forced-reflow-insight",
+        "total-blocking-time"
+      ]
+    },
+    {
+      "route": "hubs",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 337.5796,
+            "largest-contentful-paint": 1057.3352,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 480.62066963316295
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 335.0569,
+            "largest-contentful-paint": 1067.8685,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 443.6490468525494
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 334.66640000000007,
+            "largest-contentful-paint": 1105.9900000000002,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 514.4767350394974
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 323.7429000000001,
+            "largest-contentful-paint": 943.5280499999999,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 443.01161024439
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 337.2313,
+            "largest-contentful-paint": 982.63835,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 483.13393248450865
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 416.18725,
+            "largest-contentful-paint": 1027.81275,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 660.8759531219382
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "forced-reflow-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 1067.8685,
+        "cls": 0.001195556116651938,
+        "tbt_ms": 0,
+        "performance": 98,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 982.63835,
+        "cls": 0.001195556116651938,
+        "tbt_ms": 0,
+        "performance": 99,
+        "accessibility": 100
+      },
+      "new_failed_audits": [
+        "max-potential-fid"
+      ]
+    },
+    {
+      "route": "schools",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1522.3344,
+            "largest-contentful-paint": 2334.3343999999997,
+            "total-blocking-time": 69.5,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1522.3344
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "redirects",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1533.5964,
+            "largest-contentful-paint": 2309.0964,
+            "total-blocking-time": 45,
+            "cumulative-layout-shift": 0.06095990576892929,
+            "speed-index": 2706.6757135198795
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "speed-index",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "redirects",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1520.74065,
+            "largest-contentful-paint": 2319.7406499999997,
+            "total-blocking-time": 45,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1520.74065
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "redirects",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "document-latency-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 96,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1556.2714999999998,
+            "largest-contentful-paint": 2228.9072499999997,
+            "total-blocking-time": 126,
+            "cumulative-layout-shift": 0.000846485998035086,
+            "speed-index": 2689.8015659408743
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "speed-index",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "mainthread-work-breakdown",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "document-latency-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1519.503,
+            "largest-contentful-paint": 2280.5029999999997,
+            "total-blocking-time": 82.5,
+            "cumulative-layout-shift": 0.0008198250217190203,
+            "speed-index": 1519.503
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "document-latency-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1523.8845000000001,
+            "largest-contentful-paint": 2177.8845,
+            "total-blocking-time": 95,
+            "cumulative-layout-shift": 0.000626532943427544,
+            "speed-index": 2679.944733444191
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "speed-index",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "redirects",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "document-latency-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 2319.7406499999997,
+        "cls": 0.05744640566822677,
+        "tbt_ms": 45,
+        "performance": 97,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 2228.9072499999997,
+        "cls": 0.0008198250217190203,
+        "tbt_ms": 95,
+        "performance": 97,
+        "accessibility": 100
+      },
+      "new_failed_audits": [
+        "mainthread-work-breakdown"
+      ]
+    },
+    {
+      "route": "schools",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 380.61285,
+            "largest-contentful-paint": 1200.09665,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 510.9278403538716
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "redirects",
+            "uses-rel-preconnect",
+            "largest-contentful-paint-element",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 379.49580000000003,
+            "largest-contentful-paint": 1193.4902000000002,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 497.53739816544714
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "redirects",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "document-latency-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 378.3252,
+            "largest-contentful-paint": 1185.2587999999996,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 495.81966180408557
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "redirects",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "document-latency-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 392.42895,
+            "largest-contentful-paint": 1097.07185,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 579.2561965899607
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "redirects",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "document-latency-insight",
+            "forced-reflow-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 380.18475,
+            "largest-contentful-paint": 1011.446375,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 486.8288893880403
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "redirects",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "document-latency-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 383.22165,
+            "largest-contentful-paint": 1042.49195,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0.001195556116651938,
+            "speed-index": 509.79930798376665
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "redirects",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "document-latency-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [
+            "The page may not be loading as expected because your test URL (http://127.0.0.1:18411/es/content/edoovillages-dashboard) was redirected to http://127.0.0.1:18411/es. Try testing the second URL directly."
+          ],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 1193.4902000000002,
+        "cls": 0.001195556116651938,
+        "tbt_ms": 0,
+        "performance": 98,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 1042.49195,
+        "cls": 0.001195556116651938,
+        "tbt_ms": 0,
+        "performance": 99,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "stories",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 94,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1357.3628,
+            "largest-contentful-paint": 3007.3628,
+            "total-blocking-time": 21,
+            "cumulative-layout-shift": 0.059988535135160476,
+            "speed-index": 1357.3628
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 95,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1352.6954,
+            "largest-contentful-paint": 2809.5431,
+            "total-blocking-time": 29.5,
+            "cumulative-layout-shift": 0.05775317890216034,
+            "speed-index": 1352.6954
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 94,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1352.4753,
+            "largest-contentful-paint": 3002.4753,
+            "total-blocking-time": 26.5,
+            "cumulative-layout-shift": 0.05768085025350934,
+            "speed-index": 1352.4753
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "largest-contentful-paint-element",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1352.5187,
+            "largest-contentful-paint": 2369.77805,
+            "total-blocking-time": 4.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1352.5187
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1351.2209,
+            "largest-contentful-paint": 2026.2209000000003,
+            "total-blocking-time": 5.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1351.2209
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1353.1207,
+            "largest-contentful-paint": 2028.1207,
+            "total-blocking-time": 21,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1353.1207
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 3002.4753,
+        "cls": 0.05775317890216034,
+        "tbt_ms": 26.5,
+        "performance": 94,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 2028.1207,
+        "cls": 0,
+        "tbt_ms": 5.5,
+        "performance": 99,
+        "accessibility": 100
+      },
+      "new_failed_audits": [
+        "forced-reflow-insight"
+      ]
+    },
+    {
+      "route": "stories",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 323.0450000000001,
+            "largest-contentful-paint": 623.045,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 386.64474409138785
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 337.0704,
+            "largest-contentful-paint": 642.0704,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 354.5470821113639
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 321.77109999999993,
+            "largest-contentful-paint": 658.6566499999999,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 396.89585609151675
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "unsized-images",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 321.3846,
+            "largest-contentful-paint": 571.0769,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 385.91961802766724
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 322.9368999999999,
+            "largest-contentful-paint": 574.4053499999998,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 391.6795079055059
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 324.51060000000007,
+            "largest-contentful-paint": 555.7659,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 381.08658503615015
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "uses-responsive-images",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 642.0704,
+        "cls": 6.167396838102503e-05,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 571.0769,
+        "cls": 0,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "teams",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1310.8803,
+            "largest-contentful-paint": 2293.5810500000002,
+            "total-blocking-time": 77,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 2525.647197486991
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "speed-index",
+            "total-blocking-time",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 97,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1221.24,
+            "largest-contentful-paint": 2193.0499999999997,
+            "total-blocking-time": 21.5,
+            "cumulative-layout-shift": 0.08134567975792752,
+            "speed-index": 1221.24
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1214.5669,
+            "largest-contentful-paint": 2205.35035,
+            "total-blocking-time": 12.5,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1214.5669
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1211.171,
+            "largest-contentful-paint": 1951.7565,
+            "total-blocking-time": 7,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1211.171
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1206.7529,
+            "largest-contentful-paint": 1431.7529,
+            "total-blocking-time": 2,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1206.7529
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1206.0944999999997,
+            "largest-contentful-paint": 1908.0944999999997,
+            "total-blocking-time": 10.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1206.0944999999997
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 2205.35035,
+        "cls": 0.05744640566822677,
+        "tbt_ms": 21.5,
+        "performance": 97,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 1908.0944999999997,
+        "cls": 0,
+        "tbt_ms": 7,
+        "performance": 99,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "teams",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 296.8406,
+            "largest-contentful-paint": 472.7609,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 300.8963921965075
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 298.6077,
+            "largest-contentful-paint": 481.91155000000003,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 354.77992661894524
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 292.5153,
+            "largest-contentful-paint": 478.77295000000004,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 6.167396838102503e-05,
+            "speed-index": 296.28455058322135
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 287.4966,
+            "largest-contentful-paint": 440.99660000000006,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 299.2112406911711
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 286.1041,
+            "largest-contentful-paint": 440.1041,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 296.9205862736159
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 291.3094,
+            "largest-contentful-paint": 438.3094,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 298.0527648789368
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 478.77295000000004,
+        "cls": 6.167396838102503e-05,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 440.1041,
+        "cls": 0,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "wiki",
+      "profile": "mobile",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1212.9307,
+            "largest-contentful-paint": 2149.89605,
+            "total-blocking-time": 5.5,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1212.9307
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1212.1088,
+            "largest-contentful-paint": 2152.6632,
+            "total-blocking-time": 9.5,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1212.1088
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1213.5634,
+            "largest-contentful-paint": 2149.3451,
+            "total-blocking-time": 4,
+            "cumulative-layout-shift": 0.05744640566822677,
+            "speed-index": 1213.5634
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "cumulative-layout-shift",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1358.7353,
+            "largest-contentful-paint": 2096.60295,
+            "total-blocking-time": 8.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1358.7353
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 2,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1357.0291,
+            "largest-contentful-paint": 2057.0291,
+            "total-blocking-time": 8.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1357.0291
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "mobile",
+          "run": 3,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1358.1774999999998,
+            "largest-contentful-paint": 1933.7218749999997,
+            "total-blocking-time": 8.5,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1358.1774999999998
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 2149.89605,
+        "cls": 0.05744640566822677,
+        "tbt_ms": 5.5,
+        "performance": 98,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 2057.0291,
+        "cls": 0,
+        "tbt_ms": 8.5,
+        "performance": 99,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    },
+    {
+      "route": "wiki",
+      "profile": "desktop",
+      "before": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 293.2627,
+            "largest-contentful-paint": 478.39405,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 301.36100910538346
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "forced-reflow-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 291.884,
+            "largest-contentful-paint": 475.326,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 295.2431975993543
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 291.2208,
+            "largest-contentful-paint": 475.83119999999997,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 291.2208
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "modern-image-formats",
+            "uses-responsive-images",
+            "cache-insight",
+            "image-delivery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "after": [
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 326.95129999999995,
+            "largest-contentful-paint": 480.95129999999995,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 326.95129999999995
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 331.9179,
+            "largest-contentful-paint": 493.397375,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 343.1929310443692
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "requested",
+          "profile": "desktop",
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 322.0929,
+            "largest-contentful-paint": 476.0929,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 322.0929
+          },
+          "failed_audits": [
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "before_median": {
+        "lcp_ms": 475.83119999999997,
+        "cls": 0,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "after_median": {
+        "lcp_ms": 480.95129999999995,
+        "cls": 0,
+        "tbt_ms": 0,
+        "performance": 100,
+        "accessibility": 100
+      },
+      "new_failed_audits": []
+    }
+  ]
+}

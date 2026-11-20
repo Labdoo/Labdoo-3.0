@@ -2,15 +2,27 @@
 
 El módulo sustituye la cita fija de Labdoo Next y ofrece el bloque reutilizable **Education quote**. Incluye seis citas con autor y fuente, y veinte catálogos `.po`: ar, bs, ca, de, en, es, fr, hy, it, ja, nl, pl, ro, ru, sr, sw, tr, uk, zh-hans y zh-hant. Las traducciones son propias del proyecto; no se presentan como traducciones oficiales de las obras.
 
-## Carga y caché
+## Loading and caching
 
-El HTML contiene una cita de respaldo traducida. Es cacheable por idioma. Al cargar la página, el comportamiento Drupal solicita `GET /labdoo/education-quote/{langcode}` mediante `fetch` con `cache: 'no-store'`. El endpoint tiene `no_cache: TRUE`, activa el interruptor de caché de Drupal y devuelve `Cache-Control: private, no-store, max-age=0, must-revalidate`. Así, la frase puede cambiar aunque el HTML de la página se reutilice desde caché. No hace falta desactivar la caché del resto de la página ni depender de BigPipe para usuarios anónimos.
+The language-cacheable HTML contains a translated fallback and a safely JSON-encoded
+catalog of the six translated choices. The early head script prepares the catalog;
+the inlined quote observer chooses and displays one as soon as its markup is complete.
+Normal page loads need neither an uncached quote request nor a blocking quote-script download. The browser remembers only the
+previous quote ID in `sessionStorage` and excludes it from the next choice.
+Selection also runs after BFCache restoration, without a carousel or periodic
+changes during reading. Multiple widgets share one selection per endpoint.
 
-El navegador conserva solo el ID anterior en `sessionStorage` y lo envía como `exclude`; el servidor selecciona otra cita. También se renueva al regresar desde la caché de navegación del navegador (BFCache). Los comportamientos AJAX de la misma página no provocan peticiones duplicadas. No hay carrusel ni cambios periódicos durante la lectura.
+Without JavaScript the translated fallback remains visible. If storage is blocked,
+selection still works but cannot remember the preceding page. Text and author are
+updated together, using text nodes and validated HTTPS source links.
 
-Si JavaScript está desactivado, el endpoint falla o no hay red, permanece visible la cita traducida de respaldo. Si el navegador bloquea el almacenamiento, la selección sigue funcionando, pero no puede recordar la frase de la página anterior. El módulo no solicita contenido a servicios externos: los enlaces del autor permiten consultar las fuentes.
-
-El proxy/CDN debe respetar `no-store` o excluir `/labdoo/education-quote/` de su caché. No convertir esta ruta en una respuesta pública con TTL forzado.
+Older cached HTML without an embedded catalog retains the early request to
+`GET /labdoo/education-quote/{langcode}` with `cache: 'no-store'` and an `exclude`
+parameter. Network failure or an eight-second timeout restores its fallback.
+The endpoint remains private and uncached (`no_cache: TRUE`, Drupal cache kill
+switch, and `Cache-Control: private, no-store, max-age=0, must-revalidate`).
+Proxies/CDNs must respect that policy; never force a public TTL on this endpoint.
+No external content provider is called by the module.
 
 ## Instalación y traducciones
 
@@ -53,13 +65,8 @@ Para añadir una cita, actualizar `quotes.json` y sus entradas de texto y autor 
 
 Validación del 11/11/2026: **64/64 E2E aprobadas**, sin fallos, omisiones ni reintentos (`education-quotes`), junto con la auditoría de los veinte PO. `tests/quotes-import.php` comprueba en la base aislada que las personalizaciones sobrevivan a una reimportación y restaura el texto original al terminar. Conservados los nodos, sus IDs, el tema predeterminado y las reglas de plurales anteriores a la instalación.
 
-Con JavaScript, un pequeño script de cabecera oculta el respaldo mientras se
-recupera la frase definitiva. La frase y su autor aparecen juntos al terminar
-la petición; si falla o supera ocho segundos, se muestra el respaldo traducido.
-Sin JavaScript, el respaldo permanece visible desde el principio. Labdoo Next
-mantiene el autor junto al final del texto y ajusta la altura al contenido.
-
-La petición AJAX se inicia al encontrar la frase durante el análisis del HTML,
-sin depender de los scripts de Drupal situados al final de la página. Un marcador
-invisible al final del autor garantiza que el parser haya terminado ese contenido
-antes de sustituirlo. El observador también descubre bloques insertados por AJAX.
+The invisible marker at the end of the author tells the observer when parsing
+has completed. It also discovers widgets inserted by AJAX. The E2E suite covers
+selection from the cached catalog without a network request, nonrepetition,
+BFCache, all twenty endpoint languages, legacy cached HTML and network failure,
+no-JavaScript fallback, RTL, and desktop/mobile rendering.

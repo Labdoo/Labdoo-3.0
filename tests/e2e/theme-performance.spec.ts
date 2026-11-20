@@ -112,6 +112,33 @@ test('the default Labdoo Next theme loads Chart.js from the local library direct
   expect(requests.some(url => /unpkg\.com\/chart\.js@|unpkg\.com\/chartjs-/.test(url))).toBe(false);
 });
 
+test('a mixed bar and line chart upgrades the simple chart library @responsive', async ({ page }, info) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.route('**/api/map-points/**', route => route.fulfill({ json: [] }));
+  await goto(page, '/en/content/dootronics-dashboard', info);
+  await page.locator('.charts-chartjs').first().scrollIntoViewIfNeeded();
+  await expect(page.locator('canvas.charts-chartjs').first()).toBeVisible();
+  await page.evaluate(() => {
+    const parent = document.createElement('section');
+    const element = document.createElement('div');
+    element.id = 'e2e-mixed-chart';
+    element.className = 'charts-chartjs';
+    element.dataset.chart = JSON.stringify({
+      type: 'bar', data: { labels: ['One', 'Two'], datasets: [
+        { label: 'Bars', data: [2, 3] }, { type: 'line', label: 'Line', data: [3, 2] },
+      ] }, options: { animation: false },
+    });
+    parent.append(element);
+    document.body.append(parent);
+    (window as any).Drupal.attachBehaviors(parent, (window as any).drupalSettings);
+  });
+  await page.locator('#e2e-mixed-chart').scrollIntoViewIfNeeded();
+  await expect(page.locator('canvas#e2e-mixed-chart')).toBeVisible();
+  expect(await page.evaluate(() => (window as any).Chart.getChart('e2e-mixed-chart').getDatasetMeta(1).type)).toBe('line');
+  expect(errors).toEqual([]);
+});
+
 test('an AJAX chart can load dates and data labels after the simple dashboard chart @responsive', async ({ page }, info) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -119,6 +146,7 @@ test('an AJAX chart can load dates and data labels after the simple dashboard ch
   await goto(page, '/en/content/dootronics-dashboard', info);
   await page.locator('.charts-chartjs').first().scrollIntoViewIfNeeded();
   await expect(page.locator('canvas.charts-chartjs').first()).toBeVisible();
+  const originalChart = await page.locator('canvas.charts-chartjs').first().getAttribute('id');
   await page.evaluate(() => {
     const parent = document.createElement('section');
     parent.style.width = '350px';
@@ -140,6 +168,24 @@ test('an AJAX chart can load dates and data labels after the simple dashboard ch
     const chart = (window as any).Chart.getChart('e2e-date-chart');
     return { scale: chart.scales.x.type, points: chart.getDatasetMeta(0).data.length, labels: chart.config.plugins.some((plugin: any) => plugin.id === 'datalabels') };
   })).toEqual({ scale: 'time', points: 2, labels: true });
+  expect(await page.evaluate(id => Boolean((window as any).Chart.getChart(id)), originalChart)).toBe(true);
+  const lifecycle = await page.evaluate(id => {
+    const api = (window as any).Chart;
+    const original = api.getChart(id);
+    let registeredInHook: boolean | undefined;
+    original.config.plugins.push({ id: 'e2e-destroy-registry', afterDestroy(chart: any) {
+      registeredInHook = Boolean(api.instances[chart.id]);
+    } });
+    original.update('none');
+    const canvas = original.canvas;
+    const chartId = original.id;
+    original.destroy();
+    const replacement = new api(canvas, {
+      type: 'bar', data: { labels: ['Again'], datasets: [{ data: [1] }] }, options: { animation: false },
+    });
+    return { registered: Boolean(api.instances[chartId]), registeredInHook, points: replacement.getDatasetMeta(0).data.length };
+  }, originalChart);
+  expect(lifecycle).toEqual({ registered: false, registeredInHook: false, points: 1 });
   expect(errors).toEqual([]);
 });
 

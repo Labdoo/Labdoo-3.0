@@ -1,7 +1,12 @@
-// Rendered inline before styles so the request can overlap their download.
-(function (endpoint, fallback) {
+// Prepare translated choices before styles; older cached pages can still fetch.
+(function (endpoint, fallback, catalog) {
   'use strict';
   document.documentElement.classList.add('labdoo-quotes-js');
+  if (Array.isArray(catalog) && catalog.length) {
+    const catalogs = window.labdooEducationQuoteCatalogs ||= new Map();
+    catalogs.set(endpoint, catalog);
+    return;
+  }
   const requests = window.labdooEducationQuoteRequests ||= new Map();
   if (requests.has(endpoint)) return;
   let previous = fallback;

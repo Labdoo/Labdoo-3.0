@@ -65,7 +65,10 @@ final class QuoteCatalog {
       'data-quote-url' => Url::fromRoute('labdoo_quotes.random', ['langcode' => $language->getId()], ['language' => $language])->toString(),
     ];
     $bootstrap = file_get_contents(DRUPAL_ROOT . '/' . $this->modules->getPath('labdoo_quotes') . '/js/request-early.js');
-    $bootstrap .= '(' . Json::encode($attributes['data-quote-url']) . ', ' . Json::encode($quotes[0]['id']) . ');';
+    $bootstrap .= '(' . Json::encode($attributes['data-quote-url']) . ', ' . Json::encode($quotes[0]['id']) . ', ' . Json::encode($quotes) . ');';
+    // The small observer must run before parsing the quote, without another
+    // render-blocking script download on every new browser cache.
+    $bootstrap .= file_get_contents(DRUPAL_ROOT . '/' . $this->modules->getPath('labdoo_quotes') . '/js/quotes.js');
     return [
       '#theme' => 'labdoo_education_quote',
       '#quote' => $quotes[0],
@@ -74,7 +77,7 @@ final class QuoteCatalog {
       '#attached' => [
         'library' => ['labdoo_quotes/quotes'],
         'html_head' => [[
-          ['#tag' => 'script', '#value' => Markup::create($bootstrap), '#weight' => -100],
+          ['#tag' => 'script', '#attributes' => ['data-labdoo-quote-catalog' => $language->getId()], '#value' => Markup::create($bootstrap), '#weight' => -100],
           'labdoo_quote_request_' . $language->getId(),
         ]],
       ],

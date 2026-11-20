@@ -21,15 +21,61 @@
     }
     return scripts.get(path);
   }
+  const vendor = 'themes/custom/labdoo_next/vendor/';
+  let charts;
+  let fullCharts;
+  let fullLoaded = false;
+  function chartLibrary(full) {
+    if (!charts) {
+      charts = script(vendor + 'chart.js-4.4.0/dist/' + (full ? 'chart.umd.js' : 'chart-bar.js'))
+        .then(() => { fullLoaded = full; })
+        .catch(error => { charts = undefined; throw error; });
+    }
+    if (!full) return fullCharts || charts;
+    if (!fullCharts) {
+      fullCharts = charts.then(() => {
+        if (fullLoaded) return;
+        const previous = window.Chart;
+        return script(vendor + 'chart.js-4.4.0/dist/chart.umd.js').then(() => {
+          // Preserve existing bar charts when a later AJAX chart needs more
+          // controllers or scales from the full, same-version library.
+          const ids = Object.keys(previous.instances).map(Number);
+          if (ids.length) {
+            // Each bundle starts its own ID counter. Reserve existing IDs
+            // before creating full-library charts, so none replace old charts.
+            while (window.Chart.helpers.uid() <= Math.max(...ids)) { /* Reserve. */ }
+          }
+          const instances = window.Chart.instances;
+          Object.entries(previous.instances).forEach(([id, instance]) => {
+            instances[id] = instance;
+            const notify = instance.notifyPlugins;
+            instance.notifyPlugins = function (hook, ...args) {
+              // Each bundle owns a private registry. Remove the old instance
+              // from both before afterDestroy callbacks observe the registry.
+              if (hook === 'afterDestroy') delete instances[id];
+              return notify.call(this, hook, ...args);
+            };
+          });
+          fullLoaded = true;
+        });
+      }).catch(error => { fullCharts = undefined; throw error; });
+    }
+    return fullCharts;
+  }
   function loadCharts(parent) {
     const base = 'themes/custom/labdoo_next/vendor/';
     const configs = Array.from(parent.querySelectorAll('div.charts-chartjs'), element => JSON.parse(element.dataset.chart || '{}'));
-    const requests = [script(base + 'chart.js-4.4.0/dist/chart.umd.js')];
+    const full = configs.some(config => config.type !== 'bar'
+      || config.data?.datasets?.some(dataset => dataset.type && dataset.type !== 'bar')
+      || Object.values(config.options?.scales || {}).some(scale => scale.type && !['category', 'linear'].includes(scale.type))
+      || config.options?.plugins?.datalabels || config.options?.plugins?.dataLabels || config.options?.plugins?.annotations);
+    const library = chartLibrary(full);
+    const requests = [library];
     if (configs.some(config => Object.values(config.options?.scales || {}).some(scale => ['time', 'timeseries'].includes(scale.type)))) {
-      requests.push(script(base + 'chartjs-adapter-date-fns-3.0.0/dist/chartjs-adapter-date-fns.bundle.js'));
+      requests.push(library.then(() => script(base + 'chartjs-adapter-date-fns-3.0.0/dist/chartjs-adapter-date-fns.bundle.js')));
     }
     if (configs.some(config => Boolean(config.options?.plugins?.datalabels))) {
-      requests.push(script(base + 'chartjs-plugin-datalabels-2.0.0/dist/chartjs-plugin-datalabels.js'));
+      requests.push(library.then(() => script(base + 'chartjs-plugin-datalabels-2.0.0/dist/chartjs-plugin-datalabels.js')));
     }
     if (!bridge) {
       bridge = script(drupalSettings.labdooNext.chartsBridge.replace(/^\//, '')).then(() => {

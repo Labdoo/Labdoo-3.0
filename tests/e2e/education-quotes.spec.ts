@@ -9,7 +9,21 @@ function translations(language: string): Map<string, string> {
   const po = fs.readFileSync(path.join(moduleDir, 'translations', `labdoo_quotes.${language}.po`), 'utf8');
   return new Map([...po.matchAll(/msgctxt "Labdoo education quotes"\nmsgid ("[^\n]*")\nmsgstr ("[^\n]*")/g)].map(m => [JSON.parse(m[1]), JSON.parse(m[2])]));
 }
-test('quote request starts while styles are still blocked and is reused by the widget @responsive', async ({ page }, info) => {
+async function legacyQuotePage(page: any, url: string, language: string) {
+  const response = await page.request.get(url);
+  const html = await response.text();
+  const bootstrap = fs.readFileSync(path.join(moduleDir, 'js/request-early.js'), 'utf8')
+    + '(' + JSON.stringify('/' + language + '/labdoo/education-quote/' + language) + ', "mandela");';
+  const behavior = fs.readFileSync(path.join(moduleDir, 'js/quotes.js'), 'utf8');
+  const legacy = html.replace(/(<script[^>]*data-labdoo-quote-catalog[^>]*>)[\s\S]*?<\/script>/, (_, opening) => opening + bootstrap + behavior + '</script>');
+  expect(legacy).not.toBe(html);
+  const headers = { ...response.headers() };
+  delete headers['content-length'];
+  delete headers['content-encoding'];
+  await page.route(response.url(), (route: any) => route.fulfill({ status: 200, headers, body: legacy }));
+}
+
+test('translated quote choices are prepared while styles are blocked without another request @responsive', async ({ page }, info) => {
   let releaseStyles!: () => void;
   const styles = new Promise<void>(resolve => { releaseStyles = resolve; });
   let requests = 0;
@@ -22,11 +36,12 @@ test('quote request starts while styles are still blocked and is reused by the w
   });
   try {
     await page.goto('/es/content/dootronics-dashboard', { waitUntil: 'commit' });
-    await expect.poll(() => requests).toBe(1);
+    await expect.poll(() => page.evaluate(() => (window as any).labdooEducationQuoteCatalogs?.size || 0)).toBeGreaterThan(0);
+    expect(requests).toBe(0);
   } finally { releaseStyles(); }
   await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
   await expect(page.locator('.labdoo-quote')).not.toHaveAttribute('data-quote-id', 'mandela');
-  expect(requests).toBe(1);
+  expect(requests).toBe(0);
 });
 
 for (const language of languages) {
@@ -73,7 +88,7 @@ for (const language of ['es', 'de', 'ar', 'zh-hans']) {
   });
 }
 
-test('fresh AJAX quotes replace the same cached page HTML on every load @responsive', async ({ page }, info) => {
+test('fresh translated quotes replace the same cached page HTML on every load @responsive', async ({ page }, info) => {
   const response = await goto(page, '/en/node/749', info);
   const html = await response.text();
   const url = page.url();
@@ -101,7 +116,8 @@ test('fresh AJAX quotes replace the same cached page HTML on every load @respons
   await expect(widget).toHaveAttribute('aria-busy', 'false');
 });
 
-test('AJAX failure leaves a translated quote visible', async ({ page }, info) => {
+test('legacy AJAX failure leaves a translated quote visible', async ({ page }, info) => {
+  await legacyQuotePage(page, '/es/node/749', 'es');
   await page.route('**/labdoo/education-quote/**', route => route.abort());
   await goto(page, '/es/node/749', info);
   const widget = page.locator('.labdoo-quote');
@@ -127,7 +143,8 @@ test('the fresh quote appears even while Drupal footer scripts are unavailable @
   expect(blocked).toBeGreaterThan(0);
 });
 
-test('only the final AJAX quote is shown and its author stays close @responsive', async ({ page }, info) => {
+test('only the final legacy AJAX quote is shown and its author stays close @responsive', async ({ page }, info) => {
+  await legacyQuotePage(page, '/en/content/labdoo-social-network-how-it-works', 'en');
   let release: () => void;
   const gate = new Promise<void>(resolve => { release = resolve; });
   await page.route('**/labdoo/education-quote/**', async route => {
@@ -179,4 +196,26 @@ test('endpoint rejects unknown languages and write methods and tolerates invalid
   expect((await request.get('/en/labdoo/education-quote/xx')).status()).toBe(404);
   expect((await request.post('/en/labdoo/education-quote/es')).status()).toBe(405);
   expect((await request.get('/en/labdoo/education-quote/es?exclude[]=mandela')).status()).toBe(200);
+});
+
+test('normal cached pages paint only a fresh quote without an AJAX dependency @responsive', async ({ page }, info) => {
+  let requests = 0;
+  page.on('request', request => { if (request.url().includes('/labdoo/education-quote/')) requests++; });
+  await page.addInitScript(() => {
+    const visible: string[] = [];
+    (window as any).visibleEducationQuoteIds = visible;
+    let frames = 0;
+    function sample() {
+      const figure = document.querySelector('.labdoo-quote');
+      const text = figure?.querySelector('.labdoo-quote__text');
+      if (text && getComputedStyle(text).visibility === 'visible' && text.getClientRects().length) visible.push(figure!.getAttribute('data-quote-id')!);
+      if (++frames < 100) requestAnimationFrame(sample);
+    }
+    requestAnimationFrame(sample);
+  });
+  await goto(page, '/es/teams-activities', info);
+  await expect(page.locator('.labdoo-quote')).toHaveAttribute('aria-busy', 'false');
+  await expect.poll(() => page.evaluate(() => (window as any).visibleEducationQuoteIds.length)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => (window as any).visibleEducationQuoteIds.includes('mandela'))).toBe(false);
+  expect(requests).toBe(0);
 });

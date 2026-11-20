@@ -1,12 +1,7 @@
 quotes:
-  header: true
-  js:
-    js/quotes.js: {}
   css:
     component:
       css/quotes.css: {}
-  dependencies:
-    - labdoo_quotes/early
 
 early:
   header: true

@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  if (window.labdooEducationQuotesInitialized) return;
+  window.labdooEducationQuotesInitialized = true;
+
   const storageKey = 'labdoo.educationQuote.last';
   const requests = new Map();
   const initialized = new WeakSet();
@@ -11,12 +14,20 @@
   function requestQuote(element) {
     const endpoint = element.dataset.quoteUrl;
     if (!requests.has(endpoint)) {
-      let pending = window.labdooEducationQuoteRequests?.get(endpoint);
+      let previous = element.dataset.quoteId;
+      try { previous = sessionStorage.getItem(storageKey) || previous; }
+      catch (error) { /* Selection also works when storage is disabled. */ }
+      const catalog = window.labdooEducationQuoteCatalogs?.get(endpoint);
+      let pending;
+      if (Array.isArray(catalog) && catalog.length) {
+        const choices = catalog.filter(quote => quote.id !== previous);
+        const candidates = choices.length ? choices : catalog;
+        pending = Promise.resolve({ language: element.lang, quote: candidates[Math.floor(Math.random() * candidates.length)] });
+      } else {
+        pending = window.labdooEducationQuoteRequests?.get(endpoint);
+      }
       if (!pending) {
         const url = new URL(endpoint, document.baseURI);
-        let previous = element.dataset.quoteId;
-        try { previous = sessionStorage.getItem(storageKey) || previous; }
-        catch (error) { /* Exclude the fallback when storage is disabled. */ }
         url.searchParams.set('exclude', previous);
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);

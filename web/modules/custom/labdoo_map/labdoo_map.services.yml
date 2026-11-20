@@ -1,0 +1,6 @@
+services:
+  labdoo_map.points:
+    class: Drupal\labdoo_map\Service\MapPointRepository
+    arguments: ['@database', '@cache.default', '@cache_contexts_manager', '@language_manager', '@current_user']
+  labdoo_map.clusterer:
+    class: Drupal\labdoo_map\Service\MapPointClusterer

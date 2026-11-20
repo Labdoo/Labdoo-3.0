@@ -5,9 +5,12 @@ namespace Drupal\labdoo_map\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Drupal\Core\Database\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\views\Views;
+use Drupal\Core\Cache\CacheableJsonResponse;
+use Drupal\labdoo_map\Service\MapPointRepository;
+use Drupal\labdoo_map\Service\MapPointClusterer;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Provides map data for dashboards.
@@ -15,28 +18,20 @@ use Drupal\views\Views;
 class MapDataController extends ControllerBase {
 
   /**
-   * The database connection.
-   *
-   * @var \Drupal\Core\Database\Connection
+   * Constructs the map controller.
    */
-  protected $database;
-
-  /**
-   * Constructs a new MapDataController object.
-   *
-   * @param \Drupal\Core\Database\Connection $database
-   *   The database connection.
-   */
-  public function __construct(Connection $database) {
-    $this->database = $database;
-  }
+  public function __construct(
+    private readonly MapPointRepository $points,
+    private readonly MapPointClusterer $clusterer,
+  ) {}
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('database')
+      $container->get('labdoo_map.points'),
+      $container->get('labdoo_map.clusterer'),
     );
   }
 
@@ -77,112 +72,42 @@ class MapDataController extends ControllerBase {
   /**
    * Returns points for a specific content type.
    */
-  public function getMapPoints($type) {
-    $points = [];
-    
-    if ($type === 'labdooer') {
-      $lat_col = 'field_locations_lat';
-      $lon_col = 'field_locations_lon';
-
-      // Load user IDs matching current search filters from the "labdoers" view.
-      $uids = [];
-      $view = Views::getView('labdoers');
-      if ($view) {
-        $view->setDisplay('page_1');
-        $request = \Drupal::request();
-        $viewArgs = $request->query->all();
-        $view->setExposedInput($viewArgs);
-        $view->setItemsPerPage(0);
-        $view->build();
-        
-        $query_view = $view->query->query();
-        $results = $query_view->execute();
-        while ($row = $results->fetchAssoc()) {
-          if (isset($row['uid'])) {
-            $uids[] = (int) $row['uid'];
-          }
+  public function getMapPoints(string $type, Request $request): CacheableJsonResponse {
+    $zoom = 2;
+    $viewport = NULL;
+    $clustered = $request->query->get('_map') === 'clusters';
+    if ($clustered) {
+      $value = (string) $request->query->get('zoom', '2');
+      if (!ctype_digit($value) || (int) $value > 18) {
+        throw new BadRequestHttpException((string) $this->t('Map zoom must be between 0 and 18.'));
+      }
+      $zoom = (int) $value;
+      if ($request->query->has('bbox')) {
+        $parts = explode(',', $request->query->get('bbox'));
+        if (count($parts) !== 4 || count(array_filter($parts, 'is_numeric')) !== 4) {
+          throw new BadRequestHttpException((string) $this->t('Map bounds require four coordinates.'));
+        }
+        $viewport = array_map('floatval', $parts);
+        [$west, $south, $east, $north] = $viewport;
+        if ($west < -180 || $west > 180 || $east < -180 || $east > 180 || $south < -90 || $north > 90 || $south > $north) {
+          throw new BadRequestHttpException((string) $this->t('Map bounds are outside the supported range.'));
         }
       }
-
-      if (empty($uids)) {
-        return new JsonResponse([]);
-      }
-
-      $query = $this->database->select('users_field_data', 'u');
-      $query->join('user__field_locations', 'l', 'u.uid = l.entity_id');
-      $query->fields('u', ['uid', 'name']);
-      $query->fields('l', [$lat_col, $lon_col]);
-      $query->condition('u.status', 1);
-      $query->condition('u.uid', $uids, 'IN');
-      $query->isNotNull('l.' . $lat_col);
-      $query->isNotNull('l.' . $lon_col);
-      $query->condition('l.' . $lat_col, 0, '!=');
-      $query->condition('l.' . $lon_col, 0, '!=');
-      $query->condition('l.' . $lat_col, 77.75, '<=');
-      $query->condition('l.' . $lat_col, -56.7, '>=');
-      $query->condition('l.' . $lat_col, [40.416775, 41.385064, -73.989308, -69.021414], 'NOT IN');
-
-      $results = $query->execute();
-
-      while ($row = $results->fetchObject()) {
-        $points[] = [
-          'lat' => (float) $row->{$lat_col},
-          'lon' => (float) $row->{$lon_col},
-          'id' => (int) $row->uid,
-          'title' => $row->name,
-        ];
-      }
-
-      return new JsonResponse($points);
     }
-    
-    // Map types to their respective location fields.
-    $field_map = [
-      'dootronic' => 'field_location',
-      'edoovillage' => 'field_location',
-      'hub' => 'field_locations',
-      'dootrip' => 'field_locations',
-    ];
-
-    if (!isset($field_map[$type])) {
-      return new JsonResponse($points);
+    $collection = $this->points->getPoints($type, $request->query->all());
+    $data = $clustered ? $this->clusterer->cluster($collection['points'], $zoom, $viewport) : $collection['points'];
+    $metadata = $collection['cache'];
+    $metadata->addCacheContexts(['url.query_args']);
+    $response = new CacheableJsonResponse($data);
+    $response->addCacheableDependency($metadata);
+    $response->setVary('Cookie', FALSE);
+    if ($this->currentUser()->isAuthenticated() || $metadata->getCacheMaxAge() === 0) {
+      $response->headers->set('Cache-Control', 'private, no-cache');
     }
-
-    $field_name = $field_map[$type];
-    $table_name = 'node__' . $field_name;
-    $lat_col = $field_name . '_lat';
-    $lon_col = $field_name . '_lon';
-
-    $query = $this->database->select('node_field_data', 'n');
-    $query->join($table_name, 'l', 'n.nid = l.entity_id');
-    $query->fields('n', ['nid', 'title']);
-    $query->fields('l', [$lat_col, $lon_col]);
-    $query->condition('n.type', $type);
-    $query->condition('n.status', 1);
-    $query->isNotNull('l.' . $lat_col);
-    $query->isNotNull('l.' . $lon_col);
-    // Filter out suspicious locations directly in the query for better performance.
-    // 1. 0,0 is suspicious.
-    $query->condition('l.' . $lat_col, 0, '!=');
-    $query->condition('l.' . $lon_col, 0, '!=');
-    // 2. Habitable range filter.
-    $query->condition('l.' . $lat_col, 77.75, '<=');
-    $query->condition('l.' . $lat_col, -56.7, '>=');
-    // 3. Known "default" coordinates that might be incorrect.
-    $query->condition('l.' . $lat_col, [40.416775, 41.385064, -73.989308, -69.021414], 'NOT IN');
-
-    $results = $query->execute();
-
-    while ($row = $results->fetchObject()) {
-      $points[] = [
-        'lat' => (float) $row->{$lat_col},
-        'lon' => (float) $row->{$lon_col},
-        'id' => (int) $row->nid,
-        'title' => $row->title,
-      ];
+    else {
+      $response->setPublic()->setMaxAge($metadata->getCacheMaxAge());
     }
-
-    return new JsonResponse($points);
+    return $response;
   }
 
   /**

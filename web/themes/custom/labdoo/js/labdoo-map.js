@@ -106,67 +106,116 @@
             }, 1000);
           }
           else {
-            // Standard map with all points of a type
-            // Initialize map
-            var map = L.map(el).setView([20, 0], 2);
-
+            var clustered = document.body.classList.contains('labdoo-next');
+            var map = L.map(el).setView([20, 0], clustered ? 0 : 2);
             enableInteractions(map);
-
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
+            setTimeout(function () { map.invalidateSize(); }, 200);
 
-            // Ensure map is correctly rendered
-            setTimeout(function() {
-              map.invalidateSize();
-            }, 200);
+            var supportsClusters = false;
+            var firstResponse = true;
+            var revision = 0;
+            var pending;
+            var refreshTimer;
+            var markers;
+            var serverClusters = L.layerGroup().addTo(map);
+            var apiUrl = new URL(Drupal.url('api/map-points/' + type), window.location.origin);
+            apiUrl.search = window.location.search;
 
-            var markers = L.markerClusterGroup({chunkedLoading: true, chunkInterval: 8, chunkDelay: 8});
-
-            // Use absolute path for API and append query parameters to support filtering.
-            var apiUrl = Drupal.url('api/map-points/' + type) + window.location.search;
-
-            var getPopupUrl = function(pointId) {
-              return (type === 'labdooer' || type === 'user') ? '/user/' + pointId : '/node/' + pointId;
-            };
-
-            function addPoints(data) {
+            function ready(current) {
+              if (current === revision) el.setAttribute('aria-busy', 'false');
+            }
+            function addPoints(response) {
+              supportsClusters = !Array.isArray(response) && Array.isArray(response.points);
+              var data = supportsClusters ? response.points : response;
+              if (!Array.isArray(data)) return;
+              var current = ++revision;
+              if (markers) map.removeLayer(markers);
+              serverClusters.clearLayers();
+              var localMarkers = L.markerClusterGroup({
+                chunkedLoading: true, chunkInterval: 8, chunkDelay: 8,
+                chunkProgress: function (processed, total) {
+                  if (processed === total) ready(current);
+                }
+              });
+              markers = localMarkers;
               var queue = [];
               var bounds = L.latLngBounds([]);
               var index = 0;
-              // Marker creation and clustering both yield to input and painting.
-              // Titles are inserted as text only when a popup is opened.
               function createChunk() {
+                if (current !== revision || !el.isConnected) return;
                 var started = performance.now();
                 while (index < data.length && performance.now() - started < 8) {
                   var point = data[index++];
-                  if (point.lat !== null && point.lat !== '' && point.lon !== null && point.lon !== '' && Number.isFinite(Number(point.lat)) && Number.isFinite(Number(point.lon))) {
-                    (function (location) {
-                      var marker = L.marker([location.lat, location.lon]).bindPopup(function () {
+                  if (point.lat === null || point.lat === '' || point.lon === null || point.lon === '' || !Number.isFinite(Number(point.lat)) || !Number.isFinite(Number(point.lon))) continue;
+                  var position = [Number(point.lat), Number(point.lon)];
+                  bounds.extend(position);
+                  if (supportsClusters && Number.isSafeInteger(point.count) && point.count > 1) {
+                    (function (location, coordinates) {
+                      var icon = L.divIcon({
+                        html: '<div><span>' + location.count + '</span></div>',
+                        className: 'marker-cluster marker-cluster-small ldn-server-cluster',
+                        iconSize: L.point(40, 40)
+                      });
+                      L.marker(coordinates, {icon: icon, title: String(location.count)})
+                        .on('click', function () { map.setView(coordinates, Math.min(18, map.getZoom() + 2)); })
+                        .addTo(serverClusters);
+                    })(point, position);
+                  } else {
+                    (function (location, coordinates) {
+                      var marker = L.marker(coordinates).bindPopup(function () {
                         var link = document.createElement('a');
-                        link.href = Drupal.url(getPopupUrl(location.id).replace(/^\//, ''));
+                        var target = (type === 'labdooer' || type === 'user') ? 'user/' : 'node/';
+                        link.href = Drupal.url(target + location.id);
                         link.textContent = location.title;
                         return link;
                       });
                       queue.push(marker);
-                    })(point);
-                    bounds.extend([point.lat, point.lon]);
+                    })(point, position);
                   }
                 }
                 if (index < data.length) {
                   setTimeout(createChunk, 0);
                 } else {
-                  map.addLayer(markers);
-                  if (bounds.isValid()) map.fitBounds(bounds, {padding: [50, 50], maxZoom: 15});
-                  markers.addLayers(queue);
+                  map.addLayer(localMarkers);
+                  localMarkers.addLayers(queue);
+                  if (!queue.length) ready(current);
+                  if (firstResponse) {
+                    firstResponse = false;
+                    var extent = supportsClusters && response.bounds ? L.latLngBounds(response.bounds) : bounds;
+                    if (extent.isValid()) map.fitBounds(extent, {padding: [50, 50], maxZoom: 15});
+                  }
                 }
               }
               createChunk();
             }
-            $.getJSON(apiUrl, addPoints).fail(function () {
-              // Retain the legacy fallback for installations without language prefixes.
-              if (apiUrl.indexOf('/api/') === 0) $.getJSON('/en' + apiUrl, addPoints);
+            function loadPoints() {
+              if (pending) pending.abort();
+              var url = new URL(apiUrl);
+              if (clustered) {
+                url.searchParams.set('_map', 'clusters');
+                url.searchParams.set('zoom', String(Math.min(18, map.getZoom())));
+                if (!firstResponse) {
+                  var bounds = map.getBounds();
+                  if (bounds.getEast() - bounds.getWest() < 360) {
+                    var longitude = function (value) { return ((value + 180) % 360 + 360) % 360 - 180; };
+                    url.searchParams.set('bbox', [longitude(bounds.getWest()), Math.max(-90, bounds.getSouth()), longitude(bounds.getEast()), Math.min(90, bounds.getNorth())].map(function (value) { return value.toFixed(4); }).join(','));
+                  }
+                }
+              }
+              el.setAttribute('aria-busy', 'true');
+              pending = $.getJSON(url.toString(), addPoints).fail(function (xhr, status) {
+                if (status !== 'abort') el.setAttribute('aria-busy', 'false');
+              });
+            }
+            map.on('moveend', function () {
+              if (!clustered || !supportsClusters) return;
+              clearTimeout(refreshTimer);
+              refreshTimer = setTimeout(loadPoints, 120);
             });
+            loadPoints();
           }
 
         }
