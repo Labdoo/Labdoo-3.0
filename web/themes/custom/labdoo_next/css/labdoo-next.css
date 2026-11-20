@@ -456,13 +456,20 @@ body.labdoo-next {
 }
 .labdoo-next .ldn-sidebar .action {
   margin: 3px 0;
+  font-size: .84rem;
+  line-height: 1.4;
+}
+.labdoo-next .ldn-sidebar .action:not(:has(a)) {
+  display: flex;
+  align-items: center;
+  padding: 9px 8px;
 }
 .labdoo-next .ldn-sidebar .action a {
   padding: 9px 8px;
   border-radius: 7px;
   color: var(--ldn-green);
-  font-size: .84rem;
-  line-height: 1.4;
+  font-size: inherit;
+  line-height: inherit;
 }
 .labdoo-next .ldn-sidebar .action a:hover {
   background: var(--ldn-soft);
@@ -524,6 +531,20 @@ body.labdoo-next {
 .labdoo-next .labdoo-content-box article {
   border: 0;
   padding: 0;
+}
+/* The tabs provide the panel; avoid a second surrounding article card. */
+.labdoo-next .labdoo-content-box:has(.horizontal-tabs),
+.labdoo-next .ldn-main article:not(.comment):has(.horizontal-tabs) {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.labdoo-next .horizontal-tabs [data-horizontal-tabs-panes] {
+  box-shadow: var(--gin-shadow-l1, 0 1px 3px rgb(0 0 0 / 8%));
+}
+.labdoo-next .horizontal-tabs [data-horizontal-tabs-panes] > details {
+  border: 0;
+  box-shadow: none;
 }
 .labdoo-next .labdoo-dates-box {
   background: var(--ldn-soft);
