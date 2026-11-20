@@ -3,16 +3,19 @@
 namespace Drupal\labdoo_translations;
 
 use Symfony\Component\Yaml\Yaml;
+use Drupal\Core\Cache\CacheBackendInterface;
 
-/** Portable, lazy, request-local catalogs; this service never writes storage. */
+/** Portable lazy catalogs; validated file data may use a content-keyed cache. */
 final class Catalog {
+  // Bump this schema when changing validation rules or the cached representation.
+  private const CACHE_SCHEMA = 1;
   private array $source = [];
   private array $languages = [];
   private array $hashes = [];
   private array $errors = [];
   private bool $loaded = FALSE;
 
-  public function __construct(private ?string $directory = NULL) {
+  public function __construct(private ?string $directory = NULL, private ?CacheBackendInterface $cache = NULL) {
     $this->directory ??= dirname(__DIR__) . '/catalog';
   }
 
@@ -22,25 +25,50 @@ final class Catalog {
 
   private function json(string $file): array {
     $path = $this->directory . '/' . $file;
-    $this->hashes[$file] = is_file($path) ? hash_file('sha256', $path) : 'missing';
-    if (!is_file($path)) { return []; }
+    if (!is_file($path)) { $this->hashes[$file] = 'missing'; return []; }
     try {
-      $data = json_decode(file_get_contents($path), TRUE, 512, JSON_THROW_ON_ERROR);
+      $bytes = file_get_contents($path);
+      if ($bytes === FALSE) { throw new \UnexpectedValueException(); }
+      // Bind cached data to the bytes actually parsed, including concurrent edits.
+      $this->hashes[$file] = hash('sha256', $bytes);
+      $data = json_decode($bytes, TRUE, 512, JSON_THROW_ON_ERROR);
       if (!is_array($data)) { throw new \UnexpectedValueException(); }
       return $data;
     }
     catch (\Throwable $e) { $this->errors[$file][] = 'invalid_json'; return []; }
   }
 
+  /** Returns an immutable-content cache key without relying on file timestamps. */
+  private function cacheId(string $file): ?string {
+    if (!$this->cache || !empty($this->errors['source.json']) || !empty($this->errors[$file])) { return NULL; }
+    foreach (array_unique(['source.json', $file]) as $name) {
+      $path = $this->directory . '/' . $name;
+      $this->hashes[$name] ??= is_file($path) ? hash_file('sha256', $path) : 'missing';
+      if (!is_string($this->hashes[$name]) || strlen($this->hashes[$name]) !== 64) { return NULL; }
+    }
+    return 'labdoo_translations:validated:' . self::CACHE_SCHEMA . ':' . hash('sha256', $this->hashes['source.json'] . ':' . $file . ':' . $this->hashes[$file]);
+  }
+
+  /** Stores only fully validated catalogs; native translations are never cached. */
+  private function cacheValidated(string $file, array $data): void {
+    if ($cid = $this->cacheId($file)) {
+      $this->cache->set($cid, $data, time() + 86400);
+    }
+  }
+
   public function strings(): array {
     if (!$this->loaded) {
       $this->loaded = TRUE;
+      if (($cid = $this->cacheId('source.json')) && ($cached = $this->cache->get($cid))) {
+        return $this->source = $cached->data;
+      }
       foreach ($this->json('source.json')['strings'] ?? [] as $id => $entry) {
         if (!is_array($entry) || !is_string($entry['source'] ?? NULL) || !is_string($entry['context'] ?? '')) { $this->errors['source.json'][] = 'invalid_entry'; continue; }
         $context = $entry['context'] ?? '';
         if (!hash_equals(self::id($entry['source'], $context), (string) $id)) { $this->errors['source.json'][] = 'source_id_mismatch'; continue; }
         $this->source[$id] = array_replace($entry, ['context' => $context]);
       }
+      $this->cacheValidated('source.json', $this->source);
     }
     return $this->source;
   }
@@ -49,6 +77,9 @@ final class Catalog {
     if (!preg_match('/^[a-z][a-z0-9-]{0,19}$/D', $language)) { return []; }
     if (!array_key_exists($language, $this->languages)) {
       $source = $this->strings();
+      if (($cid = $this->cacheId($language . '.json')) && ($cached = $this->cache->get($cid))) {
+        return $this->languages[$language] = $cached->data;
+      }
       $data = $this->json($language . '.json');
       $this->languages[$language] = [];
       if ($data && ($data['language'] ?? NULL) !== $language) { $this->errors[$language . '.json'][] = 'language_mismatch'; return []; }
@@ -57,6 +88,7 @@ final class Catalog {
         if (!is_string($text) || !self::validTranslation($source[$id]['source'], $text)) { $this->errors[$language . '.json'][] = 'invalid_translation'; continue; }
         $this->languages[$language][$id] = $text;
       }
+      $this->cacheValidated($language . '.json', $this->languages[$language]);
     }
     return $this->languages[$language];
   }

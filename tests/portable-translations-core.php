@@ -1,6 +1,6 @@
 <?php
 /** Portable file catalogs, native preservation and safe fallback without Drupal writes. */
-$lab=dirname(__DIR__,3);require $lab.'/integration/vendor/autoload.php';
+require dirname(__DIR__).'/vendor/autoload.php';
 foreach(['Catalog','Translator']as$class){require_once dirname(__DIR__).'/web/modules/custom/labdoo_translations/src/'.$class.'.php';}
 use Drupal\labdoo_translations\Catalog;
 use Drupal\labdoo_translations\Translator;

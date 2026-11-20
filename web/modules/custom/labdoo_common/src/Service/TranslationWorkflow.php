@@ -12,7 +12,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\locale\PoDatabaseReader;
+use Drupal\locale\StringStorageInterface;
 use Drupal\labdoo_translations\Catalog;
 
 /**
@@ -26,6 +26,7 @@ class TranslationWorkflow {
     protected ModuleHandlerInterface $moduleHandler,
     protected LocalTranslationAgent $translationAgent = new LocalTranslationAgent(),
     protected ?Catalog $catalog = NULL,
+    protected ?StringStorageInterface $stringStorage = NULL,
   ) {
   }
 
@@ -45,11 +46,14 @@ class TranslationWorkflow {
 
   /** Returns missing native entries not already covered by a reviewed catalog. */
   public function pending(string $language): array {
-    $reader = new PoDatabaseReader();
-    $reader->setLangcode($language);
-    $reader->setOptions(['not_translated' => TRUE]);
+    // Preserve legacy direct constructors; normal services inject storage.
+    $storage = $this->stringStorage ?? \Drupal::service('locale.storage');
     $items = [];
-    while ($item = $reader->readItem()) {
+    // PoDatabaseReader repeatedly shifts/reindexes its complete result array.
+    // Iterate the same untranslated records once, retaining its PoItem mapping.
+    foreach ($storage->getTranslations(['language' => $language, 'translated' => FALSE]) as $string) {
+      $item = new PoItem();
+      $item->setFromArray((array) $string);
       if (!$this->hasEmptySource($item) && $this->catalogTranslation($item, $language) === NULL) {
         $key = $this->itemKey($item);
         if (!isset($items[$key]) || ($item->isPlural() && !$items[$key]->isPlural())) {

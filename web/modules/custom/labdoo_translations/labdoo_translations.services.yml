@@ -1,6 +1,7 @@
 services:
   labdoo_translations.catalog:
     class: Drupal\labdoo_translations\Catalog
+    arguments: [null, '@cache.data']
   labdoo_translations.translator:
     class: Drupal\labdoo_translations\Translator
     arguments: ['@labdoo_translations.catalog', '@?locale.storage']

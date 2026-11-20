@@ -3,7 +3,7 @@ services:
     class: Drupal\labdoo_common\Service\LocalTranslationAgent
   labdoo_common.translation_workflow:
     class: Drupal\labdoo_common\Service\TranslationWorkflow
-    arguments: ['@language_manager', '@config.factory', '@module_handler', '@labdoo_common.local_translation_agent', '@?labdoo_translations.catalog']
+    arguments: ['@language_manager', '@config.factory', '@module_handler', '@labdoo_common.local_translation_agent', '@?labdoo_translations.catalog', '@?locale.storage']
   labdoo_common.translation_agents:
     class: Drupal\labdoo_common\Service\TranslationAgentRegistry
     arguments: ['@settings']
