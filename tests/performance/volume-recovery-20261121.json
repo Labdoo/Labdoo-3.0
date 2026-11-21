@@ -1,0 +1,85 @@
+{
+  "verified_at_utc": "2026-11-21T12:19:50.178657+00:00",
+  "task": "6j3vfF9VjvCgJ483",
+  "application_revision_restored": "021b7b3a957777f67dff27fbfb136e3f4258c4ce",
+  "backup": {
+    "daily_start_utc": "00:42",
+    "local_retained_points": 7,
+    "regional_retention_days": 14,
+    "scheduled_point_utc": "2026-11-21T00:56:40.048Z",
+    "observed_sets": [
+      {
+        "region": "eu-central-1",
+        "completed": 2,
+        "encrypted": false,
+        "private": true,
+        "sizes_gib": [
+          20,
+          120
+        ]
+      },
+      {
+        "region": "eu-west-1",
+        "completed": 2,
+        "encrypted": true,
+        "private": true,
+        "sizes_gib": [
+          20,
+          120
+        ]
+      }
+    ],
+    "manual_bootstrap_snapshots_retained": 2
+  },
+  "alarms": {
+    "count": 6,
+    "ok": 6,
+    "actions_enabled": 6,
+    "notification_delivery_tested": false
+  },
+  "restore": {
+    "sampled_files_passed": 52,
+    "sampled_files_checked": 52,
+    "uploads_sampled": 20,
+    "overlay_recheck_passed": 52,
+    "http_checks_passed": 12,
+    "php_fpm_errors": 0,
+    "http_phase_seconds": 57.472,
+    "php": "8.3.6",
+    "drupal": "11.4.13",
+    "locked_drupal": "11.4.13",
+    "matched_rds_pitr": true,
+    "isolated_network": true,
+    "real_mail_and_workers_disabled": true
+  },
+  "cleanup": {
+    "temporary_instance_terminated": true,
+    "temporary_databases_remaining": 0,
+    "temporary_volumes_remaining": 0,
+    "temporary_vpc_remaining": 0,
+    "temporary_iam_remaining": 0,
+    "temporary_copyback_snapshots_remaining": 0
+  },
+  "source": {
+    "instance_running": true,
+    "volume_ids_unchanged": true,
+    "security_rules_unchanged": true,
+    "rds_available": true,
+    "rds_pitr_days": 14
+  },
+  "validation": {
+    "python_tests_passed": 16,
+    "application_behavior_changed": false,
+    "browser_load_and_php_quality_suites_rerun": false
+  },
+  "limits": [
+    "Selected file sample; not all uploads hashed",
+    "Online crash consistency; no cross-service transaction guarantee",
+    "Nominal daily disk RPO plus copy delay",
+    "Four-hour RTO provisional; continuous end-to-end timing not measured",
+    "No public failover or recovered operating-system boot tested",
+    "Same-account backups; not immutable",
+    "Local snapshots and RDS inherit unencrypted source state",
+    "Retention expiration and email delivery not exercised"
+  ]
+}
