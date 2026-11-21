@@ -1,0 +1,212 @@
+{
+  "verified_at_utc": "2026-11-21T12:44:11.436617+00:00",
+  "task": "6j3vfFRGhV6pvMQV",
+  "target": "v3.labdoo.org",
+  "rules_before": 10,
+  "rules_after": 6,
+  "terminal_allow_rules_removed": 5,
+  "terminal_allow_rules_remaining": 0,
+  "capacity_wcu": 805,
+  "association_v3_only": true,
+  "default_and_nonrule_settings_preserved": true,
+  "preserved_rules": [
+    "AWSCommonRules",
+    "AWSIPReputation",
+    "RateLimitSensitivePaths",
+    "RateLimitGlobal"
+  ],
+  "bot_control": {
+    "global_enforcement_preserved": true,
+    "automated_browser_rule_unchanged": true,
+    "individually_counted_then_blocked_outside_acme": [
+      "CategoryHttpLibrary",
+      "SignalNonBrowserUserAgent"
+    ],
+    "group_scope_down_added": false,
+    "trusted_client_bypass_header_added": false
+  },
+  "edge_probes": {
+    "before_count": 20,
+    "after_count": 20,
+    "after_expectations_passed": 20,
+    "cases": [
+      {
+        "name": "home-en",
+        "before": 401,
+        "after": 401,
+        "expected_after": 401
+      },
+      {
+        "name": "media-get-en",
+        "before": 401,
+        "after": 401,
+        "expected_after": 401
+      },
+      {
+        "name": "node-ajax-en",
+        "before": 401,
+        "after": 401,
+        "expected_after": 401
+      },
+      {
+        "name": "media-upload-en",
+        "before": 401,
+        "after": 401,
+        "expected_after": 401
+      },
+      {
+        "name": "home-es",
+        "before": 401,
+        "after": 401,
+        "expected_after": 401
+      },
+      {
+        "name": "media-get-es",
+        "before": 401,
+        "after": 401,
+        "expected_after": 401
+      },
+      {
+        "name": "node-ajax-es",
+        "before": 401,
+        "after": 401,
+        "expected_after": 401
+      },
+      {
+        "name": "media-upload-es",
+        "before": 401,
+        "after": 401,
+        "expected_after": 401
+      },
+      {
+        "name": "acme-browser",
+        "before": 200,
+        "after": 200,
+        "expected_after": 200
+      },
+      {
+        "name": "acme-library",
+        "before": 200,
+        "after": 200,
+        "expected_after": 200
+      },
+      {
+        "name": "acme-library-head",
+        "before": 200,
+        "after": 200,
+        "expected_after": 200
+      },
+      {
+        "name": "node-ajax-query",
+        "before": 401,
+        "after": 403,
+        "expected_after": 403
+      },
+      {
+        "name": "media-query",
+        "before": 401,
+        "after": 403,
+        "expected_after": 403
+      },
+      {
+        "name": "file-query",
+        "before": 401,
+        "after": 403,
+        "expected_after": 403
+      },
+      {
+        "name": "acme-query",
+        "before": 200,
+        "after": 403,
+        "expected_after": 403
+      },
+      {
+        "name": "media-nonbrowser",
+        "before": 401,
+        "after": 403,
+        "expected_after": 403
+      },
+      {
+        "name": "node-ajax-nonbrowser",
+        "before": 401,
+        "after": 403,
+        "expected_after": 403
+      },
+      {
+        "name": "acme-nonbrowser-query",
+        "before": 200,
+        "after": 403,
+        "expected_after": 403
+      },
+      {
+        "name": "acme-nonbrowser-post",
+        "before": 403,
+        "after": 403,
+        "expected_after": 403
+      },
+      {
+        "name": "acme-nonbrowser-short",
+        "before": 404,
+        "after": 403,
+        "expected_after": 403
+      }
+    ]
+  },
+  "native_samples": [
+    {
+      "rule": "AWSCommonRules",
+      "validation_samples": 4,
+      "actions": {
+        "BLOCK": 4
+      }
+    },
+    {
+      "rule": "AWSBotControl",
+      "validation_samples": 12,
+      "actions": {
+        "COUNT": 12
+      }
+    },
+    {
+      "rule": "BlockNonAcmeBotSignals",
+      "validation_samples": 4,
+      "actions": {
+        "BLOCK": 4
+      }
+    }
+  ],
+  "local_e2e": {
+    "run": "waf-scope-20261121",
+    "head": "d714a9dd2fe4d5330f6567dbe405d658085c4a1c",
+    "unrelated_dirty_application_changes_present": true,
+    "expected": 5,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "php_installed": "8.3.36",
+    "drupal_installed": "11.4.13",
+    "drupal_locked": "11.4.13"
+  },
+  "unit_tests": {
+    "passed": 9,
+    "failed": 0
+  },
+  "certificate": {
+    "staging_renewal_exit": 0,
+    "production_certificate_unchanged": true,
+    "executable_hooks_present": false
+  },
+  "cleanup": {
+    "temporary_public_acme_fixture_removed": true,
+    "new_aws_resources_created": 0
+  },
+  "limits": [
+    "Unauthenticated edge POSTs stop at existing Basic Auth; no real production content submissions",
+    "Local lifecycle tests do not certify an authenticated browser session through WAF",
+    "Pre-existing common GenericLFI_BODY and SizeRestrictions_BODY Count overrides preserved",
+    "Managed body inspection remains bounded",
+    "No production load or rate-threshold saturation performed",
+    "Obsolete test IP set retained unreferenced for rollback",
+    "No k6, Lighthouse or PHP quality suite run for this operational change"
+  ]
+}
