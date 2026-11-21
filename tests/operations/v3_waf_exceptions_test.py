@@ -119,6 +119,14 @@ class WafExceptionsTest(unittest.TestCase):
                     self.assertTrue(matches(block['Statement'], request))
             self.assertFalse(matches(block['Statement'], dict(self.request, labels=[label])))
 
+    def test_verified_category_without_rule_match_cannot_trigger_new_block(self):
+        block = next(r for r in waf.narrow_rules(self.original) if r['Name'] == 'BlockNonAcmeBotSignals')
+        request = dict(self.request, UriPath='/en', labels=[
+            'awswaf:managed:aws:bot-control:bot:category:http_library',
+            'awswaf:managed:aws:bot-control:bot:verified',
+        ])
+        self.assertFalse(matches(block['Statement'], request))
+
     def test_canonical_acme_with_no_bot_label_does_not_trigger_custom_block(self):
         block = next(r for r in waf.narrow_rules(self.original) if r['Name'] == 'BlockNonAcmeBotSignals')
         self.assertFalse(matches(block['Statement'], self.request))

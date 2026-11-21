@@ -23,7 +23,7 @@ All five terminal Allow rules were removed. The ACL now has six rules:
 | 13 | RateLimitGlobal | Original IP rate rule, limit 1,500 preserved |
 
 `CategoryHttpLibrary` and `SignalNonBrowserUserAgent` are individually counted
-inside Bot Control. Their native labels are then blocked by priority 9 unless
+inside Bot Control. Their rule-match labels are then blocked by priority 9 unless
 **all** of the following match:
 
 - Host is exactly `v3.labdoo.org`, ignoring case.
@@ -38,6 +38,14 @@ browser detection, keep their native actions. There is no group-wide Count,
 Bot Control scope-down exclusion, new terminal Allow, IP exemption or trusted
 client-supplied bypass header. The remaining common/reputation checks and both
 rate limits still apply even to an ACME request qualifying for the exception.
+
+The compensating rule uses `CategoryHttpLibrary` and
+`SignalNonBrowserUserAgent` **rule-match labels**, not a general HTTP-library
+classification. AWS can classify verified bots without matching the blocking
+rule. A regression test reproduced the overblocking risk of category matching;
+the final rules preserve verified-bot handling by using the specific rule labels
+confirmed in native provider metadata. The final edge and certificate checks
+were repeated after that refinement.
 
 The ACL default Allow and other settings are unchanged. Existing common-group
 Count overrides for `GenericLFI_BODY` and `SizeRestrictions_BODY` were preserved;
@@ -55,9 +63,9 @@ change does not restore remote testing or allow an entire IP for automation.
 
 The [builder](../../scripts/v3_waf_exceptions.py) performs no AWS calls and rejects
 unexpected inventories, managed-group overrides and ordering before producing a
-replacement. Nine [unit tests](../../tests/operations/v3_waf_exceptions_test.py)
+replacement. Ten [unit tests](../../tests/operations/v3_waf_exceptions_test.py)
 pass. They cover the emitted predicates, source immutability, preserved rules,
-bot-label blocking, ACME method/host/token/query/body boundaries and fail-closed
+bot-label blocking, verified-bot category preservation, ACME boundaries and fail-closed
 inputs. They do **not** emulate AWS managed attack detection.
 
 AWS's native `CheckCapacity` accepted the complete candidate at **805 WCU**.

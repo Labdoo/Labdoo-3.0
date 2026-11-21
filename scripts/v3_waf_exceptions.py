@@ -10,8 +10,8 @@ PROTECTED = frozenset({
     'RateLimitSensitivePaths', 'RateLimitGlobal',
 })
 BOT_EXCEPTIONS = {
-    'CategoryHttpLibrary': 'awswaf:managed:aws:bot-control:bot:category:http_library',
-    'SignalNonBrowserUserAgent': 'awswaf:managed:aws:bot-control:signal:non_browser_user_agent',
+    'CategoryHttpLibrary': 'awswaf:managed:aws:bot-control:CategoryHttpLibrary',
+    'SignalNonBrowserUserAgent': 'awswaf:managed:aws:bot-control:SignalNonBrowserUserAgent',
 }
 
 
@@ -65,6 +65,7 @@ def narrow_rules(web_acl):
         raise ValueError('Existing bot exceptions require a separate review')
     # Only these two signals continue to a compensating Block rule. Every other
     # Bot Control rule retains its native action, including automated browsers.
+    # Match rule labels, not category labels also emitted for verified bots.
     bot['RuleActionOverrides'] = [
         {'Name': name, 'ActionToUse': {'Count': {}}} for name in BOT_EXCEPTIONS
     ]
