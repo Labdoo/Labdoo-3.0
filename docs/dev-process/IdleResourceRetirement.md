@@ -1,18 +1,20 @@
-# Idle resource recovery and retirement review
+# Idle resource recovery and approved retirement
 
-AWS-A10, 22 November 2026. A recoverable encrypted copy of the candidate volume
-has been prepared and tested. **The original volume and Elastic IP remain
-allocated, pending explicit retirement approval.** No running web server or
-previous backup/AMI was retired.
-[Sanitized evidence](../../tests/performance/aws-idle-resources-20261122.json)
-contains aggregate checks and prices. Native IDs, addresses, DNS results, tags,
-file paths and hashes remain in private evidence.
+AWS-A10, 22 November 2026. The owner explicitly approved retiring both candidates
+and retaining the recovery copy. **The original 64 GiB volume has been deleted
+and the unassociated Elastic IP released.** The encrypted recovery copy and all
+38 pre-existing snapshots/seven AMIs remain; no running web server was retired.
+[Retirement evidence](../../tests/performance/aws-idle-retirement-20261122.json)
+records the completed actions and absence checks. The
+[initial preparation snapshot](../../tests/performance/aws-idle-resources-20261122.json)
+retains the earlier, then-pending decision. Native IDs, addresses, DNS results,
+tags, file paths and hashes remain private.
 
 ## Candidates and ownership limits
 
-The candidates still match the original audit:
+Before the approved retirement, both candidates matched the original audit:
 
-| Alias | Observed state | Candidate saving before recovery costs |
+| Alias | Pre-retirement state | Removed cost before recovery storage |
 | --- | --- | ---: |
 | Idle legacy volume | us-east-1, gp2, 64 GiB, unencrypted, available, no attachments or tags; created 3 June 2019 | USD 6.40/month |
 | Unassociated address | eu-central-1, Amazon-pool VPC Elastic IP, no instance/ENI association or tags | USD 3.65 per 730 hours |
@@ -21,7 +23,7 @@ Creation in 2019 does not establish when the volume was last attached. Neither
 missing metrics nor missing tags establish that its data is dispensable. The
 restored filesystem has a data layout, not the standard operating-system
 directories used by the initial sampling plan. Business ownership and expected
-retention remain an owner decision.
+retention were presented to the owner before explicit retirement approval.
 
 There are no hosted zones in this AWS account. Five selected service/origin DNS
 names resolved successfully without matching the candidate IP. Neither of the
@@ -67,7 +69,8 @@ are the reference.
    restored volume, then deleted only the task-created unencrypted source
    snapshot after the encrypted copy/readability proof succeeded. The encrypted
    recovery copy is retained. The controller is still running with its original
-   three volumes, and the original legacy volume/IP are unchanged.
+   three volumes. At that preparation stage the original legacy volume/IP were
+   unchanged; they were retired only after the subsequent explicit approval.
 
 The first probe selected standard OS directories and failed its sampling-count
 assertion because those directories were absent. Its receipt was retained and
@@ -79,7 +82,8 @@ a passing data test.
 This drill establishes an encrypted, private, restorable copy with readable ext4
 data samples. It does **not** establish full-volume hash equality against the
 original, complete application/database consistency, bootability or a business
-recovery-time objective. The original is retained for the retirement decision.
+recovery-time objective. The encrypted copy is retained after the approved
+original-volume deletion.
 
 ## Existing snapshots and AMIs preserved
 
@@ -114,9 +118,9 @@ charges, give:
 | --- | --- | ---: |
 | Original gp2 volume | 64 GiB at 0.10/GB-month, us-east-1 | 6.40 |
 | Unassociated IPv4 | 0.005/hour, 730 hours | 3.65 |
-| Gross candidate reduction | Both originals retired | **10.05** |
+| Gross removed run rate | Both originals retired | **10.05** |
 | Retained standard snapshot | Frankfurt 0.054/GB-month; full 64 GiB envelope | **up to 3.456** |
-| Conservative net candidate reduction | Both originals retired; full-size snapshot envelope | **about 6.59** |
+| Conservative net run-rate reduction | Both originals retired; full-size snapshot envelope | **about 6.59** |
 
 Snapshot storage is billed on stored snapshot data, not simply filesystem used
 space. The legacy CLI response did not expose a full snapshot size field; no
@@ -126,33 +130,39 @@ short-lived snapshot/test-volume storage and API requests can add one-time or
 variable charges; they are not measured here. Snapshot review does not imply
 its future deletion is approved.
 
-**No original-resource saving has yet been realized:** both original resources
-are retained, and the recovery snapshot adds storage cost during approval.
-This comparison is not the total AWS account bill and does not count savings
-from deleting existing backup, staging, database or migration resources.
+Both original resources have now been removed. The gross removed cost run rate
+is USD 10.05/month; after the full-size snapshot envelope, the conservative net
+estimate is about USD 6.59/month. This is a forward estimate, **not measured
+invoice savings**. The comparison excludes the rest of the account and does not
+count removal of existing backup, staging, database or migration resources.
 
-## Concrete retirement decision and execution gates
+## Approved retirement and verification
 
-The reviewable proposal is limited to the **one unattached 64 GiB us-east-1 gp2
-volume and the one unassociated eu-central-1 Elastic IP** identified privately
-in this task. The original card requires backup and retirement approval; it
-forbids deleting the volume or releasing the IP during the audit phase. That
-approval is the remaining step, after this recovery proof and dependency review.
+The owner explicitly instructed: **retire both and keep the copy**. The earlier
+card restriction applied to the diagnostic phase; no further retirement approval
+is pending for these two exact resources.
 
-After explicit approval:
+1. Refreshed both private resource IDs immediately before execution. The same
+   64 GiB gp2 source in us-east-1 was available/unattached with unchanged tags.
+   The same eu-central-1 allocation had no association, ENI or instance and its
+   address/tags were unchanged. No substitute resource was selected.
+2. Confirmed the recovery snapshot was completed, encrypted, private and 64 GiB;
+   the KMS key was enabled and RecoveryHold/source provenance tags matched.
+3. Deleted only that original volume. Rechecked the exact IP allocation guard
+   immediately before releasing it. Both API requests succeeded. The retained
+   encrypted snapshot was not deleted or shared.
+4. Refreshed inventories: the original volume is absent and us-east-1 now has no
+   EBS volumes in this account; the released allocation/address is absent, with
+   one other allocation retained. All 38 baseline snapshots and all seven AMIs
+   remain; there are 39 snapshots including the new encrypted recovery copy.
+5. The three web instances remain running, all 66 alarms are OK, and the five
+   selected service/origin names resolve without matching the released IP.
+   The report publication also uses the maintained v3 deployment/FPM checks.
 
-1. Re-read both exact resource IDs from the private candidate record. Confirm
-   the same volume is still available/no attachments and the same allocation
-   still has no association/ENI/instance; stop if state or ownership changed.
-2. Confirm the retained encrypted snapshot is still completed, private, tagged
-   for recovery and decryptable with the enabled key. Preserve the private
-   manifest/provenance and the agreed recovery hold.
-3. Delete only that original volume and release only that IP allocation. Do not
-   deregister AMIs or delete baseline snapshots under this decision. Verify by
-   resource-specific absence queries, and record the irreversible IP caveat.
-4. Recheck selected public DNS/services, current web instance state and monitored
-   health. Record actual actions and any residual charge assumptions separately
-   from the pre-retirement estimates.
+The released address was not reclaimed for a test. Identical-IP rollback is not
+guaranteed, and external DNS/allowlist discovery remains bounded as stated above.
+No AMI deregistration, unrelated snapshot deletion, server retirement, deferred
+maintenance or encryption switchover was performed under this approval.
 
 For volume recovery, copy the encrypted snapshot back to the desired region if
 needed, create a new volume in the attachment AZ and restore/mount it through an
@@ -172,4 +182,5 @@ provide operational recovery evidence. No Drupal behavior, dependencies, queue
 or interface changed, so E2E/k6/Lighthouse do not establish additional evidence
 for this document. The maintained v3 publication wrapper checks PHP-FPM and
 private settings when the report is deployed. No different PHP/runtime version,
-complete recovery SLA or original-resource retirement is certified here.
+complete recovery SLA or full application consistency is certified here. The
+resource retirements themselves are confirmed by the native absence checks.

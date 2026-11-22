@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "date": "2026-11-22",
+  "task": "AWS-A10",
+  "status": "approved_original_volume_and_eip_retired_recovery_copy_retained",
+  "authorization": "Owner explicitly instructed Retirar ambos y conservar la copia.",
+  "execution": {
+    "preflights_passed": true,
+    "original_volume_delete_accepted": true,
+    "eip_release_accepted": true,
+    "started_utc": "2026-11-22T20:03:07.741238+00:00",
+    "finished_utc": "2026-11-22T20:03:12.538931+00:00",
+    "other_original_resource_deletions": 0
+  },
+  "verification": {
+    "original_volume_absent": true,
+    "released_allocation_and_address_absent": true,
+    "retained_recovery_snapshot_present": true,
+    "baseline_snapshots_preserved": true,
+    "baseline_snapshot_count": 38,
+    "snapshot_total": 39,
+    "baseline_amis_preserved": true,
+    "ami_count": 7,
+    "remaining_allocated_ips": 1,
+    "web_instances_running": true,
+    "alarm_states": {
+      "OK": 66,
+      "ALARM": 0,
+      "INSUFFICIENT_DATA": 0
+    },
+    "us_east_volumes_remaining": 0
+  },
+  "dns_after_retirement": {
+    "dns_names_checked": 5,
+    "errors": 0,
+    "released_address_matches": 0
+  },
+  "recovery_preserved": {
+    "snapshot_region": "eu-central-1",
+    "encrypted": true,
+    "volume_size_gib": 64,
+    "completed": true,
+    "kms_key_enabled_at_retirement": true,
+    "private": true,
+    "recovery_hold": true,
+    "manual_review_after": "2026-12-22",
+    "automatic_delete_scheduled": false,
+    "previous_restore_drill": {
+      "filesystem": "ext4",
+      "block_device_read_only": true,
+      "journal_replay_disabled": true,
+      "files_sampled": 32,
+      "sample_bytes": 286386,
+      "whole_files_sampled": 29,
+      "prefix_only_samples": 3,
+      "maximum_prefix_bytes_per_file": 65536,
+      "data_paths_and_hashes_private": true,
+      "full_volume_hash_compared_with_original": false,
+      "boot_or_application_rto_certified": false
+    }
+  },
+  "billing_expectation": {
+    "currency": "USD",
+    "normalized_hours_per_month": 730,
+    "removed_original_volume_run_rate_monthly": 6.4,
+    "removed_idle_ipv4_run_rate_monthly": 3.65,
+    "gross_removed_run_rate_monthly": 10.05,
+    "retained_snapshot_full_64_gib_envelope_monthly": 3.456,
+    "conservative_net_monthly_estimate": 6.594,
+    "invoice_savings_measured": false,
+    "excludes": [
+      "tax",
+      "allowances",
+      "one-time cross-region transfer",
+      "temporary restore/snapshot storage",
+      "variable API charges"
+    ]
+  },
+  "rollback_limits": {
+    "same_volume_id_recoverable": false,
+    "volume_data_recovery_from_retained_encrypted_snapshot": true,
+    "same_released_ip_guaranteed_recoverable": false,
+    "external_dns_allowlist_inventory_complete": false
+  },
+  "scope_limits": {
+    "no_running_web_server_retired": true,
+    "baseline_snapshots_and_amis_preserved": true,
+    "deferred_migration_resources_preserved": true,
+    "no_application_behavior_or_dependency_changes": true,
+    "browser_k6_lighthouse_not_run": "Documentation/data operations only; native absence/recovery checks plus v3 runtime deployment smoke are applicable."
+  }
+}
