@@ -1,0 +1,223 @@
+{
+  "schema": 1,
+  "date": "2026-11-22",
+  "task": "AWS-A09",
+  "status": "proposal_only_not_implemented",
+  "preference": "balance_availability_and_cost",
+  "platform_retirement_decision": "pending_user_answer",
+  "region": "eu-central-1",
+  "inventory": {
+    "running_web_nodes": 3,
+    "web_availability_zones": 1,
+    "elb_v2": 0,
+    "auto_scaling_groups": 0,
+    "efs_file_systems": 0,
+    "nat_gateways": 0,
+    "subnet_availability_zones": 3,
+    "m4_xlarge_offered_az_count": 3,
+    "offering_is_not_capacity_guarantee": true
+  },
+  "reservation": {
+    "family": "m4",
+    "size": "2xlarge",
+    "count": 1,
+    "scope": "Region",
+    "platform": "Linux/UNIX",
+    "tenancy": "default",
+    "offering": "No Upfront",
+    "fixed_usd": 0,
+    "recurring_usd_hour": 0.2419,
+    "expires": "2029-09-04",
+    "normalized_units": 16,
+    "currently_consumed_by": "platform",
+    "proposed_two_xlarge_units": [
+      8,
+      8
+    ]
+  },
+  "guest": {
+    "inspection": "read-only actual default-site Drush via pinned SSH",
+    "public_allocated_bytes": 80152711168,
+    "private_allocated_bytes": 8192,
+    "public_private_disjoint": true,
+    "efs_cost_envelope_gib": 80,
+    "efs_envelope_is_not_billed_logical_size_measurement": true,
+    "data_filesystem_used_percent_rounded": 81,
+    "data_filesystem_available_bytes": 23806730240,
+    "session_storage": "Drupal Core database SessionHandler",
+    "lock": "DatabaseLockBackend",
+    "persistent_lock": "PersistentDatabaseLockBackend",
+    "queue_factory": "QueueDatabaseFactory",
+    "default_cache": "Redis Predis",
+    "custom_queue_backends_not_fully_audited": true
+  },
+  "recent_ec2_metrics": {
+    "start": "2026-11-20T18:00:00+00:00",
+    "end": "2026-11-22T18:00:00+00:00",
+    "period_seconds": 3600,
+    "series": {
+      "wwwcpuavg": {
+        "samples": 48,
+        "status": "Complete",
+        "min": 4.369301106724139,
+        "max": 5.697252056963589,
+        "mean": 5.02105458365288,
+        "zero_count": 0
+      },
+      "wwwcpumax": {
+        "samples": 48,
+        "status": "Complete",
+        "min": 7.276299577075494,
+        "max": 42.324038733978895,
+        "mean": 14.945569124072454,
+        "zero_count": 0
+      },
+      "wwwcredits": {
+        "samples": 48,
+        "status": "Complete",
+        "min": 143.663525,
+        "max": 144.0,
+        "mean": 143.96187024305556,
+        "zero_count": 0
+      },
+      "platformcpuavg": {
+        "samples": 48,
+        "status": "Complete",
+        "min": 3.1016646589155927,
+        "max": 8.839687713291568,
+        "mean": 3.888951911487359,
+        "zero_count": 0
+      },
+      "platformcpumax": {
+        "samples": 48,
+        "status": "Complete",
+        "min": 13.71379045968199,
+        "max": 83.78747729280202,
+        "mean": 18.56419032338081,
+        "zero_count": 0
+      },
+      "v3cpuavg": {
+        "samples": 48,
+        "status": "Complete",
+        "min": 2.671163718185652,
+        "max": 3.8287282896973283,
+        "mean": 2.901218636097093,
+        "zero_count": 0
+      },
+      "v3cpumax": {
+        "samples": 48,
+        "status": "Complete",
+        "min": 3.7183070473148327,
+        "max": 32.56580041925931,
+        "mean": 7.883426292196641,
+        "zero_count": 0
+      },
+      "v3credits": {
+        "samples": 48,
+        "status": "Complete",
+        "min": 864.0,
+        "max": 864.0,
+        "mean": 864.0,
+        "zero_count": 0
+      }
+    }
+  },
+  "pricing": {
+    "source": "AWS Price List Query API OnDemand Frankfurt; native active RI contract",
+    "retrieved": "2026-11-22",
+    "currency": "USD",
+    "hours_per_month": 730,
+    "rates": {
+      "ri_m4_2xlarge_hour": 0.2419,
+      "m4_xlarge_hour": 0.24,
+      "m6i_large_hour": 0.115,
+      "t2_large_hour": 0.1072,
+      "alb_hour": 0.027,
+      "alb_lcu_hour": 0.008,
+      "efs_standard_gib_month": 0.36,
+      "efs_elastic_read_gb": 0.04,
+      "efs_elastic_write_gb": 0.07,
+      "gp3_gib_month": 0.0952,
+      "ipv4_address_hour": 0.005,
+      "nat_hour": 0.052,
+      "nat_gb": 0.052
+    },
+    "two_node_shared_layers": {
+      "root_ebs_2x30_gib": 5.712,
+      "efs_80_gib_envelope": 28.8,
+      "alb": 19.71,
+      "one_average_lcu": 5.84,
+      "four_ipv4_minimum": 14.6
+    },
+    "scenarios": {
+      "two_m4_xlarge_after_platform_retirement": {
+        "committed_compute": 176.587,
+        "additional_compute": 0.0,
+        "web_layers": 74.662,
+        "subtotal": 251.249
+      },
+      "two_m4_xlarge_during_platform_overlap": {
+        "committed_compute": 176.587,
+        "additional_compute": 350.4,
+        "web_layers": 74.662,
+        "subtotal": 601.649
+      },
+      "two_m6i_large_with_existing_ri_still_payable": {
+        "committed_compute": 176.587,
+        "additional_compute": 167.9,
+        "web_layers": 74.662,
+        "subtotal": 419.149
+      },
+      "single_m4_2xlarge_after_platform_retirement": {
+        "committed_compute": 176.587,
+        "additional_compute": 0.0,
+        "web_layers": 16.978,
+        "subtotal": 193.565
+      }
+    },
+    "two_zonal_nat_extra_fixed_usd_month": 75.92,
+    "efs_example_100gb_read_10gb_write": 4.7,
+    "excluded": [
+      "tax",
+      "www",
+      "retained staging v3",
+      "RDS",
+      "Redis",
+      "CloudFront",
+      "WAF",
+      "mail",
+      "backup storage and restore",
+      "cross-AZ and Internet traffic",
+      "variable LCU above one average",
+      "variable EFS throughput",
+      "extra ALB IPv4 addresses",
+      "temporary migration resources"
+    ],
+    "not_an_account_total": true
+  },
+  "proposed_targets": {
+    "availability_slo_percent": 99.9,
+    "measurement": "Time-based availability from minute-resolution external critical user journeys; separately report request errors and planned maintenance",
+    "error_budget_minutes_per_30_days": 43.2,
+    "single_node_or_az_failure_rto_minutes": 15,
+    "regional_recovery_rto_hours_provisional": 4,
+    "backup_rpo_hours_provisional": 24,
+    "ha_rpo_for_acknowledged_writes": "target no loss for an individual web-node failure; unverified under concurrent application/file writes",
+    "targets_verified": false,
+    "scope": "New production Drupal service; separate WordPress www availability not certified"
+  },
+  "validation": {
+    "application_code_changed": false,
+    "production_load_test_run": false,
+    "two_node_failover_test_run": false,
+    "documentation_checks": "JSON parsed, independent Decimal arithmetic, local references and native identifier/secret scan; see task publication record",
+    "runtime_compatibility_certification": "not applicable to documentation-only change; replacement image/runtime remains an implementation acceptance gate"
+  },
+  "dependencies": [
+    "A06 encrypted storage and data TLS/RBAC migration deferred to production",
+    "A07 OS and Redis maintenance deferred to production",
+    "A02 timed full recovery and database/file consistency remain unproven",
+    "A05 www/platform guest memory not historically measured",
+    "A08 preserve both logical CloudFront origins and static cache guard on every node"
+  ]
+}
