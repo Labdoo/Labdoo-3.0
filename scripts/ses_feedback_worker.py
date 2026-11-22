@@ -39,6 +39,9 @@ def validate_config(config):
     topic = config.get('topic_arn', '')
     if not re.fullmatch(r'arn:aws:sns:' + re.escape(region + ':' + account + ':') + r'[A-Za-z0-9_-]{1,256}', topic):
         raise FeedbackError('invalid_topic')
+    visibility = config.get('visibility_timeout', 300)
+    if type(visibility) is not int or not 1 <= visibility <= 43200:
+        raise FeedbackError('invalid_visibility_timeout')
     ledger = Path(config.get('ledger', ''))
     if not ledger.is_absolute():
         raise FeedbackError('invalid_ledger')
@@ -129,7 +132,7 @@ class AwsQueue:
         return {'mode': 'inspect', 'visible_approximate': int(attrs['ApproximateNumberOfMessages'])}
 
     def receive(self):
-        return self.call('receive-message', ['--max-number-of-messages', '10', '--wait-time-seconds', '20']).get('Messages', [])
+        return self.call('receive-message', ['--max-number-of-messages', '10', '--wait-time-seconds', '20', '--visibility-timeout', str(self.config.get('visibility_timeout', 300))]).get('Messages', [])
 
     def acknowledge(self, receipt):
         self.call('delete-message', ['--receipt-handle', receipt])
@@ -166,7 +169,10 @@ def main():
     if args.apply:
         ledger = Ledger(config['ledger'])
         try:
-            print(json.dumps(poll(queue, ledger, config['topic_arn'])), flush=True)
+            result = poll(queue, ledger, config['topic_arn'])
+            print(json.dumps(result), flush=True)
+            if result['failed']:
+                raise FeedbackError('batch_failed')
         finally:
             ledger.close()
 

@@ -129,6 +129,18 @@ class FeedbackTest(unittest.TestCase):
         self.assertEqual(p['Statement'][0]['Resource'],QUEUE)
         self.assertEqual(set(p['Statement'][0]['Action']),{'sqs:GetQueueAttributes','sqs:ReceiveMessage','sqs:DeleteMessage'})
         self.assertEqual(p['Statement'][1]['Condition']['StringEquals']['cloudwatch:namespace'],'Labdoo/SESFeedback')
+    def test_receive_lease_defaults_longer_than_service_timeout(self):
+        c={'region':'eu-central-1','account':ACCOUNT,'queue_url':f'https://sqs.eu-central-1.amazonaws.com/{ACCOUNT}/synthetic-queue','queue_arn':QUEUE,'topic_arn':TOPIC,'ledger':str(self.path)}
+        q=worker.AwsQueue(c)
+        with patch.object(q,'call',return_value={}) as call:
+            self.assertEqual(q.receive(),[])
+            self.assertEqual(call.call_args.args[1][-2:],['--visibility-timeout','300'])
+        for value in [0,43201,True,'300']:
+            with self.subTest(value=value),self.assertRaises(worker.FeedbackError):worker.validate_config({**c,'visibility_timeout':value})
+    def test_failed_apply_batch_exits_unsuccessfully(self):
+        config={'region':'eu-central-1','account':ACCOUNT,'queue_url':f'https://sqs.eu-central-1.amazonaws.com/{ACCOUNT}/synthetic-queue','queue_arn':QUEUE,'topic_arn':TOPIC,'ledger':str(self.path)}
+        path=Path(self.tmp.name)/'apply.json';path.write_text(json.dumps(config));path.chmod(0o600)
+        with patch('sys.argv',['worker','--config',str(path),'--apply']),patch.object(worker.AwsQueue,'inspect',return_value={'mode':'inspect'}),patch.object(worker,'poll',return_value={'failed':1}),self.assertRaises(worker.FeedbackError):worker.main()
     def test_cross_account_policies_refused(self):
         with self.assertRaises(ValueError):policy.sns_queue_policy(QUEUE,TOPIC, '999999999999')
 
