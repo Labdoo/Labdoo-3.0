@@ -31,11 +31,12 @@ export function setup() {
   if (![css, js].every(path => typeof path === 'string' && path.startsWith('/') && !path.startsWith('//'))) {
     throw new Error('Expected actual local static assets');
   }
-  // Compile an aggregate before conditional requests, as in the local server.
-  for (const path of [css, js]) {
+  const image = '/themes/custom/labdoo_next/images/photo-album-icon-30.webp';
+  // Compile aggregates and verify the responsive artwork before revalidation.
+  for (const path of [css, js, image]) {
     if (http.get(base + path).status !== 200) throw new Error('Asset warmup failed');
   }
-  return { paths: [css, js] };
+  return { paths: [css, js, image] };
 }
 
 export default function ({ paths }) {
@@ -46,7 +47,7 @@ export default function ({ paths }) {
   const etag = header(asset, 'etag');
   check(asset, {
     'asset HTTP 200': r => r.status === 200,
-    'asset has CSS or JavaScript MIME': r => /(?:css|javascript)/i.test(header(r, 'content-type') || ''),
+    'asset has CSS, JavaScript or WebP MIME': r => /(?:css|javascript|image\/webp)/i.test(header(r, 'content-type') || ''),
     'asset has an ETag': () => Boolean(etag),
     'asset is not an HTML error': r => !/^\s*(?:<!doctype html|<html)/i.test(r.body),
   });

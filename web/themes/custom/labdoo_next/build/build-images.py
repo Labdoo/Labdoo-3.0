@@ -6,8 +6,16 @@ out=theme/'images'
 sources={'labdoo-wordmark':theme/'images/labdoo-wordmark.webp'}
 for name in ['hub','dootrip','laptop','edoovillage','footer-acts-transparent','labdoo-stories-header']:
  sources[name]=root/'web/themes/custom/labdoo/img'/f'{name}.png'
+action_icons = [
+ 'house', 'photo-album-icon', 'pencil-icon', 'revisions-icon', 'clone-icon',
+ 'arrow-left', 'arrow-right', 'tag', 'signal', 'signal-off', 'truck', 'truck-off',
+]
+for name in action_icons:
+ sources[name]=root/'web/themes/custom/labdoo/img'/f'{name}.png'
+for source in sorted((root/'web/themes/custom/labdoo/img').glob('semaphore-*-en.png')):
+ sources[source.stem]=source
 for name,source in sources.items():
- widths=[120,240,360] if name=='labdoo-wordmark' else [30,60,90] if name in ['hub','dootrip','laptop','edoovillage'] else [336,672,1342] if name=='footer-acts-transparent' else [400,550,1100]
+ widths=[120,240,360] if name=='labdoo-wordmark' or name.startswith('semaphore-') else [30,60,90] if name in ['hub','dootrip','laptop','edoovillage',*action_icons] else [336,672,1342] if name=='footer-acts-transparent' else [400,550,1100]
  for width in widths:
   dest=out/f'{name}-{width}.webp'
   subprocess.run(['cwebp','-quiet','-lossless','-m','6','-resize',str(width),'0',str(source),'-o',str(dest)],check=True)

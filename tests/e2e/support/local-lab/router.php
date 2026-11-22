@@ -19,18 +19,35 @@ if (is_file($root . $path) && !str_ends_with($path, '.php')) {
     'svg' => 'image/svg+xml',
   ];
   $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+  // Type and revalidate code images/fonts without inventing an expiry policy.
+  // V3 has no mod_expires; its separate CloudFront cache is bounded to 300s.
+  $binary_code_asset = FALSE;
+  if (preg_match('@^/(?:themes|core|modules)/@', $path)) {
+    $types += [
+      'png' => 'image/png',
+      'jpg' => 'image/jpeg',
+      'jpeg' => 'image/jpeg',
+      'webp' => 'image/webp',
+      'woff2' => 'font/woff2',
+    ];
+    $binary_code_asset = in_array($extension, ['png', 'jpg', 'jpeg', 'webp', 'woff2'], TRUE);
+  }
   if (!isset($types[$extension])) { return FALSE; }
   $file = $root . $path;
   $etag = 'W/"' . hash_file('sha256', $file) . '"';
   header('Content-Type: ' . $types[$extension]);
-  header('Cache-Control: public, max-age=31536000');
+  if (!$binary_code_asset) {
+    header('Cache-Control: public, max-age=31536000');
+  }
   header('ETag: ' . $etag);
   header('Vary: Accept-Encoding');
   if (trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '') === $etag) {
     http_response_code(304);
     exit;
   }
-  ob_start('ob_gzhandler');
+  if (in_array($extension, ['css', 'js', 'json', 'map', 'svg'], TRUE)) {
+    ob_start('ob_gzhandler');
+  }
   readfile($file);
   exit;
 }

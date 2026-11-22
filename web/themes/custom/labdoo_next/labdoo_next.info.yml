@@ -26,6 +26,8 @@ regions_hidden:
 
 # Keep existing map versions, now served locally in Drupal aggregates.
 libraries-override:
+  # The same detection runs inline with the menu class before the first paint.
+  core/drupal.touchevents-test: false
   labdoo/labdoo_map: labdoo_next/map
   gin/gin_base:
     css:

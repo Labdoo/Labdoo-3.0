@@ -55,6 +55,25 @@ class LighthouseRunnerTest(unittest.TestCase):
             self.assertEqual(summary[0]['failed_audits'], ['contrast'])
             self.assertEqual(summary[0]['warnings'], ['Controlled warning'])
 
+    def test_default_school_audit_uses_the_canonical_url(self):
+        seen = []
+
+        def command(args, **kwargs):
+            seen.append(args[1])
+            prefix = next(arg.split('=', 1)[1] for arg in args if arg.startswith('--output-path='))
+            report = {
+                'categories': {'performance': {'score': 1}},
+                'audits': {name: {'numericValue': 0} for name in ['first-contentful-paint', 'largest-contentful-paint', 'total-blocking-time', 'cumulative-layout-shift', 'speed-index']},
+                'lighthouseVersion': 'test-version',
+            }
+            Path(prefix + '.report.json').write_text(json.dumps(report))
+
+        with tempfile.TemporaryDirectory() as output:
+            args = [str(RUNNER), '--base-url', 'http://127.0.0.1:18411', '--output', output, '--routes', 'school', '--profiles', 'desktop']
+            with patch('sys.argv', args), patch('urllib.request.urlopen', return_value=Response(sha256(str(ROOT).encode()).hexdigest())), patch('subprocess.run', side_effect=command):
+                runpy.run_path(str(RUNNER), run_name='__main__')
+        self.assertEqual(seen, ['http://127.0.0.1:18411/en/content/nepal-kathmandu-handigaun-primary-school-handigaun'])
+
 
 if __name__ == '__main__':
     unittest.main()

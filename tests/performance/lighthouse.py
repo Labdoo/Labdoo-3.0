@@ -13,7 +13,7 @@ from urllib.parse import urlsplit, urljoin
 ROUTES = {
     'home': '/en',
     'dashboard': '/en/content/dootronics-dashboard',
-    'school': '/en/node/749',
+    'school': '/en/content/nepal-kathmandu-handigaun-primary-school-handigaun',
     'wiki': '/en/content/labdoo-social-network-how-it-works',
 }
 parser = argparse.ArgumentParser()

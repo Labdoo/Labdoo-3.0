@@ -1,0 +1,4 @@
+/* Keep responsive picture fallbacks in the existing action-panel layout. */
+.labdoo-next .ldn-action-icon {
+  display: contents;
+}

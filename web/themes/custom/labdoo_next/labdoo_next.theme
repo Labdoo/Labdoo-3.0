@@ -39,6 +39,16 @@ function labdoo_next_preprocess_html(array &$variables): void {
  * Implements hook_page_attachments_alter().
  */
 function labdoo_next_page_attachments_alter(array &$attachments): void {
+  // Set the menu and touch classes before the first paint without a request.
+  // The touch expression matches core's drupal.touchevents-test library.
+  $attachments['#attached']['html_head'][] = [
+    [
+      '#tag' => 'script',
+      '#value' => Markup::create("document.documentElement.classList.add('ldn-js', 'ontouchstart' in window || (window.DocumentTouch && document instanceof window.DocumentTouch) ? 'touchevents' : 'no-touchevents');"),
+      '#weight' => -1000,
+    ],
+    'labdoo_next_initial_classes',
+  ];
   $attachments['#cache']['tags'][] = 'config:labdoo_theme_preview.palettes';
   $map_script = \Drupal::service('extension.list.theme')->getPath('labdoo') . '/js/labdoo-map.js';
   $attachments['#attached']['drupalSettings']['labdooNext']['mapBehavior'] = $map_script . '?v=' . substr(hash_file('sha256', DRUPAL_ROOT . '/' . $map_script), 0, 16);
@@ -85,6 +95,12 @@ function labdoo_next_page_attachments_alter(array &$attachments): void {
     '@site' => \Drupal::config('system.site')->get('name'),
   ]);
   $node = \Drupal::routeMatch()->getParameter('node');
+  if (\Drupal::routeMatch()->getRouteName() === 'entity.node.canonical' && $node instanceof NodeInterface && in_array($node->bundle(), [
+    'dootronic', 'dootrip', 'edoovillage', 'hub', 'story', 'team',
+  ], TRUE)) {
+    // This CSS-bearing library also separates the asset cache for read pages.
+    $attachments['#attached']['library'][] = 'labdoo_next/action_artwork';
+  }
   if ($node instanceof NodeInterface) {
     $node = \Drupal::service('entity.repository')->getTranslationFromContext($node);
     if ($node->hasField('body') && $node->get('body')->access('view') && !$node->get('body')->isEmpty()) {
@@ -270,6 +286,18 @@ function labdoo_next_css_alter(array &$css, AttachedAssetsInterface $assets): vo
     'components/system-status-counter.css',
     'components/system-status-report-counters.css',
   ];
+  if (in_array('labdoo_next/action_artwork', $assets->getLibraries(), TRUE)) {
+    // Canonical action panels are read views, not entity/media editing forms.
+    // Keep these components on other routes and on authenticated requests.
+    $admin_components = array_merge($admin_components, [
+      'components/ckeditor5.css',
+      'components/entity-meta.css',
+      'components/form--managed-file.css',
+      'components/form--field-multiple.css',
+      'components/image-preview.css',
+      'components/table--file-multiple-widget.css',
+    ]);
+  }
   $admin_paths = array_map(static fn(string $path): string => 'core/themes/claro/css/' . $path, $admin_components);
   foreach ($css as $key => $asset) {
     $path = $asset['data'];
@@ -286,7 +314,13 @@ function labdoo_next_js_alter(array &$javascript, AttachedAssetsInterface $asset
   if (!\Drupal::currentUser()->isAnonymous()) {
     return;
   }
-  foreach ($javascript as &$asset) {
+  $gin_path = \Drupal::service('extension.list.theme')->getPath('gin') . '/dist/js/';
+  foreach ($javascript as $key => &$asset) {
+    // Public Next pages have no Gin toolbar or Gin color/dark-mode skin.
+    if (in_array($asset['data'], [$gin_path . 'toolbar.js', $gin_path . 'accent.js'], TRUE)) {
+      unset($javascript[$key]);
+      continue;
+    }
     // Defer retains document/dependency order while downloading footer scripts
     // together and allowing the browser to finish painting the public content.
     // Early head scripts and explicitly asynchronous scripts keep their policy.

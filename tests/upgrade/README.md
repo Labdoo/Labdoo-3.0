@@ -88,3 +88,17 @@ fixture resources. Never copy a production Redis configuration into the lab.
 Without that fixture, the explicit INFO/ACL cases are omitted; ordinary menu
 navigation and report-access checks remain enabled. The PHP unit cases still
 cover flat/sectioned INFO replies and denied commands without a Redis server.
+
+## Static transport parity
+
+`python3 tests/upgrade/router_test.py` starts a disposable PHP server without
+Drupal or a database. It verifies typed WebP/font responses without invented expiry,
+ETag revalidation, JavaScript compression and protected settings paths. Uploaded
+images retain their previous transport. Code images/fonts have no explicit
+expiry, matching V3's disabled `mod_expires`; this does not emulate CloudFront's
+separate authentication, cache key or bounded edge lifetime.
+
+The default Lighthouse school route uses its canonical alias. The legacy node
+URL's permanent redirect remains covered in `tests/e2e/lighthouse-assets.spec.ts`;
+an explicit `--path` still audits the exact URL supplied by the caller and keeps
+all actual warnings in the report.

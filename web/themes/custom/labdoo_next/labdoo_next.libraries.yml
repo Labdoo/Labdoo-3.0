@@ -5,11 +5,15 @@ design:
   js:
     js/labdoo-next.js: {}
   dependencies:
-    - labdoo_next/early
     - labdoo/custom-styling
     - core/drupal
     - core/drupalSettings
     - core/once
+
+action_artwork:
+  css:
+    component:
+      css/action-artwork.css: {}
 
 map:
   js:
@@ -35,11 +39,6 @@ lazy_chartjs:
     - core/drupalSettings
     - core/once
     - charts/global
-
-early:
-  header: true
-  js:
-    js/early.js: {}
 
 # Separate the CSS asset cache for anonymous public pages and editorial pages.
 public:

@@ -19,29 +19,31 @@
                 <div class="action"><a href="{{ edit_link }}"><img class="icon" src="/themes/custom/labdoo_next/images/hub-60.webp" srcset="/themes/custom/labdoo_next/images/hub-30.webp 30w, /themes/custom/labdoo_next/images/hub-60.webp 60w, /themes/custom/labdoo_next/images/hub-90.webp 90w" sizes="19px" alt="" loading="lazy" decoding="async" width="788" height="642">{{ "Edit this hub"|t }}</a></div>
             {% endif %}
             {% if photo_album_link is not empty %}
-            <div class="action"><a href="{{ photo_album_link }}"><img class="icon" src="/themes/custom/labdoo/img/photo-album-icon.png" alt="" loading="lazy" decoding="async" width="800" height="800">{{ "Go to photo album"|t }}</a></div>
+            <div class="action"><a href="{{ photo_album_link }}"><picture class="ldn-action-icon"><source type="image/webp" srcset="/themes/custom/labdoo_next/images/photo-album-icon-30.webp 30w, /themes/custom/labdoo_next/images/photo-album-icon-60.webp 60w, /themes/custom/labdoo_next/images/photo-album-icon-90.webp 90w" sizes="19px"><img class="icon" src="/themes/custom/labdoo/img/photo-album-icon.png" alt="" loading="lazy" decoding="async" width="800" height="800"></picture>{{ "Go to photo album"|t }}</a></div>
             {% endif %}
             {% if write_story_link is not empty %}
-                <div class="action"><a href="{{ write_story_link }}"><img class="icon" src="/themes/custom/labdoo/img/pencil-icon.png" alt="" loading="lazy" decoding="async" width="800" height="800">{{ "Write a story about this edoovillage"|t }}</a></div>
+                <div class="action"><a href="{{ write_story_link }}"><picture class="ldn-action-icon"><source type="image/webp" srcset="/themes/custom/labdoo_next/images/pencil-icon-30.webp 30w, /themes/custom/labdoo_next/images/pencil-icon-60.webp 60w, /themes/custom/labdoo_next/images/pencil-icon-90.webp 90w" sizes="19px"><img class="icon" src="/themes/custom/labdoo/img/pencil-icon.png" alt="" loading="lazy" decoding="async" width="800" height="800"></picture>{{ "Write a story about this edoovillage"|t }}</a></div>
             {% endif %}
             {% if story_link is not empty %}
-                <div class="action"><a href="{{ story_link }}"><img class="icon" src="/themes/custom/labdoo/img/pencil-icon.png" alt="" loading="lazy" decoding="async" width="800" height="800">{{ "Read the story about this hub"|t }}</a></div>
+                <div class="action"><a href="{{ story_link }}"><picture class="ldn-action-icon"><source type="image/webp" srcset="/themes/custom/labdoo_next/images/pencil-icon-30.webp 30w, /themes/custom/labdoo_next/images/pencil-icon-60.webp 60w, /themes/custom/labdoo_next/images/pencil-icon-90.webp 90w" sizes="19px"><img class="icon" src="/themes/custom/labdoo/img/pencil-icon.png" alt="" loading="lazy" decoding="async" width="800" height="800"></picture>{{ "Read the story about this hub"|t }}</a></div>
             {% endif %}
             {% if revisions_link is not empty %}
-            <div class="action"><a href="{{ revisions_link }}"><img class="icon" src="/themes/custom/labdoo/img/revisions-icon.png" alt="" loading="lazy" decoding="async" width="369" height="310">{{ "Review changes"|t }}</a></div>
+            <div class="action"><a href="{{ revisions_link }}"><picture class="ldn-action-icon"><source type="image/webp" srcset="/themes/custom/labdoo_next/images/revisions-icon-30.webp 30w, /themes/custom/labdoo_next/images/revisions-icon-60.webp 60w, /themes/custom/labdoo_next/images/revisions-icon-90.webp 90w" sizes="19px"><img class="icon" src="/themes/custom/labdoo/img/revisions-icon.png" alt="" loading="lazy" decoding="async" width="369" height="310"></picture>{{ "Review changes"|t }}</a></div>
             {% endif %}
             {% if clone_link is not empty %}
-            <div class="action">{% if clone_link is not empty %}<a href="{{ clone_link }}">{% endif %}<img class="icon" src="/themes/custom/labdoo/img/clone-icon.png" alt="" loading="lazy" decoding="async" width="449" height="381">{{ "Clone this hub"|t }}{% if clone_link is not empty %}</a>{% endif %}</div>
+            <div class="action">{% if clone_link is not empty %}<a href="{{ clone_link }}">{% endif %}<picture class="ldn-action-icon"><source type="image/webp" srcset="/themes/custom/labdoo_next/images/clone-icon-30.webp 30w, /themes/custom/labdoo_next/images/clone-icon-60.webp 60w, /themes/custom/labdoo_next/images/clone-icon-90.webp 90w" sizes="19px"><img class="icon" src="/themes/custom/labdoo/img/clone-icon.png" alt="" loading="lazy" decoding="async" width="449" height="381"></picture>{{ "Clone this hub"|t }}{% if clone_link is not empty %}</a>{% endif %}</div>
             {% endif %}
             {% if next_link is not empty %}
-            <div class="action"><a href="{{ next_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png" alt="" loading="lazy" decoding="async" width="94" height="114">{{ "Next hub"|t }}</a></div>
+            <div class="action"><a href="{{ next_link }}"><picture class="ldn-action-icon"><source type="image/webp" srcset="/themes/custom/labdoo_next/images/arrow-right-30.webp 30w, /themes/custom/labdoo_next/images/arrow-right-60.webp 60w, /themes/custom/labdoo_next/images/arrow-right-90.webp 90w" sizes="19px"><img class="icon" src="/themes/custom/labdoo/img/arrow-right.png" alt="" loading="lazy" decoding="async" width="94" height="114"></picture>{{ "Next hub"|t }}</a></div>
             {% endif %}
             {% if previous_link is not empty %}
-            <div class="action"><a href="{{ previous_link }}"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png" alt="" loading="lazy" decoding="async" width="94" height="114">{{ "Previous hub"|t }}</a></div>
+            <div class="action"><a href="{{ previous_link }}"><picture class="ldn-action-icon"><source type="image/webp" srcset="/themes/custom/labdoo_next/images/arrow-left-30.webp 30w, /themes/custom/labdoo_next/images/arrow-left-60.webp 60w, /themes/custom/labdoo_next/images/arrow-left-90.webp 90w" sizes="19px"><img class="icon" src="/themes/custom/labdoo/img/arrow-left.png" alt="" loading="lazy" decoding="async" width="94" height="114"></picture>{{ "Previous hub"|t }}</a></div>
             {% endif %}
         </div>
         <div class="block-title-wrapper"><span class="block-title">{{ "This hub's semaphore:"|t }}</span> <a href="/content/managing-your-hub-semaphore">{{ "Help"|t }}</a></div>
-        <img class="semaphore" src='/themes/custom/labdoo/img/semaphore-hub-{{ semaphore }}-en.png' alt="{{ 'Project semaphore: @state'|t({'@state': semaphore|t}) }}" loading="lazy" decoding="async">
+        {% set semaphore_size = {'closed': [588, 1114], 'inactive': [590, 1128], 'open': [606, 1172]}[semaphore]|default(null) %}
+        <picture class="ldn-action-icon">{% if semaphore_size %}<source type="image/webp" srcset="/themes/custom/labdoo_next/images/semaphore-hub-{{ semaphore }}-en-120.webp 120w, /themes/custom/labdoo_next/images/semaphore-hub-{{ semaphore }}-en-240.webp 240w, /themes/custom/labdoo_next/images/semaphore-hub-{{ semaphore }}-en-360.webp 360w" sizes="120px">{% endif %}
+        <img class="semaphore" src='/themes/custom/labdoo/img/semaphore-hub-{{ semaphore }}-en.png' alt="{{ 'Project semaphore: @state'|t({'@state': semaphore|t}) }}" loading="lazy" decoding="async"{% if semaphore_size %} width="{{ semaphore_size[0] }}" height="{{ semaphore_size[1] }}"{% endif %}></picture>
         <div class="block-title-wrapper"><span class="block-title">{{ "Hub capabilities:"|t }}</span> <a href="/content/types-hubs">{{ "Help"|t }}</a></div>
         {% if dropping is not empty %}
             <div class="dropping-point"><img src='/themes/custom/labdoo/img/labdoo-marker-orange.png' width="188" height="241"> {{ 'Dropping point'|t }}</div>

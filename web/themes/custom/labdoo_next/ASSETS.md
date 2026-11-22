@@ -35,6 +35,12 @@ See [the reproducible build instructions](build/README.md) for their source
 paths
 and generated sizes. Original assets remain available for compatibility.
 
+Action panels also use lossless WebP derivatives of the existing house, album,
+story, revision, navigation and device-action icons at 30, 60 and 90 pixels.
+School and hub semaphore artwork has 120, 240 and 360 pixel variants. The
+`picture` sources preserve the original PNG fallback, translated labels, link
+targets and intrinsic aspect ratios. No source artwork or colors are changed.
+
 Simple bar charts use the generated Chart.js 4.4.0 subset
 `vendor/chart.js-4.4.0/dist/chart-bar.js`; advanced charts upgrade to the
 original

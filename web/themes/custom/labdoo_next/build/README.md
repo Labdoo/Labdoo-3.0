@@ -32,3 +32,8 @@ footer/story artwork and the original Next wordmark. Alpha transparency and
 source artwork are retained. The original wordmark's attribution and license
 remain documented in `../ASSETS.md`. The generated files live in `../images`;
 keep the originals for reproducible builds and compatibility.
+
+The same command builds the action icons at 30/60/90 pixels and every existing
+English school/hub semaphore at 120/240/360 pixels. Their `picture` elements
+keep the PNG fallback. Rebuild all derivatives after changing their sources;
+publish source and generated files together.
