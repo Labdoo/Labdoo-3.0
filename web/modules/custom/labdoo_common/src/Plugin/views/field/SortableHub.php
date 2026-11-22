@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_common\Plugin\views\field;
 
+use Drupal\views\Plugin\views\query\Sql;
 use Drupal\views\Plugin\views\field\EntityField;
 
 /**
@@ -22,6 +23,9 @@ class SortableHub extends EntityField {
    * {@inheritdoc}
    */
   public function clickSort($order) {
+    if (!$this->query instanceof Sql) {
+      return;
+    }
     if (!$this->multiple || !$this->options['group_rows']) {
       parent::clickSort($order);
       return;

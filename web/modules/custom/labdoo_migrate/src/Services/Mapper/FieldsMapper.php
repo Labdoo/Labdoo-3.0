@@ -49,7 +49,7 @@ class FieldsMapper implements MapperInterface {
    */
   public function __construct(
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    ConfigurationManagerInterface $configurationManager
+    ConfigurationManagerInterface $configurationManager,
   ) {
 
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
@@ -93,7 +93,7 @@ class FieldsMapper implements MapperInterface {
     array $source,
     array $destination,
     ?SpecialTypeModel $specialType = NULL,
-    string $overriddenByField = ''
+    string $overriddenByField = '',
   ): void {
 
     $tableName = '';

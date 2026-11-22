@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Adjusts indexed search fields and exposed search forms.
+ */
+
 use Drupal\Core\Url;
 use Drupal\search_api_autocomplete\Suggestion\SuggestionFactory;
 

@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_dootrip\Plugin\QueueWorker;
 
+use Drupal\user\EntityOwnerInterface;
+use Drupal\labdoo_common\Utility\EntityMetadata;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -29,6 +31,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *   id = "labdoo_dootrip_calculate_capacity",
  *   title = @Translation("Calculate the dootrip capacity"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -70,7 +74,7 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
     LoggerChannelFactoryInterface $loggerChannelFactory,
     DootripComputeInterface $dootripCompute,
     DootripRepositoryInterface $dootripRepository,
-    EventDispatcherInterface $eventDispatcher
+    EventDispatcherInterface $eventDispatcher,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('bb_valentina');
@@ -86,7 +90,7 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory */
     $loggerChannelFactory = $container->get('logger.factory');
@@ -143,13 +147,15 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
       }
 
       // Flag to prevent recursive enqueuing during background processing.
-      $dootrip->skip_geocoding_enqueue = TRUE;
-      $dootrip->skip_recompute_enqueue = TRUE;
+      EntityMetadata::set($dootrip, 'skip_geocoding_enqueue', TRUE);
+      EntityMetadata::set($dootrip, 'skip_recompute_enqueue', TRUE);
 
       $this->dootripCompute->computeDootripCapacity($dootrip);
       $this->dootripCompute->computeRelatedDootronics($dootrip, $originalDootronicIds);
       $this->dootripCompute->computeEdoovillagesAssigned($dootrip);
-      $this->dootripRepository->saveEntity($dootrip);
+      if (!$this->dootripRepository->saveEntity($dootrip)) {
+        throw new \RuntimeException('Unable to save recomputed dootrip.');
+      }
       $this->clearCachetag($dootrip);
     }
     catch (EmptyQueueItemException | InvalidDataTypeException $exception) {
@@ -174,10 +180,10 @@ class DootripCapacityQueueWorker extends QueueWorkerBase implements ContainerFac
   /**
    * Invalidate the node type cache tag.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface&\Drupal\user\EntityOwnerInterface $entity
    *   The entity.
    */
-  protected function clearCachetag(EntityInterface $entity): void {
+  protected function clearCachetag(EntityInterface&EntityOwnerInterface $entity): void {
     $this->clearCachetagById((int) $entity->id(), (int) $entity->getOwnerId());
   }
 

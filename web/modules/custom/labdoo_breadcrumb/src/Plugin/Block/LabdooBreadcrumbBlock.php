@@ -2,13 +2,16 @@
 
 namespace Drupal\labdoo_breadcrumb\Plugin\Block;
 
+use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Controller\TitleResolverInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\labdoo_team\Service\MembershipManager;
-use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -25,6 +28,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Labdoo Breadcrumb"),
  *   category = @Translation("Labdoo"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -55,13 +60,22 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
    *   The route match service.
    * @param \Drupal\labdoo_team\Service\MembershipManager $membership_manager
    *   The membership manager service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityManager
+   *   The entity_type.manager service.
+   * @param \Drupal\Core\Controller\TitleResolverInterface $titleResolver
+   *   The title_resolver service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request_stack service.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
     RouteMatchInterface $route_match,
-    MembershipManager $membership_manager
+    MembershipManager $membership_manager,
+    protected EntityTypeManagerInterface $entityManager,
+    protected TitleResolverInterface $titleResolver,
+    protected RequestStack $requestStack,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->routeMatch = $route_match;
@@ -77,7 +91,10 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
       $plugin_id,
       $plugin_definition,
       $container->get('current_route_match'),
-      $container->get('labdoo_team.membership.manager')
+      $container->get('labdoo_team.membership.manager'),
+      $container->get('entity_type.manager'),
+      $container->get('title_resolver'),
+      $container->get('request_stack'),
     );
   }
 
@@ -103,14 +120,14 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
         'url' => Url::fromRoute('view.wiki.page_1')->toString(),
       ];
 
-      if ($wiki_page instanceof \Drupal\Core\Entity\EntityInterface) {
+      if ($wiki_page instanceof EntityInterface) {
         $items[] = [
           'text' => $wiki_page->label(),
           'url' => NULL,
         ];
       }
       elseif (is_numeric($wiki_page)) {
-        $storage = \Drupal::entityTypeManager()->getStorage('mini_wiki_page');
+        $storage = $this->entityManager->getStorage('mini_wiki_page');
         $entity = $storage->load($wiki_page);
         if ($entity) {
           $items[] = [
@@ -166,7 +183,7 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
             if ($type === 'team_post') {
               $team_id = $this->membershipManager->getTeamIdFromNode($node);
               if ($team_id) {
-                $team_node = Node::load($team_id);
+                $team_node = $this->entityManager->getStorage('node')->load($team_id);
                 if ($team_node) {
                   $items[] = [
                     'text' => $team_node->label(),
@@ -190,7 +207,7 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
 
     // Handle Views.
     if (strpos($route_name, 'view.') === 0) {
-      $title = \Drupal::service('title_resolver')->getTitle(\Drupal::request(), $this->routeMatch->getRouteObject());
+      $title = $this->titleResolver->getTitle($this->requestStack->getCurrentRequest(), $this->routeMatch->getRouteObject());
       if ($title) {
         $items[] = [
           'text' => $title,
@@ -202,9 +219,9 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
     // If we don't have any breadcrumb items, don't render the block.
     /*
     if (count($items) <= 1) {
-      return [];
+    return [];
     }
-    */
+     */
 
     return [
       '#theme' => 'labdoo_breadcrumb',
@@ -234,7 +251,7 @@ class LabdooBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
 
     // Add the wiki page cache tag if we're on a wiki page.
     $wiki_page = $this->routeMatch->getParameter('mini_wiki_page');
-    if ($wiki_page instanceof \Drupal\Core\Entity\EntityInterface) {
+    if ($wiki_page instanceof EntityInterface) {
       $tags = Cache::mergeTags($tags, $wiki_page->getCacheTags());
     }
 

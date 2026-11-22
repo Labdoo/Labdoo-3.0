@@ -27,6 +27,7 @@ interface EntityProcessorInterface {
   public function process(
     EntityInterface $entity,
     string $operation,
-    $comment = null
+    $comment = NULL,
   ): void;
+
 }

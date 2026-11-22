@@ -2,13 +2,14 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Database\Statement\FetchAs;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\MediaManagerInterface;
 use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
-use Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface;
+use Drupal\labdoo_migrate\Services\DestinationContent\CommentDestinationRepository;
 use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -24,7 +25,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * - team roles from og_role table
  * - role permissions from og_role_permission table
  * - user roles from og_users_roles table
- * - membership types from og_membership_type table
+ * - membership types from og_membership_type table.
  *
  * Usage:
  * drush labdoo-synchronize-teams
@@ -92,7 +93,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
    */
-  private $progressBar;
+  private ?ProgressBar $progressBar = NULL;
 
   /**
    * TeamSynchronizerCommands constructor.
@@ -104,13 +105,13 @@ class TeamSynchronizerCommands extends DrushCommands {
     protected MediaManagerInterface $mediaManager,
     protected MigrationTrackerInterface $migrationTracker,
     protected Connection $database,
-    protected DestinationRepositoryInterface $commentDestinationRepository
+    protected CommentDestinationRepository $commentDestinationRepository,
   ) {
     parent::__construct();
   }
 
   /**
-   * Synchronizes Labdoo Teams (Organic Groups) taking a Drupal 7 instance as a source.
+   * Synchronizes Labdoo Teams from a Drupal 7 instance.
    *
    * @param array $options
    *   Command options.
@@ -118,7 +119,8 @@ class TeamSynchronizerCommands extends DrushCommands {
    * @command labdoo-synchronize-teams
    * @aliases labdoo-sync-teams
    * @usage labdoo-synchronize-teams
-   *   Synchronizes the Organic Groups from Drupal 7 to Drupal 10 team structure.
+   *   Synchronizes the Organic Groups from Drupal 7 to Drupal 10 team
+   *   structure.
    *
    * @option nids List of Drupal 7 group IDs to synchronize.
    * @option limit Limits the execution to the given elements.
@@ -133,24 +135,24 @@ class TeamSynchronizerCommands extends DrushCommands {
       'dry-run' => FALSE,
       'from-date' => NULL,
       'incremental' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $this->setEnvironment($options);
 
       $this->logger->notice('Starting full team synchronization (Teams, Posts, Tasks)...');
 
-      // Migrate Teams
+      // Migrate Teams.
       $sourceGroups = $this->getSourceGroups();
       $this->externalConnectionManager->restoreConnection();
       $result = $this->updateDestinationEntities($sourceGroups);
 
-      // Migrate team posts
+      // Migrate team posts.
       $sourcePosts = $this->getSourceTeamPosts();
       $this->externalConnectionManager->restoreConnection();
       $postResult = $this->updateDestinationTeamPosts($sourcePosts);
 
-      // Migrate team tasks
+      // Migrate team tasks.
       $sourceTasks = $this->getSourceTeamTasks();
       $this->externalConnectionManager->restoreConnection();
       $taskResult = $this->updateDestinationTeamTasks($sourceTasks);
@@ -188,7 +190,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       'dry-run' => FALSE,
       'from-date' => NULL,
       'incremental' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $this->setEnvironment($options);
@@ -226,7 +228,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       'dry-run' => FALSE,
       'from-date' => NULL,
       'incremental' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $this->setEnvironment($options);
@@ -264,7 +266,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       'dry-run' => FALSE,
       'from-date' => NULL,
       'incremental' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $this->setEnvironment($options);
@@ -360,7 +362,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->execute()
         ->fetchObject();
 
-      // Get group members from og_membership table
+      // Get group members from og_membership table.
       $membersQuery = $this->externalConnectionManager
         ->setConnection()
         ->select('og_membership', 'ogm')
@@ -368,24 +370,25 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->condition('entity_type', 'user')
         ->condition('gid', $group->nid)
         ->condition('group_type', 'node')
-        ->condition('state', 1); // Active memberships
+      // Active memberships.
+        ->condition('state', 1);
       $membersResult = $membersQuery->execute()->fetchAllKeyed(1, 0);
       $members = array_values($membersResult);
 
-      // Get membership types from og_membership_type table
+      // Get membership types from og_membership_type table.
       $membershipTypes = [];
       try {
         $membershipTypesQuery = $this->externalConnectionManager
           ->setConnection()
           ->select('og_membership_type', 'omt')
           ->fields('omt', ['name', 'description']);
-        $membershipTypes = $membershipTypesQuery->execute()->fetchAllAssoc('name', \PDO::FETCH_ASSOC);
+        $membershipTypes = $membershipTypesQuery->execute()->fetchAllAssoc('name', FetchAs::Associative);
       }
       catch (\Exception $e) {
         $this->logger->warning('Could not retrieve membership types: ' . $e->getMessage());
       }
 
-      // Get roles from og_role table
+      // Get roles from og_role table.
       $roles = [];
       try {
         $rolesQuery = $this->externalConnectionManager
@@ -397,17 +400,19 @@ class TeamSynchronizerCommands extends DrushCommands {
         if ($group->nid) {
           $rolesQuery->condition(
             $this->externalConnectionManager->setConnection()->condition('OR')
-              ->condition('gid', 0) // Global roles
-              ->condition('gid', $group->nid) // Group-specific roles
+          // Global roles.
+              ->condition('gid', 0)
+          // Group-specific roles.
+              ->condition('gid', $group->nid)
           );
         }
-        $roles = $rolesQuery->execute()->fetchAllAssoc('rid', \PDO::FETCH_ASSOC);
+        $roles = $rolesQuery->execute()->fetchAllAssoc('rid', FetchAs::Associative);
       }
       catch (\Exception $e) {
         $this->logger->warning('Could not retrieve roles: ' . $e->getMessage());
       }
 
-      // Get role permissions from og_role_permission table
+      // Get role permissions from og_role_permission table.
       $rolePermissions = [];
       if (!empty($roles)) {
         try {
@@ -416,9 +421,9 @@ class TeamSynchronizerCommands extends DrushCommands {
             ->select('og_role_permission', 'ogrp')
             ->fields('ogrp', ['rid', 'permission', 'module'])
             ->condition('rid', array_keys($roles), 'IN');
-          $rolePermissionsResult = $rolePermissionsQuery->execute()->fetchAll(\PDO::FETCH_ASSOC);
+          $rolePermissionsResult = $rolePermissionsQuery->execute()->fetchAll(FetchAs::Associative);
 
-          // Group permissions by role
+          // Group permissions by role.
           foreach ($rolePermissionsResult as $permission) {
             if (!isset($rolePermissions[$permission['rid']])) {
               $rolePermissions[$permission['rid']] = [];
@@ -434,7 +439,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         }
       }
 
-      // Get user roles from og_users_roles table
+      // Get user roles from og_users_roles table.
       $userRoles = [];
       if (!empty($roles) && !empty($members)) {
         try {
@@ -445,9 +450,9 @@ class TeamSynchronizerCommands extends DrushCommands {
             ->condition('rid', array_keys($roles), 'IN')
             ->condition('uid', $members, 'IN')
             ->condition('gid', $group->nid);
-          $userRolesResult = $userRolesQuery->execute()->fetchAll(\PDO::FETCH_ASSOC);
+          $userRolesResult = $userRolesQuery->execute()->fetchAll(FetchAs::Associative);
 
-          // Group roles by user
+          // Group roles by user.
           foreach ($userRolesResult as $userRole) {
             if (!isset($userRoles[$userRole['uid']])) {
               $userRoles[$userRole['uid']] = [];
@@ -460,7 +465,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         }
       }
 
-      // Get group picture if available
+      // Get group picture if available.
       $picture = NULL;
       $pictureQuery = $this->externalConnectionManager
         ->setConnection()
@@ -478,7 +483,7 @@ class TeamSynchronizerCommands extends DrushCommands {
           ->fields('fm', ['uri', 'filename'])
           ->condition('fid', $pictureData->field_image_fid)
           ->execute()
-          ->fetch();
+          ->fetchObject();
 
         if ($file) {
           $picture = [
@@ -539,20 +544,20 @@ class TeamSynchronizerCommands extends DrushCommands {
     $created = 0;
     $updated = 0;
 
-    // Initialize progress bar
+    // Initialize progress bar.
     $this->initProgressBar(count($sourceGroups), 'Processing teams');
 
     foreach ($sourceGroups as $sourceGroup) {
-      // Check if the team already exists by NID
+      // Check if the team already exists by NID.
       $destinationEntity = $this->entityTypeManager
         ->getStorage('node')
         ->load($sourceGroup['nid']);
 
       if (empty($destinationEntity)) {
-        // Clean up any orphaned field data for this NID
+        // Clean up any orphaned field data for this NID.
         $this->cleanOrphanedFieldData($sourceGroup['nid']);
 
-        // Create a new team with the original node ID
+        // Create a new team with the original node ID.
         $destinationEntity = $this->entityTypeManager
           ->getStorage('node')
           ->create([
@@ -562,11 +567,11 @@ class TeamSynchronizerCommands extends DrushCommands {
         ++$created;
       }
       else {
-        // Update existing team
+        // Update existing team.
         ++$updated;
       }
 
-      // Set basic fields
+      // Set basic fields.
       $destinationEntity->set('title', $sourceGroup['title']);
       $destinationEntity->set('uid', $sourceGroup['uid']);
       $destinationEntity->set('status', $sourceGroup['status']);
@@ -574,16 +579,12 @@ class TeamSynchronizerCommands extends DrushCommands {
       $destinationEntity->set('changed', $sourceGroup['changed']);
       $destinationEntity->setChangedTime($sourceGroup['changed']);
 
-      if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
-        $destinationEntity->setNewRevision(FALSE);
-      }
+      $destinationEntity->setNewRevision(FALSE);
 
       // Prevent Drupal from overwriting the modification date when saving.
-      if (method_exists($destinationEntity, 'setSyncing')) {
-        $destinationEntity->setSyncing(TRUE);
-      }
+      $destinationEntity->setSyncing(TRUE);
 
-      // Set description field
+      // Set description field.
       if (!empty($sourceGroup['body'])) {
         $destinationEntity->set('field_description', [
           'value' => $sourceGroup['body']['value'],
@@ -592,12 +593,12 @@ class TeamSynchronizerCommands extends DrushCommands {
         ]);
       }
 
-      // Set team members
+      // Set team members.
       if (!empty($sourceGroup['members'])) {
         $destinationEntity->set('field_team_members', $sourceGroup['members']);
       }
 
-      // Set team picture
+      // Set team picture.
       if (!empty($sourceGroup['picture']) && !empty($sourceGroup['picture']['content'])) {
         $file = $this->fileManager->createFile(
           $sourceGroup['picture']['uri'],
@@ -614,7 +615,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         }
       }
 
-      // Save the entity if not in dry-run mode
+      // Save the entity if not in dry-run mode.
       if (!$this->dryRun) {
         $destinationEntity->set('changed', $sourceGroup['changed']);
         $destinationEntity->save();
@@ -626,7 +627,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         );
       }
 
-      // Advance progress bar
+      // Advance progress bar.
       $this->advanceProgressBar();
     }
 
@@ -645,7 +646,7 @@ class TeamSynchronizerCommands extends DrushCommands {
    *   The number of updated entities.
    */
   protected function tearDown(int $created, int $updated): void {
-    // Finish the progress bar if it exists
+    // Finish the progress bar if it exists.
     if ($this->progressBar) {
       $this->progressBar->finish();
       $this->output->writeln('');
@@ -657,7 +658,7 @@ class TeamSynchronizerCommands extends DrushCommands {
       . "-- Time elapsed: %s.\n"
       . "-- %d entities created.\n"
       . "-- %d entities updated.",
-      gmdate("H:i:s", $timeElapsedSeconds),
+      gmdate("H:i:s", (int) $timeElapsedSeconds),
       $created,
       $updated
     );
@@ -687,7 +688,6 @@ class TeamSynchronizerCommands extends DrushCommands {
       $this->progressBar->advance();
     }
   }
-
 
   /**
    * Retrieves the source team tasks from Drupal 7.
@@ -743,13 +743,26 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->execute()
         ->fetchObject();
 
-      // Get comments
+      // Get comments.
       $comments = [];
       try {
         $commentsQuery = $this->externalConnectionManager
           ->setConnection()
           ->select('comment', 'c')
-          ->fields('c', ['cid', 'uid', 'subject', 'hostname', 'created', 'changed', 'status', 'thread', 'name', 'mail', 'homepage', 'language'])
+          ->fields('c', [
+            'cid',
+            'uid',
+            'subject',
+            'hostname',
+            'created',
+            'changed',
+            'status',
+            'thread',
+            'name',
+            'mail',
+            'homepage',
+            'language',
+          ])
           ->condition('nid', $task->nid)
           ->orderBy('cid', 'ASC');
         $commentsData = $commentsQuery->execute()->fetchAll();
@@ -784,7 +797,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $this->logger->warning('Could not retrieve comments for task ' . $task->nid . ': ' . $e->getMessage());
       }
 
-      // Get the team reference from og_membership table
+      // Get the team reference from og_membership table.
       $teamReference = NULL;
       try {
         $teamReferenceQuery = $this->externalConnectionManager
@@ -803,14 +816,14 @@ class TeamSynchronizerCommands extends DrushCommands {
         $this->logger->warning('Could not retrieve team reference for task ' . $task->nid . ': ' . $e->getMessage());
       }
 
-    // Get specific task fields
-    $priority = $this->getExternalField('field_data_field_task_priority', 'field_task_priority_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
-    $status = $this->getExternalField('field_data_field_task_status', 'field_task_status_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
-    $type = $this->getExternalField('field_data_field_task_type', 'field_task_type_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
-    $assignedTo = $this->getExternalMultipleField('field_data_field_task_assigned_to', 'field_task_assigned_to_target_id', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
-    $dueDate = $this->getExternalField('field_data_field_task_due_date', 'field_task_due_date_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      // Get specific task fields.
+      $priority = $this->getExternalField('field_data_field_task_priority', 'field_task_priority_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      $status = $this->getExternalField('field_data_field_task_status', 'field_task_status_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      $type = $this->getExternalField('field_data_field_task_type', 'field_task_type_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      $assignedTo = $this->getExternalMultipleField('field_data_field_task_assigned_to', 'field_task_assigned_to_target_id', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
+      $dueDate = $this->getExternalField('field_data_field_task_due_date', 'field_task_due_date_value', $task->nid, self::TEAM_TASK_SOURCE_TYPE);
 
-      // Get task attachment if available
+      // Get task attachment if available.
       $attachment = NULL;
       $attachmentQuery = $this->externalConnectionManager
         ->setConnection()
@@ -842,7 +855,7 @@ class TeamSynchronizerCommands extends DrushCommands {
             'description' => $attachmentData->field_task_attachment_description,
           ];
 
-          // Get file contents from D7 site
+          // Get file contents from D7 site.
           try {
             $attachment['content'] = $this->fileManager->getFileContents($file->uri, FALSE, TRUE);
             if (empty($attachment['content'])) {
@@ -940,20 +953,20 @@ class TeamSynchronizerCommands extends DrushCommands {
     $created = 0;
     $updated = 0;
 
-    // Initialize progress bar
+    // Initialize progress bar.
     $this->initProgressBar(count($sourceTasks), 'Processing team tasks');
 
     foreach ($sourceTasks as $sourceTask) {
-      // Check if the team task already exists by NID
+      // Check if the team task already exists by NID.
       $destinationEntity = $this->entityTypeManager
         ->getStorage('node')
         ->load($sourceTask['nid']);
 
       if (empty($destinationEntity)) {
-        // Clean up any orphaned field data for this NID
+        // Clean up any orphaned field data for this NID.
         $this->cleanOrphanedFieldData($sourceTask['nid']);
 
-        // Create a new team task with the original node ID
+        // Create a new team task with the original node ID.
         $destinationEntity = $this->entityTypeManager
           ->getStorage('node')
           ->create([
@@ -963,30 +976,27 @@ class TeamSynchronizerCommands extends DrushCommands {
         ++$created;
       }
       else {
-        // Update existing team task
+        // Update existing team task.
         ++$updated;
       }
 
-      // Set basic fields
+      // Set basic fields.
       $destinationEntity->set('title', $sourceTask['title']);
       $destinationEntity->set('uid', $sourceTask['uid']);
       $destinationEntity->set('status', $sourceTask['status']);
       $destinationEntity->set('created', $sourceTask['created']);
 
-      if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
-        $destinationEntity->setNewRevision(FALSE);
-      }
+      $destinationEntity->setNewRevision(FALSE);
 
       // Prevent Drupal from overwriting the modification date when saving.
-      if (method_exists($destinationEntity, 'setSyncing')) {
-        $destinationEntity->setSyncing(TRUE);
-      }
+      $destinationEntity->setSyncing(TRUE);
 
-      // We set the changed time AFTER setting syncing to TRUE to ensure it's preserved
+      // We set the changed time AFTER setting syncing to TRUE to ensure it's
+      // preserved.
       $destinationEntity->set('changed', $sourceTask['changed']);
       $destinationEntity->setChangedTime($sourceTask['changed']);
 
-      // Set description field
+      // Set description field.
       if (!empty($sourceTask['body'])) {
         $destinationEntity->set('body', [
           'value' => $sourceTask['body']['value'],
@@ -995,7 +1005,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         ]);
       }
 
-      // Set specific task fields
+      // Set specific task fields.
       if ($sourceTask['priority']) {
         $destinationEntity->set('field_task_priority', $sourceTask['priority']);
       }
@@ -1013,7 +1023,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->set('field_assigned_to', $assignedToValues);
       }
       if ($sourceTask['due_date']) {
-        // D7 is datetime, D10 field_due_date is datetime type
+        // D7 is datetime, D10 field_due_date is datetime type.
         try {
           $date = new \DateTime($sourceTask['due_date']);
           // Drupal 10 datetime field expects Y-m-d\TH:i:s format (UTC)
@@ -1024,18 +1034,19 @@ class TeamSynchronizerCommands extends DrushCommands {
         }
       }
 
-      // Set team reference
+      // Set team reference.
       if (!empty($sourceTask['team_reference'])) {
         $destinationEntity->set('field_team', $sourceTask['team_reference']);
       }
 
-      // Set attachment
+      // Set attachment.
       if (!empty($sourceTask['attachment']) && !empty($sourceTask['attachment']['content'])) {
-        // Determine the file type based on the file extension
+        // Determine the file type based on the file extension.
         $fileExtension = pathinfo($sourceTask['attachment']['filename'], PATHINFO_EXTENSION);
         $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']);
 
-        // Set the appropriate media bundle and destination field based on the file type
+        // Set the appropriate media bundle and destination field based on the
+        // file type.
         $bundle = $isImage ? 'image' : 'document';
         $destinationField = $isImage ? 'field_media_image' : 'field_media_document';
         $metadata = [
@@ -1044,45 +1055,45 @@ class TeamSynchronizerCommands extends DrushCommands {
         ];
 
         try {
-          // Check if media entity already exists
+          // Check if media entity already exists.
           $mediaEntity = $this->fileManager->mediaEntityExists($bundle, $sourceTask['attachment']['filename']);
 
           if ($mediaEntity === NULL) {
-            // Create a new media entity if it doesn't exist
+            // Create a new media entity if it doesn't exist.
             $media = $this->mediaManager->createMedia(
               $sourceTask['attachment']['uri'],
               $sourceTask['attachment']['filename'],
               $sourceTask['attachment']['content'],
               $metadata,
-              'en' // Use default language code or system default
+            // Use default language code or system default.
+              'en'
             );
           }
           else {
-            // Use existing media entity
+            // Use existing media entity.
             $media = $mediaEntity;
           }
 
-          if ($media) {
-            $destinationEntity->set('field_attachment', [
-              'target_id' => $media->id(),
-            ]);
-          }
+          $destinationEntity->set('field_attachment', [
+            'target_id' => $media->id(),
+          ]);
+
         }
         catch (\Exception $e) {
           $this->logger->warning('Could not migrate attachment for task ' . $sourceTask['nid'] . ': ' . $e->getMessage());
         }
       }
 
-      // Ensure the node exists in storage before creating comments
+      // Ensure the node exists in storage before creating comments.
       if (!$this->dryRun) {
         $destinationEntity->set('changed', $sourceTask['changed']);
         $destinationEntity->save();
       }
 
-      // Set comments
+      // Set comments.
       if (!$this->dryRun && !empty($sourceTask['comments'])) {
         foreach ($sourceTask['comments'] as $sourceComment) {
-          // Check if comment already exists
+          // Check if comment already exists.
           $existingComments = $this->entityTypeManager
             ->getStorage('comment')
             ->loadByProperties([
@@ -1125,7 +1136,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         }
       }
 
-      // Update changed time after comments creation to avoid being overwritten
+      // Update changed time after comments creation to avoid being overwritten.
       if (!$this->dryRun) {
         $this->database->update('node_field_data')
           ->fields(['changed' => $sourceTask['changed']])
@@ -1140,7 +1151,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         );
       }
 
-      // Advance progress bar
+      // Advance progress bar.
       $this->progressBar->advance();
     }
 
@@ -1207,13 +1218,26 @@ class TeamSynchronizerCommands extends DrushCommands {
         ->execute()
         ->fetchObject();
 
-      // Get comments
+      // Get comments.
       $comments = [];
       try {
         $commentsQuery = $this->externalConnectionManager
           ->setConnection()
           ->select('comment', 'c')
-          ->fields('c', ['cid', 'uid', 'subject', 'hostname', 'created', 'changed', 'status', 'thread', 'name', 'mail', 'homepage', 'language'])
+          ->fields('c', [
+            'cid',
+            'uid',
+            'subject',
+            'hostname',
+            'created',
+            'changed',
+            'status',
+            'thread',
+            'name',
+            'mail',
+            'homepage',
+            'language',
+          ])
           ->condition('nid', $post->nid)
           ->orderBy('cid', 'ASC');
         $commentsData = $commentsQuery->execute()->fetchAll();
@@ -1248,10 +1272,11 @@ class TeamSynchronizerCommands extends DrushCommands {
         $this->logger->warning('Could not retrieve comments for post ' . $post->nid . ': ' . $e->getMessage());
       }
 
-      // Get the team reference from og_membership table
+      // Get the team reference from og_membership table.
       $teamReference = NULL;
       try {
-        // In Organic Groups, a node is associated with a group through the og_membership table
+        // In Organic Groups, a node is associated with a group through the
+        // og_membership table.
         $teamReferenceQuery = $this->externalConnectionManager
           ->setConnection()
           ->select('og_membership', 'ogm')
@@ -1268,7 +1293,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         $this->logger->warning('Could not retrieve team reference for post ' . $post->nid . ': ' . $e->getMessage());
       }
 
-      // Get post picture if available
+      // Get post picture if available.
       $attachment = NULL;
       $attachmentQuery = $this->externalConnectionManager
         ->setConnection()
@@ -1286,7 +1311,7 @@ class TeamSynchronizerCommands extends DrushCommands {
           ->fields('fm', ['uri', 'filename'])
           ->condition('fid', $attachmentData->field_conversation_attachment_fid)
           ->execute()
-          ->fetch();
+          ->fetchObject();
 
         if ($file) {
           $attachment = [
@@ -1343,20 +1368,20 @@ class TeamSynchronizerCommands extends DrushCommands {
     $created = 0;
     $updated = 0;
 
-    // Initialize progress bar
+    // Initialize progress bar.
     $this->initProgressBar(count($sourcePosts), 'Processing team posts');
 
     foreach ($sourcePosts as $sourcePost) {
-      // Check if the team post already exists by NID
+      // Check if the team post already exists by NID.
       $destinationEntity = $this->entityTypeManager
         ->getStorage('node')
         ->load($sourcePost['nid']);
 
       if (empty($destinationEntity)) {
-        // Clean up any orphaned field data for this NID
+        // Clean up any orphaned field data for this NID.
         $this->cleanOrphanedFieldData($sourcePost['nid']);
 
-        // Create a new team post with the original node ID
+        // Create a new team post with the original node ID.
         $destinationEntity = $this->entityTypeManager
           ->getStorage('node')
           ->create([
@@ -1366,11 +1391,11 @@ class TeamSynchronizerCommands extends DrushCommands {
         ++$created;
       }
       else {
-        // Update existing team post
+        // Update existing team post.
         ++$updated;
       }
 
-      // Set basic fields
+      // Set basic fields.
       $destinationEntity->set('title', $sourcePost['title']);
       $destinationEntity->set('uid', $sourcePost['uid']);
       $destinationEntity->set('status', $sourcePost['status']);
@@ -1378,16 +1403,12 @@ class TeamSynchronizerCommands extends DrushCommands {
       $destinationEntity->set('changed', $sourcePost['changed']);
       $destinationEntity->setChangedTime($sourcePost['changed']);
 
-      if ($destinationEntity instanceof \Drupal\node\Entity\Node) {
-        $destinationEntity->setNewRevision(FALSE);
-      }
+      $destinationEntity->setNewRevision(FALSE);
 
       // Prevent Drupal from overwriting the modification date when saving.
-      if (method_exists($destinationEntity, 'setSyncing')) {
-        $destinationEntity->setSyncing(TRUE);
-      }
+      $destinationEntity->setSyncing(TRUE);
 
-      // Set description field
+      // Set description field.
       if (!empty($sourcePost['body'])) {
         $destinationEntity->set('body', [
           'value' => $sourcePost['body']['value'],
@@ -1403,10 +1424,11 @@ class TeamSynchronizerCommands extends DrushCommands {
         $destinationEntity->save();
       }
 
-      // Set comments
+      // Set comments.
       if (!$this->dryRun && !empty($sourcePost['comments'])) {
         foreach ($sourcePost['comments'] as $sourceComment) {
-          // Check if comment already exists by subject and created time for this node
+          // Check if comment already exists by subject and created time for
+          // this node.
           $existingComments = $this->entityTypeManager
             ->getStorage('comment')
             ->loadByProperties([
@@ -1436,11 +1458,12 @@ class TeamSynchronizerCommands extends DrushCommands {
               'mail' => $sourceComment['mail'],
             ];
 
-            // Use the comment destination repository to preserve the original cid.
+            // Use the comment destination repository to preserve the original
+            // cid.
             $comment = $this->commentDestinationRepository->create($commentData, $sourceComment['cid']);
             $comment->save();
 
-            // Track the comment
+            // Track the comment.
             $this->migrationTracker->track(
               'comment',
               'comment',
@@ -1451,9 +1474,9 @@ class TeamSynchronizerCommands extends DrushCommands {
         }
       }
 
-      // Set team reference
+      // Set team reference.
       if (!empty($sourcePost['team_reference'])) {
-        // Find the corresponding team in the destination system
+        // Find the corresponding team in the destination system.
         $teamEntity = $this->entityTypeManager
           ->getStorage('node')
           ->loadByProperties([
@@ -1475,13 +1498,14 @@ class TeamSynchronizerCommands extends DrushCommands {
         }
       }
 
-      // Set team post attachment
+      // Set team post attachment.
       if (!empty($sourcePost['attachment']) && !empty($sourcePost['attachment']['content'])) {
-        // Determine the file type based on the file extension
+        // Determine the file type based on the file extension.
         $fileExtension = pathinfo($sourcePost['attachment']['name'], PATHINFO_EXTENSION);
         $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']);
 
-        // Set the appropriate media bundle and destination field based on the file type
+        // Set the appropriate media bundle and destination field based on the
+        // file type.
         $bundle = $isImage ? 'image' : 'document';
         $destinationField = $isImage ? 'field_media_image' : 'field_media_document';
         $metadata = [
@@ -1490,28 +1514,29 @@ class TeamSynchronizerCommands extends DrushCommands {
         ];
 
         try {
-          // Check if media entity already exists
+          // Check if media entity already exists.
           $mediaEntity = $this->fileManager->mediaEntityExists($bundle, $sourcePost['attachment']['name']);
 
           if ($mediaEntity === NULL) {
-            // Create a new media entity if it doesn't exist
+            // Create a new media entity if it doesn't exist.
             $media = $this->mediaManager->createMedia(
               $sourcePost['attachment']['uri'],
               $sourcePost['attachment']['name'],
               $sourcePost['attachment']['content'],
               $metadata,
-              'es' // Default language code
+            // Default language code.
+              'es'
             );
-          } else {
-            // Use existing media entity
+          }
+          else {
+            // Use existing media entity.
             $media = $mediaEntity;
           }
 
-          if ($media) {
-            $destinationEntity->set('field_attachment', [
-              'target_id' => $media->id(),
-            ]);
-          }
+          $destinationEntity->set('field_attachment', [
+            'target_id' => $media->id(),
+          ]);
+
         }
         catch (\Exception $e) {
           $this->logger->warning(sprintf(
@@ -1523,7 +1548,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         }
       }
 
-      // Save the entity if not in dry-run mode
+      // Save the entity if not in dry-run mode.
       if (!$this->dryRun) {
         $destinationEntity->set('changed', $sourcePost['changed']);
         $destinationEntity->save();
@@ -1549,7 +1574,7 @@ class TeamSynchronizerCommands extends DrushCommands {
         );
       }
 
-      // Advance progress bar
+      // Advance progress bar.
       $this->advanceProgressBar();
     }
 

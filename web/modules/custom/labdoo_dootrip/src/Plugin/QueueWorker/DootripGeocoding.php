@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_dootrip\Plugin\QueueWorker;
 
+use Drupal\labdoo_common\Utility\GeocoderProviders;
+use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
@@ -17,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   title = @Translation("Dootrip Geocoding"),
  *   cron = {"time" = 60}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -83,7 +87,7 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
    */
   public function processItem($data) {
     $nid = $data['nid'];
-    /** @var \Drupal\node\NodeInterface $node */
+    /** @var \Drupal\node\NodeInterface|null $node */
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
 
     if (
@@ -96,12 +100,12 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
       $destinationCity = '';
       $destinationCountry = '';
 
-      // Process Origin
+      // Process Origin.
       if ($node->hasField('field_origin_of_the_trip') && !$node->get('field_origin_of_the_trip')->isEmpty()) {
         $originData = $node->get('field_origin_of_the_trip')->first()->getValue();
         if (isset($originData['lat']) && isset($originData['lon'])) {
-          if (abs((float)$originData['lat']) > 0.1 || abs((float)$originData['lon']) > 0.1) {
-            $coordinatesData = $this->reverseLookupCoordinates((float)$originData['lat'], (float)$originData['lon']);
+          if (abs((float) $originData['lat']) > 0.1 || abs((float) $originData['lon']) > 0.1) {
+            $coordinatesData = $this->reverseLookupCoordinates((float) $originData['lat'], (float) $originData['lon']);
             if (!empty($coordinatesData['country_code'])) {
               $originCountryCode = $coordinatesData['country_code'];
               $countryManager = \Drupal::service('country_manager');
@@ -119,12 +123,12 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
         }
       }
 
-      // Process Destination
+      // Process Destination.
       if ($node->hasField('field_destination_of_the_trip') && !$node->get('field_destination_of_the_trip')->isEmpty()) {
         $destinationData = $node->get('field_destination_of_the_trip')->first()->getValue();
         if (isset($destinationData['lat']) && isset($destinationData['lon'])) {
-          if (abs((float)$destinationData['lat']) > 0.1 || abs((float)$destinationData['lon']) > 0.1) {
-            $coordinatesData = $this->reverseLookupCoordinates((float)$destinationData['lat'], (float)$destinationData['lon']);
+          if (abs((float) $destinationData['lat']) > 0.1 || abs((float) $destinationData['lon']) > 0.1) {
+            $coordinatesData = $this->reverseLookupCoordinates((float) $destinationData['lat'], (float) $destinationData['lon']);
             if (!empty($coordinatesData['country_code'])) {
               $destinationCountryCode = $coordinatesData['country_code'];
               $countryManager = \Drupal::service('country_manager');
@@ -157,9 +161,11 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
         $origin_text = '';
         if (!empty($originCity) && !empty($originCountry)) {
           $origin_text = "$originCity ($originCountry)";
-        } elseif (!empty($originCountry)) {
+        }
+        elseif (!empty($originCountry)) {
           $origin_text = $originCountry;
-        } else {
+        }
+        else {
           $origin_text = $originCity;
         }
         $suffix .= " - from $origin_text";
@@ -168,9 +174,11 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
         $destination_text = '';
         if (!empty($destinationCity) && !empty($destinationCountry)) {
           $destination_text = "$destinationCity ($destinationCountry)";
-        } elseif (!empty($destinationCountry)) {
+        }
+        elseif (!empty($destinationCountry)) {
           $destination_text = $destinationCountry;
-        } else {
+        }
+        else {
           $destination_text = $destinationCity;
         }
         $suffix .= " to $destination_text";
@@ -204,7 +212,7 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
 
     try {
       // Use the geocoder service with the 'googlemaps' provider.
-      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, ['googlemaps']);
+      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, GeocoderProviders::load($this->entityTypeManager, ['googlemaps']));
 
       if ($addressCollection && !$addressCollection->isEmpty()) {
         /** @var \Geocoder\Location $address */
@@ -224,7 +232,7 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
       $msg = $e->getMessage();
       \Drupal::logger('labdoo_dootrip')->warning('Google Maps reverse geocode failed: @message. Trying fallback Nominatim API...', ['@message' => $msg]);
 
-      // Fallback to Nominatim OpenStreetMap API
+      // Fallback to Nominatim OpenStreetMap API.
       try {
         $client = \Drupal::httpClient();
         $response = $client->get("https://nominatim.openstreetmap.org/reverse?lat={$lat}&lon={$lon}&format=json", [
@@ -246,7 +254,8 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
       catch (\Exception $fallbackException) {
         \Drupal::logger('labdoo_dootrip')->error('Fallback Nominatim reverse geocode failed: @message', ['@message' => $fallbackException->getMessage()]);
 
-        // Circuit Breaker: If API is blocked (403) or rate limited (429), suspend queue.
+        // Circuit Breaker: If API is blocked (403) or rate limited (429),
+        // suspend queue.
         if (
           strpos($msg, 'Access Not Configured') !== FALSE ||
           strpos($msg, 'API keys with referer restrictions') !== FALSE ||
@@ -254,10 +263,11 @@ class DootripGeocoding extends QueueWorkerBase implements ContainerFactoryPlugin
           strpos($msg, '429') !== FALSE ||
           strpos($msg, 'QuotaExceeded') !== FALSE
         ) {
-          throw new \Drupal\Core\Queue\SuspendQueueException('Google Maps API Error: ' . $msg);
+          throw new SuspendQueueException('Google Maps API Error: ' . $msg);
         }
 
-        // Re-throw to ensure the queue item is not deleted for other transient errors.
+        // Re-throw to ensure the queue item is not deleted for other transient
+        // errors.
         throw $e;
       }
     }

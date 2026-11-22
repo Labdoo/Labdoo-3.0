@@ -33,13 +33,15 @@ use Drupal\user\EntityOwnerTrait;
  *       "add" = "Drupal\mini_wiki\Form\MiniWikiPageForm",
  *       "edit" = "Drupal\mini_wiki\Form\MiniWikiPageForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
- *       "delete-multiple-confirm" = "Drupal\Core\Entity\Form\DeleteMultipleForm",
+ *       "delete-multiple-confirm" =
+ *       "Drupal\Core\Entity\Form\DeleteMultipleForm",
  *       "revision-delete" = \Drupal\Core\Entity\Form\RevisionDeleteForm::class,
  *       "revision-revert" = \Drupal\Core\Entity\Form\RevisionRevertForm::class,
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
- *       "revision" = \Drupal\Core\Entity\Routing\RevisionHtmlRouteProvider::class,
+ *       "revision" =
+ *       \Drupal\Core\Entity\Routing\RevisionHtmlRouteProvider::class,
  *       "diff" = "Drupal\diff\Routing\DiffRouteProvider",
  *     },
  *   },
@@ -71,11 +73,15 @@ use Drupal\user\EntityOwnerTrait;
  *     "edit-form" = "/wiki-page/{mini_wiki_page}/edit",
  *     "delete-form" = "/wiki-page/{mini_wiki_page}/delete",
  *     "delete-multiple-form" = "/admin/content/page/delete-multiple",
- *     "revision" = "/wiki-page/{mini_wiki_page}/revision/{mini_wiki_page_revision}/view",
- *     "revision-delete-form" = "/wiki-page/{mini_wiki_page}/revision/{mini_wiki_page_revision}/delete",
- *     "revision-revert-form" = "/wiki-page/{mini_wiki_page}/revision/{mini_wiki_page_revision}/revert",
+ *     "revision" =
+ *     "/wiki-page/{mini_wiki_page}/revision/{mini_wiki_page_revision}/view",
+ *     "revision-delete-form" =
+ *     "/wiki-page/{mini_wiki_page}/revision/{mini_wiki_page_revision}/delete",
+ *     "revision-revert-form" =
+ *     "/wiki-page/{mini_wiki_page}/revision/{mini_wiki_page_revision}/revert",
  *     "version-history" = "/wiki-page/{mini_wiki_page}/revisions",
- *     "revisions-diff" = "/wiki-page/{mini_wiki_page}/revisions/view/{left_revision}/{right_revision}/{filter}",
+ *     "revisions-diff" =
+ *     "/wiki-page/{mini_wiki_page}/revisions/view/{left_revision}/{right_revision}/{filter}",
  *   },
  *   field_ui_base_route = "entity.mini_wiki_page.settings",
  * )

@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootronics\Service\Queue\Feeder;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\queue_manager\Model\QueueDataModel;
 
 /**
@@ -30,7 +30,7 @@ class DootronicRecomputeQueueFeeder extends AbstractQueueFeeder implements Queue
   /**
    * {@inheritDoc}
    */
-  public function feedQueue(EntityInterface $dootronic): void {
+  public function feedQueue(NodeInterface $dootronic): void {
     $item = [
       'id' => (int) $dootronic->id(),
       'uid' => (int) $dootronic->getOwnerId(),
@@ -39,8 +39,8 @@ class DootronicRecomputeQueueFeeder extends AbstractQueueFeeder implements Queue
     if (isset($dootronic->original)) {
       $originalDootripIds = [];
       foreach ($dootronic->original->get('field_dootrips') as $fieldItem) {
-        if ($fieldItem->target_id) {
-          $originalDootripIds[] = (int) $fieldItem->target_id;
+        if ($fieldItem->get('target_id')->getValue()) {
+          $originalDootripIds[] = (int) $fieldItem->get('target_id')->getValue();
         }
       }
       $item['original_dootrip_ids'] = $originalDootripIds;

@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootrip\Service\Queue\Feeder;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Service that feeds a queue with a dootrip to compute the total CO2 savings.
@@ -22,14 +22,14 @@ class TotalCo2SavingsQueueFeeder extends AbstractQueueFeeder implements QueueFee
   /**
    * {@inheritDoc}
    */
-  public function getQueueId(): ?string {
+  public function getQueueId(): string {
     return self::QUEUE_ID;
   }
 
   /**
    * {@inheritDoc}
    */
-  public function feedQueue(EntityInterface $dootrip): void {
+  public function feedQueue(NodeInterface $dootrip): void {
     $this->enqueueItem([$dootrip->id()]);
   }
 

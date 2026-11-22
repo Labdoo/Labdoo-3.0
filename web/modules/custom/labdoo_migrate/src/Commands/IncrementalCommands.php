@@ -2,47 +2,96 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\labdoo_migrate\Services\Incremental\DeltaFinalizer;
+use Drupal\labdoo_migrate\Services\Incremental\GalleryDependencyImporter;
+use Drupal\labdoo_migrate\Services\Incremental\UserDependencyImporter;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Lock\LockBackendInterface;
-use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Incremental\DeltaEngine;
 use Drupal\labdoo_migrate\Services\Incremental\DeltaStore;
 use Drupal\labdoo_migrate\Services\Incremental\NodeSourceReader;
 use Drupal\labdoo_migrate\Services\Incremental\NodeSyncAdapter;
 use Drush\Commands\DrushCommands;
 
-/** Explicit, resumable node deltas; never enabled as an automatic cron job. */
+/**
+ * Explicit, resumable node deltas; never enabled as an automatic cron job.
+ */
 final class IncrementalCommands extends DrushCommands {
+  /**
+   * The lazily initialized incremental migration engine.
+   */
   private ?DeltaEngine $engine = NULL;
 
-  public function __construct(private Connection $database, private ConnectionManagerInterface $sourceManager, private LockBackendInterface $lock) { parent::__construct(); }
+  public function __construct(private Connection $database, private LockBackendInterface $lock) {
+    parent::__construct();
+  }
 
+  /**
+   * Builds the incremental engine from the configured guarded connections.
+   */
   private function engine(): DeltaEngine {
-    if ($this->engine) { return $this->engine; }
+    if ($this->engine) {
+      return $this->engine;
+    }
     // Read-only commands must not enter the legacy manager: checking an expired
-    // legacy lock can delete semaphore rows. Writers acquire their own delta lock.
+    // legacy lock can delete semaphore rows. Writers acquire their own delta
+    // lock.
     $source = Database::getConnection('default', 'external');
     $options = $source->getConnectionOptions();
-    $identity = hash('sha256', json_encode(array_intersect_key($options, array_fill_keys(['driver', 'database', 'prefix', 'host', 'port', 'username'], TRUE)), JSON_THROW_ON_ERROR));
+    $identity = hash('sha256', json_encode(array_intersect_key($options, array_fill_keys([
+      'driver',
+      'database',
+      'prefix',
+      'host',
+      'port',
+      'username',
+    ], TRUE)), JSON_THROW_ON_ERROR));
     $reader = new NodeSourceReader($source);
     return $this->engine = new DeltaEngine($reader, new NodeSyncAdapter($source, $this->database, $reader), new DeltaStore($this->database), $this->lock, $identity);
   }
 
+  /**
+   * Normalizes command options for the incremental engine.
+   *
+   * @param array $options
+   *   The options.
+   */
   private function options(array $options): array {
     foreach (['batch-size', 'max-items'] as $key) {
-      if (!preg_match('/^[0-9]+$/D', (string) $options[$key])) { throw new \InvalidArgumentException($key . ' must be a non-negative integer.'); }
+      if (!preg_match('/^[0-9]+$/D', (string) $options[$key])) {
+        throw new \InvalidArgumentException($key . ' must be a non-negative integer.');
+      }
     }
-    return ['batch_size' => (int) $options['batch-size'], 'max_items' => (int) $options['max-items'], 'run_id' => $options['run'] ?? NULL, 'stage_new_dependencies' => (bool) ($options['stage-new-dependencies'] ?? FALSE)];
+    return [
+      'batch_size' => (int) $options['batch-size'],
+      'max_items' => (int) $options['max-items'],
+      'run_id' => $options['run'] ?? NULL,
+      'stage_new_dependencies' => (bool) ($options['stage-new-dependencies'] ?? FALSE),
+    ];
   }
 
+  /**
+   * Resolves the requested source types and plans each supported type.
+   *
+   * @param string $type
+   *   The type.
+   * @param array $options
+   *   The options.
+   */
   private function planTypes(string $type, array $options): array {
-    if ($type !== 'all') { return $this->engine()->plan($type, $options); }
-    if (!empty($options['run_id'])) { throw new \InvalidArgumentException('Resume one manifest using its original source type, not all.'); }
+    if ($type !== 'all') {
+      return $this->engine()->plan($type, $options);
+    }
+    if (!empty($options['run_id'])) {
+      throw new \InvalidArgumentException('Resume one manifest using its original source type, not all.');
+    }
     $runs = [];
     foreach (glob(dirname(__DIR__, 2) . '/config/fields_mapping/*.json') as $file) {
       $config = json_decode(file_get_contents($file), TRUE, 512, JSON_THROW_ON_ERROR);
-      if (($config['entity_type'] ?? '') === 'node' && isset($config['source_type'])) { $runs[] = $this->engine()->plan($config['source_type'], $options); }
+      if (($config['entity_type'] ?? '') === 'node' && isset($config['source_type'])) {
+        $runs[] = $this->engine()->plan($config['source_type'], $options);
+      }
     }
     return ['scope' => 'all_configured_node_types', 'max_items_is_per_type' => TRUE, 'runs' => $runs];
   }
@@ -50,59 +99,107 @@ final class IncrementalCommands extends DrushCommands {
   /**
    * Preview or explicitly import missing V2 users required by node references.
    *
+   * @param string $uids
+   *   Comma-separated original V2 UIDs (at most 100).
+   * @param array $options
+   *   The options.
+   *
    * @command labdoo-delta:import-users
-   * @param string $uids Comma-separated original V2 UIDs (at most 100).
    * @option apply Explicitly create missing users; existing identities are protected.
    * @option source-roles Explicitly preserve known non-administrative source roles; unknown/admin roles stay blocked.
    * @usage labdoo-delta:import-users 9894
    */
   public function importUsers(string $uids, array $options = ['apply' => FALSE, 'source-roles' => FALSE]): void {
-    if (!preg_match('/^[1-9][0-9]*(,[1-9][0-9]*)*$/D', $uids)) { throw new \InvalidArgumentException('Specify positive comma-separated source UIDs.'); }
-    foreach (explode(',', $uids) as $id) { if ((string) (int) $id !== $id) { throw new \InvalidArgumentException('Source UID exceeds the supported integer range.'); } }
+    if (!preg_match('/^[1-9][0-9]*(,[1-9][0-9]*)*$/D', $uids)) {
+      throw new \InvalidArgumentException('Specify positive comma-separated source UIDs.');
+    }
+    foreach (explode(',', $uids) as $id) {
+      if ((string) (int) $id !== $id) {
+        throw new \InvalidArgumentException('Source UID exceeds the supported integer range.');
+      }
+    }
     $ids = array_values(array_unique(array_map('intval', explode(',', $uids))));
-    if (count($ids) > 100) { throw new \InvalidArgumentException('At most 100 source users per request.'); }
+    if (count($ids) > 100) {
+      throw new \InvalidArgumentException('At most 100 source users per request.');
+    }
     // Read-only commands must not enter the legacy manager: checking an expired
-    // legacy lock can delete semaphore rows. Writers acquire their own delta lock.
+    // legacy lock can delete semaphore rows. Writers acquire their own delta
+    // lock.
     $source = Database::getConnection('default', 'external');
-    $this->emit((new \Drupal\labdoo_migrate\Services\Incremental\UserDependencyImporter($source, $this->database))->run($ids, (bool) $options['apply'], (bool) ($options['source-roles'] ?? FALSE)));
+    $this->emit((new UserDependencyImporter($source, $this->database))->run($ids, (bool) $options['apply'], (bool) ($options['source-roles'] ?? FALSE)));
   }
 
-  private function emit(array $report): void { $this->output()->writeln(json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)); }
+  /**
+   * Writes a structured operation report to the command output.
+   *
+   * @param array $report
+   *   The report.
+   */
+  private function emit(array $report): void {
+    $this->output()->writeln(json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+  }
 
   /**
    * Preview node deltas without writing manifests, baselines or content.
    *
+   * @param string $type
+   *   D7 node type, or all configured node types.
+   * @param array $options
+   *   The options.
+   *
    * @command labdoo-delta:preview
-   * @param string $type D7 node type, or all configured node types.
    * @option batch-size Maximum roots per SQL page (1..500).
    * @option max-items Maximum inventory rows this call, per type; 0 scans all.
    * @option stage-new-dependencies Explicitly stage new nodes unpublished when source-proven dependencies are missing.
    * @usage labdoo-delta:preview laptop --max-items=500
    */
-  public function preview(string $type = 'all', array $options = ['batch-size' => 100, 'max-items' => 0, 'stage-new-dependencies' => FALSE]): void {
+  public function preview(
+    string $type = 'all',
+    array $options = [
+      'batch-size' => 100,
+      'max-items' => 0,
+      'stage-new-dependencies' => FALSE,
+    ],
+  ): void {
     $this->emit($this->planTypes($type, $this->options($options) + ['dry_run' => TRUE]));
   }
 
   /**
    * Store or resume a node delta manifest; writes only migration metadata.
    *
+   * @param string $type
+   *   D7 node type, or all for new manifests.
+   * @param array $options
+   *   The options.
+   *
    * @command labdoo-delta:plan
-   * @param string $type D7 node type, or all for new manifests.
    * @option batch-size Maximum roots per SQL page (1..500).
    * @option max-items Maximum inventory rows this call, per type; 0 scans all.
    * @option run Existing manifest ID to resume, preserving its original ceiling.
    * @option stage-new-dependencies Explicitly stage new nodes unpublished when source-proven dependencies are missing.
    * @usage labdoo-delta:plan laptop --max-items=1000
    */
-  public function plan(string $type = 'all', array $options = ['batch-size' => 100, 'max-items' => 0, 'run' => NULL, 'stage-new-dependencies' => FALSE]): void {
+  public function plan(
+    string $type = 'all',
+    array $options = [
+      'batch-size' => 100,
+      'max-items' => 0,
+      'run' => NULL,
+      'stage-new-dependencies' => FALSE,
+    ],
+  ): void {
     $this->emit($this->planTypes($type, $this->options($options)));
   }
 
   /**
-   * Apply a completed manifest; defaults preserve conflicts and source deletions.
+   * Applies a manifest while preserving conflicts and source deletions.
+   *
+   * @param string $run
+   *   Manifest ID returned by labdoo-delta:plan.
+   * @param array $options
+   *   The options.
    *
    * @command labdoo-delta:apply
-   * @param string $run Manifest ID returned by labdoo-delta:plan.
    * @option batch-size Maximum work rows per SQL page (1..500).
    * @option max-items Maximum operations this call; repeat to resume. 0 is unlimited.
    * @option source-wins Explicitly adopt first-run differences; never bypass identity or two-sided conflicts.
@@ -112,56 +209,106 @@ final class IncrementalCommands extends DrushCommands {
    * @option retry-errors Retry failed items after correcting their cause; stale plans still fail.
    * @usage labdoo-delta:apply MANIFEST_ID --max-items=100
    */
-  public function apply(string $run, array $options = ['batch-size' => 100, 'max-items' => 500, 'source-wins' => FALSE, 'missing-source' => 'report', 'retry-errors' => FALSE, 'confirm-mass-unpublish' => FALSE, 'retry-dependencies' => FALSE]): void {
-    $settings = $this->options($options) + ['source_wins' => (bool) $options['source-wins'], 'missing_source' => $options['missing-source'], 'retry_errors' => (bool) $options['retry-errors'], 'confirm_mass_unpublish' => (bool) $options['confirm-mass-unpublish'], 'retry_dependencies' => (bool) ($options['retry-dependencies'] ?? FALSE)];
+  public function apply(
+    string $run,
+    array $options = [
+      'batch-size' => 100,
+      'max-items' => 500,
+      'source-wins' => FALSE,
+      'missing-source' => 'report',
+      'retry-errors' => FALSE,
+      'confirm-mass-unpublish' => FALSE,
+      'retry-dependencies' => FALSE,
+    ],
+  ): void {
+    $settings = $this->options($options) + [
+      'source_wins' => (bool) $options['source-wins'],
+      'missing_source' => $options['missing-source'],
+      'retry_errors' => (bool) $options['retry-errors'],
+      'confirm_mass_unpublish' => (bool) $options['confirm-mass-unpublish'],
+      'retry_dependencies' => (bool) ($options['retry-dependencies'] ?? FALSE),
+    ];
     $this->emit($this->engine()->apply($run, $settings));
   }
 
   /**
    * Preview or explicitly import real galleries from a staged node manifest.
    *
-   * Run staging during maintenance with cron/other writers stopped; finish every dependency before
+   * Run staging during maintenance with cron/other writers stopped; finish
+   * every dependency before
    * reopening the site. Existing galleries are never overwritten implicitly.
    *
+   * @param string $run
+   *   Manifest containing nodes waiting for gallery dependencies.
+   * @param array $options
+   *   The options.
+   *
    * @command labdoo-delta:import-galleries
-   * @param string $run Manifest containing nodes waiting for gallery dependencies.
    * @option apply Explicitly import these source galleries and their photographs.
    * @option after Last source-owner ID from the previous page.
    * @option limit Maximum staged owners this call (1..500).
    */
   public function importGalleries(string $run, array $options = ['apply' => FALSE, 'after' => 0, 'limit' => 100]): void {
     foreach (['after', 'limit'] as $key) {
-      if (!preg_match('/^[0-9]+$/D', (string) $options[$key])) { throw new \InvalidArgumentException('after/limit must be non-negative integers.'); }
+      if (!preg_match('/^[0-9]+$/D', (string) $options[$key])) {
+        throw new \InvalidArgumentException('after/limit must be non-negative integers.');
+      }
     }
     $store = new DeltaStore($this->database);
     $manifest = $store->run($run);
     $source = Database::getConnection('default', 'external');
     $sourceOptions = $source->getConnectionOptions();
-    $identity = hash('sha256', json_encode(array_intersect_key($sourceOptions, array_fill_keys(['driver', 'database', 'prefix', 'host', 'port', 'username'], TRUE)), JSON_THROW_ON_ERROR));
-    if ($manifest['source_identity'] !== $identity) { throw new \RuntimeException('Manifest source connection changed.'); }
+    $identity = hash('sha256', json_encode(array_intersect_key($sourceOptions, array_fill_keys([
+      'driver',
+      'database',
+      'prefix',
+      'host',
+      'port',
+      'username',
+    ], TRUE)), JSON_THROW_ON_ERROR));
+    if ($manifest['source_identity'] !== $identity) {
+      throw new \RuntimeException('Manifest source connection changed.');
+    }
     $reader = new NodeSourceReader($source);
     $adapter = new NodeSyncAdapter($source, $this->database, $reader);
-    if ($manifest['mapping_hash'] !== $adapter->context($manifest['source_type'])['mapping_hash']) { throw new \RuntimeException('Manifest mapping changed.'); }
+    if ($manifest['mapping_hash'] !== $adapter->context($manifest['source_type'])['mapping_hash']) {
+      throw new \RuntimeException('Manifest mapping changed.');
+    }
     $items = $store->listItems($run, (int) $options['after'], (int) $options['limit'], 'create_staged', 'waiting_refs');
-    $importer = new \Drupal\labdoo_migrate\Services\Incremental\GalleryDependencyImporter($source, $this->database);
-    $report = ['run_id' => $run, 'dry_run' => !(bool) $options['apply'], 'next_after' => (int) $options['after'], 'owners' => []];
+    $importer = new GalleryDependencyImporter($source, $this->database);
+    $report = [
+      'run_id' => $run,
+      'dry_run' => !(bool) $options['apply'],
+      'next_after' => (int) $options['after'],
+      'owners' => [],
+    ];
     foreach ($items as $item) {
-      $id = (int) $item['source_id']; $destinationId = (int) $item['destination_id'];
+      $id = (int) $item['source_id'];
+      $destinationId = (int) $item['destination_id'];
       $report['next_after'] = $id;
       $dependencies = array_filter($item['details']['dependencies'] ?? [], static fn($dependency) => ($dependency['kind'] ?? '') === 'gallery');
-      if (!$dependencies) { continue; }
+      if (!$dependencies) {
+        continue;
+      }
       $fingerprint = $reader->fingerprints($manifest['source_type'], [$id]);
       $destination = $adapter->destinations($manifest['source_type'], [$id])[$id] ?? [];
-      if (($fingerprint[$id]['hash'] ?? '') !== $item['source_hash'] || !empty($destination['conflict']) || (int) ($destination['id'] ?? 0) !== $destinationId || ($destination['hash'] ?? '') !== ($item['details']['destination_hash_after_create'] ?? '')) { throw new \RuntimeException('Staged owner changed; gallery import was not authorized for its current state.'); }
+      if (($fingerprint[$id]['hash'] ?? '') !== $item['source_hash'] || !empty($destination['conflict']) || (int) ($destination['id'] ?? 0) !== $destinationId || ($destination['hash'] ?? '') !== ($item['details']['destination_hash_after_create'] ?? '')) {
+        throw new \RuntimeException('Staged owner changed; gallery import was not authorized for its current state.');
+      }
       foreach ($dependencies as $dependency) {
-        if ($options['apply']) { $result = $importer->import($dependency, $destinationId); }
+        if ($options['apply']) {
+          $result = $importer->import($dependency, $destinationId);
+        }
         else {
           $result = $importer->inspect($manifest['source_type'], $id);
-          if (!empty($result['blocked']) || empty($result['dependency']) || ($result['dependency']['proof_hash'] ?? '') !== $dependency['proof_hash']) { throw new \RuntimeException('Staged gallery source proof changed or is blocked.'); }
+          if (!empty($result['blocked']) || empty($result['dependency']) || ($result['dependency']['proof_hash'] ?? '') !== $dependency['proof_hash']) {
+            throw new \RuntimeException('Staged gallery source proof changed or is blocked.');
+          }
         }
         $report['owners'][$id][] = $result;
       }
-      $reader->refresh(); $adapter->resetRuntime();
+      $reader->refresh();
+      $adapter->resetRuntime();
     }
     $this->emit($report);
   }
@@ -169,40 +316,69 @@ final class IncrementalCommands extends DrushCommands {
   /**
    * List source IDs and reasons from a manifest in bounded keyset pages.
    *
+   * @param string $run
+   *   Manifest ID.
+   * @param array $options
+   *   The options.
+   *
    * @command labdoo-delta:items
-   * @param string $run Manifest ID.
    * @option operation Filter create/update/update_candidate/conflict/deleted/etc.
    * @option status Filter pending/applied/skipped/blocked/error/etc.
    * @option after Last source ID of the previous page.
    * @option limit Maximum rows (1..500).
    */
-  public function items(string $run, array $options = ['operation' => NULL, 'status' => NULL, 'after' => 0, 'limit' => 100]): void {
+  public function items(
+    string $run,
+    array $options = [
+      'operation' => NULL,
+      'status' => NULL,
+      'after' => 0,
+      'limit' => 100,
+    ],
+  ): void {
     foreach (['after', 'limit'] as $key) {
-      if (!preg_match('/^[0-9]+$/D', (string) $options[$key])) { throw new \InvalidArgumentException('after/limit must be non-negative integers.'); }
+      if (!preg_match('/^[0-9]+$/D', (string) $options[$key])) {
+        throw new \InvalidArgumentException('after/limit must be non-negative integers.');
+      }
     }
-    $this->emit(['run_id' => $run, 'items' => (new DeltaStore($this->database))->listItems($run, (int) $options['after'], (int) $options['limit'], $options['operation'], $options['status'])]);
+    $this->emit([
+      'run_id' => $run,
+      'items' => (new DeltaStore($this->database))->listItems($run, (int) $options['after'], (int) $options['limit'], $options['operation'], $options['status']),
+    ]);
   }
 
   /**
    * Optionally enqueue existing derived workers for actually changed targets.
    *
-   * This schedules work only; it does not verify or execute derived calculations.
+   * This schedules work only; it does not verify or execute derived
+   * calculations.
    * Review the reported limitations before using this at cutover.
    *
+   * @param string $run
+   *   Applied manifest ID.
+   * @param array $options
+   *   The options.
+   *
    * @command labdoo-delta:enqueue-derived
-   * @param string $run Applied manifest ID.
    * @option limit Maximum applied rows per call (1..500).
    */
   public function enqueueDerived(string $run, array $options = ['limit' => 100]): void {
-    if (!preg_match('/^[0-9]+$/D', (string) $options['limit'])) { throw new \InvalidArgumentException('limit must be an integer.'); }
-    $this->emit((new \Drupal\labdoo_migrate\Services\Incremental\DeltaFinalizer($this->database))->finalize($run, (int) $options['limit']));
+    if (!preg_match('/^[0-9]+$/D', (string) $options['limit'])) {
+      throw new \InvalidArgumentException('limit must be an integer.');
+    }
+    $this->emit((new DeltaFinalizer($this->database))->finalize($run, (int) $options['limit']));
   }
 
   /**
    * Read a manifest's progress and operation counts.
    *
+   * @param string $run
+   *   Existing manifest ID.
+   *
    * @command labdoo-delta:status
-   * @param string $run Existing manifest ID.
    */
-  public function status(string $run): void { $this->emit((new DeltaStore($this->database))->summary($run)); }
+  public function status(string $run): void {
+    $this->emit((new DeltaStore($this->database))->summary($run));
+  }
+
 }

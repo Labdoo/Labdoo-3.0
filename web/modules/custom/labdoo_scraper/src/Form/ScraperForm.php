@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_scraper\Form;
 
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -10,6 +11,8 @@ use Drupal\Core\Queue\QueueFactory;
 
 /**
  * Form to start the scraper.
+ *
+ * @phpstan-consistent-constructor
  */
 class ScraperForm extends FormBase {
 
@@ -29,8 +32,19 @@ class ScraperForm extends FormBase {
 
   /**
    * Constructs a new ScraperForm object.
+   *
+   * @param \Drupal\labdoo_scraper\Service\ScraperService $scraper_service
+   *   The scraper service.
+   * @param \Drupal\Core\Queue\QueueFactory $queue_factory
+   *   The queue factory.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database service.
    */
-  public function __construct(ScraperService $scraper_service, QueueFactory $queue_factory) {
+  public function __construct(
+    ScraperService $scraper_service,
+    QueueFactory $queue_factory,
+    protected Connection $database,
+  ) {
     $this->scraperService = $scraper_service;
     $this->queueFactory = $queue_factory;
   }
@@ -41,7 +55,8 @@ class ScraperForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('labdoo_scraper.scraper_service'),
-      $container->get('queue')
+      $container->get('queue'),
+      $container->get('database'),
     );
   }
 
@@ -94,7 +109,7 @@ class ScraperForm extends FormBase {
     $clear_existing = (bool) $form_state->getValue('clear_existing');
 
     if ($clear_existing) {
-      \Drupal::database()->truncate('labdoo_scraper_results')->execute();
+      $this->database->truncate('labdoo_scraper_results')->execute();
       $this->messenger()->addStatus($this->t('Previous results have been deleted.'));
     }
 

@@ -5,7 +5,7 @@ namespace Drupal\labdoo_team\Service;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -13,7 +13,6 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
-use Drupal\node\NodeInterface;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +27,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @link http://natiboo.es
  */
 class MembershipManager {
+
+  /**
+   * The Global Team's fixed content ID.
+   */
+  public const GLOBAL_TEAM_ID = 24;
+
   use StringTranslationTrait;
 
   /**
@@ -40,7 +45,7 @@ class MembershipManager {
   /**
    * The current request.
    *
-   * @var \Symfony\Component\HttpFoundation\Request|null $currentRequest
+   * @var \Symfony\Component\HttpFoundation\Request|null
    */
   protected ?Request $currentRequest;
 
@@ -63,7 +68,7 @@ class MembershipManager {
     protected AccountInterface $currentUser,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     RequestStack $requestStack,
-    protected EventDispatcherInterface $eventDispatcher
+    protected EventDispatcherInterface $eventDispatcher,
   ) {
     $this->logger = $loggerChannelFactory->get('labdoo_team');
     $this->currentRequest = $requestStack->getCurrentRequest();
@@ -86,7 +91,7 @@ class MembershipManager {
     $team->save();
 
     $this->clearCache($teamId, $userId);
-}
+  }
 
   /**
    * Leave a team by removing the current user from the team members.
@@ -129,13 +134,14 @@ class MembershipManager {
 
     try {
       $team = $this->load($teamId);
-    } catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
+    }
+    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
       $errorMessage = sprintf(
         'Could not check if the user %d belongs to the team %d: %s',
         $uid,
         $teamId,
         $e->getMessage()
-      );
+          );
       $this->logger->error($errorMessage);
 
       return FALSE;
@@ -158,13 +164,13 @@ class MembershipManager {
    * @param int $teamId
    *   The ID of the team entity to load.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\node\NodeInterface|null
    *   The loaded team entity.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function load(int $teamId): EntityInterface {
+  public function load(int $teamId): ?NodeInterface {
     return $this->entityTypeManager
       ->getStorage('node')
       ->load($teamId);
@@ -183,7 +189,7 @@ class MembershipManager {
    */
   public function buildJoinLink(
     int $teamId,
-    array $attributes = []
+    array $attributes = [],
   ): Link {
     return $this->buildLink(
       $teamId,
@@ -198,7 +204,6 @@ class MembershipManager {
    *
    * @param int $teamId
    *   The ID of the team.
-   *
    * @param array $attributes
    *   (Optional) An array of attributes to be added to the link.
    *
@@ -261,13 +266,14 @@ class MembershipManager {
     int $teamId,
     string $route,
     string $label,
-    array $attributes = []
+    array $attributes = [],
   ): Link {
     $url = Url::fromRoute(
       $route,
       ['teamId' => $teamId],
       ['query' => [
-        'destination' => $this->currentRequest->getRequestUri()],
+        'destination' => $this->currentRequest->getRequestUri(),
+      ],
       ]
     );
 
@@ -304,7 +310,7 @@ class MembershipManager {
    * @return bool
    *   TRUE if the user is allowed, FALSE otherwise.
    */
-  public function isAllowed(?int $teamId, AccountInterface $account = NULL): bool {
+  public function isAllowed(?int $teamId, ?AccountInterface $account = NULL): bool {
     if (empty($teamId)) {
       return TRUE;
     }
@@ -313,7 +319,7 @@ class MembershipManager {
       $account = $this->currentUser;
     }
 
-    $globalTeamId = defined('TEAM_GLOBAL') ? TEAM_GLOBAL : 24;
+    $globalTeamId = self::GLOBAL_TEAM_ID;
 
     if ((int) $teamId === (int) $globalTeamId) {
       return $account->hasRole('superhub_manager');
@@ -333,7 +339,7 @@ class MembershipManager {
    * @return bool
    *   TRUE when user belongs to the team or team ID is empty, FALSE otherwise.
    */
-  public function isMember(?int $teamId, AccountInterface $account = NULL): bool {
+  public function isMember(?int $teamId, ?AccountInterface $account = NULL): bool {
     if (empty($teamId)) {
       return TRUE;
     }
@@ -389,7 +395,7 @@ class MembershipManager {
    * @return bool
    *   TRUE if the user can comment, FALSE otherwise.
    */
-  public function canCommentOnTeamPost(?int $teamId, AccountInterface $account = NULL): bool {
+  public function canCommentOnTeamPost(?int $teamId, ?AccountInterface $account = NULL): bool {
     if (empty($teamId)) {
       return TRUE;
     }

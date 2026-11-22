@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_edoovillage\Plugin\QueueWorker;
 
+use Drupal\labdoo_common\Utility\GeocoderProviders;
+use Drupal\labdoo_common\Utility\EntityMetadata;
 use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -19,6 +21,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   title = @Translation("Edoovillage Geocoding"),
  *   cron = {"time" = 60}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -88,7 +92,7 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
     if (!$nid) {
       return;
     }
-    /** @var \Drupal\node\NodeInterface $node */
+    /** @var \Drupal\node\NodeInterface|null $node */
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
 
     // Stale items must not prevent the remaining queue from being processed.
@@ -111,9 +115,7 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
     $modified = FALSE;
 
     if (
-      $node
-      && $node->bundle() === 'edoovillage'
-      && $node->hasField('field_location')
+      $node->hasField('field_location')
       && !$node->get('field_location')->isEmpty()
     ) {
       $locationData = $node->get('field_location')->first()->getValue();
@@ -152,15 +154,17 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
     }
 
     // Re-generate title with new country/city data.
-    // We pass a copy to avoid recursion or multiple saves if setEdooVillageTitle were to trigger anything,
+    // We pass a copy to avoid recursion or multiple saves if
+    // setEdooVillageTitle were to trigger anything,
     // although here it's safe because it only modifies the entity in memory.
     $this->edoovillageCompute->setEdooVillageTitle($node);
 
     // Save the node to persist updated title and fields (country/city).
-    // Use a flag to avoid re-queueing if possible, but __labdoo_edoovillage_enqueue_geocoding
+    // Use a flag to avoid re-queueing if possible, but
+    // labdoo_edoovillage_enqueue_geocoding
     // already checks if country/city are empty.
     // Do not enqueue the same geocoding task again from the update hook.
-    $node->skip_geocoding_enqueue = TRUE;
+    EntityMetadata::set($node, 'skip_geocoding_enqueue', TRUE);
     $node->save();
   }
 
@@ -180,7 +184,7 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
 
     try {
       // Use the geocoder service with the 'googlemaps' provider.
-      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, ['googlemaps']);
+      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, GeocoderProviders::load($this->entityTypeManager, ['googlemaps']));
 
       if ($addressCollection && !$addressCollection->isEmpty()) {
         /** @var \Geocoder\Location $address */
@@ -224,7 +228,8 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
       catch (\Exception $fallbackException) {
         \Drupal::logger('labdoo_edoovillage')->error('Fallback Nominatim reverse geocode failed: @message', ['@message' => $fallbackException->getMessage()]);
 
-        // Circuit Breaker: If API is blocked (403) or rate limited (429), suspend queue.
+        // Circuit Breaker: If API is blocked (403) or rate limited (429),
+        // suspend queue.
         if (
           strpos($msg, 'Access Not Configured') !== FALSE ||
           strpos($msg, 'API keys with referer restrictions') !== FALSE ||
@@ -235,7 +240,8 @@ class EdooVillageGeocoding extends QueueWorkerBase implements ContainerFactoryPl
           throw new SuspendQueueException('Google Maps API Error: ' . $msg);
         }
 
-        // Re-throw to ensure the queue item is not deleted for other transient errors.
+        // Re-throw to ensure the queue item is not deleted for other transient
+        // errors.
         throw $e;
       }
     }

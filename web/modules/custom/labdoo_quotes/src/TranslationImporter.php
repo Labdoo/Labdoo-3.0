@@ -5,7 +5,7 @@ namespace Drupal\labdoo_quotes;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
-use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\Core\StringTranslation\TranslationManager;
 use Drupal\Component\Gettext\PoStreamReader;
 use Drupal\locale\PoDatabaseWriter;
 
@@ -20,12 +20,12 @@ final class TranslationImporter {
   public function __construct(
     private readonly ModuleExtensionList $modules,
     private readonly LanguageManagerInterface $languages,
-    private readonly TranslationInterface $translation,
+    private readonly TranslationManager $translation,
     private readonly LockBackendInterface $lock,
   ) {}
 
   /**
-   * Imports translations for installed languages, without changing plural rules.
+   * Imports translations while preserving installed plural rules.
    */
   public function import(?array $langcodes = NULL): array {
     if (!$this->lock->acquire('labdoo_quotes.import', 60)) {

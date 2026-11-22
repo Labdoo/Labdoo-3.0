@@ -40,7 +40,7 @@ class SpecialFieldTypeImage implements SpecialFieldTypeInterface {
    */
   public function __construct(
     FileManagerInterface $fileManager,
-    MediaManagerInterface $mediaManager
+    MediaManagerInterface $mediaManager,
   ) {
 
     $this->fileManager = $fileManager;
@@ -54,10 +54,10 @@ class SpecialFieldTypeImage implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
-    if (empty($value) || $value === "0" || $value === 0) {
+    if (empty($value)) {
       return [];
     }
 

@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_dootrip\Plugin\Block;
 
+use Drupal\Core\Session\AccountProxyInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -22,6 +24,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Dootrip chart"),
  *   category = @Translation("Dootrip"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -52,13 +56,19 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
    *   The Dootrip repository.
    * @param \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository
    *   The common repository.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request_stack service.
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentAccount
+   *   The current_user service.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
     DootripRepositoryInterface $dootripRepository,
-    CommonRepository $commonRepository
+    CommonRepository $commonRepository,
+    protected RequestStack $requestStack,
+    protected AccountProxyInterface $currentAccount,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->dootripRepository = $dootripRepository;
@@ -74,7 +84,7 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface $dootripRepository */
     $dootripRepository = $container->get('labdoo_dootrip.repository');
@@ -86,7 +96,9 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
       $plugin_id,
       $plugin_definition,
       $dootripRepository,
-      $commonRepository
+      $commonRepository,
+      $container->get('request_stack'),
+      $container->get('current_user'),
     );
   }
 
@@ -94,15 +106,15 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
    * {@inheritdoc}
    */
   public function build() {
-    $userId = \Drupal::request()->query->get('u');
-    $mine = \Drupal::request()->query->get('mine');
+    $userId = $this->requestStack->getCurrentRequest()->query->get('u');
+    $mine = $this->requestStack->getCurrentRequest()->query->get('mine');
     $filterUserId = NULL;
 
     if (!empty($userId) && is_numeric($userId)) {
       $filterUserId = (int) $userId;
     }
     elseif (!empty($mine) && (int) $mine === 1) {
-      $filterUserId = (int) \Drupal::currentUser()->id();
+      $filterUserId = (int) $this->currentAccount->id();
     }
 
     $stats = $this->dootripRepository->getStats($filterUserId);
@@ -123,7 +135,7 @@ class DootripChartBlock extends BlockBase implements ContainerFactoryPluginInter
           'session',
         ],
         'tags' => [
-          'dootrip_chart'
+          'dootrip_chart',
         ],
       ],
     ];

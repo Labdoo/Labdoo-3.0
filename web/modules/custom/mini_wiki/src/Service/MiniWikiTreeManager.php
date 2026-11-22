@@ -2,7 +2,10 @@
 
 namespace Drupal\mini_wiki\Service;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\mini_wiki\MiniWikiPageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Url;
@@ -24,23 +27,29 @@ class MiniWikiTreeManager {
    *   The entity type manager.
    * @param \Drupal\Core\Language\LanguageManager $languageManager
    *   The language manager.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database service.
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentAccount
+   *   The current_user service.
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected LanguageManager $languageManager
+    protected LanguageManager $languageManager,
+    protected Connection $database,
+    protected AccountProxyInterface $currentAccount,
   ) {
   }
 
   /**
    * Generates the link to the entity referenced by field parent.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   Entity with field parent.
    *
    * @return array|null
    *   Label and URL to the entity referenced by field parent.
    */
-  public function getParentEntityUrl(EntityInterface $entity): ?array {
+  public function getParentEntityUrl(ContentEntityInterface $entity): ?array {
     if ($entity->hasField('parent') && !$entity->get('parent')->isEmpty()) {
       $parentEntity = $entity->get('parent')->entity;
       if ($parentEntity && $parentEntity->access('view')) {
@@ -60,7 +69,7 @@ class MiniWikiTreeManager {
   }
 
   /**
-   * Retrieves an array of links to all entities that have the given node as its field parent.
+   * Retrieves links to the children of the given parent node.
    *
    * @param int $entityId
    *   Node ID.
@@ -69,14 +78,14 @@ class MiniWikiTreeManager {
    *   Array of links to entities that have the given node as its field parent.
    */
   public function getChildrenEntitiesUrls(int $entityId): array {
-    $database = \Drupal::database();
+    $database = $this->database;
     $query = $database->select('mini_wiki_page_field_data', 'fd');
     $query->fields('fd', ['id', 'label']);
     $query->condition('fd.parent', $entityId);
     $query->orderBy('fd.weight');
     $query->orderBy('fd.label');
     $query->orderBy('fd.id');
-    if (!\Drupal::currentUser()->hasPermission('edit mini_wiki_page') && !\Drupal::currentUser()->hasPermission('administer mini_wiki_page')) {
+    if (!$this->currentAccount->hasPermission('edit mini_wiki_page') && !$this->currentAccount->hasPermission('administer mini_wiki_page')) {
       $query->condition('fd.status', 1);
     }
     $query->condition('fd.langcode', $this->languageManager->getCurrentLanguage()->getId());
@@ -110,10 +119,10 @@ class MiniWikiTreeManager {
   /**
    * Finds the previous and next readable pages in book order.
    */
-  public function getAdjacentPages(EntityInterface $entity): array {
+  public function getAdjacentPages(ContentEntityInterface $entity): array {
     $parent_id = $entity->get('parent')->target_id;
     $siblings = $parent_id ? $this->loadVisibleChildren($parent_id) : [$entity];
-    $ids = array_map(static fn(EntityInterface $page) => (string) $page->id(), $siblings);
+    $ids = array_map(static fn(ContentEntityInterface $page) => (string) $page->id(), $siblings);
     $position = array_search((string) $entity->id(), $ids, TRUE);
     $previous = NULL;
     if ($position !== FALSE && $position > 0) {
@@ -149,7 +158,7 @@ class MiniWikiTreeManager {
         break;
       }
       $siblings = $this->loadVisibleChildren($page->get('parent')->target_id);
-      $ids = array_map(static fn(EntityInterface $sibling) => (string) $sibling->id(), $siblings);
+      $ids = array_map(static fn(ContentEntityInterface $sibling) => (string) $sibling->id(), $siblings);
       $position = array_search((string) $page->id(), $ids, TRUE);
       if ($position !== FALSE && isset($siblings[$position + 1])) {
         $next = $siblings[$position + 1];
@@ -166,6 +175,9 @@ class MiniWikiTreeManager {
 
   /**
    * Loads readable siblings in their configured order and current language.
+   *
+   * @return \Drupal\mini_wiki\MiniWikiPageInterface[]
+   *   The visible pages in their current display language.
    */
   protected function loadVisibleChildren(?string $parent_id): array {
     $storage = $this->entityTypeManager->getStorage('mini_wiki_page');
@@ -181,6 +193,9 @@ class MiniWikiTreeManager {
       ->sort('weight')->sort('label')->sort('id')->execute();
     $pages = [];
     foreach ($storage->loadMultiple($ids) as $page) {
+      if (!$page instanceof MiniWikiPageInterface) {
+        throw new \UnexpectedValueException('Mini Wiki storage returned an incompatible page.');
+      }
       if ($page->hasTranslation($langcode)) {
         $page = $page->getTranslation($langcode);
       }

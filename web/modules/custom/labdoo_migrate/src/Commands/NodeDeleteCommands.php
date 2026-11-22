@@ -28,7 +28,7 @@ class NodeDeleteCommands extends DrushCommands {
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
    */
-  private ProgressBar $progressBar;
+  private ?ProgressBar $progressBar = NULL;
 
   /**
    * NodeDeleteCommands constructor.
@@ -37,7 +37,7 @@ class NodeDeleteCommands extends DrushCommands {
    *   The entity type manager.
    */
   public function __construct(
-    EntityTypeManagerInterface $entityTypeManager
+    EntityTypeManagerInterface $entityTypeManager,
   ) {
     parent::__construct();
     $this->entityTypeManager = $entityTypeManager;
@@ -64,26 +64,26 @@ class NodeDeleteCommands extends DrushCommands {
     array $options = [
       'limit' => -1,
       'dry-run' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $startTime = microtime(TRUE);
       $this->logger->notice(sprintf('Starting deletion of nodes with bundle "%s"...', $bundle));
 
-      // Get the node storage
+      // Get the node storage.
       $nodeStorage = $this->entityTypeManager->getStorage('node');
 
-      // Query for nodes of the specified bundle
+      // Query for nodes of the specified bundle.
       $query = $nodeStorage->getQuery()
         ->condition('type', $bundle)
         ->accessCheck(FALSE);
 
-      // Apply limit if specified
+      // Apply limit if specified.
       if ($options['limit'] > 0) {
         $query->range(0, $options['limit']);
       }
 
-      // Get the node IDs
+      // Get the node IDs.
       $nids = $query->execute();
       $count = count($nids);
 
@@ -94,16 +94,16 @@ class NodeDeleteCommands extends DrushCommands {
 
       $this->logger->notice(sprintf('Found %d nodes of type "%s" to delete.', $count, $bundle));
 
-      // If dry-run, just report what would be deleted
+      // If dry-run, just report what would be deleted.
       if ($options['dry-run']) {
         $this->logger->notice('Dry run mode: No nodes will be deleted.');
         return;
       }
 
-      // Initialize progress bar
+      // Initialize progress bar.
       $this->initProgressBar($count, sprintf('Deleting nodes of type "%s"', $bundle));
 
-      // Delete the nodes in chunks to avoid memory issues
+      // Delete the nodes in chunks to avoid memory issues.
       $chunks = array_chunk($nids, 50);
       $deleted = 0;
 
@@ -112,13 +112,13 @@ class NodeDeleteCommands extends DrushCommands {
         $nodeStorage->delete($entities);
         $deleted += count($chunk);
 
-        // Update progress bar for each node in the chunk
+        // Update progress bar for each node in the chunk.
         for ($i = 0; $i < count($chunk); $i++) {
           $this->advanceProgressBar();
         }
       }
 
-      // Finish the progress bar
+      // Finish the progress bar.
       if ($this->progressBar) {
         $this->progressBar->finish();
         $this->output->writeln('');
@@ -131,7 +131,7 @@ class NodeDeleteCommands extends DrushCommands {
         "-- Time elapsed: %s.\n" .
         "-- %d nodes deleted.",
         $bundle,
-        gmdate("H:i:s", $timeElapsedSeconds),
+        gmdate("H:i:s", (int) $timeElapsedSeconds),
         $deleted
       ));
     }

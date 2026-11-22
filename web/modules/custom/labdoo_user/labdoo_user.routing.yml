@@ -4,6 +4,7 @@ labdoo_user.user_page:
     _controller: '\Drupal\labdoo_user\Controller\UserController::userPage'
     _title: 'User'
   requirements:
+    # Public landing page; it displays no private account information.
     _access: 'TRUE'
 
 labdoo_user.dashboard_redirect:

@@ -1,15 +1,18 @@
-<?php declare(strict_types = 1);
+<?php
 
 /**
- * Developed by Natiboo <info@natiboo.es>
+ * @file
+ * Integrates statistics rendering and administrative form hooks.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Developed by Natiboo <info@natiboo.es>.
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
-
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
-
 function labdoo_statistics_theme() {
   return [
     'statistics_block_block' => [
@@ -62,4 +65,3 @@ function labdoo_statistics_theme() {
     ],
   ];
 }
-

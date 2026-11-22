@@ -1,12 +1,22 @@
-<?php declare(strict_types = 1);
+<?php
 
 /**
- * Developed by Natiboo <info@natiboo.es>
+ * @file
+ * Integrates common form, entity and rendering hooks.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Developed by Natiboo <info@natiboo.es>.
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
 
+use Drupal\Core\Render\Markup;
+use Drupal\node\NodeInterface;
+use Drupal\views\ViewExecutable;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -33,13 +43,18 @@ function labdoo_common_webform_element_alter(array &$element, FormStateInterface
   // Handle Reason (re) mapping.
   if ($key === 'the_reason_you_are_contacting_labdoo_org') {
     $reason = $request->query->get('re');
-    if ($reason !== null) {
+    if ($reason !== NULL) {
       $mapping = [
-        '0' => '1', // donate laptop
-        '1' => '2', // dootrip
-        '2' => '3', // volunteer
-        '3' => '4', // edoovillage
-        '4' => '5', // contact labdoo
+      // Donate laptop.
+        '0' => '1',
+      // Dootrip.
+        '1' => '2',
+      // Volunteer.
+        '2' => '3',
+      // Edoovillage.
+        '3' => '4',
+      // Contact labdoo.
+        '4' => '5',
       ];
       if (isset($mapping[$reason])) {
         $element['#default_value'] = $mapping[$reason];
@@ -50,12 +65,14 @@ function labdoo_common_webform_element_alter(array &$element, FormStateInterface
 
   // Handle Country (co) normalization.
   if ($key === 'country') {
-    $co = $request->query->get('co'); // "es"
+    // "es"
+    $co = $request->query->get('co');
     if (!$co) {
       return;
     }
 
-    $iso2 = strtoupper((string) $co); // "ES"
+    // "ES"
+    $iso2 = strtoupper((string) $co);
 
     // ISO2 -> Country name (ES => Spain).
     $countries = \Drupal::service('country_manager')->getList();
@@ -94,7 +111,7 @@ function labdoo_common_token_info() {
 /**
  * Implements hook_tokens().
  */
-function labdoo_common_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function labdoo_common_tokens($type, $tokens, array $data = [], array $options = []) {
   $replacements = [];
 
   if (($type === 'custom') && isset($tokens['get_parameters'])) {
@@ -117,7 +134,8 @@ function labdoo_common_user_presave(UserInterface $account) {
 /**
  * Sets the active countries for the given form based on the provided context.
  *
- * Updates the country field options in the form with a filtered list of countries.
+ * Updates the country field options in the form with a filtered list of
+ * countries.
  *
  * @param array $form
  *   The form array where the active countries will be set.
@@ -125,6 +143,7 @@ function labdoo_common_user_presave(UserInterface $account) {
  *   The context used to filter and retrieve the active countries.
  *
  * @return void
+ *   The resulting value.
  */
 function labdoo_common_set_active_countries(array &$form, string $context): void {
   /** @var \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository */
@@ -184,7 +203,8 @@ function labdoo_common_form_user_register_form_alter(&$form, FormStateInterface 
       if (isset($form[$field_name]['widget'])) {
         $form[$field_name]['widget']['#required'] = TRUE;
 
-        // For string fields and similar, we often need to set #required on the value element.
+        // For string fields and similar, we often need to set #required on the
+        // value element.
         if (isset($form[$field_name]['widget'][0]['value'])) {
           $form[$field_name]['widget'][0]['value']['#required'] = TRUE;
         }
@@ -345,7 +365,8 @@ function labdoo_common_reverse_geocode_coordinates_alter(&$latitude, &$longitude
  * Implements hook_reverse_geocode_entity_field_coordinates_alter().
  */
 function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude, &$longitude, FieldItemListInterface $field) {
-  // Prevent geocoding during migration or if explicitly disabled for this entity.
+  // Prevent geocoding during migration or if explicitly disabled for this
+  // entity.
   $entity = $field->getEntity();
   if (
     isset($entity->labdoo_skip_geocoding)
@@ -372,7 +393,8 @@ function labdoo_common_reverse_geocode_entity_field_coordinates_alter(&$latitude
     return;
   }
 
-  // Pass back as floats to avoid type errors in Geocoder\StatefulGeocoder::reverse().
+  // Pass back as floats to avoid type errors in
+  // Geocoder\StatefulGeocoder::reverse().
   $latitude = $lat;
   $longitude = $lon;
 }
@@ -402,7 +424,8 @@ function labdoo_common_geocode_address_string_alter(string &$address_string) {
  * Implements hook_geocode_entity_field_address_string_alter().
  */
 function labdoo_common_geocode_entity_field_address_string_alter(string &$address_string, FieldItemListInterface $field) {
-  // Prevent geocoding during migration or if explicitly disabled for this entity.
+  // Prevent geocoding during migration or if explicitly disabled for this
+  // entity.
   $entity = $field->getEntity();
   if (
     isset($entity->labdoo_skip_geocoding)
@@ -443,7 +466,7 @@ function labdoo_common_entity_extra_field_info() {
  * Implements hook_node_view().
  */
 function labdoo_common_node_view(array &$build, EntityInterface $node, EntityViewDisplayInterface $display, $view_mode) {
-  if ($view_mode === 'full' && $display->getComponent('labdoo_dates')) {
+  if ($node instanceof NodeInterface && $view_mode === 'full' && $display->getComponent('labdoo_dates')) {
     $created = $node->getCreatedTime();
     $changed = $node->getChangedTime();
 
@@ -466,10 +489,10 @@ function labdoo_common_node_view(array &$build, EntityInterface $node, EntityVie
       '#type' => 'container',
       '#attributes' => ['class' => ['labdoo-dates-box']],
       'tagged' => [
-        '#markup' => '<p><strong>' . $created_label . '</strong> ' . $dateFormatter->format($created, 'custom', (string) t($format_tagged)) . '</p>',
+        '#markup' => '<p><strong>' . $created_label . '</strong> ' . $dateFormatter->format($created, 'custom', $format_tagged) . '</p>',
       ],
       'updated' => [
-        '#markup' => '<p><strong>' . t('Date it was last updated:') . '</strong> ' . $dateFormatter->format($changed, 'custom', (string) t($format_updated)) . '</p>',
+        '#markup' => '<p><strong>' . t('Date it was last updated:') . '</strong> ' . $dateFormatter->format($changed, 'custom', $format_updated) . '</p>',
       ],
     ];
   }
@@ -504,7 +527,7 @@ function labdoo_common_library_info_alter(array &$libraries, string $extension) 
 /**
  * Implements hook_views_pre_render().
  */
-function labdoo_common_views_pre_render(\Drupal\views\ViewExecutable $view) {
+function labdoo_common_views_pre_render(ViewExecutable $view) {
   if ($view->id() !== 'search_results') {
     return;
   }
@@ -519,8 +542,9 @@ function labdoo_common_views_pre_render(\Drupal\views\ViewExecutable $view) {
       continue;
     }
 
-    // If the entity is a Node and its title is empty, construct a beautiful title.
-    if ($entity instanceof \Drupal\node\NodeInterface && $entity->getTitle() === '') {
+    // If the entity is a Node and its title is empty, construct a beautiful
+    // title.
+    if ($entity instanceof NodeInterface && $entity->getTitle() === '') {
       $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $entity->id());
       $computed_title = '';
       if ($alias) {
@@ -569,7 +593,7 @@ function labdoo_common_preprocess_views_view_field(&$variables) {
   // Handle mini_wiki_page specific fields: type, created, changed.
   if ($entity->getEntityTypeId() === 'mini_wiki_page') {
     if ($field->field === 'type') {
-      $variables['output'] = \Drupal\Core\Render\Markup::create((string) t('Wiki Page'));
+      $variables['output'] = Markup::create((string) t('Wiki Page'));
     }
     elseif ($field->field === 'created') {
       $created_time = NULL;
@@ -582,7 +606,7 @@ function labdoo_common_preprocess_views_view_field(&$variables) {
 
       if ($created_time) {
         $formatted = \Drupal::service('date.formatter')->format($created_time, 'medium');
-        $variables['output'] = \Drupal\Core\Render\Markup::create($formatted);
+        $variables['output'] = Markup::create($formatted);
       }
     }
     elseif ($field->field === 'changed') {
@@ -596,7 +620,7 @@ function labdoo_common_preprocess_views_view_field(&$variables) {
 
       if ($changed_time) {
         $formatted = \Drupal::service('date.formatter')->format($changed_time, 'medium');
-        $variables['output'] = \Drupal\Core\Render\Markup::create($formatted);
+        $variables['output'] = Markup::create($formatted);
       }
     }
   }

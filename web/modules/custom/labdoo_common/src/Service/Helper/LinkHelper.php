@@ -4,7 +4,6 @@ namespace Drupal\labdoo_common\Service\Helper;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Access\AccessResultAllowed;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\GeneratedUrl;
@@ -49,13 +48,17 @@ class LinkHelper {
    *   The current route.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
    *   The current user.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request stack.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
+   *   The logger channel factory.
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
     protected RouteMatchInterface $currentRouteMatch,
     protected AccountProxyInterface $currentUser,
     RequestStack $requestStack,
-    LoggerChannelFactoryInterface $loggerChannelFactory
+    LoggerChannelFactoryInterface $loggerChannelFactory,
   ) {
     $this->currentRequest = $requestStack->getCurrentRequest();
     $this->logger = $loggerChannelFactory->get('labdoo_common');
@@ -71,7 +74,7 @@ class LinkHelper {
    *   The edit link of the given entity.
    */
   public function generateEditLink(EntityInterface $entity): GeneratedUrl|string {
-    if ($entity->access('update', $this->currentUser) instanceof AccessResultAllowed) {
+    if ($entity->access('update', $this->currentUser)) {
       return $this->generateUrlFromRoute(
         'entity.node.edit_form',
         ['node' => $entity->id()]
@@ -219,7 +222,7 @@ class LinkHelper {
         [
           'team_id' => $entity->id(),
           'destination' => $this->currentRequest->getRequestUri(),
-        ]
+        ],
       ]
     );
   }
@@ -253,11 +256,12 @@ class LinkHelper {
    *   The options' array.
    *
    * @return \Drupal\Core\GeneratedUrl|string
+   *   The resulting value.
    */
   public function generateUrlFromRoute(
     string $routeName,
     array $parameters = [],
-    array $options = []
+    array $options = [],
   ): GeneratedUrl|string {
     $urlObject = Url::fromRoute($routeName, $parameters, $options);
     $url = $urlObject->toString();
@@ -302,8 +306,8 @@ class LinkHelper {
    * @param int $entityId
    *   The ID of the entity to load.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
-   *   The loaded entity, or NULL if the entity could not be loaded.
+   * @return \Drupal\node\NodeInterface|null
+   *   The loaded node, or NULL if the node could not be loaded.
    */
   public function loadEntity(int $entityId): ?EntityInterface {
     try {

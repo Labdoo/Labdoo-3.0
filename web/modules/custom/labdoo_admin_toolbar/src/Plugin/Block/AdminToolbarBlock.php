@@ -21,6 +21,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Labdoo Admin Toolbar"),
  *   category = @Translation("Labdoo")
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class AdminToolbarBlock extends BlockBase implements ContainerFactoryPluginInterface {
 

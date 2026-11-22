@@ -27,23 +27,22 @@ class GithubAuth {
    * ListIssuesController constructor.
    *
    * @param ClientInterface $client
-   *   The client interface used for communication
+   *   The client interface used for communication.
    * @param KeyRepositoryInterface $keyRepository
-   *   The key repository interface for managing keys
+   *   The key repository interface for managing keys.
    * @param ConfigFactoryInterface $configFactory
-   *   The config factory interface for obtaining configuration settings
+   *   The config factory interface for obtaining configuration settings.
    */
   public function __construct(
     protected ClientInterface $client,
     protected KeyRepositoryInterface $keyRepository,
-    ConfigFactoryInterface $configFactory
+    ConfigFactoryInterface $configFactory,
   ) {
     $this->config = $configFactory->get('github_issues.settings');
   }
 
   /**
-   * Generates a JSON Web Token (JWT) using the private key stored
-   * in the key repository.
+   * Generates a signed JSON Web Token using the configured private key.
    *
    * The JWT payload includes the current time as the issued at (iat)
    * and expiration (exp) time, and the application ID as the issuer (iss).
@@ -51,13 +50,14 @@ class GithubAuth {
    * @return string
    *   The generated JWT.
    */
-  public function generateJWT(): string {
+  public function generateJwt(): string {
     $privateKey = $this->keyRepository
       ->getKey($this->config->get('key'))
       ->getKeyValue();
     $payload = [
       'iat' => time(),
-      'exp' => time() + (10 * 60), // 10 minutes expiry.
+    // 10 minutes expiry.
+      'exp' => time() + (10 * 60),
       'iss' => $this->config->get('app_id'),
     ];
 
@@ -73,11 +73,11 @@ class GithubAuth {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function getToken(): string {
-    $jwt = $this->generateJWT();
+    $jwt = $this->generateJwt();
     $installationId = $this->config->get('installation_id');
     $url = "https://api.github.com/app/installations/{$installationId}/access_tokens";
 
-    $response = $this->client->post($url, [
+    $response = $this->client->request('POST', $url, [
       'headers' => [
         'Authorization' => 'Bearer ' . $jwt,
         'Accept' => 'application/vnd.github+json',

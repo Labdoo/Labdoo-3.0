@@ -106,7 +106,7 @@ class DynamicParagraphModel {
     string $fieldnameKey,
     string $valueTablePrefix,
     array $valueFieldSuffix,
-    string $valueKey
+    string $valueKey,
   ) {
 
     $this->bundlesTable = $bundlesTable;

@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootronics\Service\Compute;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for Compute services.
@@ -17,55 +17,57 @@ interface DootronicComputeInterface {
   /**
    * Computes and updates the EdooVillage data for a given entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity object.
    */
-  public function computeEdooVillageData(EntityInterface $entity): void;
+  public function computeEdooVillageData(NodeInterface $entity): void;
 
   /**
    * Computes and updates the hub data for a given entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity object.
    */
-  public function computeHubData(EntityInterface $entity): void;
+  public function computeHubData(NodeInterface $entity): void;
 
   /**
    * Sets the Dootronic's title.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    *
    * @return void
+   *   The resulting value.
    */
-  public function setDootronicTitle(EntityInterface $entity): void;
+  public function setDootronicTitle(NodeInterface $entity): void;
 
   /**
    * Computes the watt per hours.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    *
    * @return void
+   *   The resulting value.
    */
-  function computeWattHours(EntityInterface $entity): void;
+  public function computeWattHours(NodeInterface $entity): void;
 
   /**
    * Computes the related dootrips for a dootronic.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic object for which the related dootrips need to be computed.
    * @param array $originalDootripIds
    *   Optional list of original dootrip IDs.
    */
-  public function computeRelatedDootrips(EntityInterface &$dootronic, array $originalDootripIds = []): void;
+  public function computeRelatedDootrips(NodeInterface &$dootronic, array $originalDootripIds = []): void;
 
   /**
    * Enqueues the recompute of heavy fields.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    */
-  public function enqueueRecompute(EntityInterface $entity): void;
+  public function enqueueRecompute(NodeInterface $entity): void;
 
 }

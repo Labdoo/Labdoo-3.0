@@ -4,6 +4,7 @@ namespace Drupal\labdoo_common\Routing;
 
 use Drupal\Core\Routing\RouteSubscriberBase;
 use Drupal\Core\Routing\RoutingEvents;
+use Drupal\labdoo_common\Controller\RedisReportController;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
@@ -23,6 +24,11 @@ class RouteSubscriber extends RouteSubscriberBase {
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection): void {
+    $redis_report = $collection->get('redis.report');
+    if ($redis_report) {
+      $redis_report->setDefault('_controller', RedisReportController::class . '::overview');
+    }
+
     $node_revision_history = $collection->get('entity.node.version_history');
     if ($node_revision_history) {
       $node_revision_history->setDefault('_controller', '\\Drupal\\labdoo_common\\Controller\\NodeRevisionOverviewController::revisionOverview');

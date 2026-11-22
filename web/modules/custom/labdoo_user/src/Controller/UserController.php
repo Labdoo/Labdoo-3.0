@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class UserController extends ControllerBase {
 
@@ -63,7 +65,7 @@ class UserController extends ControllerBase {
    *   A redirect to the login or user profile.
    */
   public function userPage(): RedirectResponse {
-    $currentUser = \Drupal::currentUser();
+    $currentUser = $this->currentUser();
     if ($currentUser->isAnonymous()) {
       return $this->redirect('user.login');
     }
@@ -77,7 +79,7 @@ class UserController extends ControllerBase {
    *   A redirect to the user dashboard.
    */
   public function dashboardRedirect(): RedirectResponse {
-    $userId = \Drupal::currentUser()->id();
+    $userId = $this->currentUser()->id();
     return $this->redirect('labdoo_user.dashboard', ['user' => $userId]);
   }
 
@@ -91,15 +93,10 @@ class UserController extends ControllerBase {
    *   A render array for the dashboard.
    */
   public function dashboard(User $user): array {
-    if (!$user) {
-      return [
-        '#markup' => $this->t('User not found.'),
-      ];
-    }
 
-    // Get the username for display
+    // Get the username for display.
     $username = $user->getAccountName();
-    // Common tasks
+    // Common tasks.
     $common_tasks = [
       [
         'image' => '/themes/custom/labdoo/img/act-1-alpha.png',
@@ -138,7 +135,7 @@ class UserController extends ControllerBase {
       ],
     ];
 
-    // Advanced tasks
+    // Advanced tasks.
     $advanced_tasks = [
       [
         'image' => '/themes/custom/labdoo/img/act-3-alpha.png',
@@ -187,7 +184,7 @@ class UserController extends ControllerBase {
    *   A redirect to the user metrics.
    */
   public function metricsRedirect(): RedirectResponse {
-    $userId = \Drupal::currentUser()->id();
+    $userId = $this->currentUser()->id();
     return $this->redirect('labdoo_user.metrics', ['user' => $userId]);
   }
 
@@ -201,22 +198,18 @@ class UserController extends ControllerBase {
    *   A render array for the metrics page.
    */
   public function metrics(User $user): array {
-    if (!$user) {
-      return [
-        '#markup' => $this->t('User not found.'),
-      ];
-    }
 
     $userId = $user->id();
 
-    // Calculate metrics
+    // Calculate metrics.
     $numDoojects = $this->commonRepository->getUserDoojectsCount($userId);
     $numDootrips = $this->commonRepository->getUserDootripsCount($userId);
     $numEdoovillages = $this->commonRepository->getUserEdoovillagesCount($userId);
     $numHubs = $this->commonRepository->getUserHubsCount($userId);
     $numWikis = $this->commonRepository->getUserWikisCount($userId);
 
-    // Compute carbon footprint (constants are taken from the Labdoo carbon footprint calculator)
+    // Compute carbon footprint (constants are taken from the Labdoo carbon
+    // footprint calculator)
     $footprintCarbon = $numDoojects * 18.59;
     $footprintTrees = $footprintCarbon / 18.59 * 2;
     $footprintGas = $footprintCarbon / 18.59 * 26.5;
@@ -263,13 +256,8 @@ class UserController extends ControllerBase {
    *   A render array for the roles' page.
    */
   public function myRoles(User $user): array {
-    if (!$user) {
-      return [
-        '#markup' => $this->t('User not found.'),
-      ];
-    }
 
-    // Define all roles with their descriptions
+    // Define all roles with their descriptions.
     $all_roles = [
       'authenticated' => [
         'name' => 'Labdooer',
@@ -305,22 +293,23 @@ class UserController extends ControllerBase {
       ],
     ];
 
-    // Get user roles
+    // Get user roles.
     $user_roles = $user->getRoles();
 
-    // Prepare current roles and available roles
+    // Prepare current roles and available roles.
     $current_roles = [];
     $available_roles = [];
 
     foreach ($all_roles as $role_id => $role_info) {
       if (in_array($role_id, $user_roles)) {
         $current_roles[$role_id] = $role_info;
-      } else {
+      }
+      else {
         $available_roles[$role_id] = $role_info;
       }
     }
 
-    // Build the render array using the Twig template
+    // Build the render array using the Twig template.
     return [
       '#theme' => 'labdoo_user_my_roles',
       '#current_roles' => array_values($current_roles),
@@ -335,7 +324,7 @@ class UserController extends ControllerBase {
    *   A redirect to the user roles page.
    */
   public function myRolesRedirect(): RedirectResponse {
-    $userId = \Drupal::currentUser()->id();
+    $userId = $this->currentUser()->id();
 
     return $this->redirect('labdoo_user.my_roles', ['user' => $userId]);
   }

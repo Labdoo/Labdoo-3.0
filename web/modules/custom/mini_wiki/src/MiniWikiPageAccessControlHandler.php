@@ -27,11 +27,14 @@ final class MiniWikiPageAccessControlHandler extends EntityAccessControlHandler 
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account): AccessResult {
+    if (!$entity instanceof MiniWikiPageInterface) {
+      return AccessResult::neutral()->addCacheableDependency($entity);
+    }
     if ($account->hasPermission($this->entityType->getAdminPermission())) {
       return AccessResult::allowed()->cachePerPermissions();
     }
 
-    return match($operation) {
+    return match ($operation) {
       'view' => AccessResult::allowedIfHasPermission($account, 'view mini_wiki_page')
         ->andIf(AccessResult::allowedIf($entity->get('status')->value || $account->hasPermission('edit mini_wiki_page') || $account->hasPermission('administer mini_wiki_page')))
         ->addCacheableDependency($entity),

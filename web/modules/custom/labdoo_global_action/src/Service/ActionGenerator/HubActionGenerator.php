@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_global_action\Service\ActionGenerator;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Hub action generator.
@@ -18,8 +18,8 @@ class HubActionGenerator extends AbstractActionGenerator implements ActionGenera
    * {@inheritDoc}
    */
   public function generate(
-    EntityInterface $entity,
-    EntityInterface $globalAction
+    NodeInterface $entity,
+    NodeInterface $globalAction,
   ): void {
     if (!$this->preConditions($entity)) {
       return;
@@ -58,14 +58,14 @@ class HubActionGenerator extends AbstractActionGenerator implements ActionGenera
   /**
    * Checks the preconditions of this action.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    *
    * @return bool
    *   TRUE if the preconditions match, otherwise FALSE.
    */
-  protected function preConditions(EntityInterface $entity): bool {
-    return $entity->original === NULL && $entity->hasField('field_locations') && !empty($entity->get('field_locations')->getValue());
+  protected function preConditions(NodeInterface $entity): bool {
+    return $entity->getOriginal() === NULL && $entity->hasField('field_locations') && !empty($entity->get('field_locations')->getValue());
   }
 
 }

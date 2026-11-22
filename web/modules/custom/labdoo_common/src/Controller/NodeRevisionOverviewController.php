@@ -1,7 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Drupal\labdoo_common\Controller;
 
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\node\Controller\NodeController;
 use Drupal\node\NodeInterface;
 use Drupal\node\NodeStorageInterface;
@@ -16,7 +19,11 @@ class NodeRevisionOverviewController extends NodeController {
    */
   protected function getRevisionIds(NodeInterface $node, NodeStorageInterface $node_storage): array {
     $revision_key = $node->getEntityType()->getKey('revision');
-    $revision_created_key = $node->getEntityType()->getRevisionMetadataKey('revision_created') ?? 'revision_timestamp';
+    $entity_type = $node->getEntityType();
+    if (!$entity_type instanceof ContentEntityTypeInterface) {
+      throw new \UnexpectedValueException('Node entity definitions must support revision metadata.');
+    }
+    $revision_created_key = $entity_type->getRevisionMetadataKey('revision_created') ?: 'revision_timestamp';
 
     $result = $node_storage->getQuery()
       ->accessCheck(TRUE)

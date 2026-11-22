@@ -3,7 +3,7 @@
 namespace Drupal\labdoo_dootronics\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class ActionsController extends ControllerBase {
 
@@ -44,7 +46,7 @@ class ActionsController extends ControllerBase {
    */
   public function __construct(
     DootronicRepositoryInterface $dootronicRepository,
-    RendererInterface $renderer
+    RendererInterface $renderer,
   ) {
     $this->dootronicRepository = $dootronicRepository;
     $this->renderer = $renderer;
@@ -74,13 +76,14 @@ class ActionsController extends ControllerBase {
    *   The dootronic label.
    *
    * @return void
+   *   The resulting value.
    *
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function viewDootronic(Request $request, string $dootronicLabel): void {
     $dootronic = $this->dootronicRepository->loadByLabel($dootronicLabel);
     if ($dootronic === NULL) {
-      $errorMessage = t(
+      $errorMessage = $this->t(
         'Dootronic @dootronic_id not found',
         [
           '@dootronic_id' => $dootronicLabel,
@@ -110,12 +113,13 @@ class ActionsController extends ControllerBase {
    *   The dootronic label.
    *
    * @return void
+   *   The resulting value.
    */
   public function followDootronic(Request $request, int $dootronicId): void {
     $dootronic = $this->loadDootronic($request, $dootronicId);
 
     if (!$this->dootronicRepository->follow($dootronic)) {
-      $errorMessage = t(
+      $errorMessage = $this->t(
         'The dootronic @dootronic_id could not be followed',
         [
           '@dootronic_id' => $dootronicId,
@@ -130,7 +134,7 @@ class ActionsController extends ControllerBase {
       die;
     }
 
-    $message = t(
+    $message = $this->t(
       'You are now following Dootronic @dootronic_id',
       [
         '@dootronic_id' => $dootronic->label(),
@@ -154,13 +158,13 @@ class ActionsController extends ControllerBase {
    *   The dootronic label.
    *
    * @return void
-   *
+   *   The resulting value.
    */
   public function unfollowDootronic(Request $request, int $dootronicId): void {
     $dootronic = $this->loadDootronic($request, $dootronicId);
 
     if (!$this->dootronicRepository->unfollow($dootronic)) {
-      $errorMessage = t(
+      $errorMessage = $this->t(
         'The dootronic @dootronic_id could not be unfollowed',
         [
           '@dootronic_id' => $dootronicId,
@@ -175,7 +179,7 @@ class ActionsController extends ControllerBase {
       die;
     }
 
-    $message = t(
+    $message = $this->t(
       'You are no longer following Dootronic @dootronic_id',
       [
         '@dootronic_id' => $dootronic->label(),
@@ -201,13 +205,15 @@ class ActionsController extends ControllerBase {
    *   The "pick me up" status.
    *
    * @return void
+   *   The resulting value.
+   *
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function togglePickMeUp(Request $request, int $dootronicId, int $status): void {
     $dootronic = $this->loadDootronic($request, $dootronicId);
 
-    if (!$this->dootronicRepository->togglePickMeUp($dootronic, $status)) {
-      $errorMessage = t(
+    if (!$this->dootronicRepository->togglePickMeUp($dootronic, (bool) $status)) {
+      $errorMessage = $this->t(
         'The dootronic @dootronic_id pick me up status could not be updated',
         [
           '@dootronic_id' => $dootronicId,
@@ -237,16 +243,16 @@ class ActionsController extends ControllerBase {
    * @param int $dootronicId
    *   The dootronic ID.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\node\NodeInterface
    *   The loaded dootronic.
    */
-  protected function loadDootronic(Request $request, int $dootronicId): EntityInterface {
+  protected function loadDootronic(Request $request, int $dootronicId): NodeInterface {
     $dootronic = $this->dootronicRepository->load($dootronicId);
     if ($dootronic !== NULL) {
       return $dootronic;
     }
 
-    $errorMessage = t(
+    $errorMessage = $this->t(
       'Dootronic @dootronic_id not found',
       [
         '@dootronic_id' => $dootronicId,

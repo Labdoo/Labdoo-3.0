@@ -2,14 +2,17 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\labdoo_migrate\Services\DestinationContent\RepositoryRegistry;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\labdoo_migrate\Model\MappingModel;
+use Drupal\file\FileInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
 use Drupal\labdoo_migrate\Services\Mapper\MapperInterface;
-use Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drush\Commands\DrushCommands;
 
@@ -31,13 +34,6 @@ class IntegrityFixCommands extends DrushCommands {
    * @var \Drupal\labdoo_migrate\Services\Mapper\MapperInterface
    */
   private MapperInterface $mapper;
-
-  /**
-   * The source repository.
-   *
-   * @var \Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface
-   */
-  private SourceRepositoryInterface $sourceRepository;
 
   /**
    * The entity type manager.
@@ -76,21 +72,37 @@ class IntegrityFixCommands extends DrushCommands {
 
   /**
    * IntegrityFixCommands constructor.
+   *
+   * @param \Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface $configurationManager
+   *   The configuration manager.
+   * @param \Drupal\labdoo_migrate\Services\Mapper\MapperInterface $mapper
+   *   The mapper.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface $migrationTracker
+   *   The migration tracker.
+   * @param \Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface $externalConnectionManager
+   *   The external connection manager.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   *   The language manager.
+   * @param \Drupal\labdoo_migrate\Services\Media\FileManagerInterface $fileManager
+   *   The file manager.
+   * @param \Drupal\labdoo_migrate\Services\DestinationContent\RepositoryRegistry $repositoryRegistry
+   *   The labdoo_migrate.repository_registry service.
    */
   public function __construct(
     ConfigurationManagerInterface $configurationManager,
     MapperInterface $mapper,
-    SourceRepositoryInterface $sourceRepository,
     EntityTypeManagerInterface $entityTypeManager,
     MigrationTrackerInterface $migrationTracker,
     ConnectionManagerInterface $externalConnectionManager,
     LanguageManagerInterface $languageManager,
-    FileManagerInterface $fileManager
+    FileManagerInterface $fileManager,
+    protected RepositoryRegistry $repositoryRegistry,
   ) {
     parent::__construct();
     $this->configurationManager = $configurationManager;
     $this->mapper = $mapper;
-    $this->sourceRepository = $sourceRepository;
     $this->entityTypeManager = $entityTypeManager;
     $this->migrationTracker = $migrationTracker;
     $this->externalConnectionManager = $externalConnectionManager;
@@ -123,7 +135,16 @@ class IntegrityFixCommands extends DrushCommands {
    * @usage drush lm-fi story --limit=10
    * @usage drush lm-fi story --inconsistent-only
    */
-  public function fixIntegrity(string $contentType, array $options = ['limit' => 0, 'destination-type' => NULL, 'nids' => NULL, 'fields' => NULL, 'inconsistent-only' => FALSE]): void {
+  public function fixIntegrity(
+    string $contentType,
+    array $options = [
+      'limit' => 0,
+      'destination-type' => NULL,
+      'nids' => NULL,
+      'fields' => NULL,
+      'inconsistent-only' => FALSE,
+    ],
+  ): void {
     $limit = isset($options['limit']) ? (int) $options['limit'] : 0;
     $destinationType = $options['destination-type'] ?? $contentType;
     $inconsistentOnly = $options['inconsistent-only'] ?? FALSE;
@@ -196,9 +217,7 @@ class IntegrityFixCommands extends DrushCommands {
         }
 
         // Get source data.
-        $sourceRepositoryService = sprintf('labdoo_migrate.source_content.repository.%s', $entityType);
-        /** @var \Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface $sourceRepo */
-        $sourceRepo = \Drupal::getContainer()->get($sourceRepositoryService);
+        $sourceRepo = $this->repositoryRegistry->source($entityType);
 
         $this->externalConnectionManager->setConnection();
         $sourceDataRaw = $sourceRepo->getEntity($sourceContentType, $mapping, $sid);
@@ -227,9 +246,8 @@ class IntegrityFixCommands extends DrushCommands {
           continue;
         }
 
-        /** @var \Drupal\Core\Entity\ContentEntityInterface $destEntity */
         $destEntity = $this->entityTypeManager->getStorage($entityType)->load($destId);
-        if (!$destEntity) {
+        if (!$destEntity instanceof ContentEntityInterface) {
           $deferredMessages[] = "D10 entity $destId could not be loaded.";
           $progressBar->advance();
           continue;
@@ -258,34 +276,35 @@ class IntegrityFixCommands extends DrushCommands {
           $sourceValue = $sourceData[$sourceKey] ?? NULL;
           $destValue = $this->getDestinationValue($destEntity, $destField);
 
-      // Special handling for file/image fields: compare URIs.
-      if (($destField === 'field_picture' || $destField === 'field_image') && ($destValue !== NULL && $destValue !== 0 && $destValue !== "0")) {
-        $destValues = is_array($destValue) ? $destValue : [$destValue];
-        $processedDestValues = [];
-        foreach ($destValues as $dv) {
-          if (is_numeric($dv) && $dv > 0) {
-            $file = $this->entityTypeManager->getStorage('file')->load($dv);
-            if ($file instanceof \Drupal\file\FileInterface) {
-              $processedDestValues[] = $file->getFileUri();
+          // Special handling for file/image fields: compare URIs.
+          if (($destField === 'field_picture' || $destField === 'field_image') && ($destValue !== NULL && $destValue !== 0 && $destValue !== "0")) {
+            $destValues = is_array($destValue) ? $destValue : [$destValue];
+            $processedDestValues = [];
+            foreach ($destValues as $dv) {
+              if (is_numeric($dv) && $dv > 0) {
+                $file = $this->entityTypeManager->getStorage('file')->load($dv);
+                if ($file instanceof FileInterface) {
+                  $processedDestValues[] = $file->getFileUri();
+                }
+                else {
+                  $processedDestValues[] = $dv;
+                }
+              }
+              else {
+                $processedDestValues[] = $dv;
+              }
             }
-            else {
-              $processedDestValues[] = $dv;
-            }
+            $destValue = count($processedDestValues) === 1 ? $processedDestValues[0] : $processedDestValues;
           }
-          else {
-            $processedDestValues[] = $dv;
+
+          // If dest is 0 or "0" for a file field, treat as NULL for comparison.
+          if (($destField === 'field_picture' || $destField === 'field_image') && ($destValue === 0 || $destValue === "0")) {
+            $destValue = NULL;
           }
-        }
-        $destValue = count($processedDestValues) === 1 ? $processedDestValues[0] : $processedDestValues;
-      }
 
-      // If dest is 0 or "0" for a file field, treat as NULL for comparison.
-      if (($destField === 'field_picture' || $destField === 'field_image') && ($destValue === 0 || $destValue === "0")) {
-        $destValue = NULL;
-      }
-
-      // Skip fix if source value is NULL and it's a critical field
-          // to avoid SQL integrity violations, unless we really want to clear it.
+          // Skip fix if source value is NULL and it's a critical field
+          // to avoid SQL integrity violations, unless we really want to clear
+          // it.
           if ($sourceValue === NULL && in_array($destField, ['title', 'name', 'created', 'changed', 'uid'])) {
             continue;
           }
@@ -300,8 +319,10 @@ class IntegrityFixCommands extends DrushCommands {
         if ($nodeChanged) {
           $destEntity->save();
           $this->migrationTracker->updateIntegrityStatus($entityType, $sid, 1);
-          // We don't want to break the progress bar with success messages for every node.
-          // But we can overwrite the progress bar message or just log it if we use a quieter approach.
+          // We don't want to break the progress bar with success messages for
+          // every node.
+          // But we can overwrite the progress bar message or just log it if we
+          // use a quieter approach.
           // For now, let's just advance the progress bar.
           $totalFixedNodes++;
           $totalFixedFields += count($fieldsFixed);
@@ -325,8 +346,17 @@ class IntegrityFixCommands extends DrushCommands {
 
   /**
    * Applies the fix to a destination field.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   * @param string $fieldName
+   *   The field name.
+   * @param mixed $sourceValue
+   *   The source value.
+   * @param mixed $map
+   *   The map.
    */
-  protected function applyFix(EntityInterface $entity, string $fieldName, $sourceValue, $map = NULL): void {
+  protected function applyFix(ContentEntityInterface $entity, string $fieldName, $sourceValue, $map = NULL): void {
     $fieldDefinition = $entity->getFieldDefinition($fieldName);
     $fieldType = $fieldDefinition->getType();
     $cardinality = $fieldDefinition->getFieldStorageDefinition()->getCardinality();
@@ -336,14 +366,14 @@ class IntegrityFixCommands extends DrushCommands {
       if (is_array($sourceValue)) {
         foreach ($sourceValue as &$val) {
           if (is_string($val) && strpos($val, ',') !== FALSE) {
-            list($lat, $lng) = explode(',', $val);
-            $val = sprintf('POINT (%f %f)', (float)trim($lng), (float)trim($lat));
+            [$lat, $lng] = explode(',', $val);
+            $val = sprintf('POINT (%f %f)', (float) trim($lng), (float) trim($lat));
           }
         }
       }
       elseif (is_string($sourceValue) && strpos($sourceValue, ',') !== FALSE) {
-        list($lat, $lng) = explode(',', $sourceValue);
-        $sourceValue = sprintf('POINT (%f %f)', (float)trim($lng), (float)trim($lat));
+        [$lat, $lng] = explode(',', $sourceValue);
+        $sourceValue = sprintf('POINT (%f %f)', (float) trim($lng), (float) trim($lat));
       }
     }
 
@@ -353,7 +383,7 @@ class IntegrityFixCommands extends DrushCommands {
     }
 
     // Handle special types from mapping.
-    if ($map instanceof \Drupal\labdoo_migrate\Model\MappingModel) {
+    if ($map instanceof MappingModel) {
       $specialType = $map->getDestinationField()->getSpecialType();
       if ($specialType && $specialType->getType() === 'managed_file') {
         if (!empty($sourceValue)) {
@@ -397,7 +427,7 @@ class IntegrityFixCommands extends DrushCommands {
       $sourceValue = !empty($sourceValue) ? reset($sourceValue) : NULL;
     }
     elseif ($cardinality != 1 && !is_array($sourceValue)) {
-      $sourceValue = $sourceValue !== NULL ? [$sourceValue] : [];
+      $sourceValue = [$sourceValue];
     }
 
     switch ($fieldType) {
@@ -432,7 +462,7 @@ class IntegrityFixCommands extends DrushCommands {
         else {
           // Geolocation expects 'lat' and 'lng'.
           if (is_string($sourceValue) && strpos($sourceValue, ',') !== FALSE) {
-            list($lat, $lng) = explode(',', $sourceValue);
+            [$lat, $lng] = explode(',', $sourceValue);
             $entity->set($fieldName, ['lat' => trim($lat), 'lng' => trim($lng)]);
           }
           else {
@@ -454,8 +484,9 @@ class IntegrityFixCommands extends DrushCommands {
       case 'changed':
         if ($fieldName === 'changed' && is_numeric($sourceValue)) {
           $entity->set($fieldName, (int) $sourceValue);
-          // For node entities, we need to ensure the changed time is NOT overwritten by saving.
-          if ($entity instanceof \Drupal\node\NodeInterface) {
+          // For node entities, we need to ensure the changed time is NOT
+          // overwritten by saving.
+          if ($entity instanceof NodeInterface) {
             $entity->setChangedTime((int) $sourceValue);
           }
         }
@@ -472,9 +503,15 @@ class IntegrityFixCommands extends DrushCommands {
 
   /**
    * Gets a simplified value from a destination node field for comparison.
+   *
    * (Copied from IntegrityCheckCommands)
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   * @param string $fieldName
+   *   The field name.
    */
-  protected function getDestinationValue(EntityInterface $entity, string $fieldName) {
+  protected function getDestinationValue(ContentEntityInterface $entity, string $fieldName) {
     $field = $entity->get($fieldName);
     if ($field->isEmpty()) {
       return NULL;
@@ -544,8 +581,14 @@ class IntegrityFixCommands extends DrushCommands {
   }
 
   /**
-   * Compare two values for equality.
+   * Compares two values for equality.
+   *
    * (Copied and improved from IntegrityCheckCommands)
+   *
+   * @param mixed $val1
+   *   The val1.
+   * @param mixed $val2
+   *   The val2.
    */
   protected function isEqual($val1, $val2): bool {
     if (is_null($val1) && (is_null($val2) || $val2 === '' || (is_array($val2) && empty($val2)))) {
@@ -553,9 +596,10 @@ class IntegrityFixCommands extends DrushCommands {
     }
 
     // Normalize source array to single value if needed.
-    // In many D7 fields, they are technically arrays but mapped to single values.
+    // In many D7 fields, they are technically arrays but mapped to single
+    // values.
     if (is_array($val1) && !is_array($val2) && count($val1) <= 1) {
-       $val1 = !empty($val1) ? reset($val1) : NULL;
+      $val1 = !empty($val1) ? reset($val1) : NULL;
     }
 
     // Special case for Geolocation field: Dest -90,-180 means empty/null.
@@ -566,7 +610,8 @@ class IntegrityFixCommands extends DrushCommands {
     if (is_array($val1) && is_array($val2)) {
       if (count($val1) !== count($val2)) {
         // Sort both arrays to be sure comparison is not order-dependent.
-        $s1 = $val1; $s2 = $val2;
+        $s1 = $val1;
+        $s2 = $val2;
         sort($s1);
         sort($s2);
         if ($s1 === $s2) {
@@ -575,7 +620,8 @@ class IntegrityFixCommands extends DrushCommands {
         return FALSE;
       }
       // Sort both arrays.
-      $s1 = $val1; $s2 = $val2;
+      $s1 = $val1;
+      $s2 = $val2;
       sort($s1);
       sort($s2);
       foreach ($s1 as $k => $v) {
@@ -587,7 +633,8 @@ class IntegrityFixCommands extends DrushCommands {
     }
 
     if (is_array($val1) || is_array($val2)) {
-      // If one is array and other is not, and the array has the scalar as its only element.
+      // If one is array and other is not, and the array has the scalar as its
+      // only element.
       if (is_array($val1) && count($val1) === 1 && $this->isEqual(reset($val1), $val2)) {
         return TRUE;
       }
@@ -595,14 +642,15 @@ class IntegrityFixCommands extends DrushCommands {
         return TRUE;
       }
       // Special case for duplicates in source that are single in destination.
-      if (is_array($val1) && !is_array($val2)) {
+      if (is_array($val1)) {
         $uniqueVal1 = array_unique($val1);
         if (count($uniqueVal1) === 1 && $this->isEqual(reset($uniqueVal1), $val2)) {
           return TRUE;
         }
       }
-      // Special case for single-value destination fields that might receive the first value of a multi-value source.
-      if (is_array($val1) && !is_array($val2) && !empty($val1)) {
+      // Special case for single-value destination fields that might receive the
+      // first value of a multi-value source.
+      if (is_array($val1) && !empty($val1)) {
         if ($this->isEqual($val1[0], $val2)) {
           return TRUE;
         }
@@ -610,20 +658,21 @@ class IntegrityFixCommands extends DrushCommands {
       return FALSE;
     }
 
-    // Handle numeric strings with different precision/trailing zeros (coordinates).
+    // Handle numeric strings with different precision/trailing zeros
+    // (coordinates).
     if (is_string($val1) && is_string($val2) && strpos($val1, ',') !== FALSE && strpos($val2, ',') !== FALSE) {
       $parts1 = explode(',', $val1);
       $parts2 = explode(',', $val2);
       if (count($parts1) === 2 && count($parts2) === 2) {
         if (is_numeric($parts1[0]) && is_numeric($parts1[1]) && is_numeric($parts2[0]) && is_numeric($parts2[1])) {
           // Relax threshold to 0.002 to absorb small geocoding differences.
-          return abs((float)$parts1[0] - (float)$parts2[0]) < 0.002 && abs((float)$parts1[1] - (float)$parts2[1]) < 0.002;
+          return abs((float) $parts1[0] - (float) $parts2[0]) < 0.002 && abs((float) $parts1[1] - (float) $parts2[1]) < 0.002;
         }
       }
     }
 
     if (is_numeric($val1) && is_numeric($val2)) {
-      return (float)$val1 == (float)$val2;
+      return (float) $val1 == (float) $val2;
     }
 
     // Special case for ISO 8601 dates (Drupal 10) vs Y-m-d H:i:s (Drupal 7).

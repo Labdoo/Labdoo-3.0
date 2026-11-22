@@ -245,5 +245,9 @@ install_ddev.sh
 
 /tests/upgrade/__pycache__/
 
+# Isolated development quality dependencies and caches.
+/tools/quality/vendor/
+/tools/quality/.cache/
+
 # Uploaded files and generated caches for the same-checkout E2E site.
 /web/sites/labdoo_e2e/files/

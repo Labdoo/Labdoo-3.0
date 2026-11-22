@@ -2,19 +2,24 @@
 
 namespace Drupal\Tests\mini_wiki\Unit;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use Drupal\Tests\UnitTestCase;
 use Drupal\mini_wiki\Plugin\Filter\LegacyVideoFilter;
 
 /**
- * @coversDefaultClass \Drupal\mini_wiki\Plugin\Filter\LegacyVideoFilter
- * @group mini_wiki
+ * Tests safe conversion of legacy video tokens.
  */
+#[CoversClass(LegacyVideoFilter::class)]
+#[Group('mini_wiki')]
 class LegacyVideoFilterTest extends UnitTestCase {
 
   /**
-   * @dataProvider urlProvider
-   * @covers ::videoIdFromUrl
+   * Validates video hosts and rejects malformed or unsafe URLs.
    */
+  #[DataProvider('urlProvider')]
   public function testVideoIdFromUrl(string $url, ?string $expected): void {
     $this->assertSame($expected, LegacyVideoFilter::videoIdFromUrl($url));
   }
@@ -36,7 +41,7 @@ class LegacyVideoFilterTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::process
+   * Transforms valid video tokens and preserves invalid input.
    */
   public function testTransformsOnlyValidTokens(): void {
     $filter = new LegacyVideoFilter([], 'mini_wiki_legacy_video', ['provider' => 'mini_wiki']);

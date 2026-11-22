@@ -2,14 +2,13 @@
 
 namespace Drupal\labdoo_migrate\Services\DestinationContent;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\RevisionableInterface;
-use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
+use Drupal\Core\Entity\Sql\DefaultTableMapping;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\labdoo_migrate\Model\SpecialTypeModel;
@@ -25,6 +24,8 @@ use Psr\Log\LoggerAwareTrait;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @implements \Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface<\Drupal\Core\Entity\ContentEntityInterface>
  */
 class DestinationRepository implements DestinationRepositoryInterface {
 
@@ -39,11 +40,12 @@ class DestinationRepository implements DestinationRepositoryInterface {
   private const CACHE_CLEAR_INTERVAL = 100;
 
   /**
-   * Memory threshold in bytes for aggressive cleanup (e.g., 400MB if limit is 512MB).
+   * Memory threshold for aggressive cleanup, in bytes (400 MB).
    */
   private const MEMORY_THRESHOLD = 419430400;
 
   use LoggerAwareTrait;
+  use MigrationEntityMetadataTrait;
 
   /**
    * The field name of the source ID.
@@ -128,13 +130,6 @@ class DestinationRepository implements DestinationRepositoryInterface {
   private int $translationsCount = 0;
 
   /**
-   * The summary.
-   *
-   * @var array
-   */
-  private array $summary;
-
-  /**
    * The override mode.
    *
    * @var bool
@@ -194,7 +189,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
     MigrationTrackerInterface $migrationTracker,
     $entityFieldManager,
     $database,
-    $state
+    $state,
   ) {
 
     $this->entityTypeManager = $entityTypeManager;
@@ -248,7 +243,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
     array $sourceEntities,
     array $mapping,
     string $contentType,
-    bool $dryRun = FALSE
+    bool $dryRun = FALSE,
   ): int {
 
     $this->mapping = $mapping;
@@ -304,11 +299,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
   protected function createTranslations(
     array $sourceEntity,
     string $contentType,
-    ?int $entityId
+    ?int $entityId,
   ): bool {
 
     $startedAt = microtime(TRUE);
-    $result = TRUE;
 
     $metadata = $sourceEntity['metadata'] ?? [];
     unset($sourceEntity['metadata']);
@@ -325,10 +319,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
     $mainEntityValues = reset($sourceEntity);
     $mainEntity = $this->prepareEntity($entityId, $contentType, $mainLangCode);
     if ($entityId !== NULL) {
-      $mainEntity->original_entity_id = $entityId;
+      $this->setMigrationMetadata($mainEntity, 'original_entity_id', $entityId);
     }
 
-    $result = $result && $this->updateEntity(
+    $result = $this->updateEntity(
         $mainEntityValues,
         $mainEntity,
         $mainLangCode
@@ -377,7 +371,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
         $langCode
       );
       if ($entityId !== NULL) {
-        $translation->original_entity_id = $metadata[$langCode] ?? NULL;
+        $this->setMigrationMetadata($translation, 'original_entity_id', $metadata[$langCode] ?? NULL);
       }
 
       $result = $result && $this->updateEntity(
@@ -407,7 +401,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
     array $sourceEntities,
     array $mapping,
     array $destinationEntities,
-    bool $dryRun = FALSE
+    bool $dryRun = FALSE,
   ): int {
 
     $this->mapping = $mapping;
@@ -447,6 +441,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
    * Disables the entity storage cache.
    *
    * @return void
+   *   The resulting value.
    */
   protected function disableEntityStorageCache(): void {
     $entityTypes = ['node', 'media', 'paragraph', 'taxonomy_term'];
@@ -476,6 +471,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
    *   Whether to perform a more aggressive cleanup.
    *
    * @return void
+   *   The resulting value.
    */
   protected function clearEntityStorageRuntimeCache(bool $aggressive = FALSE): void {
     $entityTypes = ['node', 'media', 'paragraph', 'taxonomy_term', 'user', 'file'];
@@ -512,7 +508,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
    *
    * @param array $sourceEntity
    *   The source entities array.
-   * @param \Drupal\Core\Entity\EntityInterface $destinationEntity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $destinationEntity
    *   The destination entity.
    *
    * @return bool
@@ -522,7 +518,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
    */
   protected function updateTranslations(
     array $sourceEntity,
-    EntityInterface $destinationEntity
+    ContentEntityInterface $destinationEntity,
   ): bool {
 
     $startedAt = microtime(TRUE);
@@ -539,9 +535,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
         $destinationEntity
       );
 
-    $sourceIdField = $destinationEntity->hasField(self::SOURCE_ID_FIELD) ? $destinationEntity->get(self::SOURCE_ID_FIELD) : NULL;
-    $currentDestinationEntity->original_entity_id = $sourceIdField ? (int) $sourceIdField->value : 0;
-    $result = $result && $this->updateEntity(
+      $sourceIdField = $destinationEntity->hasField(self::SOURCE_ID_FIELD) ? $destinationEntity->get(self::SOURCE_ID_FIELD) : NULL;
+      $this->setMigrationMetadata($currentDestinationEntity, 'original_entity_id', $sourceIdField ? (int) $sourceIdField->value : 0);
+      $result = $result && $this->updateEntity(
           $values,
           $currentDestinationEntity,
           $sourceEntity['metadata']['main_langcode']
@@ -580,17 +576,17 @@ class DestinationRepository implements DestinationRepositoryInterface {
    *   The language code.
    * @param string $defaultLangCode
    *   The default language code.
-   * @param \Drupal\Core\Entity\EntityInterface $destinationEntity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $destinationEntity
    *   The destination entity.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|mixed
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    *   Returns an entity.
    */
   protected function getEntityVariant(
     string $langCode,
     string $defaultLangCode,
-    EntityInterface $destinationEntity
-  ) {
+    ContentEntityInterface $destinationEntity,
+  ): ContentEntityInterface {
 
     if ($langCode === $defaultLangCode) {
       return $destinationEntity;
@@ -605,8 +601,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
    *
    * @param array $sourceEntity
    *   The source entities array.
-   * @param \Drupal\Core\Entity\EntityInterface $destinationEntity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $destinationEntity
    *   The destination entity.
+   * @param string $mainLangCode
+   *   The main source language code.
    *
    * @return bool
    *   Returns the result of the process.
@@ -615,8 +613,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
    */
   protected function updateEntity(
     array $sourceEntity,
-    EntityInterface $destinationEntity,
-    string $mainLangCode
+    ContentEntityInterface $destinationEntity,
+    string $mainLangCode,
   ): bool {
 
     if (empty($sourceEntity)) {
@@ -664,7 +662,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
         }
       }
       else {
-        // For single-value fields, if we receive an array (multiple source values),
+        // For single-value fields, if we receive an array (multiple source
+        // values),
         // take the first one.
         if (is_array($fieldValue) && $this->checkMultiValue($fieldValue)) {
           $accumulatedValues[$fieldName] = !empty($fieldValue) ? reset($fieldValue) : NULL;
@@ -685,7 +684,8 @@ class DestinationRepository implements DestinationRepositoryInterface {
         continue;
       }
 
-      // If the field is multi-valued, clear it properly by setting an empty array.
+      // If the field is multi-valued, clear it properly by setting an empty
+      // array.
       $fieldDefinition = $destinationEntity->getFieldDefinition($fieldName);
       if ($fieldDefinition->getFieldStorageDefinition()->isMultiple()) {
         $destinationEntity->set($fieldName, []);
@@ -697,7 +697,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
       $destinationEntity->set($fieldName, $value);
     }
 
-    if (($destinationEntity instanceof EntityOwnerInterface || $destinationEntity instanceof \Drupal\Core\Session\AccountInterface) && isset($accumulatedValues['uid'])) {
+    if (($destinationEntity instanceof EntityOwnerInterface || $destinationEntity instanceof AccountInterface) && isset($accumulatedValues['uid'])) {
       $uid = is_array($accumulatedValues['uid']) ? ($accumulatedValues['uid'][0]['target_id'] ?? $accumulatedValues['uid'][0]) : $accumulatedValues['uid'];
       if (method_exists($destinationEntity, 'setOwnerId')) {
         $destinationEntity->setOwnerId($uid);
@@ -717,7 +717,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
   /**
    * Prepares the value of the given field.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity.
    * @param string $fieldName
    *   The file name.
@@ -734,11 +734,11 @@ class DestinationRepository implements DestinationRepositoryInterface {
    * @throws \Exception
    */
   protected function getPreparedFieldValue(
-    EntityInterface $entity,
+    ContentEntityInterface $entity,
     string $fieldName,
     $value,
     string $mainLangCode,
-    ?SpecialTypeModel $specialType
+    ?SpecialTypeModel $specialType,
   ) {
 
     if (!$specialType) {
@@ -772,7 +772,6 @@ class DestinationRepository implements DestinationRepositoryInterface {
     return is_array($value)
       && count(array_filter(array_keys($value), 'is_string')) === 0;
   }
-
 
   /**
    * Checks if a value exists in the target field to prevent duplicates.
@@ -815,26 +814,25 @@ class DestinationRepository implements DestinationRepositoryInterface {
   /**
    * Saves an entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to be saved.
    *
    * @return bool
    *   Returns the result of the operation.
    */
-  protected function saveEntity(EntityInterface $entity): bool {
+  protected function saveEntity(ContentEntityInterface $entity): bool {
 
     if (!$this->indexingEnabled) {
-      $entity->search_api_skip_tracking = TRUE;
+      $this->setMigrationMetadata($entity, 'search_api_skip_tracking', TRUE);
     }
 
-    $entity->labdoo_skip_geocoding = TRUE;
+    $this->setMigrationMetadata($entity, 'labdoo_skip_geocoding', TRUE);
 
     try {
-      if ($entity instanceof RevisionableInterface) {
-        $entity->setNewRevision(FALSE);
-      }
+      $entity->setNewRevision(FALSE);
       $saved = $entity->save();
-      // Migration disables persistent cache reads. Core then also skips deleting
+      // Migration disables persistent cache reads. Core then also skips
+      // deleting
       // existing entries on save, so the next web request can load old values.
       $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
       $definition = $storage->getEntityType();
@@ -848,7 +846,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
       }
       return (bool) $saved;
     }
-    catch (EntityStorageException | \Exception | \Throwable $e) {
+    catch (\Throwable $e) {
       // If the save fails, it might be due to orphaned field data from a
       // previous failed migration. Try to purge and retry once.
       if ($entity->getEntityTypeId() === 'node' && $entity->id()) {
@@ -861,9 +859,9 @@ class DestinationRepository implements DestinationRepositoryInterface {
         $this->purgeOrphanedNodeFieldData((int) $entity->id());
 
         try {
-          return $entity->save();
+          return (bool) $entity->save();
         }
-        catch (\Exception | \Throwable $e2) {
+        catch (\Throwable $e2) {
           $this->logger->error(sprintf(
             'Retry save failed for node %d: %s',
             $entity->id(),
@@ -887,17 +885,16 @@ class DestinationRepository implements DestinationRepositoryInterface {
   /**
    * Adds the source IDs as the array keys.
    *
-   * @param array $entities
+   * @param \Drupal\Core\Entity\ContentEntityInterface[] $entities
    *   The entities array.
    *
-   * @return array
+   * @return array<int, \Drupal\Core\Entity\ContentEntityInterface>
    *   Returns the processed array.
    */
   protected function addSourceIdsAsKeys(array $entities): array {
 
     $processedEntities = [];
 
-    /** @var \Drupal\Core\Entity\EntityInterface $entity */
     foreach ($entities as $entity) {
       $sourceId = $this->migrationTracker->getSourceIdByDestinationId($entity->getEntityTypeId(), (int) $entity->id());
       if (!$sourceId) {
@@ -925,7 +922,7 @@ class DestinationRepository implements DestinationRepositoryInterface {
    * @param string $langCode
    *   The language code.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    *   The entity object.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
@@ -934,16 +931,20 @@ class DestinationRepository implements DestinationRepositoryInterface {
   protected function prepareEntity(
     int $entityId,
     string $contentType,
-    string $langCode
-  ): EntityInterface {
+    string $langCode,
+  ): ContentEntityInterface {
     $entity = $this->entityTypeManager
       ->getStorage('node')
       ->load($entityId);
     if ($entity !== NULL) {
+      if (!$this->overrideMode) {
+        throw new \RuntimeException('The destination ID already exists; explicit override is required.');
+      }
       return $entity;
     }
 
-    // Always purge orphaned field data before creating a new node with a fixed ID.
+    // Always purge orphaned field data before creating a new node with a fixed
+    // ID.
     $this->purgeOrphanedNodeFieldData($entityId);
 
     return $this->entityTypeManager
@@ -967,10 +968,10 @@ class DestinationRepository implements DestinationRepositoryInterface {
   private function purgeOrphanedNodeFieldData(int $entityId): void {
     try {
       $storage = $this->entityTypeManager->getStorage('node');
-      if (!($storage instanceof SqlContentEntityStorage)) {
+      $tableMapping = $storage->getTableMapping();
+      if (!$tableMapping instanceof DefaultTableMapping) {
         return;
       }
-      $tableMapping = $storage->getTableMapping();
       $fieldDefinitions = $this->entityFieldManager
         ->getFieldStorageDefinitions('node');
       $database = $this->database;

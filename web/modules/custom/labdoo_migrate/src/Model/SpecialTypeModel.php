@@ -36,7 +36,7 @@ class SpecialTypeModel {
    */
   public function __construct(
     string $type,
-    array $metadata = NULL
+    ?array $metadata = NULL,
   ) {
 
     $this->type = $type;

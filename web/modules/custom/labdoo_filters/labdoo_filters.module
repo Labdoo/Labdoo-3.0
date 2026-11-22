@@ -1,13 +1,18 @@
 <?php
 
 /**
+ * @file
+ * Integrates entity filters and exposed Views forms.
+ */
+
+/**
  * Implements hook_views_data_alter().
  */
 function labdoo_filters_views_data_alter(array &$data) {
   $entity_type_manager = \Drupal::entityTypeManager();
 
   /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
-  foreach ($entity_type_manager->getDefinitions() as $entity_type_id => $entity_type) {
+  foreach ($entity_type_manager->getDefinitions() as $entity_type) {
     $base_table = $entity_type->getBaseTable();
     if (!$base_table || !isset($data[$base_table])) {
       continue;

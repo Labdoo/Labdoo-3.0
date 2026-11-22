@@ -5,6 +5,7 @@ namespace Drupal\labdoo_migrate\Services\DestinationContent;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
+use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -49,7 +50,7 @@ class TranslationRepository implements TranslationRepositoryInterface {
   public function __construct(
     EntityRepositoryInterface $entityRepository,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    ConfigurationManagerInterface $configurationManager
+    ConfigurationManagerInterface $configurationManager,
   ) {
 
     $this->entityRepository = $entityRepository;
@@ -72,9 +73,11 @@ class TranslationRepository implements TranslationRepositoryInterface {
    */
   public function getEntityTranslation(
     EntityInterface $entity,
-    string $langCode
-  ) {
-
+    string $langCode,
+  ): EntityInterface {
+    if (!$entity instanceof TranslatableInterface) {
+      throw new \InvalidArgumentException('The destination entity does not support translations.');
+    }
     return $entity->hasTranslation($langCode)
       ? $entity->getTranslation($langCode)
       : $entity->addTranslation($langCode);
@@ -85,7 +88,7 @@ class TranslationRepository implements TranslationRepositoryInterface {
    */
   public function hasEntityTranslation(
     EntityInterface $entity,
-    string $langCode
+    string $langCode,
   ): bool {
 
     $translation = $this->entityRepository

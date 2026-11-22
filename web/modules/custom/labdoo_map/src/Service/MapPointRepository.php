@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\labdoo_map\Service;
 
+use Drupal\views\Plugin\views\query\Sql;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\Context\CacheContextsManager;
@@ -40,7 +41,13 @@ final class MapPointRepository {
    */
   public function getPoints(string $type, array $filters): array {
     $metadata = (new CacheableMetadata())
-      ->setCacheContexts(['user', 'user.permissions', 'user.node_grants:view', 'languages:language_content', 'languages:language_interface'])
+      ->setCacheContexts([
+        'user',
+        'user.permissions',
+        'user.node_grants:view',
+        'languages:language_content',
+        'languages:language_interface',
+      ])
       ->setCacheMaxAge(300);
     if (!isset(self::VIEWS[$type])) {
       return ['points' => [], 'cache' => $metadata];
@@ -66,6 +73,9 @@ final class MapPointRepository {
     $view->setExposedInput($filters);
     $view->setItemsPerPage(0);
     $view->build();
+    if (!$view->query instanceof Sql) {
+      throw new \UnexpectedValueException('Map points require a SQL-backed dashboard view.');
+    }
     // Keep the actual dashboard joins, filters and access conditions. Selecting
     // IDs from a derived query avoids materializing a large PHP IN list.
     $isUser = $type === 'labdooer';
@@ -85,7 +95,9 @@ final class MapPointRepository {
     }
     else {
       $langcode = $this->languages->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
-      $query->leftJoin('node_field_data', 'translation', 'translation.nid = entity.nid AND translation.langcode = :map_language AND translation.status = 1', [':map_language' => $langcode]);
+      $query->leftJoin('node_field_data', 'translation', 'translation.nid = entity.nid AND translation.langcode = :map_language AND translation.status = 1', [
+        ':map_language' => $langcode,
+      ]);
       $query->addExpression('COALESCE(translation.title, entity.title)', 'title');
       $query->condition('entity.default_langcode', 1);
       $query->condition('entity.type', $type);
@@ -102,13 +114,18 @@ final class MapPointRepository {
     $query->condition($lat, [-56.7, 77.75], 'BETWEEN');
     $query->condition($lon, [-180, 180], 'BETWEEN');
     $query->condition($query->orConditionGroup()->condition($lat, 0, '!=')->condition($lon, 0, '!='));
-    foreach ([[40.416775, -3.703790], [41.385064, 2.173404]] as [$defaultLat, $defaultLon]) {
+    foreach ([['40.416775', '-3.703790'], ['41.385064', '2.173404']] as [$defaultLat, $defaultLon]) {
       $query->condition($query->orConditionGroup()->condition($lat, $defaultLat, '!=')->condition($lon, $defaultLon, '!='));
     }
     $query->distinct();
     $points = [];
     foreach ($query->execute() as $row) {
-      $points[] = ['lat' => (float) $row->lat, 'lon' => (float) $row->lon, 'id' => (int) $row->id, 'title' => $row->title];
+      $points[] = [
+        'lat' => (float) $row->lat,
+        'lon' => (float) $row->lon,
+        'id' => (int) $row->id,
+        'title' => $row->title,
+      ];
     }
     if ($metadata->getCacheMaxAge() !== 0) {
       $this->cache->set($cid, $points, time() + $metadata->getCacheMaxAge(), $metadata->getCacheTags());

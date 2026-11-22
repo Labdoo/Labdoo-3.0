@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_global_action\Service\ActionGenerator;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Dootrip action generator.
@@ -18,8 +18,8 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
    * {@inheritDoc}
    */
   public function generate(
-    EntityInterface $entity,
-    EntityInterface $globalAction
+    NodeInterface $entity,
+    NodeInterface $globalAction,
   ): void {
     if (!$this->preConditions($entity)) {
       return;
@@ -42,18 +42,18 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
     $this->resolveLocalGeoData($entity, $location, $city, $countryCode);
 
     $titleSplit = explode('- ', $entity->label());
-    $titlePart = $titleSplit[1] ?? ($titleSplit[0] ?? $entity->label());
+    $titlePart = $titleSplit[1] ?? $titleSplit[0];
 
     $dootronicId = ($entity->hasField('field_laptops') && !$entity->get('field_laptops')->isEmpty()) ? $entity->get('field_laptops')->target_id : NULL;
 
     // New Dootrip.
-    if ($entity->original === NULL) {
+    if ($entity->getOriginal() === NULL) {
       $title = sprintf('Dootrip %s was created', $titlePart);
     }
     else {
       // This Dootrip already exists.
       // Only report new activity if Dootronics have been added to it.
-      $prevDootronicId = ($entity->original->hasField('field_laptops') && !$entity->original->get('field_laptops')->isEmpty()) ? $entity->original->get('field_laptops')->target_id : NULL;
+      $prevDootronicId = ($entity->getOriginal()->hasField('field_laptops') && !$entity->getOriginal()->get('field_laptops')->isEmpty()) ? $entity->getOriginal()->get('field_laptops')->target_id : NULL;
       if ($prevDootronicId != NULL or $dootronicId == NULL) {
         return;
       }
@@ -63,10 +63,10 @@ class DootripActionGenerator extends AbstractActionGenerator implements ActionGe
 
     $edooVillageId = NULL;
     $hubId = NULL;
-    if ($dootronicId !== NULL && $entity->hasField('field_laptops') && $entity->get('field_laptops')->entity !== NULL) {
-      $dootronic = $entity->get('field_laptops')->entity;
-      $edooVillageId = $dootronic->hasField('field_edoovillage_destination') ? $dootronic->get('field_edoovillage_destination')->target_id : NULL;
-      $hubId = $dootronic->hasField('field_hub_laptop') ? $dootronic->get('field_hub_laptop')->target_id : ($dootronic->hasField('field_hub') ? $dootronic->get('field_hub')->target_id : NULL);
+    $dootronic = $dootronicId === NULL ? NULL : $entity->get('field_laptops')->entity;
+    if ($dootronic instanceof NodeInterface) {
+      $edooVillageId = $this->referenceNodeId($dootronic, 'field_edoovillage_destination');
+      $hubId = $this->referenceNodeId($dootronic, $dootronic->hasField('field_hub_laptop') ? 'field_hub_laptop' : 'field_hub');
     }
 
     $body = $this->buildActionBody((int) $entity->id(), $title, 'dootrip.png', 30);

@@ -5,7 +5,7 @@ namespace Drupal\labdoo_dootrip\Service\Repository;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -55,7 +55,7 @@ class DootripRepository implements DootripRepositoryInterface {
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    Connection $database
+    Connection $database,
   ) {
     $this->entityTypeManager = $entityTypeManager;
     $this->logger = $loggerChannelFactory->get('labdoo_dootrip');
@@ -87,7 +87,7 @@ class DootripRepository implements DootripRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function load(int $dootripId): ?EntityInterface {
+  public function load(int $dootripId): ?NodeInterface {
     try {
       return $this->entityTypeManager
         ->getStorage('node')
@@ -191,9 +191,10 @@ class DootripRepository implements DootripRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function saveEntity(EntityInterface $dootrip): bool {
+  public function saveEntity(NodeInterface $dootrip): bool {
     try {
-      return $dootrip->save();
+      // Normalize Drupal's integer storage status to this API's boolean result.
+      return (bool) $dootrip->save();
     }
     catch (EntityStorageException $e) {
       $errorMessage = sprintf(
@@ -206,6 +207,9 @@ class DootripRepository implements DootripRepositoryInterface {
     }
   }
 
+  /**
+   * Loads schools associated with the laptops assigned to a trip.
+   */
   public function getRelatedEdooVillages(int $dootripId): array {
     $subQuery = $this->database
       ->select('field_data_field_laptops', 'l')

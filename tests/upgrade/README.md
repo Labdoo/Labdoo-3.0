@@ -71,3 +71,20 @@ The report and migration record list remaining baseline defects and verification
 ## Required change validation
 
 Follow [tests/AGENTS.md](../AGENTS.md) and the [regression-testing skill](../../.agents/skills/regression-testing/SKILL.md). Create/adapt relevant tests, execute the affected regression suites, and inspect their reports before claiming a change is verified. Missing tools or an unprepared test database leave validation incomplete.
+
+## Restricted Redis report coverage
+
+The Redis INFO/ACL integration cases use the dedicated loopback TLS fixture.
+Start it from the active checkout in a separate terminal:
+
+```sh
+python3 tests/operations/serve_data_transport_fixture.py
+```
+
+It verifies checkout/database provenance, creates a private TLS Redis profile
+and rebuilds only the isolated site's caches. Keep it running during these
+cases. Stop it with Ctrl+C; its cleanup removes its own private profile and
+fixture resources. Never copy a production Redis configuration into the lab.
+Without that fixture, the explicit INFO/ACL cases are omitted; ordinary menu
+navigation and report-access checks remain enabled. The PHP unit cases still
+cover flat/sectioned INFO replies and denied commands without a Redis server.

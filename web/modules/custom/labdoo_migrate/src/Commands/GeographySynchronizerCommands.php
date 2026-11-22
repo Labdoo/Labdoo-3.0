@@ -2,6 +2,12 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\State\StateInterface;
+use Drupal\labdoo_common\Utility\EntityMetadata;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\Statement\FetchAs;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\node\NodeInterface;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
@@ -96,6 +102,25 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * GeographySynchronizerCommands constructor.
+   *
+   * @param \Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface $externalConnectionManager
+   *   The external connection manager.
+   * @param \Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface $configurationManager
+   *   The configuration manager.
+   * @param \Drupal\labdoo_migrate\Services\Mapper\MapperInterface $fieldsMapper
+   *   The fields mapper.
+   * @param \Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface $sourceRepository
+   *   The source repository.
+   * @param \Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface $destinationRepository
+   *   The destination repository.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactoryInjected
+   *   The config.factory service.
+   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cacheInvalidator
+   *   The cache_tags.invalidator service.
    */
   public function __construct(
     protected ConnectionManagerInterface $externalConnectionManager,
@@ -103,13 +128,19 @@ class GeographySynchronizerCommands extends DrushCommands {
     protected MapperInterface $fieldsMapper,
     protected SourceRepositoryInterface $sourceRepository,
     protected DestinationRepositoryInterface $destinationRepository,
-    protected EntityTypeManagerInterface $entityTypeManager
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected StateInterface $state,
+    protected ConfigFactoryInterface $configFactoryInjected,
+    protected CacheTagsInvalidatorInterface $cacheInvalidator,
   ) {
     parent::__construct();
   }
 
   /**
    * Repairs invalid geocoordinates in Drupal 10 using Drupal 7 as source.
+   *
+   * @param array $options
+   *   The options.
    *
    * @command labdoo:migrate-repair-invalid-geo
    * @aliases lmrig
@@ -122,13 +153,15 @@ class GeographySynchronizerCommands extends DrushCommands {
    * @usage drush labdoo:migrate-repair-invalid-geo --dry-run
    *   Simulates repair and generates report of non-repairable nodes.
    */
-  public function repairInvalidGeography(array $options = [
-    'types' => '',
-    'limit' => -1,
-    'dry-run' => FALSE,
-    'report-path' => '',
-    'backup-path' => '',
-  ]): void {
+  public function repairInvalidGeography(
+    array $options = [
+      'types' => '',
+      'limit' => -1,
+      'dry-run' => FALSE,
+      'report-path' => '',
+      'backup-path' => '',
+    ],
+  ): void {
     $types = empty($options['types'])
       ? self::DEFAULT_SYNC_TYPES
       : array_values(array_filter(array_map('trim', explode(',', (string) $options['types']))));
@@ -205,11 +238,11 @@ class GeographySynchronizerCommands extends DrushCommands {
 
     try {
       if (!$dryRun) {
-        $state = \Drupal::state();
+        $state = $this->state;
         $originalMigrationRunning = (bool) $state->get('labdoo_migrate_is_running', FALSE);
         $state->set('labdoo_migrate_is_running', TRUE);
 
-        $geocoderConfig = \Drupal::configFactory()->getEditable('geocoder.settings');
+        $geocoderConfig = $this->configFactoryInjected->getEditable('geocoder.settings');
         $originalGeocoderPresaveDisabled = (bool) $geocoderConfig->get('geocoder_presave_disabled');
         if (!$originalGeocoderPresaveDisabled) {
           $geocoderConfig->set('geocoder_presave_disabled', TRUE)->save();
@@ -223,7 +256,7 @@ class GeographySynchronizerCommands extends DrushCommands {
           'field.field.node.hub.field_country',
           'field.field.node.edoovillage.field_country',
         ] as $configName) {
-          $fieldConfig = \Drupal::configFactory()->getEditable($configName);
+          $fieldConfig = $this->configFactoryInjected->getEditable($configName);
           $geocoderFieldDisabledValues[$configName] = $fieldConfig->get('third_party_settings.geocoder_field.disabled');
           if (!$geocoderFieldDisabledValues[$configName]) {
             $fieldConfig->set('third_party_settings.geocoder_field.disabled', TRUE)->save();
@@ -292,7 +325,15 @@ class GeographySynchronizerCommands extends DrushCommands {
           $destinationField = $this->resolveDestinationGeoField($type, $node, $d7Geo['field']);
           if ($destinationField === NULL || !$node->hasField($destinationField)) {
             $stats['errors']++;
-            fputcsv($reportHandle, [$type, $nid, 'destination geofield not found', $d7Geo['field'], $d7Geo['lat'], $d7Geo['lon'], $d7Geo['value']]);
+            fputcsv($reportHandle, [
+              $type,
+              $nid,
+              'destination geofield not found',
+              $d7Geo['field'],
+              $d7Geo['lat'],
+              $d7Geo['lon'],
+              $d7Geo['value'],
+            ]);
             $this->io()->progressAdvance();
             continue;
           }
@@ -312,7 +353,7 @@ class GeographySynchronizerCommands extends DrushCommands {
             continue;
           }
 
-          if ($backupHandle !== NULL) {
+          if (is_resource($backupHandle)) {
             $backup = [
               'type' => $type,
               'nid' => (int) $nid,
@@ -322,7 +363,15 @@ class GeographySynchronizerCommands extends DrushCommands {
             ];
             if (fwrite($backupHandle, json_encode($backup, JSON_UNESCAPED_SLASHES) . "\n") === FALSE) {
               $stats['errors']++;
-              fputcsv($reportHandle, [$type, $nid, 'could not write node backup', $destinationField, $d7Geo['lat'], $d7Geo['lon'], $d7Geo['value']]);
+              fputcsv($reportHandle, [
+                $type,
+                $nid,
+                'could not write node backup',
+                $destinationField,
+                $d7Geo['lat'],
+                $d7Geo['lon'],
+                $d7Geo['value'],
+              ]);
               $this->io()->progressAdvance();
               continue;
             }
@@ -336,9 +385,9 @@ class GeographySynchronizerCommands extends DrushCommands {
           $node->isDefaultRevision(TRUE);
           // Avoid launching follow-up geocoding/recompute queues for this
           // coordinate-only repair.
-          $node->skip_geocoding_enqueue = TRUE;
-          $node->skip_recompute_enqueue = TRUE;
-          $node->skip_action_generation = TRUE;
+          EntityMetadata::set($node, 'skip_geocoding_enqueue', TRUE);
+          EntityMetadata::set($node, 'skip_recompute_enqueue', TRUE);
+          EntityMetadata::set($node, 'skip_action_generation', TRUE);
           $node->set($destinationField, $geoItem);
 
           try {
@@ -367,7 +416,7 @@ class GeographySynchronizerCommands extends DrushCommands {
       }
 
       if (!empty($updatedNids)) {
-        \Drupal::service('cache_tags.invalidator')->invalidateTags(array_map(
+        $this->cacheInvalidator->invalidateTags(array_map(
           static fn(int $nid): string => 'node:' . $nid,
           array_map('intval', array_keys($updatedNids))
         ));
@@ -375,10 +424,10 @@ class GeographySynchronizerCommands extends DrushCommands {
     }
     finally {
       if ($originalMigrationRunning !== NULL) {
-        \Drupal::state()->set('labdoo_migrate_is_running', $originalMigrationRunning);
+        $this->state->set('labdoo_migrate_is_running', $originalMigrationRunning);
       }
       foreach ($geocoderFieldDisabledValues as $configName => $disabled) {
-        \Drupal::configFactory()->getEditable($configName)
+        $this->configFactoryInjected->getEditable($configName)
           ->set('third_party_settings.geocoder_field.disabled', $disabled)
           ->save();
       }
@@ -433,13 +482,16 @@ class GeographySynchronizerCommands extends DrushCommands {
       'dry-run' => FALSE,
       'force' => FALSE,
       'nids' => '',
-    ]
+    ],
   ): void {
     $this->syncGeographyType($sourceType, $options);
   }
 
   /**
    * Synchronizes geographic information for the main content types.
+   *
+   * @param array $options
+   *   The options.
    *
    * @command labdoo-sync-geography-all
    * @aliases labdoo-sync-geo-all
@@ -452,13 +504,15 @@ class GeographySynchronizerCommands extends DrushCommands {
    * @option force Force synchronization even if fields are already filled.
    * @option nids Comma-separated list of Drupal 7 nids to synchronize.
    */
-  public function syncGeographyAll(array $options = [
-    'types' => '',
-    'limit' => -1,
-    'dry-run' => FALSE,
-    'force' => FALSE,
-    'nids' => '',
-  ]): void {
+  public function syncGeographyAll(
+    array $options = [
+      'types' => '',
+      'limit' => -1,
+      'dry-run' => FALSE,
+      'force' => FALSE,
+      'nids' => '',
+    ],
+  ): void {
     $requestedTypes = empty($options['types'])
       ? self::DEFAULT_SYNC_TYPES
       : array_map('trim', explode(',', (string) $options['types']));
@@ -476,6 +530,11 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Synchronize geographic information for a source type.
+   *
+   * @param string $sourceType
+   *   The source type.
+   * @param array $options
+   *   The options.
    */
   private function syncGeographyType(string $sourceType, array $options): void {
     $normalizedType = $this->normalizeSourceType($sourceType);
@@ -496,6 +555,13 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Performs the synchronization.
+   *
+   * @param string $normalizedType
+   *   The normalized type.
+   * @param string $inputType
+   *   The input type.
+   * @param array $options
+   *   The options.
    */
   private function doSyncGeography(string $normalizedType, string $inputType, array $options): void {
     try {
@@ -505,7 +571,7 @@ class GeographySynchronizerCommands extends DrushCommands {
       // 1. Get the mapping
       $config = $this->configurationManager->getContentConfiguration($normalizedType);
       $mapping = $this->fieldsMapper->buildMapping($config->getFieldsMapping());
-      
+
       // 2. Filter mapping to keep only geographic fields
       $geoMapping = array_filter($mapping, function ($mappingModel) {
         $destField = $mappingModel->getDestinationField()->getFieldName();
@@ -529,7 +595,7 @@ class GeographySynchronizerCommands extends DrushCommands {
       if ($limit > 0) {
         $sourceEntityIds = array_slice($sourceEntityIds, 0, $limit);
       }
-      
+
       $total = count($sourceEntityIds);
       if ($total === 0) {
         $this->logger->notice('No source entities found.');
@@ -546,7 +612,8 @@ class GeographySynchronizerCommands extends DrushCommands {
         return;
       }
 
-      // 5. Filter geoMapping to keep only fields that exist in the destination entities
+      // 5. Filter geoMapping to keep only fields that exist in the destination
+      // entities
       // We check the first entity as they should all be of the same bundle(s)
       $firstEntity = reset($destinationEntities);
       $geoMappingNames = [];
@@ -566,15 +633,19 @@ class GeographySynchronizerCommands extends DrushCommands {
 
       $this->logger->notice(sprintf('Actual fields to sync: %s', implode(', ', $geoMappingNames)));
 
-      // 5b. Filter destination entities if they already have all geographic fields filled
+      // 5b. Filter destination entities if they already have all geographic
+      // fields
+      // filled
       if (!$options['force']) {
         $destinationEntities = array_filter($destinationEntities, function ($entity) use ($geoMappingNames) {
           foreach ($geoMappingNames as $fieldName) {
             if ($entity->get($fieldName)->isEmpty()) {
-              return TRUE; // At least one field is empty, keep for sync
+              // At least one field is empty, keep for sync.
+              return TRUE;
             }
           }
-          return FALSE; // All fields are filled, skip
+          // All fields are filled, skip.
+          return FALSE;
         });
 
         $this->logger->notice(sprintf('Filtered entities to synchronize: %d (those with empty fields).', count($destinationEntities)));
@@ -586,7 +657,8 @@ class GeographySynchronizerCommands extends DrushCommands {
       }
 
       // 6. Perform the update
-      $this->destinationRepository->setOverrideMode(TRUE); // Allow updating existing fields
+      // Allow updating existing fields
+      $this->destinationRepository->setOverrideMode(TRUE);
       $updatedCount = $this->destinationRepository->updateEntities(
         $this->sourceRepository->getEntities($normalizedType, $geoMapping, array_keys($destinationEntities)),
         $geoMapping,
@@ -602,7 +674,7 @@ class GeographySynchronizerCommands extends DrushCommands {
         "-- %d entities updated.",
         $inputType,
         $normalizedType,
-        gmdate("H:i:s", $timeElapsedSeconds),
+        gmdate("H:i:s", (int) $timeElapsedSeconds),
         $updatedCount
       ));
     }
@@ -613,6 +685,9 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Normalizes source type aliases.
+   *
+   * @param string $sourceType
+   *   The source type.
    */
   private function normalizeSourceType(string $sourceType): ?string {
     $normalizedInput = strtolower(trim($sourceType));
@@ -622,6 +697,9 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Extracts selected nids from a comma-separated value.
+   *
+   * @param string $nids
+   *   The nids.
    */
   private function extractSelectedNids(string $nids): array {
     if ($nids === '') {
@@ -638,6 +716,11 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Returns destination nodes that currently have invalid coordinates.
+   *
+   * @param string $type
+   *   The type.
+   * @param int $limit
+   *   The limit.
    *
    * @return array<int,array{nid:int,reason:string,field:string}>
    *   Invalid nodes info.
@@ -686,7 +769,12 @@ class GeographySynchronizerCommands extends DrushCommands {
   /**
    * Inspects whether destination node has invalid geo coordinates.
    *
-   * @return array{invalid:bool,reason:string,field:string}
+   * @param string $type
+   *   The type.
+   * @param \Drupal\node\NodeInterface $node
+   *   The node.
+   *
+   * @return list<array{invalid:bool,reason:string,field:string}>
    *   Inspection result.
    */
   private function inspectDestinationNodeGeo(string $type, NodeInterface $node): array {
@@ -720,10 +808,19 @@ class GeographySynchronizerCommands extends DrushCommands {
   /**
    * Loads geo information for one node from Drupal 7.
    *
+   * @param \Drupal\Core\Database\Connection $externalConnection
+   *   The external connection.
+   * @param string $type
+   *   The type.
+   * @param int $nid
+   *   The nid.
+   * @param string $destinationField
+   *   The destination field.
+   *
    * @return array{status:string,reason?:string,field?:string,lat?:float|string|null,lon?:float|string|null,value?:string|null}
    *   Status can be valid|missing|invalid.
    */
-  private function loadD7GeoByType(\Drupal\Core\Database\Connection $externalConnection, string $type, int $nid, string $destinationField): array {
+  private function loadD7GeoByType(Connection $externalConnection, string $type, int $nid, string $destinationField): array {
     if ($type === 'dootrip') {
       $sourceField = $destinationField;
       $table = 'field_data_' . $sourceField;
@@ -757,7 +854,7 @@ class GeographySynchronizerCommands extends DrushCommands {
         ->fields('i', ['nid', 'lid'])
         ->orderBy('i.lid');
       $query->join('location', 'l', 'l.lid = i.lid');
-      $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+      $rows = $query->execute()->fetchAll(FetchAs::Associative);
       $this->d7LocationsByNode = [];
       foreach ($rows as $row) {
         $this->d7LocationsByNode[(int) $row['nid']][] = $row;
@@ -776,7 +873,11 @@ class GeographySynchronizerCommands extends DrushCommands {
       return reset($valid);
     }
     if (count($valid) > 1) {
-      return ['status' => 'ambiguous', 'reason' => 'multiple distinct valid source locations', 'field' => $destinationField];
+      return [
+        'status' => 'ambiguous',
+        'reason' => 'multiple distinct valid source locations',
+        'field' => $destinationField,
+      ];
     }
     if (!empty($locations)) {
       $location = reset($locations);
@@ -790,6 +891,11 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Normalizes a Drupal 7 location module record.
+   *
+   * @param array $location
+   *   The location.
+   * @param string $field
+   *   The field.
    */
   private function normalizeD7Location(array $location, string $field): array {
     $lat = $location['latitude'] ?? NULL;
@@ -809,6 +915,13 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Resolves destination field to update.
+   *
+   * @param string $type
+   *   The type.
+   * @param \Drupal\node\NodeInterface $node
+   *   The node.
+   * @param string $d7Field
+   *   The d7field.
    */
   private function resolveDestinationGeoField(string $type, NodeInterface $node, string $d7Field): ?string {
     if ($type === 'dootrip') {
@@ -832,8 +945,13 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Checks whether a Drupal 7 table exists.
+   *
+   * @param \Drupal\Core\Database\Connection $externalConnection
+   *   The external connection.
+   * @param string $table
+   *   The table.
    */
-  private function d7TableExists(\Drupal\Core\Database\Connection $externalConnection, string $table): bool {
+  private function d7TableExists(Connection $externalConnection, string $table): bool {
     if (!array_key_exists($table, $this->d7TableExistsCache)) {
       $this->d7TableExistsCache[$table] = $externalConnection->schema()->tableExists($table);
     }
@@ -843,6 +961,13 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Returns invalid geo reason, or NULL if valid.
+   *
+   * @param mixed $lat
+   *   The lat.
+   * @param mixed $lon
+   *   The lon.
+   * @param mixed $value
+   *   The value.
    */
   private function getGeoInvalidReason(mixed $lat, mixed $lon, mixed $value): ?string {
     if ($lat === NULL || $lon === NULL || $lat === '' || $lon === '') {
@@ -872,6 +997,11 @@ class GeographySynchronizerCommands extends DrushCommands {
 
   /**
    * Builds geofield value string.
+   *
+   * @param float $lat
+   *   The lat.
+   * @param float $lon
+   *   The lon.
    */
   private function buildGeoValue(float $lat, float $lon): string {
     return sprintf(
@@ -880,4 +1010,5 @@ class GeographySynchronizerCommands extends DrushCommands {
       number_format($lat, 6, '.', '')
     );
   }
+
 }

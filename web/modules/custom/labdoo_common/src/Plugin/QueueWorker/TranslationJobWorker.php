@@ -24,12 +24,20 @@ final class TranslationJobWorker extends QueueWorkerBase implements ContainerFac
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
     return new static($configuration, $plugin_id, $plugin_definition, $container->get('labdoo_common.translation_jobs'));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function processItem($data): void {
-    if (is_array($data) && is_string($data['job_id'] ?? NULL)) { $this->jobs->process($data['job_id']); }
+    if (is_array($data) && is_string($data['job_id'] ?? NULL)) {
+      $this->jobs->process($data['job_id']);
+    }
   }
 
 }

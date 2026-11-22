@@ -2,7 +2,10 @@
 
 namespace Drupal\Tests\labdoo_edoovillage\Unit;
 
-use Drupal\Core\Access\AccessResult;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\node\NodeInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\labdoo_common\Service\Helper\LinkHelper;
@@ -10,13 +13,14 @@ use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Drupal\labdoo_edoovillage\Plugin\Block\EdooVillageNodeChartBlock;
 
 /**
- * @coversDefaultClass \Drupal\labdoo_edoovillage\Plugin\Block\EdooVillageNodeChartBlock
- * @group labdoo_edoovillage
+ * Tests demand calculations and access for educational-project charts.
  */
+#[CoversClass(EdooVillageNodeChartBlock::class)]
+#[Group('labdoo_edoovillage')]
 class EdooVillageNodeChartTest extends UnitTestCase {
 
   /**
-   * Tests labdoo_get_demand function.
+   * Tests labdoo_edoovillage_get_demand function.
    */
   public function testLabdooGetDemand() {
     // Mock the NodeInterface.
@@ -25,12 +29,12 @@ class EdooVillageNodeChartTest extends UnitTestCase {
     $node->method('hasField')->with('field_number_of_laptops_needed')->willReturn(TRUE);
 
     // Mock the field item list.
-    $fieldItemList = $this->createMock(\Drupal\Core\Field\FieldItemListInterface::class);
+    $fieldItemList = $this->createMock(FieldItemListInterface::class);
     $fieldItemList->method('__get')->with('value')->willReturn(15);
     $node->method('get')->with('field_number_of_laptops_needed')->willReturn($fieldItemList);
 
     // Call the function.
-    $demand = labdoo_get_demand($node);
+    $demand = labdoo_edoovillage_get_demand($node);
     $this->assertEquals(15, $demand);
   }
 
@@ -49,7 +53,7 @@ class EdooVillageNodeChartTest extends UnitTestCase {
     $node->method('id')->willReturn(123);
     $node->method('hasField')->with('field_number_of_laptops_needed')->willReturn(TRUE);
 
-    $fieldItemList = $this->createMock(\Drupal\Core\Field\FieldItemListInterface::class);
+    $fieldItemList = $this->createMock(FieldItemListInterface::class);
     $fieldItemList->method('__get')->with('value')->willReturn(25);
     $node->method('get')->with('field_number_of_laptops_needed')->willReturn($fieldItemList);
 
@@ -58,7 +62,7 @@ class EdooVillageNodeChartTest extends UnitTestCase {
 
     // Mock getDootronicsCountByStatus.
     $commonRepository->method('getDootronicsCountByStatus')
-      ->willReturnCallback(function($status, $nid) {
+      ->willReturnCallback(function ($status, $nid) {
         if ($status === ['T1', 'S3']) {
           return 5;
         }
@@ -93,7 +97,8 @@ class EdooVillageNodeChartTest extends UnitTestCase {
     $this->assertEquals(10, $build['#delivered_working']);
     $this->assertEquals(2, $build['#delivered_broken']);
     $this->assertEquals(3, $build['#recycled']);
-    $this->assertEquals(20, $build['#tagged']); // 5 + 10 + 2 + 3 = 20
+    // 5 + 10 + 2 + 3 = 20.
+    $this->assertEquals(20, $build['#tagged']);
   }
 
 }

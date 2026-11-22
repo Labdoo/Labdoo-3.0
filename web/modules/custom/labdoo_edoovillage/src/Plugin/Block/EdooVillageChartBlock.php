@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_edoovillage\Plugin\Block;
 
+use Drupal\Core\Session\AccountProxyInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -21,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("EdooVillage chart"),
  *   category = @Translation("EdooVillage"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -42,12 +46,18 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
    *   The plugin definition.
    * @param \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface $edoovillageRepository
    *   The EdooVillage repository.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request_stack service.
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentAccount
+   *   The current_user service.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    EdooVillageRepositoryInterface $edoovillageRepository
+    EdooVillageRepositoryInterface $edoovillageRepository,
+    protected RequestStack $requestStack,
+    protected AccountProxyInterface $currentAccount,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->edoovillageRepository = $edoovillageRepository;
@@ -62,7 +72,7 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface $edoovillageRepository */
     $edoovillageRepository = $container->get('labdoo_edoovillage.repository');
@@ -71,7 +81,9 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $edoovillageRepository
+      $edoovillageRepository,
+      $container->get('request_stack'),
+      $container->get('current_user'),
     );
   }
 
@@ -79,15 +91,15 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function build() {
-    $userId = \Drupal::request()->query->get('u');
-    $mine = \Drupal::request()->query->get('mine');
+    $userId = $this->requestStack->getCurrentRequest()->query->get('u');
+    $mine = $this->requestStack->getCurrentRequest()->query->get('mine');
     $filterUserId = NULL;
 
     if (!empty($userId) && is_numeric($userId)) {
       $filterUserId = (int) $userId;
     }
     elseif (!empty($mine) && (int) $mine === 1) {
-      $filterUserId = \Drupal::currentUser()->id();
+      $filterUserId = $this->currentAccount->id();
     }
 
     $stats = $this->edoovillageRepository->getStats($filterUserId);
@@ -107,7 +119,7 @@ class EdooVillageChartBlock extends BlockBase implements ContainerFactoryPluginI
           'user.permissions',
         ],
         'tags' => [
-          'edoovillages_chart'
+          'edoovillages_chart',
         ],
       ],
     ];

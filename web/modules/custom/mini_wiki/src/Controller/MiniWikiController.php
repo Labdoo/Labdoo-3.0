@@ -17,18 +17,22 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class MiniWikiController extends ControllerBase {
 
   /**
    * Constructs a new instance of the class.
    *
-   * @param ConfigFactoryInterface $config_factory The configuration factory interface
-   * @param LanguageManagerInterface $language_manager The language manager interface
+   * @param ConfigFactoryInterface $config_factory
+   *   The configuration factory interface.
+   * @param LanguageManagerInterface $language_manager
+   *   The language manager interface.
    */
   public function __construct(
     protected ConfigFactoryInterface $config_factory,
-    protected LanguageManagerInterface $language_manager
+    protected LanguageManagerInterface $language_manager,
   ) {
   }
 

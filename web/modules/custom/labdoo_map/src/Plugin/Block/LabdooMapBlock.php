@@ -2,11 +2,17 @@
 
 namespace Drupal\labdoo_map\Plugin\Block;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides a 'Labdoo Map' block.
+ *
+ * @phpstan-consistent-constructor
  *
  * @Block(
  *   id = "labdoo_map_block",
@@ -14,7 +20,20 @@ use Drupal\Core\Form\FormStateInterface;
  *   category = @Translation("Labdoo"),
  * )
  */
-class LabdooMapBlock extends BlockBase {
+class LabdooMapBlock extends BlockBase implements ContainerFactoryPluginInterface {
+  /**
+   * The current_route_match service.
+   */
+  protected RouteMatchInterface $routeMatch;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = new static($configuration, $plugin_id, $plugin_definition);
+    $instance->routeMatch = $container->get('current_route_match');
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -54,7 +73,7 @@ class LabdooMapBlock extends BlockBase {
   public function build() {
     $config = $this->getConfiguration();
     $type = $config['map_type'] ?? 'dootronic';
-    
+
     $attributes = [
       'id' => 'map-' . $type,
       'class' => ['labdoo-map-container'],
@@ -63,8 +82,8 @@ class LabdooMapBlock extends BlockBase {
     ];
 
     // If we are on a node page, add the NID to the attributes.
-    $node = \Drupal::routeMatch()->getParameter('node');
-    if ($node instanceof \Drupal\node\NodeInterface) {
+    $node = $this->routeMatch->getParameter('node');
+    if ($node instanceof NodeInterface) {
       $attributes['data-nid'] = $node->id();
     }
 

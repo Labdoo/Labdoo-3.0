@@ -1,12 +1,19 @@
 <?php
 
 /**
+ * @file
+ * Integrates team membership, comments and access hooks.
+ *
  * Developed by Natiboo <info@natiboo.es>
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
 
+use Drupal\labdoo_team\Service\MembershipManager;
+use Drupal\Core\Entity\EntityFormInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -18,8 +25,6 @@ use Drupal\comment\CommentInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
-
-const TEAM_GLOBAL = 24;
 
 /**
  * Implements hook_theme().
@@ -47,7 +52,7 @@ function labdoo_team_theme() {
  * Implements hook_views_data_alter().
  */
 function labdoo_team_views_data_alter(array &$data) {
-  foreach (Drupal::entityTypeManager()->getDefinitions() as $entityType => $entityInfo) {
+  foreach (Drupal::entityTypeManager()->getDefinitions() as $entityInfo) {
     $baseTable = $entityInfo->getBaseTable();
 
     if (!isset($data[$baseTable]['team_membership_field'])) {
@@ -71,7 +76,7 @@ function labdoo_team_node_view(
   array &$build,
   EntityInterface $node,
   EntityViewDisplayInterface $display,
-  $view_mode
+  $view_mode,
 ) {
   if ($node instanceof NodeInterface && $view_mode === 'full') {
     $nodeType = $node->getType();
@@ -129,7 +134,7 @@ function labdoo_team_node_view(
     }
   }
 
-  if ($node->getType() === 'team' && $view_mode === 'full') {
+  if ($node instanceof NodeInterface && $node->getType() === 'team' && $view_mode === 'full') {
     $teamId = $node->id();
 
     /** @var \Drupal\labdoo_team\Service\MembershipManager $teamMembershipManager */
@@ -216,8 +221,14 @@ function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id
 
     $node = \Drupal::routeMatch()->getParameter('node');
     if (empty($node)) {
-      /** @var \Drupal\comment\CommentInterface $comment */
-      $comment = $form_state->getFormObject()->getEntity();
+      $form_object = $form_state->getFormObject();
+      if (!$form_object instanceof EntityFormInterface) {
+        throw new \UnexpectedValueException('Comment forms must provide an entity.');
+      }
+      $comment = $form_object->getEntity();
+      if (!$comment instanceof CommentInterface) {
+        throw new \UnexpectedValueException('Comment forms must provide a comment.');
+      }
       $node = $comment->getCommentedEntity();
     }
 
@@ -236,7 +247,7 @@ function labdoo_team_form_alter(&$form, FormStateInterface $form_state, $form_id
 /**
  * Implements hook_entity_field_access().
  */
-function labdoo_team_entity_field_access($operation, \Drupal\Core\Field\FieldDefinitionInterface $field_definition, AccountInterface $account, \Drupal\Core\Field\FieldItemListInterface $items = NULL) {
+function labdoo_team_entity_field_access($operation, FieldDefinitionInterface $field_definition, AccountInterface $account, ?FieldItemListInterface $items = NULL) {
   if ($field_definition->getName() === 'field_team_comments') {
     $node = NULL;
     if ($items) {
@@ -317,7 +328,7 @@ function labdoo_team_node_links_alter(array &$links, NodeInterface $node, array 
   $membershipManager = \Drupal::service('labdoo_team.membership.manager');
   $teamId = $membershipManager->getTeamIdFromNode($node);
   if (!$membershipManager->canCommentOnTeamPost($teamId)) {
-    // Standard comment link keys: comment__[field_name]
+    // Standard comment link keys: comment__[field_name].
     foreach ($links as $key => $value) {
       if (strpos($key, 'comment__') === 0 && isset($links[$key]['#links']['comment-add'])) {
         unset($links[$key]['#links']['comment-add']);
@@ -339,13 +350,16 @@ function labdoo_team_entity_view_alter(array &$build, EntityInterface $entity, E
         // The comment default formatter nests the create form under the field's
         // delta items (e.g. $build['field_team_comments'][0]['comment_form']).
         // comment_preprocess_field() copies that element straight into the
-        // template variable ($variables['comment_form'] = $element[0]['comment_form'])
+        // template variable ($variables['comment_form'] =
+        // $element[0]['comment_form'])
         // and field--comment.html.twig renders the "Add new comment" <h2>
-        // heading whenever that variable is truthy. Setting #access = FALSE only
+        // heading whenever that variable is truthy. Setting #access = FALSE
+        // only
         // blanks the form output while leaving the array non-empty (truthy), so
         // the heading would remain. Replacing it with an empty array keeps the
         // key present (no "undefined key" warning in comment_preprocess_field)
-        // while being falsy in Twig, so both the form and its heading disappear.
+        // while being falsy in Twig, so both the form and its heading
+        // disappear.
         foreach (Element::children($build['field_team_comments']) as $delta) {
           if (isset($build['field_team_comments'][$delta]['comment_form'])) {
             $build['field_team_comments'][$delta]['comment_form'] = [];
@@ -387,7 +401,8 @@ function labdoo_team_comment_links_alter(array &$links, CommentInterface $entity
  * Implements hook_user_insert().
  */
 function labdoo_team_user_insert(UserInterface $account) {
-  // Importing an existing account must not save the Global team or its revisions.
+  // Importing an existing account must not save the Global team or its
+  // revisions.
   if ($account->isSyncing() || \Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
     return;
   }
@@ -395,9 +410,9 @@ function labdoo_team_user_insert(UserInterface $account) {
     // Load the Global team (nid 24)
     $team = \Drupal::entityTypeManager()
       ->getStorage('node')
-      ->load(TEAM_GLOBAL);
+      ->load(MembershipManager::GLOBAL_TEAM_ID);
     if ($team) {
-      // Add the user to the team members
+      // Add the user to the team members.
       $team->get('field_team_members')->appendItem($account->id());
       $team->save();
     }

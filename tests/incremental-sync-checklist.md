@@ -4,6 +4,62 @@ These are acceptance requirements, not claims that cases already pass. Fixtures
 must use separate local E2E source/destination databases. Production and the real
 external source are never fixture writers.
 
+## Current-checkout engine regression
+
+After preparing the isolated lab described in [upgrade/README.md](upgrade/README.md),
+run the transactional engine suite from this checkout:
+
+```sh
+python3 tests/upgrade/lab.py drush php:script /var/www/html/labdoo3/tests/incremental-engine.php
+```
+
+Replace the absolute path if the checkout is elsewhere. The script rejects other
+Drupal roots and unguarded databases. It opens a separate connection with a random
+table prefix, creates synthetic manifest/target tables, and drops only those
+tables in `finally`. It never resets existing migration manifests or saves nodes.
+Both the migration engine and Drupal's MySQL driver come from this checkout.
+Deprecated integer fetch modes fail the suite even while Drupal 11 accepts them.
+
+With this checkout's E2E server running, the same cases are included in Playwright:
+
+```sh
+make e2e LAB_RUN_ID=incremental-fetch E2E_ARGS="incremental-engine.spec.ts --project=desktop"
+```
+
+The 27 cases cover planning, adoption, local/source conflicts, bounded resume,
+retry and transaction rollback, array results, listing pagination and filters,
+and pending dependency selection. This synthetic source does not certify the
+separate V2 source adapter or a full production migration.
+
+The companion read regression uses disposable source/profile tables and never
+creates user accounts or imports nodes:
+
+```sh
+python3 tests/upgrade/lab.py drush php:script /var/www/html/labdoo3/tests/incremental-fetch-modes.php
+```
+
+Its ten cases verify keyed array results, published sequence gap selection,
+empty results, private user-preview output, source fingerprint changes and role
+restrictions. They also read the real clone's ID invariants and exercise physical
+table names with ordinary and database-qualified prefixes on temporary tables.
+An allocate/delete cycle must change the observed auto-increment metadata even
+when row counts are unchanged. Unit tests also require missing metadata and a
+failed metadata query to fail closed and restore the connection. MySQL statistics
+caching is disabled only for the guard's read, and the caller's session value must
+be restored after success and failure. Actual read paths are checked for reads
+plus these two exact session-setting statements; persistent writes are forbidden.
+Only the test's explicit fixture setup/cleanup writes disposable tables.
+Both regressions are included in `incremental-engine.spec.ts`.
+
+The ID guard requires current `AUTO_INCREMENT` values. MySQL 8 can cache these
+statistics for 24 hours by default; see the official
+[`information_schema_stats_expiry` documentation](https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_information_schema_stats_expiry).
+The guard uses physical table names for metadata values, scopes zero expiry to
+the destination connection's read, and restores its exact prior value in
+`finally`. The unit failure cases are maintained in
+`web/modules/custom/labdoo_migrate/tests/src/Unit/UserDependencyImporterMetadataTest.php`
+and run through `make tests` without bootstrapping a site.
+
 ## Contracts required before implementing the engine tests
 
 1. Pure planning API and separate apply/resume API, including result/status keys.

@@ -2,16 +2,30 @@
 
 namespace Drupal\labdoo_user\Form;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
 use Drupal\user\Entity\Role;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a form for editing user roles.
  */
 class UserRolesForm extends FormBase {
+  /**
+   * The entity_type.manager service.
+   */
+  protected EntityTypeManagerInterface $entityManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->entityManager = $container->get('entity_type.manager');
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -23,7 +37,7 @@ class UserRolesForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, User $user = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ?User $user = NULL) {
     if (!$user) {
       return [
         '#markup' => $this->t('User not found.'),
@@ -32,19 +46,20 @@ class UserRolesForm extends FormBase {
 
     $form_state->set('user_entity', $user);
 
-    $roles = Role::loadMultiple();
+    $roles = $this->entityManager->getStorage('user_role')->loadMultiple();
     $options = [];
-    $current_user = \Drupal::currentUser();
+    $current_user = $this->currentUser();
     $is_admin = $current_user->hasPermission('administer permissions') || in_array('administrator', $current_user->getRoles());
 
     foreach ($roles as $role) {
       $role_id = $role->id();
-      // Exclude anonymous and authenticated roles
+      // Exclude anonymous and authenticated roles.
       if (in_array($role_id, [Role::ANONYMOUS_ID, Role::AUTHENTICATED_ID])) {
         continue;
       }
 
-      // Administrator role can only be managed by someone with 'administer permissions'
+      // Administrator role can only be managed by someone with 'administer
+      // permissions'.
       if ($role_id === 'administrator') {
         if ($is_admin) {
           $options[$role_id] = $role->label();
@@ -52,7 +67,7 @@ class UserRolesForm extends FormBase {
         continue;
       }
 
-      // Check if user has specific permission to assign this role
+      // Check if user has specific permission to assign this role.
       if ($is_admin || $current_user->hasPermission("assign $role_id role")) {
         $options[$role_id] = $role->label();
       }
@@ -84,20 +99,22 @@ class UserRolesForm extends FormBase {
     /** @var \Drupal\user\Entity\User $user */
     $user = $form_state->get('user_entity');
     $submitted_roles = array_filter($form_state->getValue('roles'));
-    
-    $current_user = \Drupal::currentUser();
+
+    $current_user = $this->currentUser();
     $is_admin = $current_user->hasPermission('administer permissions') || in_array('administrator', $current_user->getRoles());
 
-    // Roles that the user CAN manage (either they are in the form options or protected)
+    // Roles that the user CAN manage (either they are in the form options or
+    // protected)
     $form_options = $form['roles']['#options'];
     $manageable_roles = array_keys($form_options);
-    
+
     $current_roles = $user->getRoles();
-    
+
     // 1. Remove roles that the user has permission to manage but were UNCHECKED
     foreach ($current_roles as $role_id) {
       if (in_array($role_id, $manageable_roles) && !isset($submitted_roles[$role_id])) {
-        // Protect authenticated and administrator unless really intended and allowed
+        // Protect authenticated and administrator unless really intended and
+        // allowed.
         if ($role_id !== Role::AUTHENTICATED_ID && ($role_id !== 'administrator' || $is_admin)) {
           $user->removeRole($role_id);
         }

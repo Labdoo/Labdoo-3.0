@@ -52,15 +52,15 @@ interface TranslationRepositoryInterface {
    * @param string $mainLangCode
    *   The main language code.
    *
-   * @return string
-   *   Returns the original translation of the given entity.
+   * @return string|false
+   *   The original translation, or FALSE when no source value is available.
    *
    * @throws \Exception
    */
   public function getOriginalTranslation(
     int $entityId,
     FieldModel $field,
-    string $mainLangCode
-  ): string;
+    string $mainLangCode,
+  ): string|false;
 
 }

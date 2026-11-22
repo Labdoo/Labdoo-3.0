@@ -41,7 +41,7 @@ interface MediaManagerInterface {
     string $fileName,
     string $fileContents,
     array $metadata,
-    string $langCode
+    string $langCode,
   ): EntityInterface;
 
 }

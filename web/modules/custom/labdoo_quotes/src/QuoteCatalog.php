@@ -62,7 +62,9 @@ final class QuoteCatalog {
       'lang' => $language->getId(),
       'dir' => $language->getDirection(),
       'data-quote-pending' => '',
-      'data-quote-url' => Url::fromRoute('labdoo_quotes.random', ['langcode' => $language->getId()], ['language' => $language])->toString(),
+      'data-quote-url' => Url::fromRoute('labdoo_quotes.random', ['langcode' => $language->getId()], [
+        'language' => $language,
+      ])->toString(),
     ];
     $bootstrap = file_get_contents(DRUPAL_ROOT . '/' . $this->modules->getPath('labdoo_quotes') . '/js/request-early.js');
     $bootstrap .= '(' . Json::encode($attributes['data-quote-url']) . ', ' . Json::encode($quotes[0]['id']) . ', ' . Json::encode($quotes) . ');';
@@ -77,7 +79,12 @@ final class QuoteCatalog {
       '#attached' => [
         'library' => ['labdoo_quotes/quotes'],
         'html_head' => [[
-          ['#tag' => 'script', '#attributes' => ['data-labdoo-quote-catalog' => $language->getId()], '#value' => Markup::create($bootstrap), '#weight' => -100],
+          [
+            '#tag' => 'script',
+            '#attributes' => ['data-labdoo-quote-catalog' => $language->getId()],
+            '#value' => Markup::create($bootstrap),
+            '#weight' => -100,
+          ],
           'labdoo_quote_request_' . $language->getId(),
         ]],
       ],

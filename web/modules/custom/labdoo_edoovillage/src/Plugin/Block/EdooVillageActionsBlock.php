@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_edoovillage\Plugin\Block;
 
+use Drupal\node\NodeInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
@@ -26,6 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("EdooVillage actions"),
  *   category = @Translation("EdooVillage"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -92,7 +95,7 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Helper\LinkHelper $linkHelper */
     $linkHelper = $container->get('labdoo_common.helper.link');
@@ -121,14 +124,14 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
     $edooVillage = $this->linkHelper->getActiveNode();
 
     // Fallback for arg_0 (views).
-    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
+    if (!($edooVillage instanceof NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
       $entityId = $this->linkHelper->getActiveNode('arg_0');
       if ($entityId) {
         $edooVillage = $this->linkHelper->loadEntity($entityId);
       }
     }
 
-    if ($edooVillage instanceof \Drupal\node\NodeInterface && $edooVillage->bundle() === 'edoovillage') {
+    if ($edooVillage instanceof NodeInterface && $edooVillage->bundle() === 'edoovillage') {
       return AccessResult::allowed()->addCacheContexts(['url.path']);
     }
 
@@ -142,16 +145,18 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
     $edooVillage = $this->linkHelper->getActiveNode();
 
     // Fallback for arg_0 (views) or specific routes.
-    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
+    if (!($edooVillage instanceof NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
       $entityId = $this->linkHelper->getActiveNode('arg_0');
-      // If it's not in arg_0, maybe it's in the route parameters as % (it depends on the route definition)
+      // If it's not in arg_0, maybe it's in the route parameters as % (it
+      // depends
+      // on the route definition)
       // but views usually use arg_0 for the first contextual filter.
       if ($entityId) {
         $edooVillage = $this->linkHelper->loadEntity($entityId);
       }
     }
 
-    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
+    if (!($edooVillage instanceof NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
       return [
         '#markup' => '',
       ];
@@ -212,7 +217,7 @@ class EdooVillageActionsBlock extends BlockBase implements ContainerFactoryPlugi
         [
           'query' => [
             'parent_id' => $edooVillage->id(),
-          ]
+          ],
         ]
       );
     }

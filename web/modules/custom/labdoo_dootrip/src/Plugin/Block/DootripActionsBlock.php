@@ -23,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Dootrip actions"),
  *   category = @Translation("Dootrip"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class DootripActionsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -69,7 +71,7 @@ class DootripActionsBlock extends BlockBase implements ContainerFactoryPluginInt
     $plugin_definition,
     LinkHelper $linkHelper,
     CommonRepository $commonRepository,
-    AccountProxyInterface $currentUser
+    AccountProxyInterface $currentUser,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->linkHelper = $linkHelper;
@@ -86,7 +88,7 @@ class DootripActionsBlock extends BlockBase implements ContainerFactoryPluginInt
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Helper\LinkHelper $linkHelper */
     $linkHelper = $container->get('labdoo_common.helper.link');

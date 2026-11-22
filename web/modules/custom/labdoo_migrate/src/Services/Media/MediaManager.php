@@ -39,7 +39,7 @@ class MediaManager implements MediaManagerInterface {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    FileManagerInterface $fileManager
+    FileManagerInterface $fileManager,
   ) {
 
     $this->entityTypeManager = $entityTypeManager;
@@ -54,7 +54,7 @@ class MediaManager implements MediaManagerInterface {
     string $fileName,
     string $fileContents,
     array $metadata,
-    string $langCode
+    string $langCode,
   ): EntityInterface {
 
     $file = $this->fileManager->createFile(

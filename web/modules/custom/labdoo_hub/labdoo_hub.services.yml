@@ -4,10 +4,10 @@ services:
     arguments: ['@labdoo_common.repository.view']
   labdoo_hub.repository:
     class: Drupal\labdoo_hub\Service\Repository\HubRepository
-    arguments: ['@database', '@event_dispatcher']
+    arguments: ['@database', '@event_dispatcher', '@entity_type.manager']
   labdoo_hub.recompute_feeder:
     class: Drupal\labdoo_hub\Service\Queue\Feeder\HubRecomputeQueueFeeder
     arguments: ['@queue_manager.helper']
   labdoo_hub.compute:
     class: Drupal\labdoo_hub\Service\Compute\HubCompute
-    arguments: ['@labdoo_hub.recompute_feeder']
+    arguments: ['@labdoo_hub.recompute_feeder', '@queue']

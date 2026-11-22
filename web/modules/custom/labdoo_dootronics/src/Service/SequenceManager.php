@@ -45,7 +45,7 @@ class SequenceManager implements SequenceManagerInterface {
    */
   public function __construct(
     LockBackendInterface $lock,
-    Connection $database
+    Connection $database,
   ) {
     $this->lock = $lock;
     $this->database = $database;
@@ -87,6 +87,5 @@ class SequenceManager implements SequenceManagerInterface {
 
     return ((int) $query->execute()->fetchField()) + 1;
   }
-
 
 }

@@ -36,7 +36,7 @@ class TranslationModel {
    */
   public function __construct(
     string $id,
-    string $langCode
+    string $langCode,
   ) {
 
     $this->id = $id;

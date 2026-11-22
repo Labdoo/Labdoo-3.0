@@ -9,6 +9,8 @@ namespace Drupal\labdoo_migrate\Services\DestinationContent;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @template T of \Drupal\Core\Entity\ContentEntityInterface
  */
 interface DestinationRepositoryInterface {
 
@@ -19,8 +21,10 @@ interface DestinationRepositoryInterface {
    * If FALSE, the execution fails gracefully if a node exist.
    *
    * @param bool $overrideMode
+   *   Whether the synchronizer requested replacement of existing destinations.
    *
    * @return void
+   *   The resulting value.
    */
   public function setOverrideMode(bool $overrideMode): void;
 
@@ -32,7 +36,7 @@ interface DestinationRepositoryInterface {
    * @param array $nids
    *   Optional list of node IDs to filter the results.
    *
-   * @return array
+   * @return array<int, T>
    *   Returns an array of entities.
    *
    * @throws \Exception
@@ -54,10 +58,10 @@ interface DestinationRepositoryInterface {
    *   The source entities array.
    * @param array $mapping
    *   The mapping.
-   * @param bool $dryRun
-   *   Whether to run this process in dry-run mode.
    * @param string $contentType
    *   The destination content type.
+   * @param bool $dryRun
+   *   Whether to run this process in dry-run mode.
    *
    * @return int
    *   Returns the created entities count.
@@ -68,7 +72,7 @@ interface DestinationRepositoryInterface {
     array $sourceEntities,
     array $mapping,
     string $contentType,
-    bool $dryRun = FALSE
+    bool $dryRun = FALSE,
   ): int;
 
   /**
@@ -78,7 +82,7 @@ interface DestinationRepositoryInterface {
    *   The source entities array.
    * @param array $mapping
    *   The mapping.
-   * @param array $destinationEntities
+   * @param array<int, T> $destinationEntities
    *   The destination entities array.
    * @param bool $dryRun
    *   Whether to run this process in dry-run mode.
@@ -92,7 +96,7 @@ interface DestinationRepositoryInterface {
     array $sourceEntities,
     array $mapping,
     array $destinationEntities,
-    bool $dryRun = FALSE
+    bool $dryRun = FALSE,
   ): int;
 
   /**
@@ -102,6 +106,7 @@ interface DestinationRepositoryInterface {
    *   The total source entities count.
    *
    * @return void
+   *   The resulting value.
    */
   public function setTotalCount(int $total): void;
 
@@ -112,6 +117,7 @@ interface DestinationRepositoryInterface {
    *   Whether to enable or disable indexing.
    *
    * @return void
+   *   The resulting value.
    */
   public function setIndexingMode(bool $indexingEnabled): void;
 
@@ -122,6 +128,7 @@ interface DestinationRepositoryInterface {
    *   The batch size.
    *
    * @return void
+   *   The resulting value.
    */
   public function setBatchSize(int $batchSize): void;
 

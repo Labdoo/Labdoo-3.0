@@ -28,7 +28,7 @@ class AbstractQueueFeeder {
    *   The queue helper.
    */
   public function __construct(
-    QueueHelper $queueHelper
+    QueueHelper $queueHelper,
   ) {
     $this->queueHelper = $queueHelper;
   }

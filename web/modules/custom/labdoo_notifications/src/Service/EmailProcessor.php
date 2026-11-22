@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_notifications\Service;
 
+use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -19,6 +21,8 @@ use Drupal\Core\Session\AccountInterface;
  * @link http://natiboo.es
  */
 class EmailProcessor {
+
+  use \Drupal\Core\StringTranslation\StringTranslationTrait;
 
   private const TEMPLATES_FOLDER = 'templates/email';
 
@@ -44,6 +48,10 @@ class EmailProcessor {
    *   The mail manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandlerInjected
+   *   The module_handler service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request_stack service.
    */
   public function __construct(
     protected AccountInterface $currentUser,
@@ -51,7 +59,9 @@ class EmailProcessor {
     protected FileSystemInterface $fileSystem,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     protected MailManagerInterface $mailManager,
-    protected ConfigFactoryInterface $configFactory
+    protected ConfigFactoryInterface $configFactory,
+    protected ModuleHandlerInterface $moduleHandlerInjected,
+    protected RequestStack $requestStack,
   ) {
     $this->logger = $loggerChannelFactory->get('labdoo_notifications');
   }
@@ -74,11 +84,13 @@ class EmailProcessor {
     $testMode = $config->get('test_mode');
     $testEmail = $config->get('test_email');
 
-    // If test mode is enabled and a test email is set, redirect all emails to the test email.
+    // If test mode is enabled and a test email is set, redirect all emails to
+    // the test email.
     if ($testMode && !empty($testEmail)) {
       $this->logger->notice('Test mode is enabled. Redirecting email to @email', ['@email' => $testEmail]);
 
-      // Create a copy of the email parameters with the test email as the recipient.
+      // Create a copy of the email parameters with the test email as the
+      // recipient.
       $testParams = $emailParams;
       $testParams['to'] = $testEmail;
 
@@ -110,7 +122,6 @@ class EmailProcessor {
     }
 
     // If test mode is not enabled, proceed with normal email sending.
-
     // If there are multiple recipients in the 'to' field, partition them.
     $toAddresses = $this->partitionEmailAddresses($emailParams['to']);
 
@@ -170,7 +181,7 @@ class EmailProcessor {
    *   The template content, or NULL if the template doesn't exist.
    */
   public function loadTemplate(string $langCode, string $templateId): ?string {
-    $modulePath = \Drupal::moduleHandler()->getModule('labdoo_notifications')->getPath();
+    $modulePath = $this->moduleHandlerInjected->getModule('labdoo_notifications')->getPath();
     $path = sprintf(
       '%s/%s/%s/%s-%s.email',
       $modulePath,
@@ -196,23 +207,24 @@ class EmailProcessor {
    *   The email body to process.
    */
   public function processParameters(array $params, string &$body): void {
+    global $base_url;
     if (empty($params['CONTACT_EMAIL'])) {
       $params['CONTACT_EMAIL'] = $this->configFactory->get('system.site')->get('mail');
     }
 
     if (empty($params['DASHBOARD_URL'])) {
-      // Determine the dynamic base URL of the site to replace the production host.
+      // Determine the dynamic base URL of the site to replace the production
+      // host.
       $host = '';
       try {
-        if (\Drupal::hasRequest()) {
-          $host = \Drupal::request()->getSchemeAndHttpHost();
+        if ($this->requestStack->getCurrentRequest() !== NULL) {
+          $host = $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost();
         }
       }
       catch (\Exception $e) {
         // Ignore exceptions if request is not available.
       }
       if (empty($host) || strpos($host, 'http') !== 0) {
-        global $base_url;
         $host = $base_url;
       }
       if (empty($host) || strpos($host, 'http') !== 0) {
@@ -223,31 +235,31 @@ class EmailProcessor {
 
     if (strpos($body, '[LANGUAGE_MENU]') !== FALSE) {
       $supportedLanguages = [
-        "ca" => "Catalan", 
+        "ca" => "Catalan",
         "zh-hant" => "Chinese",
-        "de" => "Deutsch", 
-        "en" => "English", 
-        "fr" => "French", 
-        "nl" => "Nederlands", 
+        "de" => "Deutsch",
+        "en" => "English",
+        "fr" => "French",
+        "nl" => "Nederlands",
         "es" => "Spanish",
       ];
 
       // Build first the language switchers on the header of the email
-      // All parameters are part of the hyperlink for each language switch
+      // All parameters are part of the hyperlink for each language switch.
       $langParamsBase = $params;
       if (!isset($langParamsBase['type']) && isset($params['EMAIL'])) {
         $langParamsBase['type'] = 'contact';
       }
 
-      $htmlCode  = "<hr/>" . t("View this message in other languages:");
+      $htmlCode  = "<hr/>" . $this->t("View this message in other languages:");
       $htmlCode .= "<br/>";
 
-      // Build each language switcher
+      // Build each language switcher.
       foreach ($supportedLanguages as $code => $language) {
         $langParams = $langParamsBase;
         $langParams['language'] = $code;
         $urlParams = "?" . http_build_query($langParams);
-        $htmlCode .= "<a href='https://platform.labdoo.org/content/notification-email" . $urlParams . "'>$language</a> | "; 
+        $htmlCode .= "<a href='https://platform.labdoo.org/content/notification-email" . $urlParams . "'>$language</a> | ";
       }
       $htmlCode = substr($htmlCode, 0, -2);
       $htmlCode .= "<hr/>";
@@ -259,25 +271,25 @@ class EmailProcessor {
       $body = str_replace("[$key]", $value, $body);
     }
 
-    // Determine the dynamic base URL of the site to replace the production host.
+    // Determine the dynamic base URL of the site to replace the production
+    // host.
     $host = '';
     try {
-      if (\Drupal::hasRequest()) {
-        $host = \Drupal::request()->getSchemeAndHttpHost();
+      if ($this->requestStack->getCurrentRequest() !== NULL) {
+        $host = $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost();
       }
     }
     catch (\Exception $e) {
       // Ignore exceptions if request is not available.
     }
     if (empty($host) || strpos($host, 'http') !== 0) {
-      global $base_url;
       $host = $base_url;
     }
     if (empty($host) || strpos($host, 'http') !== 0) {
       $host = 'https://platform.labdoo.org';
     }
 
-    if (!empty($host) && $host !== 'https://platform.labdoo.org') {
+    if ($host !== 'https://platform.labdoo.org') {
       $body = str_replace('https://platform.labdoo.org', $host, $body);
     }
   }
@@ -318,7 +330,7 @@ class EmailProcessor {
    *   The path to the email templates for the given language.
    */
   public function getTemplatePath(string $langCode): string {
-    $modulePath = \Drupal::moduleHandler()->getModule('labdoo_notifications')->getPath();
+    $modulePath = $this->moduleHandlerInjected->getModule('labdoo_notifications')->getPath();
     return sprintf('%s/%s/%s', $modulePath, self::TEMPLATES_FOLDER, $langCode);
   }
 

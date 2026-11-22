@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_common\Breadcrumb;
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Breadcrumb\BreadcrumbBuilderInterface;
 use Drupal\Core\Cache\CacheableMetadata;
@@ -57,7 +59,7 @@ class LabdooBreadcrumbBuilder implements BreadcrumbBuilderInterface {
     // Apply to specific node types that need a dashboard parent.
     if ($route_name === 'entity.node.canonical') {
       $node = $route_match->getParameter('node');
-      if ($node instanceof \Drupal\node\NodeInterface) {
+      if ($node instanceof NodeInterface) {
         $type = $node->getType();
         if (in_array($type, ['edoovillage', 'hub', 'dootronic', 'dootrip', 'team', 'team_post'])) {
           return TRUE;
@@ -77,7 +79,8 @@ class LabdooBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       if (strpos($path, '/admin/') !== FALSE) {
         return FALSE;
       }
-      // If it's a node route, we already handled it above if it's one of our types.
+      // If it's a node route, we already handled it above if it's one of our
+      // types.
       // If it's another node type, we probably don't want to interfere.
       if ($route_name === 'entity.node.canonical') {
         return FALSE;
@@ -97,17 +100,17 @@ class LabdooBreadcrumbBuilder implements BreadcrumbBuilderInterface {
 
     $breadcrumb->addCacheContexts(['url.path', 'languages:language_interface', 'user.permissions', 'route']);
 
-    // Link to home
+    // Link to home.
     $links[] = Link::createFromRoute($this->t('Home'), '<front>');
 
     $route_name = $route_match->getRouteName();
 
-    // Special case for Wiki
+    // Special case for Wiki.
     if ($wiki_page = $route_match->getParameter('mini_wiki_page')) {
       $links[] = Link::createFromRoute($this->t('Wiki'), 'view.wiki.page_1');
 
       // Add the current page title as the last element.
-      if ($wiki_page instanceof \Drupal\Core\Entity\EntityInterface) {
+      if ($wiki_page instanceof EntityInterface) {
         $links[] = Link::createFromRoute($wiki_page->label(), '<none>');
       }
       else {
@@ -122,24 +125,28 @@ class LabdooBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       return $breadcrumb->setLinks($links);
     }
 
-    // Handle Nodes with specific parents
+    // Handle Nodes with specific parents.
     if ($route_name === 'entity.node.canonical') {
       $node = $route_match->getParameter('node');
-      if ($node instanceof \Drupal\node\NodeInterface) {
+      if ($node instanceof NodeInterface) {
         $type = $node->getType();
         switch ($type) {
           case 'edoovillage':
             $links[] = Link::createFromRoute($this->t('Edoovillages'), 'view.edoovillages.page_1');
             break;
+
           case 'hub':
             $links[] = Link::createFromRoute($this->t('Hubs'), 'view.hubs_dashboard.page_1');
             break;
+
           case 'dootronic':
             $links[] = Link::createFromRoute($this->t('Dootronics'), 'view.dootronics_dashboard.page_1');
             break;
+
           case 'dootrip':
             $links[] = Link::createFromRoute($this->t('Dootrips'), 'view.dootrips_dashboard.page_1');
             break;
+
           case 'team':
           case 'team_post':
             $links[] = Link::createFromRoute($this->t('Teams'), 'view.teams.page_1');
@@ -151,7 +158,7 @@ class LabdooBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       }
     }
 
-    // Handle Views
+    // Handle Views.
     if (strpos($route_name, 'view.') === 0) {
       $title = \Drupal::service('title_resolver')->getTitle(\Drupal::request(), $route_match->getRouteObject());
       if ($title) {
@@ -163,7 +170,8 @@ class LabdooBreadcrumbBuilder implements BreadcrumbBuilderInterface {
     // Generic /content handling (if still needed)
     $path = \Drupal::service('path.current')->getPath();
     if (strpos($path, '/content') !== FALSE) {
-      // If we are here, it's probably a legacy path or something not caught above.
+      // If we are here, it's probably a legacy path or something not caught
+      // above.
       // We avoid adding "Back to site" or edit links.
     }
 

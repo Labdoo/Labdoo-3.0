@@ -2,9 +2,9 @@
 
 namespace Drupal\labdoo_statistics\Controller;
 
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Locale\CountryManagerInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
@@ -12,6 +12,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides advanced statistics for Labdoo.
+ *
+ * @phpstan-consistent-constructor
  */
 class AdvancedStatisticsController extends ControllerBase {
 
@@ -45,8 +47,15 @@ class AdvancedStatisticsController extends ControllerBase {
    *   The common repository.
    * @param \Drupal\Core\Locale\CountryManagerInterface $countryManager
    *   The country manager.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
+   *   The date.formatter service.
    */
-  public function __construct(Connection $database, CommonRepository $commonRepository, CountryManagerInterface $countryManager) {
+  public function __construct(
+    Connection $database,
+    CommonRepository $commonRepository,
+    CountryManagerInterface $countryManager,
+    protected DateFormatterInterface $dateFormatter,
+  ) {
     $this->database = $database;
     $this->commonRepository = $commonRepository;
     $this->countryManager = $countryManager;
@@ -59,7 +68,8 @@ class AdvancedStatisticsController extends ControllerBase {
     return new static(
       $container->get('database'),
       $container->get('labdoo_common.repository.common'),
-      $container->get('country_manager')
+      $container->get('country_manager'),
+      $container->get('date.formatter'),
     );
   }
 
@@ -186,8 +196,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $label = ucfirst(str_replace('_', ' ', $row->field_device_type_value));
-      $data['labels'][] = (string) $this->t($label);
+      $data['labels'][] = $this->fieldLabel('field_device_type', $row->field_device_type_value);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -206,7 +215,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = (string) $this->t($row->field_cpu_type_value);
+      $data['labels'][] = (string) $row->field_cpu_type_value;
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -223,7 +232,7 @@ class AdvancedStatisticsController extends ControllerBase {
     $results = $query->execute()->fetchAll();
 
     $data = ['labels' => [], 'values' => []];
-    
+
     // Define the desired order for the semaphore.
     $order = ['red', 'yellow', 'green'];
     $ordered_results = [];
@@ -233,11 +242,11 @@ class AdvancedStatisticsController extends ControllerBase {
 
     foreach ($order as $key) {
       if (isset($ordered_results[$key])) {
-        $data['labels'][] = (string) $this->t(ucfirst($key));
+        $data['labels'][] = $this->fieldLabel('field_semaphore', $key);
         $data['values'][] = $ordered_results[$key];
       }
     }
-    
+
     return $data;
   }
 
@@ -254,7 +263,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = (string) $this->t(ucfirst($row->field_status_value));
+      $data['labels'][] = $this->fieldLabel('field_status', $row->field_status_value);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -265,7 +274,7 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getNodeEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
-    
+
     $last_created = $this->database->select('node_field_data', 'n')
       ->fields('n', ['created'])
       ->condition('type', 'gallery', '<>')
@@ -273,7 +282,7 @@ class AdvancedStatisticsController extends ControllerBase {
       ->range(0, 1)
       ->execute()
       ->fetchField();
-      
+
     $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
     $reference_date->modify('first day of this month');
 
@@ -287,7 +296,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.type', 'gallery', '<>');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = (string) $this->t($date->format('M Y'));
+      $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -325,18 +334,19 @@ class AdvancedStatisticsController extends ControllerBase {
     $results = $query->execute()->fetchAll();
 
     $data = ['labels' => [], 'values' => []];
-    
-    // Sort results by count descending so small types are still visible in the list but big ones are at the top
-    usort($results, function($a, $b) {
+
+    // Sort results by count descending so small types are still visible in the
+    // list but big ones are at the top.
+    usort($results, function ($a, $b) {
       return $b->count <=> $a->count;
     });
 
     foreach ($results as $row) {
-      $data['labels'][] = (string) $this->t(ucfirst(str_replace('_', ' ', $row->type)));
+      $data['labels'][] = $this->entityTypeManager()->getStorage('node_type')->load($row->type)?->label() ?? ucfirst(str_replace('_', ' ', $row->type));
       $data['values'][] = (int) $row->count;
     }
 
-    // Add Wiki pages to composition
+    // Add Wiki pages to composition.
     $wiki_count = $this->database->select('mini_wiki_page_field_data', 'w')
       ->countQuery()->execute()->fetchField();
     if ($wiki_count > 0) {
@@ -344,12 +354,12 @@ class AdvancedStatisticsController extends ControllerBase {
       $data['values'][] = (int) $wiki_count;
     }
 
-    // Re-sort with Wiki Pages included
+    // Re-sort with Wiki Pages included.
     $combined = [];
     foreach ($data['labels'] as $i => $label) {
       $combined[] = ['label' => $label, 'value' => $data['values'][$i]];
     }
-    usort($combined, function($a, $b) {
+    usort($combined, function ($a, $b) {
       return $b['value'] <=> $a['value'];
     });
 
@@ -370,12 +380,12 @@ class AdvancedStatisticsController extends ControllerBase {
     $query->fields('nft', ['field_action_type_value']);
     $query->addExpression('COUNT(*)', 'count');
     $query->groupBy('field_action_type_value');
-    
+
     $results = $query->execute()->fetchAll();
-    
+
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = (string) $this->t(ucfirst($row->field_action_type_value));
+      $data['labels'][] = $this->fieldLabel('field_action_type', $row->field_action_type_value);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -392,10 +402,9 @@ class AdvancedStatisticsController extends ControllerBase {
       ->fetchField();
 
     if (!$min_created) {
-      $min_created = $this->database->select('node_field_data', 'n')
-        ->addExpression('MIN(created)')
-        ->execute()
-        ->fetchField();
+      $query = $this->database->select('node_field_data', 'n');
+      $query->addExpression('MIN(created)');
+      $min_created = $query->execute()->fetchField();
     }
 
     if (!$min_created) {
@@ -416,11 +425,11 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets Dootronics registration evolution for the last 12 months with activity.
+   * Gets registrations for the last 12 months with dootronic activity.
    */
   protected function getDootronicsEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
-    
+
     // Find last activity to make the chart relevant.
     $last_created = $this->database->select('node_field_data', 'n')
       ->fields('n', ['created'])
@@ -429,7 +438,7 @@ class AdvancedStatisticsController extends ControllerBase {
       ->range(0, 1)
       ->execute()
       ->fetchField();
-    
+
     $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
     // Always show at least until the first day of that month.
     $reference_date->modify('first day of this month');
@@ -438,13 +447,13 @@ class AdvancedStatisticsController extends ControllerBase {
       $date = (clone $reference_date)->modify("-$i months");
       $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
-      
+
       $query = $this->database->select('node_field_data', 'n');
       $query->condition('n.type', 'dootronic');
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = (string) $this->t($date->format('M Y'));
+      $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -460,7 +469,7 @@ class AdvancedStatisticsController extends ControllerBase {
       'S3' => $this->t('S3: In Transit'),
       'S4' => $this->t('S4: Delivered'),
     ];
-    
+
     $data = ['labels' => [], 'values' => []];
     foreach ($statuses as $code => $label) {
       $count = $this->commonRepository->getDootronicsCountByStatus($code);
@@ -482,9 +491,9 @@ class AdvancedStatisticsController extends ControllerBase {
     $query->groupBy('nfc.field_country_value');
     $query->orderBy('total_students', 'DESC');
     $query->range(0, 10);
-    
+
     $results = $query->execute()->fetchAll();
-    
+
     $countries = $this->countryManager->getList();
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
@@ -500,14 +509,14 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getCommentEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
-    
+
     $last_created = $this->database->select('comment_field_data', 'c')
       ->fields('c', ['created'])
       ->orderBy('created', 'DESC')
       ->range(0, 1)
       ->execute()
       ->fetchField();
-      
+
     $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
     $reference_date->modify('first day of this month');
 
@@ -520,7 +529,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('c.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = (string) $this->t($date->format('M Y'));
+      $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -568,7 +577,7 @@ class AdvancedStatisticsController extends ControllerBase {
 
     $data = ['labels' => [], 'values' => []];
     foreach ($results as $row) {
-      $data['labels'][] = (string) $this->t(ucfirst($row->field_hub_status_value));
+      $data['labels'][] = $this->fieldLabel('field_hub_status', $row->field_hub_status_value);
       $data['values'][] = (int) $row->count;
     }
     return $data;
@@ -579,7 +588,7 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getHubEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
-    
+
     $last_created = $this->database->select('node_field_data', 'n')
       ->fields('n', ['created'])
       ->condition('type', 'hub')
@@ -587,7 +596,7 @@ class AdvancedStatisticsController extends ControllerBase {
       ->range(0, 1)
       ->execute()
       ->fetchField();
-      
+
     $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
     $reference_date->modify('first day of this month');
 
@@ -601,7 +610,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = (string) $this->t($date->format('M Y'));
+      $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -658,7 +667,7 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getEdoovillageEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
-    
+
     $last_created = $this->database->select('node_field_data', 'n')
       ->fields('n', ['created'])
       ->condition('type', 'edoovillage')
@@ -666,7 +675,7 @@ class AdvancedStatisticsController extends ControllerBase {
       ->range(0, 1)
       ->execute()
       ->fetchField();
-      
+
     $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
     $reference_date->modify('first day of this month');
 
@@ -680,7 +689,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = (string) $this->t($date->format('M Y'));
+      $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -691,7 +700,7 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getDootripEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
-    
+
     $last_created = $this->database->select('node_field_data', 'n')
       ->fields('n', ['created'])
       ->condition('type', 'dootrip')
@@ -699,7 +708,7 @@ class AdvancedStatisticsController extends ControllerBase {
       ->range(0, 1)
       ->execute()
       ->fetchField();
-      
+
     $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
     $reference_date->modify('first day of this month');
 
@@ -713,7 +722,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = (string) $this->t($date->format('M Y'));
+      $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -858,7 +867,7 @@ class AdvancedStatisticsController extends ControllerBase {
    * Gets laptops per student ratio (Top 10 schools).
    */
   protected function getLaptopsPerStudentData(): array {
-    // Subquery to count laptops per school
+    // Subquery to count laptops per school.
     $subquery = $this->database->select('node__field_edoovillage_destination', 'ned');
     $subquery->fields('ned', ['field_edoovillage_destination_target_id']);
     $subquery->addExpression('COUNT(ned.entity_id)', 'laptop_count');
@@ -891,14 +900,14 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getWikiActivityData(): array {
     $data = ['labels' => [], 'values' => []];
-    
+
     $last_created = $this->database->select('mini_wiki_page_field_data', 'w')
       ->fields('w', ['created'])
       ->orderBy('created', 'DESC')
       ->range(0, 1)
       ->execute()
       ->fetchField();
-      
+
     $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
     $reference_date->modify('first day of this month');
 
@@ -911,7 +920,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = (string) $this->t($date->format('M Y'));
+      $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -955,7 +964,7 @@ class AdvancedStatisticsController extends ControllerBase {
    */
   protected function getTeamPostEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
-    
+
     $last_created = $this->database->select('node_field_data', 'n')
       ->fields('n', ['created'])
       ->condition('type', 'team_post')
@@ -963,7 +972,7 @@ class AdvancedStatisticsController extends ControllerBase {
       ->range(0, 1)
       ->execute()
       ->fetchField();
-      
+
     $reference_date = $last_created ? (new \DateTime())->setTimestamp((int) $last_created) : new \DateTime();
     $reference_date->modify('first day of this month');
 
@@ -977,7 +986,7 @@ class AdvancedStatisticsController extends ControllerBase {
       $query->condition('n.created', [$start, $end], 'BETWEEN');
       $count = $query->countQuery()->execute()->fetchField();
 
-      $data['labels'][] = (string) $this->t($date->format('M Y'));
+      $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
       $data['values'][] = (int) $count;
     }
     return $data;
@@ -1016,6 +1025,19 @@ class AdvancedStatisticsController extends ControllerBase {
       $data['values'][] = (int) $row->count;
     }
     return $data;
+  }
+
+  /**
+   * Uses translated field configuration labels instead of translating data.
+   */
+  protected function fieldLabel(string $field, string $value): string {
+    $options = $this->config('field.storage.node.' . $field)->get('settings.allowed_values') ?? [];
+    foreach ($options as $option) {
+      if ((string) $option['value'] === $value) {
+        return (string) $option['label'];
+      }
+    }
+    return ucfirst(str_replace('_', ' ', $value));
   }
 
 }

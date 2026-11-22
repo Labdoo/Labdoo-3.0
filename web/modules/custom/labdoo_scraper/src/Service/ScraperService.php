@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_scraper\Service;
 
+use Drupal\Core\Queue\QueueFactory;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use GuzzleHttp\ClientInterface;
 use Drupal\path_alias\AliasManagerInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
@@ -43,8 +45,28 @@ class ScraperService {
 
   /**
    * Constructs a new ScraperService object.
+   *
+   * @param \GuzzleHttp\ClientInterface $http_client
+   *   The http client.
+   * @param \Drupal\path_alias\AliasManagerInterface $alias_manager
+   *   The alias manager.
+   * @param \Symfony\Component\Routing\Matcher\UrlMatcherInterface $router
+   *   The router.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactoryInjected
+   *   The logger.factory service.
+   * @param \Drupal\Core\Queue\QueueFactory $queueFactoryInjected
+   *   The queue service.
    */
-  public function __construct(ClientInterface $http_client, AliasManagerInterface $alias_manager, UrlMatcherInterface $router, Connection $database) {
+  public function __construct(
+    ClientInterface $http_client,
+    AliasManagerInterface $alias_manager,
+    UrlMatcherInterface $router,
+    Connection $database,
+    protected LoggerChannelFactoryInterface $loggerFactoryInjected,
+    protected QueueFactory $queueFactoryInjected,
+  ) {
     $this->httpClient = $http_client;
     $this->aliasManager = $alias_manager;
     $this->router = $router;
@@ -76,7 +98,7 @@ class ScraperService {
       }
 
       $dom = new \DOMDocument();
-      libxml_use_internal_errors(true);
+      libxml_use_internal_errors(TRUE);
       $dom->loadHTML($html);
       libxml_clear_errors();
 
@@ -92,7 +114,8 @@ class ScraperService {
           $base = ($parsed_source['scheme'] ?? 'http') . '://' . $source_host;
           if (strpos($href, '/') === 0) {
             $href = $base . $href;
-          } else {
+          }
+          else {
             $href = $base . '/' . $href;
           }
         }
@@ -107,9 +130,10 @@ class ScraperService {
 
         $discovered_urls[] = $href;
       }
-    } catch (GuzzleException $e) {
+    }
+    catch (GuzzleException $e) {
       // Log error or handle it.
-      \Drupal::logger('labdoo_scraper')->error('Error scraping URL @url: @message', [
+      $this->loggerFactoryInjected->get('labdoo_scraper')->error('Error scraping URL @url: @message', [
         '@url' => $url,
         '@message' => $e->getMessage(),
       ]);
@@ -169,7 +193,7 @@ class ScraperService {
       if ($source_host === $discovered_host) {
         $new_urls = $this->scrapeUrl($discovered_url);
         if (!empty($new_urls)) {
-          $queue = \Drupal::queue('labdoo_scraper_url_processor');
+          $queue = $this->queueFactoryInjected->get('labdoo_scraper_url_processor');
           foreach ($new_urls as $new_url) {
             $queue->createItem([
               'source_url' => $discovered_url,
@@ -221,7 +245,7 @@ class ScraperService {
 
     if ($system_path !== $path) {
       $result['exists'] = TRUE;
-      // Try to extract entity info from system path like /node/123
+      // Try to extract entity info from system path like /node/123.
       if (preg_match('/^\/([a-z_]+)\/(\d+)$/', $system_path, $matches)) {
         $result['entity_type'] = $matches[1];
         $result['entity_id'] = $matches[2];
@@ -235,7 +259,7 @@ class ScraperService {
       if ($parameters) {
         $result['exists'] = TRUE;
         // Search for entity in parameters.
-        foreach ($parameters as $key => $value) {
+        foreach ($parameters as $value) {
           if (is_object($value) && method_exists($value, 'getEntityTypeId')) {
             $result['entity_type'] = $value->getEntityTypeId();
             $result['entity_id'] = $value->id();
@@ -243,7 +267,8 @@ class ScraperService {
           }
         }
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // Path not found.
     }
 

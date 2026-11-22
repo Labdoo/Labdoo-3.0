@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_hub\Service\Repository;
 
+use Drupal\node\NodeInterface;
+
 /**
  * Interface for the Hub repository.
  */
@@ -24,18 +26,18 @@ interface HubRepositoryInterface {
    * @param int $id
    *   The entity ID.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The entity or null.
    */
-  public function load(int $id): ?\Drupal\Core\Entity\EntityInterface;
+  public function load(int $id): ?NodeInterface;
 
   /**
    * Saves a hub.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    */
-  public function saveEntity(\Drupal\Core\Entity\EntityInterface $entity): void;
+  public function saveEntity(NodeInterface $entity): void;
 
   /**
    * Invalidates the cache for a hub.
@@ -44,6 +46,7 @@ interface HubRepositoryInterface {
    *   The hub ID.
    *
    * @return void
+   *   The resulting value.
    */
   public function invalidateCache(int $hubId): void;
 

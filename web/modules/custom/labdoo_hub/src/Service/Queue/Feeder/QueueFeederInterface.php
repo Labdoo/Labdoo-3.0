@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_hub\Service\Queue\Feeder;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for the Queue feeder.
@@ -12,10 +12,10 @@ interface QueueFeederInterface {
   /**
    * Feeds the queue.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    */
-  public function feedQueue(EntityInterface $entity): void;
+  public function feedQueue(NodeInterface $entity): void;
 
   /**
    * Returns the queue ID.

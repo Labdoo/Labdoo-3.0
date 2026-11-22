@@ -2,6 +2,10 @@
 
 namespace Drupal\Tests\labdoo_edoovillage\Unit;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Database\StatementInterface;
@@ -10,14 +14,16 @@ use Drupal\Tests\UnitTestCase;
 use Drupal\labdoo_edoovillage\Service\SequenceManager;
 
 /**
- * @coversDefaultClass \Drupal\labdoo_edoovillage\Service\SequenceManager
- * @group labdoo_edoovillage
+ * Tests reuse of available educational-project identifiers.
  */
+#[CoversClass(SequenceManager::class)]
+#[Group('labdoo_edoovillage')]
 class SequenceManagerTest extends UnitTestCase {
 
   /**
-   * @dataProvider titleIdsProvider
+   * Chooses the first available identifier for each set of recorded titles.
    */
+  #[DataProvider('titleIdsProvider')]
   public function testReusesFirstMissingId(array $existingIds, int $expectedId): void {
     $lock = $this->createMock(LockBackendInterface::class);
     $lock->expects($this->once())
@@ -29,7 +35,7 @@ class SequenceManagerTest extends UnitTestCase {
 
     $statement = $this->createMock(StatementInterface::class);
     $statement->method('fetchField')
-      ->willReturnOnConsecutiveCalls(...array_merge($existingIds, [FALSE]));
+      ->willReturnOnConsecutiveCalls(...array_merge(array_values($existingIds), [FALSE]));
 
     $query = $this->createMock(SelectInterface::class);
     $query->method('fields')->willReturnSelf();

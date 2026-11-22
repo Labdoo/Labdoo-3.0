@@ -40,12 +40,14 @@ final class DootripLocationTextCommands extends DrushCommands {
    * @option nids Comma-separated V3 node IDs; omit to scan all dootrips.
    * @option limit Maximum V3 nodes to scan; 0 means unlimited.
    */
-  public function backfill(array $options = [
-    'apply' => FALSE,
-    'nids' => '',
-    'limit' => 0,
-  ]): void {
-    $selected = array_filter(explode(',', (string) $options['nids']), 'strlen');
+  public function backfill(
+    array $options = [
+      'apply' => FALSE,
+      'nids' => '',
+      'limit' => 0,
+    ],
+  ): void {
+    $selected = array_filter(explode(',', (string) $options['nids']), static fn(string $value): bool => $value !== '');
     foreach ($selected as $id) {
       if (!ctype_digit($id) || (int) $id < 1) {
         throw new \InvalidArgumentException('nids must contain positive V3 node IDs.');
@@ -99,8 +101,8 @@ final class DootripLocationTextCommands extends DrushCommands {
             WHERE n.nid=:nid AND n.type='dootrip' AND f.deleted=0 AND f.entity_type='node'",
             [':nid' => $sourceId])->fetchAll();
           if (count($rows) !== 1 || !is_numeric($rows[0]->latitude) || !is_numeric($rows[0]->longitude)
-            || abs((float) $rows[0]->latitude - (float) $item->lat) >= self::COORDINATE_TOLERANCE
-            || abs((float) $rows[0]->longitude - (float) $item->lon) >= self::COORDINATE_TOLERANCE) {
+            || abs((float) $rows[0]->latitude - (float) $item->get('lat')->getValue()) >= self::COORDINATE_TOLERANCE
+            || abs((float) $rows[0]->longitude - (float) $item->get('lon')->getValue()) >= self::COORDINATE_TOLERANCE) {
             $stats['missing_or_mismatched']++;
             continue;
           }
@@ -113,13 +115,13 @@ final class DootripLocationTextCommands extends DrushCommands {
             (string) $row->postal_code . ' ' . (string) $row->city,
             $countryName,
           ]);
-          $label = implode(', ', array_filter($parts, 'strlen'));
+          $label = implode(', ', array_filter($parts, static fn(string $value): bool => $value !== ''));
           if ($label === '') {
             $stats['missing_or_mismatched']++;
             continue;
           }
           $key = $last . ':' . $field;
-          $replacement = ['value' => $item->value, 'label' => $label];
+          $replacement = ['value' => $item->get('value')->getValue(), 'label' => $label];
           if ($labels->get($key) === $replacement) {
             $stats['unchanged']++;
             continue;

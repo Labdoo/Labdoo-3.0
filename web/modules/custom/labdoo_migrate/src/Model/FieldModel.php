@@ -163,10 +163,10 @@ class FieldModel {
     string $filterPrefix = '',
     string $filterSuffix = '',
     $defaultValue = NULL,
-    DynamicParagraphModel $dynamicParagraph = NULL,
-    JoinModel $join = NULL,
-    TaxonomyModel $taxonomy = NULL,
-    SpecialTypeModel $specialType = NULL
+    ?DynamicParagraphModel $dynamicParagraph = NULL,
+    ?JoinModel $join = NULL,
+    ?TaxonomyModel $taxonomy = NULL,
+    ?SpecialTypeModel $specialType = NULL,
   ) {
 
     $this->tableName = $tableName;

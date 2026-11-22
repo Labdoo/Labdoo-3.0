@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_gallery\Plugin\QueueWorker;
 
+use Drupal\labdoo_common\Utility\EntityMetadata;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
@@ -16,6 +18,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   title = @Translation("Labdoo Gallery Create or Update"),
  *   cron = {"time" = 60}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class LabdooGalleryCreateOrUpdate extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -74,10 +78,10 @@ class LabdooGalleryCreateOrUpdate extends QueueWorkerBase implements ContainerFa
     $entity_type = $data['entity_type'];
     $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
 
-    if ($entity) {
+    if ($entity instanceof ContentEntityInterface) {
       // Flag to prevent recursive enqueuing during gallery creation.
-      $entity->skip_geocoding_enqueue = TRUE;
-      $entity->skip_recompute_enqueue = TRUE;
+      EntityMetadata::set($entity, 'skip_geocoding_enqueue', TRUE);
+      EntityMetadata::set($entity, 'skip_recompute_enqueue', TRUE);
       $this->galleryCompute->createOrUpdateGallery($entity);
     }
   }

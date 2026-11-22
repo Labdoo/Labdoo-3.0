@@ -28,6 +28,7 @@ class ViewRepository {
    * ViewRepository constructor.
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The current request stack.
    */
   public function __construct(RequestStack $requestStack) {
     $this->request = $requestStack->getCurrentRequest();
@@ -52,7 +53,7 @@ class ViewRepository {
     string $viewId,
     string $displayId,
     ?int $itemsPerPage = NULL,
-    int $page = 0
+    int $page = 0,
   ): array {
     $view = Views::getView($viewId);
     if (!$view) {

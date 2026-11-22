@@ -31,7 +31,7 @@ class AccessChecker implements AccessInterface {
    *   The current route match.
    */
   public function __construct(
-    CurrentRouteMatch $currentRouteMatch
+    CurrentRouteMatch $currentRouteMatch,
   ) {
 
     $this->currentRouteMatch = $currentRouteMatch;
@@ -45,14 +45,12 @@ class AccessChecker implements AccessInterface {
    *
    * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
-   *
-   * @return \Drupal\Core\Access\AccessResultAllowed|\Drupal\Core\Access\AccessResultForbidden|\Drupal\Core\Access\AccessResultNeutral
    */
   public function access(AccountInterface $account) {
     $allowedRoles = [
       'freelancer',
       'colaborador',
-      'organizacion'
+      'organizacion',
     ];
     if (
       $this->currentRouteMatch->getRouteName() === 'worklog_widgets.billing_history'

@@ -5,6 +5,14 @@
  * Presentation helpers for Labdoo Next.
  */
 
+use Drupal\Core\Asset\AttachedAssetsInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Component\Utility\Unicode;
+use Drupal\Component\Utility\Html;
+use Drupal\node\NodeInterface;
+
 /**
  * Implements hook_preprocess_html().
  */
@@ -72,16 +80,19 @@ function labdoo_next_page_attachments_alter(array &$attachments): void {
   $route = \Drupal::routeMatch()->getRouteObject();
   $title = $route ? \Drupal::service('title_resolver')->getTitle(\Drupal::request(), $route) : NULL;
   $title = is_scalar($title) || $title instanceof \Stringable ? strip_tags((string) $title) : \Drupal::config('system.site')->get('name');
-  $description = (string) t('Explore @title on @site: reusing technology to support education worldwide.', ['@title' => $title, '@site' => \Drupal::config('system.site')->get('name')]);
+  $description = (string) t('Explore @title on @site: reusing technology to support education worldwide.', [
+    '@title' => $title,
+    '@site' => \Drupal::config('system.site')->get('name'),
+  ]);
   $node = \Drupal::routeMatch()->getParameter('node');
-  if ($node instanceof \Drupal\node\NodeInterface) {
+  if ($node instanceof NodeInterface) {
     $node = \Drupal::service('entity.repository')->getTranslationFromContext($node);
     if ($node->hasField('body') && $node->get('body')->access('view') && !$node->get('body')->isEmpty()) {
       $body = $node->get('body')->first();
-      $summary = $body->summary ?: $body->value;
-      $summary = preg_replace('/\s+/u', ' ', trim(\Drupal\Component\Utility\Html::decodeEntities(strip_tags($summary))));
+      $summary = $body->get('summary')->getValue() ?: $body->get('value')->getValue();
+      $summary = preg_replace('/\s+/u', ' ', trim(Html::decodeEntities(strip_tags($summary))));
       if ($summary !== '') {
-        $description = \Drupal\Component\Utility\Unicode::truncate($summary, 160, TRUE, TRUE);
+        $description = Unicode::truncate($summary, 160, TRUE, TRUE);
       }
     }
   }
@@ -139,7 +150,11 @@ function labdoo_next_preprocess_page(array &$variables): void {
       'expand_all_items' => TRUE,
     ])->build();
   $variables['next_logo'] = base_path() . 'themes/custom/labdoo_next/images/labdoo-wordmark-240.webp';
-  $variables['next_logo_srcset'] = implode(', ', array_map(static fn(int $width): string => base_path() . 'themes/custom/labdoo_next/images/labdoo-wordmark-' . $width . '.webp ' . $width . 'w', [120, 240, 360]));
+  $variables['next_logo_srcset'] = implode(', ', array_map(static fn(int $width): string => base_path() . 'themes/custom/labdoo_next/images/labdoo-wordmark-' . $width . '.webp ' . $width . 'w', [
+    120,
+    240,
+    360,
+  ]));
 }
 
 /**
@@ -148,7 +163,11 @@ function labdoo_next_preprocess_page(array &$variables): void {
 function labdoo_next_preprocess_block(array &$variables): void {
   if (($variables['plugin_id'] ?? '') === 'labdoo_footer_acts_block' && isset($variables['content']['image'])) {
     $variables['content']['image']['#uri'] = base_path() . 'themes/custom/labdoo_next/images/footer-acts-transparent-672.webp';
-    $variables['content']['image']['#attributes']['srcset'] = implode(', ', array_map(static fn(int $width): string => base_path() . 'themes/custom/labdoo_next/images/footer-acts-transparent-' . $width . '.webp ' . $width . 'w', [336, 672, 1342]));
+    $variables['content']['image']['#attributes']['srcset'] = implode(', ', array_map(static fn(int $width): string => base_path() . 'themes/custom/labdoo_next/images/footer-acts-transparent-' . $width . '.webp ' . $width . 'w', [
+      336,
+      672,
+      1342,
+    ]));
     $variables['content']['image']['#attributes']['sizes'] = '(max-width: 700px) calc(100vw - 80px), (max-width: 1520px) calc(100vw - 120px), 1400px';
     $variables['content']['image']['#width'] = 1342;
     $variables['content']['image']['#height'] = 74;
@@ -160,7 +179,7 @@ function labdoo_next_preprocess_block(array &$variables): void {
 /**
  * Implements hook_form_alter().
  */
-function labdoo_next_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, string $form_id): void {
+function labdoo_next_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   if (!\Drupal::currentUser()->isAnonymous()) {
     return;
   }
@@ -178,7 +197,7 @@ function labdoo_next_native_selects(array &$element): void {
     $element['#chosen'] = FALSE;
     $element['#attributes']['class'][] = 'chosen-disable';
   }
-  foreach (\Drupal\Core\Render\Element::children($element) as $key) {
+  foreach (Element::children($element) as $key) {
     labdoo_next_native_selects($element[$key]);
   }
 }
@@ -201,15 +220,24 @@ function labdoo_next_preprocess_views_mini_pager(array &$variables): void {
  * Implements hook_preprocess_views_view_field().
  */
 function labdoo_next_preprocess_views_view_field(array &$variables): void {
-  $variables['output'] = \Drupal\Core\Render\Markup::create(labdoo_next_responsive_images((string) ($variables['output'] ?? '')));
+  $variables['output'] = Markup::create(labdoo_next_responsive_images((string) ($variables['output'] ?? '')));
 }
 
 /**
  * Implements hook_js_settings_alter().
  */
-function labdoo_next_js_settings_alter(array &$settings, \Drupal\Core\Asset\AttachedAssetsInterface $assets): void {
+function labdoo_next_js_settings_alter(array &$settings, AttachedAssetsInterface $assets): void {
   // These settings bubble from field render arrays after page attachments.
+  $leaflet = base_path() . \Drupal::service('extension.list.theme')->getPath('labdoo_next') . '/vendor/leaflet-1.9.4/dist/';
   foreach (array_keys($settings['geolocation']['maps'] ?? []) as $map_id) {
+    // Keep Leaflet's version and lazy loader, using local files.
+    foreach (['scripts' => 'leaflet.js', 'stylesheets' => 'leaflet.css'] as $type => $file) {
+      foreach ($settings['geolocation']['maps'][$map_id][$type] ?? [] as $index => $url) {
+        if ($url === 'https://unpkg.com/leaflet@1.9.4/dist/' . $file) {
+          $settings['geolocation']['maps'][$map_id][$type][$index] = $leaflet . $file;
+        }
+      }
+    }
     if (($settings['geolocation']['maps'][$map_id]['conditional_initialization'] ?? 'no') === 'no') {
       $settings['geolocation']['maps'][$map_id]['conditional_initialization'] = 'viewport';
       $settings['geolocation']['maps'][$map_id]['conditional_viewport_threshold'] = 0.01;
@@ -220,7 +248,7 @@ function labdoo_next_js_settings_alter(array &$settings, \Drupal\Core\Asset\Atta
 /**
  * Implements hook_css_alter().
  */
-function labdoo_next_css_alter(array &$css, \Drupal\Core\Asset\AttachedAssetsInterface $assets): void {
+function labdoo_next_css_alter(array &$css, AttachedAssetsInterface $assets): void {
   if (!\Drupal::currentUser()->isAnonymous()) {
     return;
   }
@@ -254,7 +282,7 @@ function labdoo_next_css_alter(array &$css, \Drupal\Core\Asset\AttachedAssetsInt
 /**
  * Implements hook_js_alter().
  */
-function labdoo_next_js_alter(array &$javascript, \Drupal\Core\Asset\AttachedAssetsInterface $assets): void {
+function labdoo_next_js_alter(array &$javascript, AttachedAssetsInterface $assets): void {
   if (!\Drupal::currentUser()->isAnonymous()) {
     return;
   }
@@ -282,7 +310,7 @@ function labdoo_next_responsive_images(string $output): string {
     'edoovillage' => [752, 704],
     'labdoo-stories-header' => [1322, 213],
   ];
-  $document = \Drupal\Component\Utility\Html::load($output);
+  $document = Html::load($output);
   foreach ($document->getElementsByTagName('img') as $image) {
     $src = $image->getAttribute('src');
     if (!str_starts_with($src, '/themes/custom/labdoo/img/')) {
@@ -319,7 +347,7 @@ function labdoo_next_responsive_images(string $output): string {
       $image->setAttribute('fetchpriority', 'high');
     }
   }
-  return \Drupal\Component\Utility\Html::serialize($document);
+  return Html::serialize($document);
 }
 
 /**
@@ -330,7 +358,7 @@ function labdoo_next_preprocess_views_view(array &$variables): void {
     array_walk_recursive($variables['header'], static function (&$value, $key): void {
       if (in_array($key, ['#text', '#markup'], TRUE) && (is_string($value) || $value instanceof \Stringable)) {
         $output = labdoo_next_responsive_images((string) $value);
-        $value = $key === '#markup' ? \Drupal\Core\Render\Markup::create($output) : $output;
+        $value = $key === '#markup' ? Markup::create($output) : $output;
       }
     });
   }

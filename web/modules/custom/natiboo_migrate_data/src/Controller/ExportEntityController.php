@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class ExportEntityController extends ControllerBase {
 

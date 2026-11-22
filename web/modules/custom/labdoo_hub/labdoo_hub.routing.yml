@@ -1,7 +1,7 @@
 labdoo_hub.export_csv:
   path: '/hub/export/csv/{viewId}/{displayId}'
   defaults:
-    _controller: '\Drupal\labdoo_hub\Controller\ExportController::exportCSV'
+    _controller: '\Drupal\labdoo_hub\Controller\ExportController::exportCsv'
     _title: 'CSV data export'
   requirements:
     _permission: 'access content'

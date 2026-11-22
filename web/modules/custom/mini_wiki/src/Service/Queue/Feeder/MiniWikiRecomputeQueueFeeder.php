@@ -2,6 +2,7 @@
 
 namespace Drupal\mini_wiki\Service\Queue\Feeder;
 
+use Drupal\mini_wiki\MiniWikiPageInterface;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
@@ -27,6 +28,9 @@ class MiniWikiRecomputeQueueFeeder extends AbstractQueueFeeder {
    * {@inheritDoc}
    */
   public function feedQueue(EntityInterface $entity): void {
+    if (!$entity instanceof MiniWikiPageInterface) {
+      throw new \InvalidArgumentException('Only wiki pages can be recomputed.');
+    }
     $this->enqueueItem([
       'id' => (int) $entity->id(),
       'uid' => (int) $entity->getOwnerId(),

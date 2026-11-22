@@ -1,32 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Adjusts language-switching links and block rendering.
+ */
+
 declare(strict_types=1);
+
+use Drupal\Core\Block\BlockPluginInterface;
 
 /**
  * Implements hook_url_outbound_alter().
  */
-function labdoo_language_block_view_alter(array &$build, \Drupal\Core\Block\BlockPluginInterface $block) {
-  // Check whether this is the block we want to alter.
-  return;
-  if ($block->getBaseId() === 'labdoo_dropdownlanguageinterfacetext') {
-    $build['#pre_render'][] = static function (array $element) {
-      if (isset($element['content'])) {
-        $element['#markup'] = preg_replace_callback(
-          '/href="([^"]*\?language=([a-z]{2}))([^"]*)"/i',
-          function ($matches) {
-            $language = $matches[2];
-            // Remove the ?language= parameter to rebuild the path with a prefix.
-            $pathSinParam = str_replace('?language=' . $language, '', $matches[1]);
-            // Build the new path with the language prefix.
-            $newPath = '/' . $language . '/' . ltrim($pathSinParam, '/');
-            return 'href="' . $newPath . '"';
-          },
-          $element['#markup']
-        );
-      }
-
-      return $element;
-    };
-  }
+function labdoo_language_block_view_alter(array &$build, BlockPluginInterface $block) {
+  // The legacy language-link rewrite is disabled; Drupal builds these URLs.
 }
-

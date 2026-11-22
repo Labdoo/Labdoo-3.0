@@ -1,10 +1,19 @@
 <?php
 
 /**
+ * @file
+ * Provides installation and update hooks for labdoo translations.
+ *
  * Implements hook_install().
+ */
+
+use Drupal\labdoo_translations\PluralPreparation;
+
+/**
+ * Prepares portable translation plural data during module installation.
  */
 function labdoo_translations_install(): void {
   // Explicit installation is operational setup, not a request-time override.
   // Re-run labdoo-translations:prepare --apply after configuration/PO imports.
-  (new \Drupal\labdoo_translations\PluralPreparation())->prepare(TRUE);
+  (new PluralPreparation())->prepare(TRUE);
 }

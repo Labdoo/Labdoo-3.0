@@ -2,11 +2,8 @@
 
 namespace Drupal\labdoo_common\Service;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\geocoder\Geocoder;
-use Drupal\geocoder\ProviderPluginManager;
 use Geocoder\Model\AddressCollection;
 use Geocoder\Query\GeocodeQuery;
 
@@ -18,7 +15,7 @@ class GeocoderDecorator extends Geocoder {
   /**
    * {@inheritdoc}
    */
-  public function geocode(GeocodeQuery|string $address, array $providers) {
+  public function geocode(GeocodeQuery|string $address, array $providers): ?AddressCollection {
     if (
       Settings::get('labdoo_geocoding_disabled', FALSE)
       || \Drupal::state()->get('labdoo_geocoding_disabled', FALSE)

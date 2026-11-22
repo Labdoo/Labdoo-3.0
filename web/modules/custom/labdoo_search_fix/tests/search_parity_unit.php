@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Checks parity between supported search query modes.
+ */
+
 require getenv('LABDOO_AUTOLOAD') ?: dirname(__DIR__, 5) . '/vendor/autoload.php';
 
 use Symfony\Component\Yaml\Yaml;

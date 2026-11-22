@@ -5,6 +5,7 @@
  * Install, update and uninstall functions for the Labdoo Dootrip module.
  */
 
+use Drupal\field\FieldStorageConfigInterface;
 use Drupal\Core\Cache\Cache;
 
 /**
@@ -95,6 +96,9 @@ function labdoo_dootrip_update_9003() {
   $field_manager = \Drupal::service('entity_field.manager');
   $field_manager->clearCachedFieldDefinitions();
   $definition = $field_manager->getFieldStorageDefinitions('node')['field_dootrip_weight'];
+  if (!$definition instanceof FieldStorageConfigInterface) {
+    throw new \UnexpectedValueException('Dootrip weight requires configurable field storage.');
+  }
   // Existing values were checked above; the schema update widens the column.
   $definition->setSetting('column_changes_handled', TRUE);
   \Drupal::entityDefinitionUpdateManager()->updateFieldStorageDefinition($definition);

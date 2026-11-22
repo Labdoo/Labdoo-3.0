@@ -2,6 +2,12 @@
 
 namespace Drupal\Tests\labdoo_edoovillage\Unit;
 
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Locale\CountryManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\node\NodeInterface;
@@ -10,15 +16,14 @@ use Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface;
 use Drupal\labdoo_edoovillage\Service\Queue\Feeder\QueueFeederInterface;
 
 /**
- * @coversDefaultClass \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageCompute
- * @group labdoo_edoovillage
+ * Tests generated educational-project titles during cloning.
  */
+#[CoversClass(EdooVillageCompute::class)]
+#[Group('labdoo_edoovillage')]
 class EdooVillageComputeTest extends UnitTestCase {
 
   /**
    * Tests a cloned village receives a generated title and available ID.
-   *
-   * @covers ::setEdooVillageTitle
    */
   public function testCloneGetsGeneratedTitle(): void {
     $repository = $this->createMock(EdooVillageRepositoryInterface::class);
@@ -27,13 +32,13 @@ class EdooVillageComputeTest extends UnitTestCase {
       ->willReturn(3176);
     $repository->expects($this->once())->method('commit');
 
-    $countryManager = $this->createMock(\Drupal\Core\Locale\CountryManagerInterface::class);
+    $countryManager = $this->createMock(CountryManagerInterface::class);
     $countryManager->method('getList')->willReturn(['DE' => 'Germany']);
 
-    $container = new \Symfony\Component\DependencyInjection\ContainerBuilder();
+    $container = new ContainerBuilder();
     $container->set('labdoo_edoovillage.repository', $repository);
     $container->set('country_manager', $countryManager);
-    $database = $this->createMock(\Drupal\Core\Database\Connection::class);
+    $database = $this->createMock(Connection::class);
     $database->method('inTransaction')->willReturn(FALSE);
     $container->set('database', $database);
     \Drupal::setContainer($container);
@@ -54,7 +59,7 @@ class EdooVillageComputeTest extends UnitTestCase {
         'field_project_summary' => 'St. Pauls Primary and Secondary School',
         default => NULL,
       };
-      $field->method('isEmpty')->willReturn($value === NULL || $value === '');
+      $field->method('isEmpty')->willReturn($value === NULL);
       $field->method('__get')->willReturnCallback(static fn (string $property) => $property === 'value' ? $value : NULL);
       return $field;
     });
@@ -62,7 +67,7 @@ class EdooVillageComputeTest extends UnitTestCase {
       ->method('setTitle')
       ->with('Edoovillage #3176 - Germany, Bonn: St. Pauls Primary and Secondary School');
 
-    $compute = new EdooVillageCompute($this->createMock(QueueFeederInterface::class));
+    $compute = new EdooVillageCompute($this->createMock(QueueFeederInterface::class), $repository, $database, $countryManager);
     $compute->setEdooVillageTitle($entity);
   }
 

@@ -50,12 +50,13 @@ class ParentEntityManager {
    *   The logger channel factory service.
    *
    * @return void
+   *   The resulting value.
    */
   public function __construct(
     protected RequestStack $requestStack,
     protected EntityTypeManagerInterface $entityTypeManager,
     protected MessengerInterface $messenger,
-    LoggerChannelFactoryInterface $loggerChannelFactory
+    LoggerChannelFactoryInterface $loggerChannelFactory,
   ) {
     $this->logger = $loggerChannelFactory->get('labdoo_story');
   }

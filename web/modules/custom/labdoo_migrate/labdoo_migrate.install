@@ -5,6 +5,9 @@
  * Install, update and uninstall hooks for the Labdoo Migrate module.
  */
 
+use Drupal\labdoo_migrate\Services\Incremental\LocationFieldConfiguration;
+use Drupal\labdoo_migrate\Services\Incremental\DeltaStore;
+
 /**
  * Implements hook_schema().
  */
@@ -74,7 +77,7 @@ function labdoo_migrate_schema(): array {
     ],
   ];
 
-  return $schema + \Drupal\labdoo_migrate\Services\Incremental\DeltaStore::schema();
+  return $schema + DeltaStore::schema();
 }
 
 /**
@@ -139,18 +142,22 @@ function labdoo_migrate_update_9002(): void {
   }
 }
 
-/** Add resumable incremental manifests and verified baselines; no node writes. */
+/**
+ * Add resumable incremental manifests and verified baselines; no node writes.
+ */
 function labdoo_migrate_update_9003(): void {
   $schema = \Drupal::database()->schema();
-  foreach (\Drupal\labdoo_migrate\Services\Incremental\DeltaStore::schema() as $table => $definition) {
+  foreach (DeltaStore::schema() as $table => $definition) {
     if (!$schema->tableExists($table)) {
       $schema->createTable($table, $definition);
     }
   }
 }
 
-/** Attach existing location storage and permit all source parent hubs; no content writes. */
+/**
+ * Configures location fields and source parent hubs without content writes.
+ */
 function labdoo_migrate_update_9004(): string {
-  $changes = \Drupal\labdoo_migrate\Services\Incremental\LocationFieldConfiguration::ensure();
+  $changes = LocationFieldConfiguration::ensure();
   return 'Location fields verified; changes: ' . ($changes ? implode(', ', $changes) : 'none');
 }

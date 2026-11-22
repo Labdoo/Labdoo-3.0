@@ -24,6 +24,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   id = "labdoo_dootrip_calculate_total_co2_savings",
  *   title = @Translation("Calculate the total CO2 savings"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class TotalCo2SavingsQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -49,7 +51,7 @@ class TotalCo2SavingsQueueWorker extends QueueWorkerBase implements ContainerFac
     $plugin_id,
     $plugin_definition,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    DootripComputeInterface $dootripCompute
+    DootripComputeInterface $dootripCompute,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('bb_valentina');
@@ -63,7 +65,7 @@ class TotalCo2SavingsQueueWorker extends QueueWorkerBase implements ContainerFac
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory */
     $loggerChannelFactory = $container->get('logger.factory');

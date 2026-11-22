@@ -59,7 +59,7 @@ class ParagraphDelete {
     try {
       // Get the total count of paragraphs.
       $count = $this->getParagraphCount();
-      
+
       if ($count === 0) {
         $this->messenger->addStatus($this->t('No paragraphs found to delete.'));
         return 0;
@@ -112,23 +112,23 @@ class ParagraphDelete {
     $storage = $this->entityTypeManager->getStorage('paragraph');
     $query = $storage->getQuery()->accessCheck();
     $ids = $query->execute();
-    
+
     if (empty($ids)) {
       return 0;
     }
-    
+
     $count = count($ids);
     $chunks = array_chunk($ids, 50, TRUE);
-    
+
     foreach ($chunks as $chunk) {
       $entities = $storage->loadMultiple($chunk);
       $storage->delete($entities);
     }
-    
+
     $this->messenger->addStatus(
       $this->t('Successfully deleted @count paragraphs.', ['@count' => $count])
     );
-    
+
     return $count;
   }
 
@@ -142,30 +142,30 @@ class ParagraphDelete {
     $storage = $this->entityTypeManager->getStorage('paragraph');
     $query = $storage->getQuery()->accessCheck();
     $ids = $query->execute();
-    
+
     if (empty($ids)) {
       return;
     }
-    
+
     // Split the IDs into chunks for batch processing.
     $chunks = array_chunk($ids, 50, TRUE);
-    
+
     $batch_builder = new BatchBuilder();
     $batch_builder
       ->setTitle($this->t('Deleting paragraphs'))
       ->setInitMessage($this->t('Preparing to delete paragraphs...'))
       ->setProgressMessage($this->t('Deleting paragraphs...'))
       ->setErrorMessage($this->t('Error deleting paragraphs.'));
-    
+
     foreach ($chunks as $chunk) {
       $batch_builder->addOperation(
         [$this, 'batchDeleteParagraphs'],
         [$chunk]
       );
     }
-    
+
     $batch_builder->setFinishCallback([$this, 'batchFinished']);
-    
+
     batch_set($batch_builder->toArray());
   }
 
@@ -181,13 +181,13 @@ class ParagraphDelete {
     $storage = $this->entityTypeManager->getStorage('paragraph');
     $entities = $storage->loadMultiple($ids);
     $storage->delete($entities);
-    
+
     // Update progress information.
     if (!isset($context['results']['count'])) {
       $context['results']['count'] = 0;
     }
     $context['results']['count'] += count($ids);
-    
+
     $context['message'] = $this->t(
       'Deleted @count paragraphs so far...',
       ['@count' => $context['results']['count']]

@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * @file
+ * Dispatches entity notifications and resolves contact email tokens.
+ *
  * Developed by Natiboo <info@natiboo.es>
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
@@ -11,6 +14,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\comment\CommentInterface;
 use Drupal\node\NodeInterface;
+use Drupal\webform\WebformSubmissionInterface;
 
 /**
  * Implements hook_help().
@@ -55,7 +59,6 @@ function labdoo_notifications_node_presave(EntityInterface $node) {
 
   // Process dootrip notifications.
   if ($node->getType() === 'dootrip') {
-    /** @var Drupal\labdoo_notifications\Service\EntityProcessor\ $processor */
     $processor = \Drupal::service('labdoo_notifications.entity_processor.dootrip');
     $processor->process($node, 'presave', NULL);
   }
@@ -152,7 +155,8 @@ function labdoo_notifications_mail_alter(&$message) {
     $message['send'] = FALSE;
   }
 
-  // Redirect all outgoing emails to the test email address if test mode is enabled.
+  // Redirect all outgoing emails to the test email address if test mode is
+  // enabled.
   $config = \Drupal::config('labdoo_notifications.settings');
   if ($config->get('test_mode') && !empty($config->get('test_email'))) {
     $test_email = $config->get('test_email');
@@ -173,7 +177,7 @@ function labdoo_notifications_mail_alter(&$message) {
       $is_html = TRUE;
     }
     else {
-      // Check if body content looks like HTML
+      // Check if body content looks like HTML.
       $body_str = is_array($message['body']) ? implode('', $message['body']) : (string) $message['body'];
       if (preg_match('/<[a-z][\s\S]*>/i', $body_str)) {
         $is_html = TRUE;
@@ -234,7 +238,7 @@ function labdoo_notifications_mail_alter(&$message) {
     $host = 'https://platform.labdoo.org';
   }
 
-  if (!empty($host) && $host !== 'https://platform.labdoo.org') {
+  if ($host !== 'https://platform.labdoo.org') {
     if (!empty($message['subject'])) {
       $message['subject'] = str_replace('https://platform.labdoo.org', $host, $message['subject']);
     }
@@ -262,12 +266,14 @@ function labdoo_notifications_cron() {
   $today = $now->format('Y-m-d');
 
   // 1. First-time expiration notification.
-  // Find dootrips that expired today or earlier and haven't been marked as expired.
+  // Find dootrips that expired today or earlier and haven't been marked as
+  // expired.
   $query = $storage->getQuery()
     ->condition('type', 'dootrip')
     ->condition('field_arrival_date', $today, '<')
     ->condition('field_expired', 0)
-    ->condition('field_status_dootrip', 'DS0') // Only Pending
+  // Only Pending.
+    ->condition('field_status_dootrip', 'DS0')
     ->accessCheck(FALSE);
   $nids = $query->execute();
 
@@ -344,16 +350,19 @@ function labdoo_notifications_tokens($type, $tokens, array $data = [], array $op
   $replacements = [];
 
   if ($type === 'labdoo_notifications') {
-    /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
     $webform_submission = $data['webform_submission'] ?? NULL;
+    if ($webform_submission !== NULL && !$webform_submission instanceof WebformSubmissionInterface) {
+      return $replacements;
+    }
 
-    // Get current interface language
+    // Get current interface language.
     $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
 
     /** @var \Drupal\labdoo_notifications\Service\EmailProcessor $email_processor */
     $email_processor = \Drupal::service('labdoo_notifications.email_processor');
 
-    // Build the parameters map to replace custom placeholders in our flat .email templates
+    // Build the parameters map to replace custom placeholders in our flat
+    // .email templates.
     $params = [
       'NAME' => '',
       'EMAIL' => '',
@@ -370,12 +379,12 @@ function labdoo_notifications_tokens($type, $tokens, array $data = [], array $op
 
     if ($webform_submission) {
       $values = $webform_submission->getData();
-      
+
       $country_field = $values['country'] ?? '';
       $country_val = is_array($country_field) ? ($country_field['country'] ?? '') : $country_field;
-      
+
       $reason_val = $values['the_reason_you_are_contacting_labdoo_org'] ?? $values['category'] ?? '';
-      
+
       $params['NAME'] = $values['name'] ?? '';
       $params['EMAIL'] = $values['email_address'] ?? '';
       $params['SUBJECT'] = $values['subject'] ?? '';
@@ -392,14 +401,15 @@ function labdoo_notifications_tokens($type, $tokens, array $data = [], array $op
       }
       $params['CITY'] = $city_val;
 
-      // Clean campaign parameter if it was not resolved in URL (leaves token string).
+      // Clean campaign parameter if it was not resolved in URL (leaves token
+      // string).
       $campaign_val = $values['campaign'] ?? '';
       if (strpos($campaign_val, '[') !== FALSE) {
         $campaign_val = '';
       }
       $params['CAMPAIGN'] = $campaign_val;
 
-      // Get translated reason/category label
+      // Get translated reason/category label.
       $webform = $webform_submission->getWebform();
       if ($webform) {
         $element = $webform->getElement('the_reason_you_are_contacting_labdoo_org') ?? $webform->getElement('category');
@@ -415,25 +425,27 @@ function labdoo_notifications_tokens($type, $tokens, array $data = [], array $op
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'contact_shub_to_mail':
-          // Resolve destination email based on country
+          // Resolve destination email based on country.
           $to_email = 'contact@labdoo.org';
           if ($webform_submission) {
             $values = $webform_submission->getData();
             $country_field = $values['country'] ?? '';
             $country_val = is_array($country_field) ? ($country_field['country'] ?? '') : $country_field;
-            
-            // Normalize country value to uppercase ISO code or check if it contains DACH country names
-            // Germany (DE/Deutschland/Germany), Austria (AT/Österreich/Austria), Switzerland (CH/Schweiz/Switzerland)
+
+            // Normalize country value to uppercase ISO code or check if it
+            // contains DACH country names
+            // Germany (DE/Deutschland/Germany), Austria
+            // (AT/Österreich/Austria), Switzerland (CH/Schweiz/Switzerland)
             $country_lower = mb_strtolower((string) $country_val);
             if (
-              $country_lower === 'de' || 
-              $country_lower === 'at' || 
-              $country_lower === 'ch' || 
-              strpos($country_lower, 'germany') !== FALSE || 
-              strpos($country_lower, 'deutschland') !== FALSE || 
-              strpos($country_lower, 'austria') !== FALSE || 
-              strpos($country_lower, 'österreich') !== FALSE || 
-              strpos($country_lower, 'switzerland') !== FALSE || 
+              $country_lower === 'de' ||
+              $country_lower === 'at' ||
+              $country_lower === 'ch' ||
+              strpos($country_lower, 'germany') !== FALSE ||
+              strpos($country_lower, 'deutschland') !== FALSE ||
+              strpos($country_lower, 'austria') !== FALSE ||
+              strpos($country_lower, 'österreich') !== FALSE ||
+              strpos($country_lower, 'switzerland') !== FALSE ||
               strpos($country_lower, 'schweiz') !== FALSE
             ) {
               $to_email = 'Labdoo-DACH@Labdoo.org';
@@ -463,12 +475,16 @@ function labdoo_notifications_tokens($type, $tokens, array $data = [], array $op
             $has_copy = !empty($values['copy']);
 
             if (!$has_copy) {
-              // Remove the entire "This is the message..." coletilla block if no copy is requested.
+              // Remove the entire "This is the message..." coletilla block if
+              // no copy is
+              // requested.
               $pattern = '/(?:Diese Nachricht haben wir von Ihnen erhalten:\s*This is the message that you sent us:|This is the message that you sent us:|Este es el mensaje que nos enviaste:|Ci-dessous, le message que vous nous avez envoyé:|Dit is het bericht die je naar ons hebt verstuurd:|以下是您發送給我們的信息：|[^\n]+)\s*\-\-\-+\s*"?\[MESSAGE\]"?\s*\-\-\-+/u';
               $template = preg_replace($pattern, '', $template);
             }
             else {
-              // If copy is requested, replace "[MESSAGE]" with a nicely formatted localized full submission details block.
+              // If copy is requested, replace "[MESSAGE]" with a nicely
+              // formatted
+              // localized full submission details block.
               $labels = [
                 'en' => [
                   'name' => 'Name',
@@ -535,16 +551,16 @@ function labdoo_notifications_tokens($type, $tokens, array $data = [], array $op
               $lbl = $labels[$lang];
 
               $full_details = "";
-              $full_details .= "{$lbl['name']}: " . ($params['NAME'] ?? '') . "\n";
-              $full_details .= "{$lbl['email']}: " . ($params['EMAIL'] ?? '') . "\n";
-              $full_details .= "{$lbl['country']}: " . ($params['COUNTRY'] ?? '') . "\n";
-              $full_details .= "{$lbl['city']}: " . ($params['CITY'] ?? '') . "\n";
-              $full_details .= "{$lbl['reason']}: " . ($params['REASON'] ?? '') . "\n";
+              $full_details .= "{$lbl['name']}: " . $params['NAME'] . "\n";
+              $full_details .= "{$lbl['email']}: " . $params['EMAIL'] . "\n";
+              $full_details .= "{$lbl['country']}: " . $params['COUNTRY'] . "\n";
+              $full_details .= "{$lbl['city']}: " . $params['CITY'] . "\n";
+              $full_details .= "{$lbl['reason']}: " . $params['REASON'] . "\n";
               if (!empty($params['CAMPAIGN'])) {
                 $full_details .= "{$lbl['campaign']}: " . $params['CAMPAIGN'] . "\n";
               }
-              $full_details .= "{$lbl['subject']}: " . ($params['SUBJECT'] ?? '') . "\n";
-              $full_details .= "{$lbl['message']}:\n\"" . ($params['MESSAGE'] ?? '') . "\"";
+              $full_details .= "{$lbl['subject']}: " . $params['SUBJECT'] . "\n";
+              $full_details .= "{$lbl['message']}:\n\"" . $params['MESSAGE'] . "\"";
 
               $template = str_replace('"[MESSAGE]"', $full_details, $template);
               $template = str_replace('[MESSAGE]', $full_details, $template);

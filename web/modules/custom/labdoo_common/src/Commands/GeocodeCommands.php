@@ -55,7 +55,8 @@ class GeocodeCommands extends DrushCommands {
    * @param string $bundle
    *   The entity bundle (e.g. edoovillage, hub, etc.).
    * @param array $options
-   *   An associative array of options whose values come from cli, aliases, config, etc.
+   *   An associative array of options whose values come from cli, aliases,
+   *   config, etc.
    *
    * @option entity_type The entity type (defaults to 'node').
    * @option limit Limits the number of entities to process.
@@ -69,7 +70,7 @@ class GeocodeCommands extends DrushCommands {
    */
   public function regeocode(
     string $bundle,
-    array $options = ['entity_type' => 'node', 'limit' => NULL]
+    array $options = ['entity_type' => 'node', 'limit' => NULL],
   ): void {
     $this->processRegeocode($bundle, $options, FALSE);
   }
@@ -80,7 +81,8 @@ class GeocodeCommands extends DrushCommands {
    * @param string $bundle
    *   The entity bundle (e.g. edoovillage, hub, etc.).
    * @param array $options
-   *   An associative array of options whose values come from cli, aliases, config, etc.
+   *   An associative array of options whose values come from cli, aliases,
+   *   config, etc.
    *
    * @option entity_type The entity type (defaults to 'node').
    * @option limit Limits the number of entities to evaluate.
@@ -94,7 +96,7 @@ class GeocodeCommands extends DrushCommands {
    */
   public function regeocodeMissing(
     string $bundle,
-    array $options = ['entity_type' => 'node', 'limit' => NULL]
+    array $options = ['entity_type' => 'node', 'limit' => NULL],
   ): void {
     $this->processRegeocode($bundle, $options, TRUE);
   }

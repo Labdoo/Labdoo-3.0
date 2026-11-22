@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_notifications\Service;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -14,6 +14,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\user\UserInterface;
 use Drupal\geocoder\GeocoderInterface;
+use Drupal\geocoder\GeocoderProviderInterface;
 use Drupal\node\NodeInterface;
 
 /**
@@ -25,8 +26,6 @@ use Drupal\node\NodeInterface;
  * @link http://natiboo.es
  */
 class NotificationManager {
-
-  private const TEMPLATES_FOLDER = 'templates/email';
 
   /**
    * The logger service.
@@ -56,6 +55,8 @@ class NotificationManager {
    *   The config factory.
    * @param \Drupal\geocoder\GeocoderInterface $geocoder
    *   The geocoder service.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
   public function __construct(
     protected AccountInterface $currentUser,
@@ -66,7 +67,8 @@ class NotificationManager {
     protected EmailProcessor $emailProcessor,
     protected EntityTypeManagerInterface $entityTypeManager,
     protected ConfigFactoryInterface $configFactory,
-    protected GeocoderInterface $geocoder
+    protected GeocoderInterface $geocoder,
+    protected StateInterface $state,
   ) {
     $this->logger = $loggerChannelFactory->get('labdoo_notifications');
   }
@@ -74,7 +76,7 @@ class NotificationManager {
   /**
    * Sends a laptop event notification.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $node
+   * @param \Drupal\node\NodeInterface $node
    *   The laptop node.
    * @param string $operation
    *   The operation being performed ('presave', 'insert', 'update').
@@ -82,12 +84,12 @@ class NotificationManager {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function sendLaptopEventEmail(EntityInterface $node, string $operation = 'presave'): void {
-    if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
+  public function sendLaptopEventEmail(NodeInterface $node, string $operation = 'presave'): void {
+    if ($this->state->get('labdoo_migrate.disable_indexing', FALSE)) {
       return;
     }
 
-    if ($node->getEntityTypeId() !== 'node' || $node->bundle() !== 'dootronic') {
+    if ($node->bundle() !== 'dootronic') {
       return;
     }
 
@@ -97,28 +99,28 @@ class NotificationManager {
     // Determine the event type based on the laptop status.
     $status = $node->hasField('field_dootronic_status') ? $node->get('field_dootronic_status')->value : NULL;
     $isNew = $operation === 'insert' || ($operation === 'presave' && $node->isNew());
-    $isUpdated = ($operation === 'update' || ($operation === 'presave' && !$node->isNew())) && $node->hasField('field_dootronic_status') && !empty($node->original) && $node->get('field_dootronic_status')->value != $node->original->get('field_dootronic_status')->value;
+    $isUpdated = ($operation === 'update' || ($operation === 'presave' && !$node->isNew())) && $node->hasField('field_dootronic_status') && !empty($node->getOriginal()) && $node->get('field_dootronic_status')->value != $node->getOriginal()->get('field_dootronic_status')->value;
 
     if ($isNew && $status == 'S0') {
-      // New laptop tagged
+      // New laptop tagged.
       $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_tagged_subject');
       $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_tagged_body');
       $eventType = 'tagged';
     }
     elseif ($status == 'S4' && $isUpdated) {
-      // Laptop delivered
+      // Laptop delivered.
       $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_delivered_subject');
       $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_delivered_body');
       $eventType = 'delivered';
     }
     elseif ($isUpdated) {
-      // Laptop updated
+      // Laptop updated.
       $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_updated_subject');
       $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'laptop_updated_body');
       $eventType = 'updated';
     }
     else {
-      // No notification needed
+      // No notification needed.
       return;
     }
 
@@ -127,15 +129,15 @@ class NotificationManager {
       return;
     }
 
-    // Get laptop details
+    // Get laptop details.
     $laptopId = $node->id();
     $laptopTitle = $node->label();
     $laptopUrl = Url::fromRoute('entity.node.canonical', ['node' => $laptopId], ['absolute' => TRUE])->toString();
 
-    // Get recipient email addresses
+    // Get recipient email addresses.
     $emailsList = $this->configFactory->get('system.site')->get('mail');
-    
-    // Add laptop manager if available
+
+    // Add laptop manager if available.
     if ($node->hasField('field_manager') && !$node->get('field_manager')->isEmpty()) {
       $managerId = $node->get('field_manager')->target_id;
       $manager = $this->entityTypeManager->getStorage('user')->load($managerId);
@@ -144,7 +146,7 @@ class NotificationManager {
       }
     }
 
-    // Add dootrip manager if available
+    // Add dootrip manager if available.
     if ($node->hasField('field_dootrip') && !$node->get('field_dootrip')->isEmpty()) {
       $dootripId = $node->get('field_dootrip')->target_id;
       $dootrip = $this->entityTypeManager->getStorage('node')->load($dootripId);
@@ -156,7 +158,7 @@ class NotificationManager {
       }
     }
 
-    // Add edoovillage manager if available
+    // Add edoovillage manager if available.
     if ($node->hasField('field_edoovillage') && !$node->get('field_edoovillage')->isEmpty()) {
       $edoovillageId = $node->get('field_edoovillage')->target_id;
       $edoovillage = $this->entityTypeManager->getStorage('node')->load($edoovillageId);
@@ -168,15 +170,15 @@ class NotificationManager {
       }
     }
 
-    // Add the author of the laptop
+    // Add the author of the laptop.
     $author = $this->entityTypeManager->getStorage('user')->load($node->getOwnerId());
     if ($author) {
       $emailsList .= ', ' . $author->getEmail();
     }
 
-    // Get status label
+    // Get status label.
     $statusLabel = $status;
-    if ($node->hasField('field_dootronic_status') && !$node->get('field_dootronic_status')->isEmpty()) {
+    if (!$node->get('field_dootronic_status')->isEmpty()) {
       $allowed_values = $node->getFieldDefinition('field_dootronic_status')->getSetting('allowed_values');
       if (isset($allowed_values[$status])) {
         $statusLabel = $allowed_values[$status];
@@ -189,7 +191,7 @@ class NotificationManager {
       $edoovillageUrl = Url::fromRoute('entity.node.canonical', ['node' => $edoovillageId], ['absolute' => TRUE])->toString();
     }
 
-    // Prepare email parameters
+    // Prepare email parameters.
     $params = [
       'LAPTOP_ID' => $laptopId,
       'LAPTOP_TITLE' => $laptopTitle,
@@ -202,13 +204,13 @@ class NotificationManager {
       'id' => $laptopId,
     ];
 
-    // Process the subject and body
+    // Process the subject and body.
     $subject = $subjectTemplate;
     $body = $bodyTemplate;
     $this->emailProcessor->processParameters($params, $subject);
     $this->emailProcessor->processParameters($params, $body);
 
-    // Send the email
+    // Send the email.
     $emailParams['subject'] = $subject;
     $emailParams['body'] = $body;
     $emailParams['to'] = $this->configFactory->get('system.site')->get('mail');
@@ -220,17 +222,17 @@ class NotificationManager {
   /**
    * Sends a dootrip event notification.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $node
+   * @param \Drupal\node\NodeInterface $node
    *   The dootrip node.
    * @param string $eventType
    *   The event type (insert, update, etc.).
    */
-  public function sendDootripEventEmail(EntityInterface $node, string $eventType): void {
-    if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
+  public function sendDootripEventEmail(NodeInterface $node, string $eventType): void {
+    if ($this->state->get('labdoo_migrate.disable_indexing', FALSE)) {
       return;
     }
 
-    if ($node->getEntityTypeId() !== 'node' || $node->bundle() !== 'dootrip') {
+    if ($node->bundle() !== 'dootrip') {
       return;
     }
 
@@ -244,24 +246,28 @@ class NotificationManager {
     $langCode = $this->getUserPreferredLanguage($node);
     $emailParams = ['type' => 'DOOTRIP_EVENT'];
 
-    // Determine the template based on the event type
+    // Determine the template based on the event type.
     switch ($eventType) {
       case 'insert':
-        $subjectTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_added_subject');
-        $bodyTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_added_body');
+        $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_added_subject');
+        $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_added_body');
         break;
+
       case 'update':
-        $subjectTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_updated_subject');
-        $bodyTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_updated_body');
+        $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_updated_subject');
+        $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_updated_body');
         break;
+
       case 'expired':
-        $subjectTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_expired_subject');
-        $bodyTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_expired_body');
+        $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_expired_subject');
+        $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_expired_body');
         break;
+
       case 'announce':
-        $subjectTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_announce_subject');
-        $bodyTemplate = $this->emailProcessor?->loadTemplate($langCode, 'dootrip_announce_body');
+        $subjectTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_announce_subject');
+        $bodyTemplate = $this->emailProcessor->loadTemplate($langCode, 'dootrip_announce_body');
         break;
+
       default:
         return;
     }
@@ -271,36 +277,37 @@ class NotificationManager {
       return;
     }
 
-    // Get dootrip details
+    // Get dootrip details.
     $dootripId = $node->id();
     $dootripTitle = $node->label();
     $dootripUrl = Url::fromRoute('entity.node.canonical', ['node' => $dootripId], ['absolute' => TRUE])->toString();
 
-    // Get origin and destination
+    // Get origin and destination.
     $origin = '';
     if ($node->hasField('field_origin_of_the_trip') && !$node->get('field_origin_of_the_trip')->isEmpty()) {
-      $origin = $node->get('field_origin_of_the_trip')->first()->value;
+      $origin = $node->get('field_origin_of_the_trip')->first()->get('value')->getValue();
     }
     elseif ($node->hasField('field_origin') && !$node->get('field_origin')->isEmpty()) {
-      $origin = $node->get('field_origin')->first()->value;
+      $origin = $node->get('field_origin')->first()->get('value')->getValue();
     }
 
     $destination = '';
     if ($node->hasField('field_destination_of_the_trip') && !$node->get('field_destination_of_the_trip')->isEmpty()) {
-      $destination = $node->get('field_destination_of_the_trip')->first()->value;
+      $destination = $node->get('field_destination_of_the_trip')->first()->get('value')->getValue();
     }
     elseif ($node->hasField('field_destination') && !$node->get('field_destination')->isEmpty()) {
-      $destination = $node->get('field_destination')->first()->value;
+      $destination = $node->get('field_destination')->first()->get('value')->getValue();
     }
 
-    // Get recipient email addresses
+    // Get recipient email addresses.
     $mailConfig = $this->configFactory->get('system.site')->get('mail');
     $emailsList = $mailConfig ?: '';
 
-    // Add the travelers and related users
+    // Add the travelers and related users.
     $emailsList .= $this->getDootripRelatedEmails($node);
 
-    // For announcements, add hub and edoovillage managers in the destination country
+    // For announcements, add hub and edoovillage managers in the destination
+    // country.
     if ($eventType === 'announce') {
       $destinationCountryCode = $this->getDootripDestinationCountryCode($node);
       if ($destinationCountryCode) {
@@ -308,7 +315,7 @@ class NotificationManager {
       }
     }
 
-    // Prepare email parameters
+    // Prepare email parameters.
     $params = [
       'DOOTRIP_ID' => $dootripId,
       'DOOTRIP_TITLE' => $dootripTitle,
@@ -320,13 +327,13 @@ class NotificationManager {
       'event_type' => $eventType,
     ];
 
-    // Process the subject and body
+    // Process the subject and body.
     $subject = $subjectTemplate;
     $body = $bodyTemplate;
     $this->emailProcessor->processParameters($params, $subject);
     $this->emailProcessor->processParameters($params, $body);
 
-    // Send the email
+    // Send the email.
     $emailParams['subject'] = $subject;
     $emailParams['body'] = $body;
     $emailParams['to'] = $this->configFactory->get('system.site')->get('mail');
@@ -338,7 +345,7 @@ class NotificationManager {
   /**
    * Sends a team event notification.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $node
+   * @param \Drupal\node\NodeInterface $node
    *   The team-related node.
    * @param mixed $comment
    *   The comment entity, if applicable.
@@ -346,8 +353,8 @@ class NotificationManager {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function sendTeamEventEmail(EntityInterface $node, $comment = NULL): void {
-    if (\Drupal::state()->get('labdoo_migrate.disable_indexing', FALSE)) {
+  public function sendTeamEventEmail(NodeInterface $node, $comment = NULL): void {
+    if ($this->state->get('labdoo_migrate.disable_indexing', FALSE)) {
       return;
     }
 
@@ -362,7 +369,7 @@ class NotificationManager {
       return;
     }
 
-    // Determine activity type and body
+    // Determine activity type and body.
     $bundle = $node->bundle();
     $activityType = '';
     $activityBody = '';
@@ -378,10 +385,12 @@ class NotificationManager {
           $activityBody = $comment->hasField('comment_body') ? $comment->get('comment_body')->value : '';
         }
         break;
+
       case 'event':
         $activityType = 'event';
         $activityBody = $node->hasField('body') ? $node->get('body')->value : '';
         break;
+
       case 'task_team':
         if ($comment === NULL) {
           $activityType = 'task';
@@ -392,6 +401,7 @@ class NotificationManager {
           $activityBody = $comment->hasField('comment_body') ? $comment->get('comment_body')->value : '';
         }
         break;
+
       default:
         return;
     }
@@ -400,7 +410,7 @@ class NotificationManager {
     $activityUrl = Url::fromRoute('entity.node.canonical', ['node' => $node->id()], ['absolute' => TRUE])->toString();
     $teamsMgmUrl = Url::fromUserInput('/my-teams', ['absolute' => TRUE])->toString();
 
-    // Get team information
+    // Get team information.
     $teamName = '';
     $teamId = 0;
     if ($node->hasField('field_team') && !$node->get('field_team')->isEmpty()) {
@@ -411,18 +421,18 @@ class NotificationManager {
       }
     }
 
-    // Get recipient email addresses
+    // Get recipient email addresses.
     $emailsList = $this->configFactory->get('system.site')->get('mail');
 
     // Add team members
     // This would require more complex logic to find team members
-    // For now, we'll just add the author of the node
+    // For now, we'll just add the author of the node.
     $author = $this->entityTypeManager->getStorage('user')->load($node->getOwnerId());
     if ($author) {
       $emailsList .= ', ' . $author->getEmail();
     }
 
-    // If it's a comment, add the author of the comment
+    // If it's a comment, add the author of the comment.
     if ($comment !== NULL) {
       $commentAuthor = $this->entityTypeManager->getStorage('user')->load($comment->getOwnerId());
       if ($commentAuthor) {
@@ -430,7 +440,7 @@ class NotificationManager {
       }
     }
 
-    // Prepare email parameters
+    // Prepare email parameters.
     $params = [
       'ACTIVITY_TYPE' => $activityType,
       'ACTIVITY_SUBJECT' => $activityTitle,
@@ -443,13 +453,13 @@ class NotificationManager {
       'id' => $node->id(),
     ];
 
-    // Process the subject and body
+    // Process the subject and body.
     $subject = $subjectTemplate;
     $body = $bodyTemplate;
     $this->emailProcessor->processParameters($params, $subject);
     $this->emailProcessor->processParameters($params, $body);
 
-    // Send the email
+    // Send the email.
     $emailParams['subject'] = $subject;
     $emailParams['body'] = $body;
     $emailParams['to'] = $this->configFactory->get('system.site')->get('mail');
@@ -476,19 +486,19 @@ class NotificationManager {
       return;
     }
 
-    // Get user details
+    // Get user details.
     $userName = $account->getDisplayName();
     $userMail = $account->getEmail();
     $userId = $account->id();
     $userUrl = Url::fromRoute('entity.user.canonical', ['user' => $userId], ['absolute' => TRUE])->toString();
 
-    // Get recipient email addresses
+    // Get recipient email addresses.
     $emailsList = $this->configFactory->get('system.site')->get('mail');
 
-    // Add the new user
+    // Add the new user.
     $emailsList .= ', ' . $userMail;
 
-    // Prepare email parameters
+    // Prepare email parameters.
     $params = [
       'USERNAME' => $userName,
       'USER_MAIL' => $userMail,
@@ -497,13 +507,13 @@ class NotificationManager {
       'id' => $userId,
     ];
 
-    // Process the subject and body
+    // Process the subject and body.
     $subject = $subjectTemplate;
     $body = $bodyTemplate;
     $this->emailProcessor->processParameters($params, $subject);
     $this->emailProcessor->processParameters($params, $body);
 
-    // Send the email
+    // Send the email.
     $emailParams['subject'] = $subject;
     $emailParams['body'] = $body;
     $emailParams['to'] = $this->configFactory->get('system.site')->get('mail');
@@ -515,25 +525,25 @@ class NotificationManager {
   /**
    * Gets the user's preferred language code.
    *
-   * @param \Drupal\Core\Entity\EntityInterface|null $node
+   * @param \Drupal\node\NodeInterface|null $node
    *   Optional node to get the language from.
    *
    * @return string
    *   The language code.
    */
-  protected function getUserPreferredLanguage(EntityInterface $node = NULL): string {
+  protected function getUserPreferredLanguage(?NodeInterface $node = NULL): string {
     if ($node instanceof NodeInterface && $node->bundle() === 'dootrip') {
-      // Try to get language from the first traveler
+      // Try to get language from the first traveler.
       if ($node->hasField('field_dootripper_s') && !$node->get('field_dootripper_s')->isEmpty()) {
-        $item = $node->get('field_dootripper_s')->first();
-        if ($item && $item->target_id) {
-          $user = $this->entityTypeManager->getStorage('user')->load($item->target_id);
+        $uid = $node->get('field_dootripper_s')->getValue()[0]['target_id'] ?? NULL;
+        if ($uid) {
+          $user = $this->entityTypeManager->getStorage('user')->load($uid);
           if ($user instanceof UserInterface) {
             return $user->getPreferredLangcode();
           }
         }
       }
-      // Fallback to author
+      // Fallback to author.
       if ($author = $node->getOwner()) {
         return $author->getPreferredLangcode();
       }
@@ -546,19 +556,19 @@ class NotificationManager {
   /**
    * Gets the email addresses of travelers and related users for a dootrip.
    */
-  protected function getDootripRelatedEmails(EntityInterface $node): string {
+  protected function getDootripRelatedEmails(NodeInterface $node): string {
     $emails = [];
 
-    // Add author
+    // Add author.
     if ($author = $node->getOwner()) {
       $emails[] = $author->getEmail();
     }
 
     // Add travelers (field_dootripper_s)
     if ($node->hasField('field_dootripper_s')) {
-      foreach ($node->get('field_dootripper_s') as $item) {
-        if ($item->target_id) {
-          $user = $this->entityTypeManager->getStorage('user')->load($item->target_id);
+      foreach ($node->get('field_dootripper_s')->getValue() as $item) {
+        if (!empty($item['target_id'])) {
+          $user = $this->entityTypeManager->getStorage('user')->load($item['target_id']);
           if ($user instanceof UserInterface) {
             $emails[] = $user->getEmail();
           }
@@ -573,18 +583,18 @@ class NotificationManager {
   /**
    * Checks if any of the significant fields of a dootrip have changed.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $node
+   * @param \Drupal\node\NodeInterface $node
    *   The dootrip node.
    *
    * @return bool
    *   TRUE if changed, FALSE otherwise.
    */
-  protected function hasDootripChanged(EntityInterface $node): bool {
-    if (empty($node->original)) {
+  protected function hasDootripChanged(NodeInterface $node): bool {
+    if (empty($node->getOriginal())) {
       return TRUE;
     }
 
-    if ($node->label() !== $node->original->label()) {
+    if ($node->label() !== $node->getOriginal()->label()) {
       return TRUE;
     }
 
@@ -600,9 +610,9 @@ class NotificationManager {
     ];
 
     foreach ($fields_to_check as $field) {
-      if ($node->hasField($field) && $node->original->hasField($field)) {
+      if ($node->hasField($field) && $node->getOriginal()->hasField($field)) {
         $val1 = !$node->get($field)->isEmpty() ? serialize($node->get($field)->getValue()) : '';
-        $val2 = !$node->original->get($field)->isEmpty() ? serialize($node->original->get($field)->getValue()) : '';
+        $val2 = !$node->getOriginal()->get($field)->isEmpty() ? serialize($node->getOriginal()->get($field)->getValue()) : '';
         if ($val1 !== $val2) {
           return TRUE;
         }
@@ -615,15 +625,15 @@ class NotificationManager {
   /**
    * Gets the destination country code for a dootrip.
    */
-  protected function getDootripDestinationCountryCode(EntityInterface $node): ?string {
-    // Try field_destination_of_the_trip first
+  protected function getDootripDestinationCountryCode(NodeInterface $node): ?string {
+    // Try field_destination_of_the_trip first.
     if ($node->hasField('field_destination_of_the_trip') && !$node->get('field_destination_of_the_trip')->isEmpty()) {
       $value = $node->get('field_destination_of_the_trip')->first()->getValue();
       if (!empty($value['lat']) && !empty($value['lon'])) {
         return $this->getCountryCodeFromCoords($value['lat'], $value['lon']);
       }
     }
-    // Then field_locations
+    // Then field_locations.
     if ($node->hasField('field_locations') && !$node->get('field_locations')->isEmpty()) {
       $value = $node->get('field_locations')->first()->getValue();
       if (!empty($value['lat']) && !empty($value['lon'])) {
@@ -639,7 +649,9 @@ class NotificationManager {
    */
   protected function getCountryCodeFromCoords($lat, $lon): ?string {
     try {
-      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, ['googlemaps']);
+      $provider = $this->entityTypeManager->getStorage('geocoder_provider')->load('googlemaps');
+      $providers = $provider instanceof GeocoderProviderInterface ? [$provider] : [];
+      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, $providers);
       if ($addressCollection && !$addressCollection->isEmpty()) {
         $address = $addressCollection->first();
         if ($country = $address->getCountry()) {
@@ -672,11 +684,11 @@ class NotificationManager {
         if ($owner = $edoovillage->getOwner()) {
           $emails[] = $owner->getEmail();
         }
-        // Also add additional editors/managers if any
+        // Also add additional editors/managers if any.
         if ($edoovillage->hasField('field_edoo_additional_editors')) {
-          foreach ($edoovillage->get('field_edoo_additional_editors') as $item) {
-            if ($item->target_id) {
-              $user = $this->entityTypeManager->getStorage('user')->load($item->target_id);
+          foreach ($edoovillage->get('field_edoo_additional_editors')->getValue() as $item) {
+            if (!empty($item['target_id'])) {
+              $user = $this->entityTypeManager->getStorage('user')->load($item['target_id']);
               if ($user instanceof UserInterface) {
                 $emails[] = $user->getEmail();
               }
@@ -700,9 +712,9 @@ class NotificationManager {
           $emails[] = $owner->getEmail();
         }
         if ($hub->hasField('field_hub_additional_editors')) {
-          foreach ($hub->get('field_hub_additional_editors') as $item) {
-            if ($item->target_id) {
-              $user = $this->entityTypeManager->getStorage('user')->load($item->target_id);
+          foreach ($hub->get('field_hub_additional_editors')->getValue() as $item) {
+            if (!empty($item['target_id'])) {
+              $user = $this->entityTypeManager->getStorage('user')->load($item['target_id']);
               if ($user instanceof UserInterface) {
                 $emails[] = $user->getEmail();
               }

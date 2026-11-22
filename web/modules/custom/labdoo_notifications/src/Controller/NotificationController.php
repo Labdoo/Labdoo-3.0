@@ -2,8 +2,9 @@
 
 namespace Drupal\labdoo_notifications\Controller;
 
+use Drupal\Core\Theme\Registry;
+use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\node\Entity\Node;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -16,6 +17,8 @@ use Drupal\labdoo_notifications\Service\EmailProcessor;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class NotificationController extends ControllerBase {
 
@@ -49,11 +52,14 @@ class NotificationController extends ControllerBase {
    *   The language manager.
    * @param \Drupal\labdoo_notifications\Service\EmailProcessor $email_processor
    *   The email processor service.
+   * @param \Drupal\Core\Theme\Registry $themeRegistry
+   *   The theme.registry service.
    */
   public function __construct(
     RequestStack $request_stack,
     LanguageManagerInterface $language_manager,
-    EmailProcessor $email_processor
+    EmailProcessor $email_processor,
+    protected Registry $themeRegistry,
   ) {
     $this->requestStack = $request_stack;
     $this->languageManager = $language_manager;
@@ -67,7 +73,8 @@ class NotificationController extends ControllerBase {
     return new static(
       $container->get('request_stack'),
       $container->get('language_manager'),
-      $container->get('labdoo_notifications.email_processor')
+      $container->get('labdoo_notifications.email_processor'),
+      $container->get('theme.registry'),
     );
   }
 
@@ -80,7 +87,8 @@ class NotificationController extends ControllerBase {
   public function displayNotificationEmail(): array {
     $request = $this->requestStack->getCurrentRequest();
 
-    // Normalize query parameters to handle potential "amp;" prefixes from HTML-encoded URLs.
+    // Normalize query parameters to handle potential "amp;" prefixes from
+    // HTML-encoded URLs.
     foreach ($request->query->all() as $key => $value) {
       if (strpos($key, 'amp;') === 0) {
         $cleanKey = substr($key, 4);
@@ -144,7 +152,8 @@ class NotificationController extends ControllerBase {
     $templateId = '';
     $params = [];
 
-    // Initialize $params with all uppercase query parameter keys to cover everything passed in.
+    // Initialize $params with all uppercase query parameter keys to cover
+    // everything passed in.
     foreach ($request->query->all() as $key => $value) {
       $params[strtoupper($key)] = $value;
     }
@@ -152,7 +161,18 @@ class NotificationController extends ControllerBase {
     switch ($type) {
       case 'contact':
         $templateId = 'contact_form_submitted';
-        foreach (['NAME', 'EMAIL', 'SUBJECT', 'MESSAGE', 'REASON', 'USERNAME', 'USEREMAIL', 'COUNTRY', 'CITY', 'CAMPAIGN'] as $paramName) {
+        foreach ([
+          'NAME',
+          'EMAIL',
+          'SUBJECT',
+          'MESSAGE',
+          'REASON',
+          'USERNAME',
+          'USEREMAIL',
+          'COUNTRY',
+          'CITY',
+          'CAMPAIGN',
+        ] as $paramName) {
           if (!isset($params[$paramName])) {
             $params[$paramName] = $request->query->get($paramName) ?? $request->query->get(strtolower($paramName)) ?? '';
           }
@@ -161,7 +181,7 @@ class NotificationController extends ControllerBase {
 
       case 'dootronic':
         $laptopStatus = $request->query->get('LAPTOP_STATUS');
-        $node = Node::load($id);
+        $node = $this->entityTypeManager()->getStorage('node')->load($id);
         if (empty($laptopStatus) && $node && $node->bundle() === 'dootronic') {
           $laptopStatus = $node->hasField('field_dootronic_status') ? $node->get('field_dootronic_status')->value : NULL;
         }
@@ -183,7 +203,7 @@ class NotificationController extends ControllerBase {
           $params['LAPTOP_URL'] = $this->getBaseUrl() . '/node/' . $id;
         }
 
-        // Load the node to populate ID and STATUS robustly if they are missing
+        // Load the node to populate ID and STATUS robustly if they are missing.
         if ($node && $node->bundle() === 'dootronic') {
           if (empty($params['ID'])) {
             $params['ID'] = $node->label();
@@ -203,13 +223,13 @@ class NotificationController extends ControllerBase {
             $edoovillageUrl = '';
             if ($node->hasField('field_edoovillage') && !$node->get('field_edoovillage')->isEmpty()) {
               $edoovillageId = $node->get('field_edoovillage')->target_id;
-              $edoovillageUrl = \Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $edoovillageId], ['absolute' => TRUE])->toString();
+              $edoovillageUrl = Url::fromRoute('entity.node.canonical', ['node' => $edoovillageId], ['absolute' => TRUE])->toString();
             }
             $params['EDOOVILLAGE_URL'] = $edoovillageUrl;
           }
         }
 
-        // Fallbacks in case the node could not be loaded or fields were empty
+        // Fallbacks in case the node could not be loaded or fields were empty.
         if (empty($params['ID'])) {
           $params['ID'] = $params['LAPTOP_TITLE'] ?? '';
         }
@@ -291,7 +311,7 @@ class NotificationController extends ControllerBase {
     ];
 
     // If the theme hook is not defined, fall back to a simple markup.
-    $themeRegistry = \Drupal::service('theme.registry')->get();
+    $themeRegistry = $this->themeRegistry->get();
     if (!$this->moduleHandler()->moduleExists('labdoo_notifications') || !isset($themeRegistry['notification_email'])) {
       $build = [
         '#markup' => '<h2>' . $subject . '</h2><div>' . $body . '</div>',

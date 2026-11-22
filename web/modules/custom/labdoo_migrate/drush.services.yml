@@ -13,11 +13,7 @@ services:
 
   labdoo_migrate.synchronizer_commands:
     class: \Drupal\labdoo_migrate\Commands\SynchronizerCommands
-    arguments:
-      - '@labdoo_migrate.config.configuration_manager'
-      - '@labdoo_migrate.mapper.fields_mapper'
-      - '@labdoo_migrate.tracking.migration_tracker'
-      - '@queue_manager.helper'
+    arguments: ['@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@labdoo_migrate.tracking.migration_tracker', '@queue_manager.helper', '@state', '@labdoo_migrate.repository_registry']
     tags:
       - { name: drush.command }
 
@@ -30,11 +26,7 @@ services:
 
   labdoo_migrate.synchronizer_story_commands:
     class: \Drupal\labdoo_migrate\Commands\StorySynchronizerCommands
-    arguments:
-      - '@labdoo_migrate.database.external_connection_manager'
-      - '@labdoo_migrate.media.file_manager'
-      - '@entity_type.manager'
-      - '@labdoo_migrate.tracking.migration_tracker'
+    arguments: ['@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.media.file_manager', '@entity_type.manager', '@labdoo_migrate.tracking.migration_tracker', '@state']
     tags:
       - { name: drush.command }
 
@@ -53,45 +45,25 @@ services:
 
   labdoo_migrate.synchronizer_gallery_commands:
     class: \Drupal\labdoo_migrate\Commands\GallerySynchronizerCommands
-    arguments:
-      - '@labdoo_migrate.database.external_connection_manager'
-      - '@labdoo_migrate.media.file_manager'
-      - '@entity_type.manager'
-      - '@database'
-      - '@labdoo_migrate.tracking.migration_tracker'
+    arguments: ['@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.media.file_manager', '@entity_type.manager', '@database', '@labdoo_migrate.tracking.migration_tracker', '@state']
     tags:
       - { name: drush.command }
 
   labdoo_migrate.import_permissions:
     class: Drupal\labdoo_migrate\Commands\ImportPermissionsCommands
-    arguments:
-      - '@user.permissions'
+    arguments: ['@user.permissions', '@entity_type.manager']
     tags:
       - { name: drush.command }
 
   labdoo_migrate.synchronizer_basic_page_commands:
     class: \Drupal\labdoo_migrate\Commands\BasicPageSynchronizerCommands
-    arguments:
-      - '@labdoo_migrate.database.external_connection_manager'
-      - '@labdoo_migrate.media.file_manager'
-      - '@entity_type.manager'
-      - '@labdoo_migrate.source_content.translation_repository'
-      - '@labdoo_migrate.destination_content.translation_repository'
-      - '@language_manager'
-      - '@labdoo_migrate.source_content.repository.revision'
+    arguments: ['@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.media.file_manager', '@entity_type.manager', '@labdoo_migrate.source_content.translation_repository', '@labdoo_migrate.destination_content.translation_repository', '@language_manager', '@labdoo_migrate.source_content.repository.revision', '@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@state']
     tags:
       - { name: drush.command }
 
   labdoo_migrate.synchronizer_revisions_commands:
     class: \Drupal\labdoo_migrate\Commands\NodeRevisionSynchronizerCommands
-    arguments:
-      - '@labdoo_migrate.database.external_connection_manager'
-      - '@entity_type.manager'
-      - '@labdoo_migrate.source_content.repository.revision'
-      - '@labdoo_migrate.config.configuration_manager'
-      - '@labdoo_migrate.mapper.fields_mapper'
-      - '@labdoo_migrate.source_content.repository.node'
-      - '@language_manager'
+    arguments: ['@labdoo_migrate.database.external_connection_manager', '@entity_type.manager', '@labdoo_migrate.source_content.repository.revision', '@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@labdoo_migrate.source_content.repository.node', '@language_manager', '@state']
     tags:
       - { name: drush.command }
 
@@ -105,49 +77,25 @@ services:
 
   labdoo_migrate.integrity_check_commands:
     class: \Drupal\labdoo_migrate\Commands\IntegrityCheckCommands
-    arguments:
-      - '@labdoo_migrate.config.configuration_manager'
-      - '@labdoo_migrate.mapper.fields_mapper'
-      - '@labdoo_migrate.source_content.repository.node'
-      - '@entity_type.manager'
-      - '@labdoo_migrate.tracking.migration_tracker'
-      - '@labdoo_migrate.database.external_connection_manager'
-      - '@language_manager'
+    arguments: ['@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@entity_type.manager', '@labdoo_migrate.tracking.migration_tracker', '@labdoo_migrate.database.external_connection_manager', '@language_manager', '@labdoo_migrate.repository_registry']
     tags:
       - { name: drush.command }
 
   labdoo_migrate.integrity_fix_commands:
     class: \Drupal\labdoo_migrate\Commands\IntegrityFixCommands
-    arguments:
-      - '@labdoo_migrate.config.configuration_manager'
-      - '@labdoo_migrate.mapper.fields_mapper'
-      - '@labdoo_migrate.source_content.repository.node'
-      - '@entity_type.manager'
-      - '@labdoo_migrate.tracking.migration_tracker'
-      - '@labdoo_migrate.database.external_connection_manager'
-      - '@language_manager'
-      - '@labdoo_migrate.media.file_manager'
+    arguments: ['@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@entity_type.manager', '@labdoo_migrate.tracking.migration_tracker', '@labdoo_migrate.database.external_connection_manager', '@language_manager', '@labdoo_migrate.media.file_manager', '@labdoo_migrate.repository_registry']
     tags:
       - { name: drush.command }
 
   labdoo_migrate.purge_commands:
     class: \Drupal\labdoo_migrate\Commands\PurgeCommands
-    arguments:
-      - '@database'
-      - '@entity_type.manager'
-      - '@cache_tags.invalidator'
+    arguments: ['@database', '@entity_type.manager', '@cache_tags.invalidator', '@entity_type.bundle.info']
     tags:
       - { name: drush.command }
 
   labdoo_migrate.geography_synchronizer_commands:
     class: \Drupal\labdoo_migrate\Commands\GeographySynchronizerCommands
-    arguments:
-      - '@labdoo_migrate.database.external_connection_manager'
-      - '@labdoo_migrate.config.configuration_manager'
-      - '@labdoo_migrate.mapper.fields_mapper'
-      - '@labdoo_migrate.source_content.repository.node'
-      - '@labdoo_migrate.destination_content.repository.node'
-      - '@entity_type.manager'
+    arguments: ['@labdoo_migrate.database.external_connection_manager', '@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@labdoo_migrate.source_content.repository.node', '@labdoo_migrate.destination_content.repository.node', '@entity_type.manager', '@state', '@config.factory', '@cache_tags.invalidator']
     tags:
       - { name: drush.command }
 
@@ -170,10 +118,7 @@ services:
 
   labdoo_migrate.commands.dootrip_title_migrate:
     class: \Drupal\labdoo_migrate\Commands\DootripTitleMigratorCommands
-    arguments:
-      - '@database'
-      - '@labdoo_migrate.database.external_connection_manager'
-      - '@entity_type.manager'
+    arguments: ['@database', '@labdoo_migrate.database.external_connection_manager', '@entity_type.manager', '@cache_tags.invalidator']
     tags:
       - { name: drush.command }
 
@@ -189,6 +134,6 @@ services:
 
   labdoo_migrate.incremental_commands:
     class: Drupal\labdoo_migrate\Commands\IncrementalCommands
-    arguments: ['@database', '@labdoo_migrate.database.external_connection_manager', '@lock']
+    arguments: ['@database', '@lock']
     tags:
       - { name: drush.command }

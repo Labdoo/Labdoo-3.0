@@ -1,18 +1,40 @@
 <?php
-/** Standalone transactional engine regressions; never boots a Drupal site. */
+/**
+ * @file
+ * Exercises transactions on disposable tables in this checkout's guarded clone.
+ */
+
+declare(strict_types=1);
+
 use Drupal\Core\Database\Database;
 use Drupal\Core\Lock\NullLockBackend;
 use Drupal\labdoo_migrate\Services\Incremental\{DeltaEngine,DeltaStore};
-$lab=dirname(__DIR__,3);
-$loader=require $lab.'/integration/vendor/autoload.php';
-$loader->addPsr4('Drupal\\mysql\\',$lab.'/integration/web/core/modules/mysql/src');
-foreach (['DeltaEngine','DeltaStore'] as $class) require_once dirname(__DIR__).'/web/modules/custom/labdoo_migrate/src/Services/Incremental/'.$class.'.php';
-$options=json_decode(file_get_contents($lab.'/state/incremental-engine-connection.json'),TRUE,512,JSON_THROW_ON_ERROR);
-if ($options['database']!=='labdoo_e2e_incremental_engine_20261109' || !in_array($options['host'],['localhost','127.0.0.1'],TRUE)) throw new RuntimeException('Local independent fixture required.');
-Database::addConnectionInfo('incremental_test','default',$options);
-$db=Database::getConnection('default','incremental_test');
-foreach (DeltaStore::schema() as $table=>$schema) { if ($db->schema()->tableExists($table)) $db->schema()->dropTable($table); $db->schema()->createTable($table,$schema); }
-if (!$db->schema()->tableExists('fixture_targets')) $db->schema()->createTable('fixture_targets',['fields'=>['id'=>['type'=>'int','not null'=>TRUE], 'payload'=>['type'=>'text','not null'=>TRUE], 'writes'=>['type'=>'int','not null'=>TRUE,'default'=>0]],'primary key'=>['id']]);
+
+require __DIR__ . '/e2e/support/assert-isolated.php';
+if (realpath(\Drupal::root()) !== realpath(dirname(__DIR__) . '/web')
+  || \Drupal\Core\Site\Settings::get('labdoo_e2e_state') !== __DIR__ . '/upgrade/.local/state') {
+  throw new RuntimeException('Use this checkout\'s prepared local regression clone.');
+}
+// Reject deprecated fetch modes even while Drupal 11 still accepts integers.
+set_error_handler(static function (int $severity, string $message): bool {
+  if ($severity === E_USER_DEPRECATED && (str_contains($message, 'fetchAll()') || str_contains($message, 'fetchAllAssoc()'))) {
+    throw new LogicException($message);
+  }
+  return FALSE;
+});
+$connectionKey = 'incremental_engine_regression';
+$options = \Drupal::database()->getConnectionOptions();
+$options['prefix'] = 'delta_regression_' . bin2hex(random_bytes(6)) . '_';
+Database::addConnectionInfo($connectionKey, 'default', $options);
+$db = Database::getConnection('default', $connectionKey);
+$temporaryTables = [];
+try {
+foreach (DeltaStore::schema() as $table => $schema) {
+  $db->schema()->createTable($table, $schema);
+  $temporaryTables[] = $table;
+}
+$db->schema()->createTable('fixture_targets', ['fields' => ['id' => ['type' => 'int', 'not null' => TRUE], 'payload' => ['type' => 'text', 'not null' => TRUE], 'writes' => ['type' => 'int', 'not null' => TRUE, 'default' => 0]], 'primary key' => ['id']]);
+$temporaryTables[] = 'fixture_targets';
 class EngineFixtureSource {
   public array $rows=[]; public int $largestBatch=0;public int $fingerprintCalls=0;
   public function maxId($type){$ids=array_keys(array_filter($this->rows,fn($r)=>$r['type']===$type));return $ids?max($ids):0;}
@@ -34,7 +56,7 @@ class EngineFixtureAdapter {
     if($this->fail===$id&&!$this->failAfterWrite)throw new RuntimeException('Injected prewrite crash');
     $payload=$op==='unpublish'?'UNPUBLISHED':$this->source->rows[$id]['payload'];
     $old=$this->db->select('fixture_targets','t')->fields('t',['writes'])->condition('id',$id)->execute()->fetchField();
-    $this->db->merge('fixture_targets')->key(['id'=>$id])->fields(['payload'=>$payload,'writes'=>(int)$old+1])->execute();
+    $this->db->merge('fixture_targets')->key('id',$id)->fields(['payload'=>$payload,'writes'=>(int)$old+1])->execute();
     if($this->duringWrite)($this->duringWrite)($id);
     if($this->fail===$id)throw new RuntimeException('Injected postwrite crash');
     return ['destination_id'=>$id,'destination_hash'=>hash('sha256',$payload)];
@@ -48,7 +70,6 @@ $target=static function($id,$payload='A')use($db){$db->insert('fixture_targets')
 $writes=static fn()=>(int)$db->query('SELECT COALESCE(SUM(writes),0) FROM {fixture_targets}')->fetchField();
 $expectFailure=static function($fn,$text)use($assert){try{$fn();}catch(Throwable $e){$assert(str_contains($e->getMessage(),$text),'Unexpected error: '.$e->getMessage());return; }throw new LogicException('Expected failure '.$text);};
 $case=static function($name,$fn)use(&$passed,$reset){$reset();$fn();$passed[]=$name;};
-try {
 $case('first adoption equal has zero content writes and retry idempotence',function()use($fixture,$source,$target,$assert,$writes){[$s,$a,$st,$e]=$fixture();$source($s,1);$target(1);$p=$e->plan('fixture');$r=$e->apply($p['run_id']);$assert($r['operations']['baseline']['applied']===1&&$writes()===0,'Equal adoption wrote content');$e->apply($p['run_id']);$assert($writes()===0&&count($st->baselines('fixture',[1]))===1,'Retry changed content');});
 $case('first adoption differing blocked until explicit source wins',function()use($fixture,$source,$target,$assert,$writes){[$s,$a,$st,$e]=$fixture();$source($s,1,'V2');$target(1,'V3');$p=$e->plan('fixture');$r=$e->apply($p['run_id']);$assert($r['operations']['update_candidate']['blocked']===1&&$writes()===0&&!$st->baselines('fixture',[1]),'Difference blessed');$e->apply($p['run_id'],['source_wins'=>TRUE]);$assert($writes()===1,'Explicit update missing');});
 $case('local edit is preserved without resetting baseline; later source edit conflicts',function()use($fixture,$source,$target,$assert,$db,$writes){[$s,$a,$st,$e]=$fixture();$source($s,1);$target(1);$p=$e->plan('fixture');$e->apply($p['run_id']);$before=$st->baselines('fixture',[1]);$db->update('fixture_targets')->fields(['payload'=>'LOCAL'])->condition('id',1)->execute();$p=$e->plan('fixture');$r=$e->apply($p['run_id']);$assert(isset($r['operations']['local_change']['preserved'])&&$before===$st->baselines('fixture',[1]),'Local edits reset baseline');$source($s,1,'SOURCE');$p=$e->plan('fixture');$r=$e->apply($p['run_id'],['source_wins'=>TRUE]);$assert(isset($r['operations']['conflict']['blocked'])&&$writes()===0,'Both sides overwrite');});
@@ -74,5 +95,63 @@ $case('source deletion reappearing during unpublish rolls back',function()use($f
 $case('unchanged batch avoids per-entity source rereads',function()use($fixture,$source,$target,$assert,$writes){[$s,$a,$st,$e]=$fixture();foreach(range(1,50)as$id){$source($s,$id);$target($id);}$p=$e->plan('fixture');$e->apply($p['run_id']);$p=$e->plan('fixture');$s->fingerprintCalls=0;$e->apply($p['run_id'],['batch_size'=>7]);$assert($s->fingerprintCalls===0&&$writes()===0,'Unchanged batch amplified fingerprint reads');});
 $case('empty known source and mass deletion require independent explicit confirmation',function()use($db,$target,$assert,$expectFailure,$writes){$s=new class extends EngineFixtureSource{public function rootCount($type,$ceiling){return count($this->page($type,0,500,$ceiling));}};$a=new EngineFixtureAdapter($db,$s);$st=new DeltaStore($db);$e=new DeltaEngine($s,$a,$st,new NullLockBackend,hash('sha256','fixture-source'));foreach(range(1,12)as$id)$target($id);$p=$e->plan('fixture');$expectFailure(fn()=>$e->apply($p['run_id'],['missing_source'=>'unpublish','source_wins'=>TRUE]),'confirm-mass-unpublish');$assert($writes()===0,'Mass guard wrote first');$e->apply($p['run_id'],['missing_source'=>'unpublish','source_wins'=>TRUE,'confirm_mass_unpublish'=>TRUE]);$assert($writes()===12,'Confirmed mass unpublish failed');});
 $case('membership count change during resumable scan rejects completed inventory',function()use($db,$source,$expectFailure){$s=new class extends EngineFixtureSource{public function rootCount($type,$ceiling){return count($this->page($type,0,500,$ceiling));}};$a=new EngineFixtureAdapter($db,$s);$st=new DeltaStore($db);$e=new DeltaEngine($s,$a,$st,new NullLockBackend,hash('sha256','fixture-source'));$source($s,1);$source($s,2);$p=$e->plan('fixture',['max_items'=>1]);unset($s->rows[2]);$expectFailure(fn()=>$e->plan('fixture',['run_id'=>$p['run_id']]),'membership');});
+$case('manifest listing keeps array rows, pagination, filters and decoded details', function () use ($fixture, $assert) {
+  [, , $store] = $fixture();
+  $run = $store->createRun([
+    'source_type' => 'fixture', 'bundle' => 'fixture', 'ceiling' => 3,
+    'mapping_hash' => hash('sha256', 'mapping'),
+    'source_identity' => hash('sha256', 'source'),
+  ]);
+  $store->plannedBatch($run, [
+    ['source_id' => 3, 'operation' => 'deleted'],
+    ['source_id' => 1, 'operation' => 'create', 'details' => ['marker' => 'first']],
+    ['source_id' => 2, 'operation' => 'create'],
+  ], ['phase' => 'ready']);
+  $store->batchStatus($run['run_id'], [2], 'error');
+  $rows = $store->listItems($run['run_id']);
+  $assert(array_map('intval', array_column($rows, 'source_id')) === [1, 2, 3], 'Manifest ordering changed.');
+  $assert($rows[0]['details'] === ['marker' => 'first'], 'Manifest details were not decoded.');
+  $page = $store->listItems($run['run_id'], 1, 1);
+  $assert(count($page) === 1 && (int) $page[0]['source_id'] === 2, 'Manifest pagination changed.');
+  $errors = $store->listItems($run['run_id'], 0, 100, 'create', 'error');
+  $assert(count($errors) === 1 && (int) $errors[0]['source_id'] === 2, 'Manifest filters changed.');
+  foreach ([[-1, 1], [0, 0], [0, 501]] as [$after, $limit]) {
+    try {
+      $store->listItems($run['run_id'], $after, $limit);
+      throw new LogicException('Invalid listing bounds were accepted.');
+    }
+    catch (InvalidArgumentException) {
+      // Bounds must fail before listing any rows.
+    }
+  }
+});
+$case('pending dependencies keep newest array rows and isolate source types', function () use ($fixture, $assert) {
+  [, , $store] = $fixture();
+  $runs = [];
+  foreach ([['fixture', 100, 41], ['fixture', 200, 42], ['other', 300, 43]] as [$type, $created, $destination]) {
+    $run = $store->createRun([
+      'source_type' => $type, 'bundle' => 'fixture', 'ceiling' => 7, 'created' => $created,
+      'mapping_hash' => hash('sha256', 'mapping'),
+      'source_identity' => hash('sha256', 'source'),
+    ]);
+    $store->plannedBatch($run, [
+      ['source_id' => 7, 'destination_id' => $destination, 'operation' => 'create_staged'],
+    ], ['phase' => 'ready']);
+    $store->batchStatus($run['run_id'], [7], 'waiting_refs');
+    $runs[] = $run;
+  }
+  $store->batchStatus($runs[1]['run_id'], [7], 'error');
+  $pending = $store->pendingDependencies('fixture', [7]);
+  $assert(count($pending) === 1 && (int) $pending[7]['destination_id'] === 42, 'Newest dependency was lost or another source type leaked.');
+  $assert($pending[7]['run_id'] === $runs[1]['run_id'], 'Wrong dependency manifest selected.');
+  $assert($store->pendingDependencies('fixture', []) === [] && $store->baselines('fixture', []) === [], 'Empty requests must stay empty.');
+});
 echo json_encode(['passed'=>count($passed),'cases'=>$passed],JSON_PRETTY_PRINT|JSON_THROW_ON_ERROR)."\n";
-}finally{$reset();}
+}
+finally {
+  foreach (array_reverse($temporaryTables) as $table) {
+    $db->schema()->dropTable($table);
+  }
+  Database::removeConnection($connectionKey);
+  restore_error_handler();
+}

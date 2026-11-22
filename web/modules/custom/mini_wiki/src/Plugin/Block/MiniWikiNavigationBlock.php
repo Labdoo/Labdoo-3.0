@@ -25,6 +25,8 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class MiniWikiNavigationBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -62,7 +64,7 @@ class MiniWikiNavigationBlock extends BlockBase implements ContainerFactoryPlugi
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     return new static(
       $configuration,

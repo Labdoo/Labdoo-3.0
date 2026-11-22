@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * @file
+ * Connects GitHub issue reporting to Drupal integration hooks.
+ *
  * Developed by Natiboo <info@natiboo.es>
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
@@ -16,15 +19,4 @@ function github_issues_theme($existing, $type, $theme, $path): array {
       'variables' => ['issues' => NULL],
     ],
   ];
-}
-
-/**
- * This function is a hook that allows altering the metadata
- * before submitting GitHub issues.
- *
- * @param array $metadata
- *   The GitHub metadata.
- *   Valid keys: source, author, team.
- */
-function hook_github_issues_set_metadata(array &$metadata): void {
 }

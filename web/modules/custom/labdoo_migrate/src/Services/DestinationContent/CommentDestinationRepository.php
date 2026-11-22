@@ -2,15 +2,8 @@
 
 namespace Drupal\labdoo_migrate\Services\DestinationContent;
 
-use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
-
-use Drupal\Core\Entity\RevisionableInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\Sql\DefaultTableMapping;
 
 /**
  * The comment destination repository.
@@ -20,21 +13,21 @@ class CommentDestinationRepository extends DestinationRepository {
   /**
    * {@inheritdoc}
    */
-  protected function saveEntity(EntityInterface $entity): bool {
+  protected function saveEntity(ContentEntityInterface $entity): bool {
     if (!$this->indexingEnabled) {
-      $entity->search_api_skip_tracking = TRUE;
+      $this->setMigrationMetadata($entity, 'search_api_skip_tracking', TRUE);
     }
 
-    $entity->labdoo_skip_geocoding = TRUE;
+    $this->setMigrationMetadata($entity, 'labdoo_skip_geocoding', TRUE);
 
     try {
       // Comments do not support revisions in Drupal 10 by default.
-      if ($entity instanceof RevisionableInterface && $entity->getEntityType()->isRevisionable()) {
+      if ($entity->getEntityType()->isRevisionable()) {
         $entity->setNewRevision(FALSE);
       }
-      return $entity->save();
+      return (bool) $entity->save();
     }
-    catch (\Exception | \Throwable $e) {
+    catch (\Throwable $e) {
       if ($entity->id()) {
         $this->logger->warning(sprintf(
           'Save failed for comment %d. Attempting to purge orphaned field data and retry. Error: %s',
@@ -45,9 +38,9 @@ class CommentDestinationRepository extends DestinationRepository {
         $this->purgeOrphanedCommentFieldData((int) $entity->id());
 
         try {
-          return $entity->save();
+          return (bool) $entity->save();
         }
-        catch (\Exception | \Throwable $e2) {
+        catch (\Throwable $e2) {
           $this->logger->error(sprintf(
             'Retry save failed for comment %d: %s',
             $entity->id(),
@@ -74,11 +67,12 @@ class CommentDestinationRepository extends DestinationRepository {
    * @param int $entityId
    *   The entity ID.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    *   The created entity.
    */
-  public function create(array $values, int $entityId): EntityInterface {
-    // Always purge orphaned field data before creating a new comment with a fixed ID.
+  public function create(array $values, int $entityId): ContentEntityInterface {
+    // Always purge orphaned field data before creating a new comment with a
+    // fixed ID.
     $this->purgeOrphanedCommentFieldData($entityId);
 
     $values['cid'] = $entityId;
@@ -97,14 +91,14 @@ class CommentDestinationRepository extends DestinationRepository {
    * @param string $langCode
    *   The language code.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    *   The entity object.
    */
   protected function prepareEntity(
     int $entityId,
     string $contentType,
-    string $langCode
-  ): EntityInterface {
+    string $langCode,
+  ): ContentEntityInterface {
     $entity = $this->entityTypeManager
       ->getStorage('comment')
       ->load($entityId);
@@ -112,7 +106,8 @@ class CommentDestinationRepository extends DestinationRepository {
       return $entity;
     }
 
-    // Always purge orphaned field data before creating a new comment with a fixed ID.
+    // Always purge orphaned field data before creating a new comment with a
+    // fixed ID.
     $this->purgeOrphanedCommentFieldData($entityId);
 
     return $this->entityTypeManager
@@ -135,10 +130,10 @@ class CommentDestinationRepository extends DestinationRepository {
   private function purgeOrphanedCommentFieldData(int $entityId): void {
     try {
       $storage = $this->entityTypeManager->getStorage('comment');
-      if (!($storage instanceof SqlContentEntityStorage)) {
+      $tableMapping = $storage->getTableMapping();
+      if (!$tableMapping instanceof DefaultTableMapping) {
         return;
       }
-      $tableMapping = $storage->getTableMapping();
       $fieldDefinitions = $this->entityFieldManager
         ->getFieldStorageDefinitions('comment');
       $database = $this->database;
@@ -191,16 +186,15 @@ class CommentDestinationRepository extends DestinationRepository {
   /**
    * Adds the source IDs as the array keys.
    *
-   * @param array $entities
+   * @param \Drupal\Core\Entity\ContentEntityInterface[] $entities
    *   The entities array.
    *
-   * @return array
+   * @return array<int, \Drupal\Core\Entity\ContentEntityInterface>
    *   Returns the processed array.
    */
   protected function addSourceIdsAsKeys(array $entities): array {
     $processedEntities = [];
 
-    /** @var \Drupal\Core\Entity\EntityInterface $entity */
     foreach ($entities as $entity) {
       // In comments, we want the cid to be the same as source cid.
       $sourceId = $entity->id();

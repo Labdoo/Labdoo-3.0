@@ -4,7 +4,7 @@ namespace Drupal\labdoo_global_action\Service\Repository;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -46,7 +46,7 @@ class GlobalActionRepository {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    LoggerChannelFactoryInterface $loggerChannelFactory
+    LoggerChannelFactoryInterface $loggerChannelFactory,
   ) {
     $this->entityTypeManager = $entityTypeManager;
     $this->logger = $loggerChannelFactory->get('labdoo_global_action');
@@ -55,15 +55,17 @@ class GlobalActionRepository {
   /**
    * Creates the global action.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    *
    * @return void
+   *   The resulting value.
    */
-  public function createGlobalAction(EntityInterface $entity): void {
+  public function createGlobalAction(NodeInterface $entity): void {
     try {
       $actionGenerator = ActionGeneratorFactory::get($entity->bundle());
-    } catch (UnknownServiceException $e) {
+    }
+    catch (UnknownServiceException $e) {
       return;
     }
 
@@ -78,7 +80,8 @@ class GlobalActionRepository {
       if (!empty($globalAction->label())) {
         $globalAction->save();
       }
-    } catch (
+    }
+    catch (
       InvalidPluginDefinitionException
       | EntityStorageException
       | PluginNotFoundException $e
@@ -88,7 +91,7 @@ class GlobalActionRepository {
         $entity->bundle(),
         $entity->id(),
         $e->getMessage()
-      );
+          );
       $this->logger->error($errorMessage);
     }
   }

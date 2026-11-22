@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * @file
+ * Integrates legal agreement and account-registration hooks.
+ *
  * Developed by Natiboo <info@natiboo.es>
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE

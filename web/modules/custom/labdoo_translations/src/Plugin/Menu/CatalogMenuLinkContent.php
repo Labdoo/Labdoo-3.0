@@ -8,7 +8,8 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\menu_link_content\Plugin\Menu\MenuLinkContent;
 
-/** Portable text fallback for core content-menu links; never changes entities. */
+/**
+ * Portable text fallback for core content-menu links; never changes entities. */
 class CatalogMenuLinkContent extends MenuLinkContent {
 
   /**
@@ -64,7 +65,8 @@ class CatalogMenuLinkContent extends MenuLinkContent {
     if ($source === '') {
       return $source;
     }
-    // No environment-specific entity ID, UUID, route or link URL enters the key.
+    // No environment-specific entity ID, UUID, route or link URL enters the
+    // key.
     return \Drupal::service('labdoo_translations.catalog')->lookup($langcode, $source, '') ?? $source;
   }
 

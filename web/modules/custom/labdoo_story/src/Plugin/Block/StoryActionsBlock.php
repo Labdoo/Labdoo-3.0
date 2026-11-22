@@ -23,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class StoryActionsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -69,7 +71,7 @@ class StoryActionsBlock extends BlockBase implements ContainerFactoryPluginInter
     $plugin_definition,
     LinkHelper $linkHelper,
     CommonRepository $commonRepository,
-    AccountProxyInterface $currentUser
+    AccountProxyInterface $currentUser,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->linkHelper = $linkHelper;
@@ -86,7 +88,7 @@ class StoryActionsBlock extends BlockBase implements ContainerFactoryPluginInter
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Helper\LinkHelper $linkHelper */
     $linkHelper = $container->get('labdoo_common.helper.link');

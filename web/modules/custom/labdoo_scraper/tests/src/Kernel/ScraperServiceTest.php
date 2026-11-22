@@ -3,7 +3,6 @@
 namespace Drupal\Tests\labdoo_scraper\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\labdoo_scraper\Service\ScraperService;
 use Drupal\path_alias\Entity\PathAlias;
 use Drupal\node\Entity\NodeType;
 use Drupal\node\Entity\Node;

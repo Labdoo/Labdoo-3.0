@@ -35,7 +35,7 @@ interface FileManagerInterface {
   public function createFile(
     string $fileUri,
     string $fileName,
-    string $fileContents
+    string $fileContents,
   ): ?EntityInterface;
 
   /**
@@ -56,7 +56,7 @@ interface FileManagerInterface {
   public function getFileContents(
     string $fileUri,
     bool $defaultContent = FALSE,
-    bool $suppressErrors = FALSE
+    bool $suppressErrors = FALSE,
   ): string;
 
   /**
@@ -88,7 +88,7 @@ interface FileManagerInterface {
    */
   public function fileExists(
     string $fileUri,
-    string $fileName
+    string $fileName,
   ): ?EntityInterface;
 
   /**
@@ -107,7 +107,7 @@ interface FileManagerInterface {
    */
   public function mediaEntityExists(
     string $bundle,
-    string $name
+    string $name,
   ): ?EntityInterface;
 
-  }
+}

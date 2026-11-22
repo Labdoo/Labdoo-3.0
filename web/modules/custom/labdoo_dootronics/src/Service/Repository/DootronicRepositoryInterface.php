@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootronics\Service\Repository;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for dootronic repositories.
@@ -41,10 +41,10 @@ interface DootronicRepositoryInterface {
    * @param int $dootronicId
    *   The dootronic ID.
    *
-   * @return EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The entity or NULL in case of error.
    */
-  public function load(int $dootronicId): ?EntityInterface;
+  public function load(int $dootronicId): ?NodeInterface;
 
   /**
    * Loads a dootronic by ID.
@@ -52,10 +52,10 @@ interface DootronicRepositoryInterface {
    * @param string $dootronicLabel
    *   The dootronic label.
    *
-   * @return EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The dootronic or NULL in case of error.
    */
-  public function loadByLabel(string $dootronicLabel): ?EntityInterface;
+  public function loadByLabel(string $dootronicLabel): ?NodeInterface;
 
   /**
    * Loads dootronics by properties.
@@ -63,7 +63,7 @@ interface DootronicRepositoryInterface {
    * @param array $properties
    *   The properties array.
    *
-   * @return array
+   * @return \Drupal\node\NodeInterface[]
    *   The loaded dootronics.
    */
   public function loadByProperties(array $properties): array;
@@ -74,7 +74,7 @@ interface DootronicRepositoryInterface {
    * @param array $dootronicIds
    *   The dootronic IDs array.
    *
-   * @return array
+   * @return \Drupal\node\NodeInterface[]
    *   The loaded dootronics.
    */
   public function loadByIds(array $dootronicIds): array;
@@ -82,64 +82,64 @@ interface DootronicRepositoryInterface {
   /**
    * Saves a dootronic.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic to be saved.
    *
    * @return bool
    *   The result of the operation.
    */
-  public function saveEntity(EntityInterface $dootronic): bool;
+  public function saveEntity(NodeInterface $dootronic): bool;
 
   /**
    * Generates the QR code.
    *
-   * @param EntityInterface $dootronic
+   * @param NodeInterface $dootronic
    *   The dootronic.
    * @param int $size
    *   The size of the QR code.
    */
   public function generateQrCode(
-    EntityInterface $dootronic,
-    int $size = 60
+    NodeInterface $dootronic,
+    int $size = 60,
   ): string;
 
   /**
    * Returns the watt-hours of a dootronic.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic.
    *
    * @return string
    *   The computed watt/hours.
    */
-  public function computeWattHours(EntityInterface $dootronic): string;
+  public function computeWattHours(NodeInterface $dootronic): string;
 
   /**
    * Follows a dootronic with the current user.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic.
    *
    * @return bool
    *   The result of the operation.
    */
-  public function follow(EntityInterface $dootronic): bool;
+  public function follow(NodeInterface $dootronic): bool;
 
   /**
    * Unfollows a dootronic with the current user.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic.
    *
    * @return bool
    *   The result of the operation.
    */
-  public function unfollow(EntityInterface $dootronic): bool;
+  public function unfollow(NodeInterface $dootronic): bool;
 
   /**
    * Changes the status of the "pick me up" flag.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic.
    * @param bool $status
    *   The status of the flag.
@@ -147,18 +147,18 @@ interface DootronicRepositoryInterface {
    * @return bool
    *   The result of the operation.
    */
-  public function togglePickMeUp(EntityInterface $dootronic, bool $status): bool;
+  public function togglePickMeUp(NodeInterface $dootronic, bool $status): bool;
 
   /**
    * Checks if the current user is following the given dootronic.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic.
    *
    * @return false|int
    *   FALSE if not found, otherwise the delta value.
    */
-  public function isCurrentUserFollowingDootronic(EntityInterface $dootronic);
+  public function isCurrentUserFollowingDootronic(NodeInterface $dootronic);
 
   /**
    * Retrieves the dootronics in the given range of nids.
@@ -168,12 +168,12 @@ interface DootronicRepositoryInterface {
    * @param int $endingDootronicId
    *   The ending dootronic ID.
    *
-   * @return array
+   * @return \Drupal\node\NodeInterface[]
    *   An array with the dootronics loaded, or empty in case of error.
    */
   public function getDootronicsInRange(
     int $startingDootronicId,
-    int $endingDootronicId
+    int $endingDootronicId,
   ): array;
 
   /**
@@ -214,24 +214,24 @@ interface DootronicRepositoryInterface {
   public function getfieldAllowedValues(
     string $entityType,
     string $bundle,
-    string $fieldName
+    string $fieldName,
   ): array;
 
   /**
    * Clones a dootronic.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $originalDootronic
+   * @param \Drupal\node\NodeInterface $originalDootronic
    *   The original dootronic.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\node\NodeInterface
    *   The cloned dootronic.
    */
-  public function clone(EntityInterface $originalDootronic): EntityInterface;
+  public function clone(NodeInterface $originalDootronic): NodeInterface;
 
   /**
    * Sets dootronic fields with external data.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic entity.
    * @param array $data
    *   The external data.
@@ -241,12 +241,13 @@ interface DootronicRepositoryInterface {
    *   If TRUE, only the Edoovillage will be set.
    *
    * @return void
+   *   The resulting value.
    */
   public function setDootronicExternalData(
-    EntityInterface $dootronic,
+    NodeInterface $dootronic,
     array $data,
     string $tag,
-    bool $edoovillageOnly
+    bool $edoovillageOnly,
   ): void;
 
   /**
@@ -267,6 +268,7 @@ interface DootronicRepositoryInterface {
    *   The dootronic ID.
    *
    * @return void
+   *   The resulting value.
    */
   public function invalidateCache(int $dootronicId): void;
 

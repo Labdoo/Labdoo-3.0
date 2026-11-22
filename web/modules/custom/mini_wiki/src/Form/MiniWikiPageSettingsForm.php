@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\mini_wiki\Form;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -16,6 +18,19 @@ use Drupal\Core\Form\FormStateInterface;
  * @link http://natiboo.es
  */
 final class MiniWikiPageSettingsForm extends ConfigFormBase {
+  /**
+   * The entity_type.manager service.
+   */
+  protected EntityTypeManagerInterface $entityManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->entityManager = $container->get('entity_type.manager');
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -38,7 +53,7 @@ final class MiniWikiPageSettingsForm extends ConfigFormBase {
     $config = $this->config('mini_wiki_page.settings');
 
     // Get all wiki pages.
-    $storage = \Drupal::entityTypeManager()->getStorage('mini_wiki_page');
+    $storage = $this->entityManager->getStorage('mini_wiki_page');
     $query = $storage->getQuery()
       ->accessCheck(FALSE)
       ->sort('label', 'ASC');

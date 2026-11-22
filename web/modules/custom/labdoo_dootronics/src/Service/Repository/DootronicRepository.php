@@ -6,10 +6,9 @@ use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -103,7 +102,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
     AccountProxyInterface $currentUser,
     EventDispatcherInterface $eventDispatcher,
     Connection $database,
-    EntityFieldManagerInterface $entityFieldManager
+    EntityFieldManagerInterface $entityFieldManager,
   ) {
     $this->sequenceManager = $sequenceManager;
     $this->entityTypeManager = $entityTypeManager;
@@ -121,7 +120,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
     $sequenceNumber = $this->sequenceManager->get();
     $this->sequenceManager->commit();
 
-    return str_pad($sequenceNumber, 9, '0', STR_PAD_LEFT);
+    return str_pad((string) $sequenceNumber, 9, '0', STR_PAD_LEFT);
   }
 
   /**
@@ -130,13 +129,13 @@ class DootronicRepository implements DootronicRepositoryInterface {
   public function updateId(int $sequenceNumber): string {
     $this->sequenceManager->commit();
 
-    return str_pad($sequenceNumber, 9, '0', STR_PAD_LEFT);
+    return str_pad((string) $sequenceNumber, 9, '0', STR_PAD_LEFT);
   }
 
   /**
    * {@inheritDoc}
    */
-  public function load(int $dootronicId): ?EntityInterface {
+  public function load(int $dootronicId): ?NodeInterface {
     try {
       return $this->entityTypeManager
         ->getStorage('node')
@@ -156,7 +155,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function loadByLabel(string $dootronicLabel): ?EntityInterface {
+  public function loadByLabel(string $dootronicLabel): ?NodeInterface {
     try {
       $result = $this->entityTypeManager
         ->getStorage('node')
@@ -222,9 +221,10 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function saveEntity(EntityInterface $dootronic): bool {
+  public function saveEntity(NodeInterface $dootronic): bool {
     try {
-      return $dootronic->save();
+      // Normalize Drupal's integer storage status to this API's boolean result.
+      return (bool) $dootronic->save();
     }
     catch (EntityStorageException $e) {
       $errorMessage = sprintf(
@@ -241,8 +241,8 @@ class DootronicRepository implements DootronicRepositoryInterface {
    * {@inheritDoc}
    */
   public function generateQrCode(
-    EntityInterface $dootronic,
-    int $size = 60
+    NodeInterface $dootronic,
+    int $size = 60,
   ): string {
     $url = Url::fromRoute(
       'labdoo_dootronics.view_dootronic',
@@ -264,22 +264,22 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeWattHours(EntityInterface $dootronic): string {
+  public function computeWattHours(NodeInterface $dootronic): string {
     $volts = $dootronic->get('field_volts')->value;
     $ampHours = $dootronic->get('field_amp_hours')->value;
     if (empty($volts) || empty($ampHours)) {
       return 'Not available';
     }
 
-    $Wh = round($volts * $ampHours / 1000, 1);
+    $wattHours = round($volts * $ampHours / 1000, 1);
 
-    return $Wh . 'Wh';
+    return $wattHours . 'Wh';
   }
 
   /**
    * {@inheritDoc}
    */
-  public function follow(EntityInterface $dootronic): bool {
+  public function follow(NodeInterface $dootronic): bool {
     $dootronic
       ->get('field_edoo_additional_followers')
       ->appendItem($this->currentUser->id());
@@ -309,7 +309,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function unfollow(EntityInterface $dootronic): bool {
+  public function unfollow(NodeInterface $dootronic): bool {
     $delta = $this->isCurrentUserFollowingDootronic($dootronic);
     if ($delta !== FALSE) {
       $additionalFollowers = $dootronic->get('field_edoo_additional_followers');
@@ -341,7 +341,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function togglePickMeUp(EntityInterface $dootronic, bool $status): bool {
+  public function togglePickMeUp(NodeInterface $dootronic, bool $status): bool {
     $dootronic->set('field_pick_me_up', $status);
 
     try {
@@ -369,7 +369,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function isCurrentUserFollowingDootronic(EntityInterface $dootronic) {
+  public function isCurrentUserFollowingDootronic(NodeInterface $dootronic) {
     $additionalFollowers = $dootronic->get('field_edoo_additional_followers');
     $delta = FALSE;
     $i = 0;
@@ -387,16 +387,11 @@ class DootronicRepository implements DootronicRepositoryInterface {
   }
 
   /**
-   * Retrieves the dootronics in
-   *
-   * @param int $startingDootronicId
-   * @param int $endingDootronicId
-   *
-   * @return array
+   * {@inheritdoc}
    */
   public function getDootronicsInRange(
     int $startingDootronicId,
-    int $endingDootronicId
+    int $endingDootronicId,
   ): array {
     try {
       if ($startingDootronicId > $endingDootronicId) {
@@ -436,7 +431,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
   public function getfieldAllowedValues(
     string $entityType,
     string $bundle,
-    string $fieldName
+    string $fieldName,
   ): array {
     $fieldDefinitions = $this->entityFieldManager->getFieldDefinitions($entityType, $bundle);
     if (!isset($fieldDefinitions[$fieldName])) {
@@ -449,7 +444,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
     }
 
     $settings = $fieldDefinition->getSettings();
-    if (!isset($settings['allowed_values']) && is_array($settings['allowed_values'])) {
+    if (!isset($settings['allowed_values']) || !is_array($settings['allowed_values'])) {
       return [];
     }
 
@@ -459,7 +454,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function clone(EntityInterface $originalDootronic): EntityInterface {
+  public function clone(NodeInterface $originalDootronic): NodeInterface {
     $newDootronic = $this->entityTypeManager
       ->getStorage('node')
       ->create([
@@ -492,10 +487,10 @@ class DootronicRepository implements DootronicRepositoryInterface {
    * {@inheritDoc}
    */
   public function setDootronicExternalData(
-    EntityInterface $dootronic,
+    NodeInterface $dootronic,
     array $data,
     string $tag,
-    bool $edoovillageOnly
+    bool $edoovillageOnly,
   ): void {
     // Dootronic's tag.
     $dootronic->set('title', $tag);
@@ -506,7 +501,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
     $dootronic->set('field_dootronic_status', $status);
 
     // Edoovillage.
-    $this->setDootronicExternalValue($dootronic, 'edoovillage', 'field_edoovillage_destination');
+    $this->setDootronicExternalValue($dootronic, $data, 'edoovillage', 'field_edoovillage_destination');
 
     if ($edoovillageOnly) {
       return;
@@ -526,7 +521,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
     $dootronic->set('field_model', implode('; ', $modelData));
 
     // Serial number.
-    $this->setDootronicExternalValue($dootronic, 'serial_no', 'field_serial_number');
+    $this->setDootronicExternalValue($dootronic, $data, 'serial_no', 'field_serial_number');
 
     // Number of cores.
     if (isset($data['cpu_count'])) {
@@ -544,10 +539,10 @@ class DootronicRepository implements DootronicRepositoryInterface {
     }
 
     // CPU speed.
-    $this->setDootronicExternalValue($dootronic, 'cpu_speed_mhz', 'field_cpu');
+    $this->setDootronicExternalValue($dootronic, $data, 'cpu_speed_mhz', 'field_cpu');
 
     // Memory size.
-    $this->setDootronicExternalValue($dootronic, 'memory_size_mb', 'field_memory');
+    $this->setDootronicExternalValue($dootronic, $data, 'memory_size_mb', 'field_memory');
 
     // Disk size.
     $diskSize = 0;
@@ -560,7 +555,7 @@ class DootronicRepository implements DootronicRepositoryInterface {
     $dootronic->set('field_hard_drive', $diskSize);
 
     // Operating system.
-    $this->setDootronicExternalValue($dootronic, 'os_version', 'field_current_operating_system');
+    $this->setDootronicExternalValue($dootronic, $data, 'os_version', 'field_current_operating_system');
 
     // Notes.
     $additionalNotes = [];
@@ -621,15 +616,16 @@ class DootronicRepository implements DootronicRepositoryInterface {
 
     // Voltage and ampers.
     if (isset($data['battery_voltage'])) {
-      $dootronic->set('field_volts', floatval($data['battery_voltage']));
-      if (isset($data['battery_energy_mwh'])) {
-        $ampHourInt = intval(floatval($data['battery_energy_mwh']) / floatval($data['battery_voltage']));
+      $voltage = floatval($data['battery_voltage']);
+      $dootronic->set('field_volts', $voltage);
+      if ($voltage !== 0.0 && isset($data['battery_energy_mwh'])) {
+        $ampHourInt = intval(floatval($data['battery_energy_mwh']) / $voltage);
         $dootronic->set('field_amp_hours', $ampHourInt);
       }
     }
 
     // Keyboard type.
-    $this->setDootronicExternalValue($dootronic, 'keyboard_layout', 'field_keyboard_type');
+    $this->setDootronicExternalValue($dootronic, $data, 'keyboard_layout', 'field_keyboard_type');
 
     // Hub.
     if (isset($data['hub'])) {
@@ -640,19 +636,23 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * Sets an external value.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic entity.
+   * @param array $data
+   *   The external data.
    * @param string $dataKey
    *   The external data key.
    * @param string $fieldName
    *   The dootronic field name.
    *
    * @return void
+   *   The resulting value.
    */
   protected function setDootronicExternalValue(
-    EntityInterface $dootronic,
+    NodeInterface $dootronic,
+    array $data,
     string $dataKey,
-    string $fieldName
+    string $fieldName,
   ): void {
     if (isset($data[$dataKey])) {
       $dootronic->set($fieldName, $data[$dataKey]);
@@ -740,16 +740,17 @@ class DootronicRepository implements DootronicRepositoryInterface {
   /**
    * Invalidates the dootronic cache tag.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The entity.
    * @param bool $forAllUsers
    *   If set to TRUE, the cache will be regenerated for all users.
    *
    * @return void
+   *   The resulting value.
    */
   protected function clearCacheTag(
-    EntityInterface $dootronic,
-    bool $forAllUsers = FALSE
+    NodeInterface $dootronic,
+    bool $forAllUsers = FALSE,
   ): void {
     if ($forAllUsers) {
       $tag = sprintf(

@@ -2,23 +2,43 @@
 
 namespace Drupal\labdoo_migrate\Services\Incremental;
 
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Database\Connection;
 
 /**
  * Bounded, SELECT-only reader of Drupal 7 CURRENT node state.
  *
  * Roots are tnid=0 or nid=tnid. Fingerprints include their entire translation
- * family, current instantiated field_data rows, current locations and referenced
+ * family, current instantiated field_data rows, current locations and
+ * referenced
  * file metadata. They deliberately exclude revisions, access/view counters,
  * derived file_usage, and binary bytes (a separate files audit is required).
  */
 final class NodeSourceReader {
 
+  /**
+   * The inspected source tables, columns and data types.
+   */
   private array $schema = [];
+  /**
+   * The loaded source-to-destination field mappings.
+   */
   private array $mappings = [];
+  /**
+   * The validated schema coverage by source node type.
+   */
   private array $typeSchemas = [];
+  /**
+   * The current bounded source snapshot, if one has been loaded.
+   */
   private ?array $cached = NULL;
+  /**
+   * The identity of the currently cached source snapshot.
+   */
   private string $cacheKey = '';
+  /**
+   * The accumulated source bytes used to enforce snapshot limits.
+   */
   private int $bytes = 0;
   private const MAX_IDS = 500;
   private const MAX_BYTES = 16777216;
@@ -30,8 +50,11 @@ final class NodeSourceReader {
     if (!$database || $source->driver() !== 'mysql') {
       throw new \RuntimeException('Incremental node reader requires a MySQL/MariaDB Drupal 7 source.');
     }
-    // Information schema is read through SELECT, never SHOW/DDL or active swaps.
-    $rows = $source->query('SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = :database ORDER BY TABLE_NAME, ORDINAL_POSITION', [':database' => $database]);
+    // Information schema is read through SELECT, never SHOW/DDL or active
+    // swaps.
+    $rows = $source->query('SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = :database ORDER BY TABLE_NAME, ORDINAL_POSITION', [
+      ':database' => $database,
+    ]);
     $prefix = trim($source->prefixTables('{node}'), '`"');
     if (!str_ends_with($prefix, 'node')) {
       throw new \RuntimeException('Unexpected source table prefix.');
@@ -42,11 +65,29 @@ final class NodeSourceReader {
         continue;
       }
       $table = substr($row->TABLE_NAME, strlen($prefix));
-      if (in_array($table, ['node', 'location_instance', 'location', 'file_managed', 'field_config_instance', 'field_collection_item'], TRUE) || str_starts_with($table, 'field_data_')) {
+      if (in_array($table, [
+        'node',
+        'location_instance',
+        'location',
+        'file_managed',
+        'field_config_instance',
+        'field_collection_item',
+      ], TRUE) || str_starts_with($table, 'field_data_')) {
         $this->schema[$table][$row->COLUMN_NAME] = strtolower($row->DATA_TYPE);
       }
     }
-    $this->requireColumns('node', ['nid', 'vid', 'type', 'tnid', 'language', 'changed', 'status', 'title', 'uid', 'created']);
+    $this->requireColumns('node', [
+      'nid',
+      'vid',
+      'type',
+      'tnid',
+      'language',
+      'changed',
+      'status',
+      'title',
+      'uid',
+      'created',
+    ]);
     $this->requireIntegers('node', ['nid', 'vid', 'tnid', 'changed', 'status', 'uid', 'created']);
     $this->requireColumns('field_config_instance', ['field_name', 'entity_type', 'bundle', 'deleted']);
     if (!$mappingConfig) {
@@ -57,7 +98,7 @@ final class NodeSourceReader {
     if (isset($mappingConfig['source_type'])) {
       $mappingConfig = [$mappingConfig];
     }
-    foreach ($mappingConfig as $key => $config) {
+    foreach ($mappingConfig as $config) {
       if (is_array($config) && ($config['entity_type'] ?? 'node') === 'node' && isset($config['source_type'])) {
         $this->mappings[$config['source_type']] = $config;
       }
@@ -67,6 +108,9 @@ final class NodeSourceReader {
     }
   }
 
+  /**
+   * Requires a supported source table and all referenced columns.
+   */
   private function requireColumns(string $table, array $columns): void {
     if (!preg_match('/^[a-z][a-z0-9_]*$/D', $table) || !isset($this->schema[$table])) {
       throw new \RuntimeException('Missing or unsupported source table: ' . $table);
@@ -78,6 +122,9 @@ final class NodeSourceReader {
     }
   }
 
+  /**
+   * Validates, deduplicates and sorts a bounded batch of source IDs.
+   */
   private function ids(array $ids): array {
     if (count($ids) > self::MAX_IDS) {
       throw new \InvalidArgumentException('Source batches are limited to 500 IDs.');
@@ -92,6 +139,9 @@ final class NodeSourceReader {
     return $ids;
   }
 
+  /**
+   * Requires integer-compatible source columns before numeric comparisons.
+   */
   private function requireIntegers(string $table, array $columns): void {
     foreach ($columns as $column) {
       if (!in_array($this->schema[$table][$column] ?? '', ['tinyint', 'smallint', 'mediumint', 'int', 'bigint'], TRUE)) {
@@ -100,6 +150,9 @@ final class NodeSourceReader {
     }
   }
 
+  /**
+   * Checks source schema coverage for the requested node projection.
+   */
   private function coverage(string $type): array {
     if (!isset($this->mappings[$type])) {
       throw new \RuntimeException('Unmapped source node type: ' . $type);
@@ -113,7 +166,15 @@ final class NodeSourceReader {
     foreach ($query->execute() as $instance) {
       $row = (array) $instance;
       $table = 'field_data_' . $row['field_name'];
-      $this->requireColumns($table, ['entity_type', 'entity_id', 'bundle', 'deleted', 'revision_id', 'language', 'delta']);
+      $this->requireColumns($table, [
+        'entity_type',
+        'entity_id',
+        'bundle',
+        'deleted',
+        'revision_id',
+        'language',
+        'delta',
+      ]);
       $this->requireIntegers($table, ['entity_id', 'deleted', 'revision_id', 'delta']);
       $tables[$table] = $this->schema[$table];
       $instances[] = $row;
@@ -126,7 +187,16 @@ final class NodeSourceReader {
           $this->requireColumns('node', isset($field['expression']) ? [] : [$field['field']]);
         }
         elseif (str_starts_with($table, 'field_data_')) {
-          $this->requireColumns($table, ['entity_type', 'entity_id', 'bundle', 'deleted', 'revision_id', 'language', 'delta', $field['field']]);
+          $this->requireColumns($table, [
+            'entity_type',
+            'entity_id',
+            'bundle',
+            'deleted',
+            'revision_id',
+            'language',
+            'delta',
+            $field['field'],
+          ]);
           $this->requireIntegers($table, ['entity_id', 'deleted', 'revision_id', 'delta']);
           $tables[$table] = $this->schema[$table];
         }
@@ -152,7 +222,16 @@ final class NodeSourceReader {
           $joinTable = $join['table'] ?? '';
           if (str_starts_with($joinTable, 'field_data_')) {
             $lidColumn = substr($joinTable, strlen('field_data_')) . '_lid';
-            $this->requireColumns($joinTable, ['entity_type', 'entity_id', 'bundle', 'deleted', 'revision_id', 'language', 'delta', $lidColumn]);
+            $this->requireColumns($joinTable, [
+              'entity_type',
+              'entity_id',
+              'bundle',
+              'deleted',
+              'revision_id',
+              'language',
+              'delta',
+              $lidColumn,
+            ]);
             $this->requireIntegers($joinTable, ['entity_id', 'deleted', 'revision_id', 'delta', $lidColumn]);
             $tables[$joinTable] = $this->schema[$joinTable];
             $locations = TRUE;
@@ -180,17 +259,49 @@ final class NodeSourceReader {
       $this->requireIntegers('location', ['lid']);
     }
     if ($type === 'labdoo_story') {
-      $this->requireColumns('field_data_field_story_section', ['entity_id', 'entity_type', 'bundle', 'deleted', 'revision_id', 'language', 'delta', 'field_story_section_value', 'field_story_section_revision_id']);
+      $this->requireColumns('field_data_field_story_section', [
+        'entity_id',
+        'entity_type',
+        'bundle',
+        'deleted',
+        'revision_id',
+        'language',
+        'delta',
+        'field_story_section_value',
+        'field_story_section_revision_id',
+      ]);
       $tables['field_data_field_story_section'] = $this->schema['field_data_field_story_section'];
       $this->requireColumns('field_collection_item', ['item_id', 'revision_id', 'field_name']);
-      foreach (['heading' => ['field_story_heading_value'], 'text' => ['field_story_text_value', 'field_story_text_format'], 'picture' => ['field_story_picture_fid']] as $part => $columns) {
-        $this->requireColumns('field_data_field_story_' . $part, array_merge(['entity_id', 'entity_type', 'bundle', 'deleted', 'revision_id', 'language', 'delta'], $columns));
+      foreach (['heading' => ['field_story_heading_value'], 'text' => [
+        'field_story_text_value',
+        'field_story_text_format',
+      ], 'picture' => [
+        'field_story_picture_fid',
+      ]] as $part => $columns) {
+        $this->requireColumns('field_data_field_story_' . $part, array_merge([
+          'entity_id',
+          'entity_type',
+          'bundle',
+          'deleted',
+          'revision_id',
+          'language',
+          'delta',
+        ], $columns));
       }
     }
     ksort($tables);
-    return $this->typeSchemas[$type] = ['fields' => $tables, 'locations' => $locations, 'instances' => $instances, 'mapping' => $this->mappings[$type], 'version' => 1];
+    return $this->typeSchemas[$type] = [
+      'fields' => $tables,
+      'locations' => $locations,
+      'instances' => $instances,
+      'mapping' => $this->mappings[$type],
+      'version' => 1,
+    ];
   }
 
+  /**
+   * Reads the highest source node ID for the selected type.
+   */
   public function maxId(string $type): int {
     $this->coverage($type);
     $query = $this->source->select('node', 'n')->condition('type', $type)->where('(n.tnid = 0 OR n.nid = n.tnid)');
@@ -198,11 +309,17 @@ final class NodeSourceReader {
     return (int) $query->execute()->fetchField();
   }
 
+  /**
+   * Counts translation-family roots up to the planning ceiling.
+   */
   public function rootCount(string $type, int $ceiling): int {
     $this->coverage($type);
     return (int) $this->source->select('node', 'n')->condition('type', $type)->condition('nid', $ceiling, '<=')->where('(n.tnid = 0 OR n.tnid = n.nid)')->countQuery()->execute()->fetchField();
   }
 
+  /**
+   * Reads a bounded page of source roots after the current cursor.
+   */
   public function page(string $type, int $after, int $limit, int $ceiling): array {
     $this->coverage($type);
     if ($after < 0 || $ceiling < 0 || $limit < 1 || $limit > self::MAX_IDS) {
@@ -216,30 +333,48 @@ final class NodeSourceReader {
     return $result;
   }
 
+  /**
+   * Normalizes source node metadata for fingerprinting.
+   */
   private function metadata(array $row): array {
-    return ['nid' => (int) $row['nid'], 'vid' => (int) $row['vid'], 'changed' => (int) $row['changed'], 'status' => (int) $row['status'], 'language' => (string) $row['language']];
+    return [
+      'nid' => (int) $row['nid'],
+      'vid' => (int) $row['vid'],
+      'changed' => (int) $row['changed'],
+      'status' => (int) $row['status'],
+      'language' => (string) $row['language'],
+    ];
   }
 
+  /**
+   * Reads the existing source node records for a bounded ID set.
+   */
   public function existing(array $ids): array {
     $ids = $this->ids($ids);
     return $ids ? $this->source->select('node', 'n')->fields('n', ['nid', 'type'])->condition('nid', $ids, 'IN')->execute()->fetchAllKeyed() : [];
   }
 
-  /** Root membership is separate from existence to detect root-to-translation changes. */
+  /**
+   * Distinguishes source roots from translated family members.
+   */
   public function rootIds(array $ids): array {
     $ids = $this->ids($ids);
     return $ids ? array_map('intval', $this->source->select('node', 'n')->fields('n', ['nid'])->condition('nid', $ids, 'IN')->where('(n.tnid = 0 OR n.tnid = n.nid)')->execute()->fetchCol()) : [];
   }
 
-  /** Returns raw CURRENT payload, cached only for the latest bounded batch. */
+  /**
+   * Returns raw CURRENT payload, cached only for the latest bounded batch.
+   */
   public function snapshots(string $type, array $ids): array {
     $ids = $this->ids($ids);
     $coverage = $this->coverage($type);
+
     $key = $type . ':' . implode(',', $ids);
     if ($key === $this->cacheKey && $this->cached !== NULL) {
       return $this->cached;
     }
-    // Stream rows rather than buffering up to MAX_ROWS large text values in PDO.
+    // Stream rows rather than buffering up to MAX_ROWS large text values in
+    // PDO.
     $client = $this->source->getClientConnection();
     $buffered = $client->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY);
     $client->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, FALSE);
@@ -251,9 +386,22 @@ final class NodeSourceReader {
     }
   }
 
+  /**
+   * Loads covered current-state rows for the selected source families.
+   */
   private function readSnapshot(string $type, array $ids, array $coverage, string $key): array {
     $this->bytes = 0;
-    $snapshot = ['nodes' => [], 'fields' => [], 'locations' => [], 'location_instances' => [], 'files' => [], 'story_sections' => [], 'translations' => [], 'roots' => [], 'coverage' => $coverage];
+    $snapshot = [
+      'nodes' => [],
+      'fields' => [],
+      'locations' => [],
+      'location_instances' => [],
+      'files' => [],
+      'story_sections' => [],
+      'translations' => [],
+      'roots' => [],
+      'coverage' => $coverage,
+    ];
     if (!$ids) {
       return $snapshot;
     }
@@ -365,7 +513,9 @@ final class NodeSourceReader {
     return $this->cached = $snapshot;
   }
 
-  /** Batch-load current field collection rows referenced by story section VID. */
+  /**
+   * Batch-load current field collection rows referenced by story section VID.
+   */
   private function storySections(array &$snapshot, array &$fileIds): void {
     $references = [];
     $items = [];
@@ -390,7 +540,9 @@ final class NodeSourceReader {
       }
       $snapshot['story_reference_rows'][$nid] = $rows;
     }
-    if (!$references) { return; }
+    if (!$references) {
+      return;
+    }
     $metadata = [];
     $count = 0;
     $query = $this->source->select('field_collection_item', 'i')->fields('i')->condition('item_id', array_values($items), 'IN')->range(0, self::MAX_ROWS + 1);
@@ -427,10 +579,15 @@ final class NodeSourceReader {
         if (!isset($metadata[$itemId])) {
           throw new \RuntimeException('Missing story field collection item.');
         }
-        $section = ['revision_id' => $vid, 'delta' => (int) $reference['delta'], 'metadata' => $metadata[$itemId], 'source_rows' => $components[$vid] ?? []];
+        $section = [
+          'revision_id' => $vid,
+          'delta' => (int) $reference['delta'],
+          'metadata' => $metadata[$itemId],
+          'source_rows' => $components[$vid] ?? [],
+        ];
         foreach (['heading', 'text', 'picture'] as $part) {
           $candidates = $components[$vid][$part] ?? [];
-          $section[$part] = $candidates[$snapshot['nodes'][$nid]['language']] ?? $candidates['und'] ?? NULL;
+          $section[$part] = $candidates[$snapshot['nodes'][$nid]['language']] ?? $candidates[LanguageInterface::LANGCODE_NOT_SPECIFIED] ?? NULL;
           if ($candidates && $section[$part] === NULL) {
             throw new \RuntimeException('Story component has no matching or neutral language.');
           }
@@ -448,6 +605,9 @@ final class NodeSourceReader {
     unset($snapshot['story_reference_rows']);
   }
 
+  /**
+   * Enforces row-count and byte limits while reading source snapshots.
+   */
   private function bound(array $row, int $count): void {
     $this->bytes += strlen(serialize($row));
     if ($count > self::MAX_ROWS || $this->bytes > self::MAX_BYTES) {
@@ -455,14 +615,18 @@ final class NodeSourceReader {
     }
   }
 
-  /** Explicitly invalidate cached rows before re-reading a concurrently changed source. */
+  /**
+   * Invalidates cached rows before reading concurrent source changes.
+   */
   public function refresh(): void {
     $this->cached = NULL;
     $this->cacheKey = '';
     $this->typeSchemas = [];
   }
 
-  /** Stable across PDO integer/string fetch modes; preserves NULL and binary data. */
+  /**
+   * Preserves NULL and binary values across PDO scalar fetch modes.
+   */
   private function canonical(array $row, array $columns = []): string {
     ksort($row);
     foreach ($row as $column => &$value) {
@@ -497,12 +661,18 @@ final class NodeSourceReader {
     return json_encode($row, JSON_THROW_ON_ERROR);
   }
 
+  /**
+   * Fingerprints a source table's normalized current-state rows.
+   */
   private function rowsHash(array $rows, string $table): string {
     $normalized = array_map(fn(array $row): string => $this->canonical($row, $this->schema[$table] ?? []), $rows);
     sort($normalized, SORT_STRING);
     return hash('sha256', json_encode($normalized, JSON_THROW_ON_ERROR));
   }
 
+  /**
+   * Builds source fingerprints for the requested node families.
+   */
   public function fingerprints(string $type, array $ids): array {
     // Apply-time verification must never reuse the planning snapshot.
     $this->refresh();
@@ -528,7 +698,11 @@ final class NodeSourceReader {
           }
         }
         foreach ($snapshot['story_sections'][$member] ?? [] as $position => $section) {
-          $sectionHash = ['revision_id' => $section['revision_id'], 'delta' => $section['delta'], 'metadata' => $this->canonical($section['metadata'], $this->schema['field_collection_item'])];
+          $sectionHash = [
+            'revision_id' => $section['revision_id'],
+            'delta' => $section['delta'],
+            'metadata' => $this->canonical($section['metadata'], $this->schema['field_collection_item']),
+          ];
           foreach (['heading', 'text', 'picture'] as $part) {
             $sectionHash[$part] = $this->rowsHash(array_values($section['source_rows'][$part] ?? []), 'field_data_field_story_' . $part);
           }
@@ -559,7 +733,10 @@ final class NodeSourceReader {
         }
       };
       $sort($parts);
-      $result[$nid] = $this->metadata($root) + ['languages' => array_values(array_unique(array_column($family, 'language'))), 'hash' => hash('sha256', serialize($parts))];
+      $result[$nid] = $this->metadata($root) + [
+        'languages' => array_values(array_unique(array_column($family, 'language'))),
+        'hash' => hash('sha256', serialize($parts)),
+      ];
     }
     return $result;
   }

@@ -100,7 +100,7 @@ class TranslationRepository implements TranslationRepositoryInterface {
   public function __construct(
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ExternalConnectionManager $externalConnectionManager,
-    ConfigurationManagerInterface $configurationManager
+    ConfigurationManagerInterface $configurationManager,
   ) {
 
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
@@ -125,7 +125,7 @@ class TranslationRepository implements TranslationRepositoryInterface {
       ->fields($this->tableName, [$this->fieldLangName])
       ->condition($this->fieldIdName, $entityId)
       ->execute()
-      ->fetch();
+      ->fetchObject();
     $this->externalConnectionManager->restoreConnection();
 
     return $result ? $result->language : '';
@@ -147,7 +147,7 @@ class TranslationRepository implements TranslationRepositoryInterface {
     $this->externalConnectionManager->restoreConnection();
 
     $translations = [];
-    foreach ($result as $id => $item) {
+    foreach ($result as $item) {
       $translations[] = new TranslationModel(
         $item->{$this->fieldIdName},
         $item->{$this->fieldLangName}
@@ -163,8 +163,8 @@ class TranslationRepository implements TranslationRepositoryInterface {
   public function getOriginalTranslation(
     int $entityId,
     FieldModel $field,
-    string $mainLangCode
-  ): string {
+    string $mainLangCode,
+  ): string|false {
 
     $taxonomyData = $field->getTaxonomy();
     if (!$taxonomyData) {
@@ -232,11 +232,11 @@ class TranslationRepository implements TranslationRepositoryInterface {
       ->fields($field->getTableName(), [$field->getFieldName()])
       ->condition($field->getKeyName(), $entityId)
       ->execute()
-      ->fetch();
+      ->fetchObject();
 
     $value = $auxiliaryEntityId->{$field->getFieldName()}
-      ? (int) $auxiliaryEntityId->{$field->getFieldName()}
-      : FALSE;
+    ? (int) $auxiliaryEntityId->{$field->getFieldName()}
+    : FALSE;
 
     $this->auxiliaryEntityIdCache[$cacheKey] = $value;
 
@@ -256,7 +256,7 @@ class TranslationRepository implements TranslationRepositoryInterface {
    */
   protected function getCurrentTranslationId(
     int $entityId,
-    TaxonomyModel $taxonomyData
+    TaxonomyModel $taxonomyData,
   ) {
 
     $table = $taxonomyData->getBaseTable();
@@ -273,11 +273,11 @@ class TranslationRepository implements TranslationRepositoryInterface {
       ->fields($table, [$translationField])
       ->condition($keyField, $entityId)
       ->execute()
-      ->fetch();
+      ->fetchObject();
 
     $value = $translationId->{$translationField}
-      ? (int) $translationId->{$translationField}
-      : FALSE;
+    ? (int) $translationId->{$translationField}
+    : FALSE;
 
     $this->currentTranslationIdCache[$cacheKey] = $value;
 
@@ -300,7 +300,7 @@ class TranslationRepository implements TranslationRepositoryInterface {
   protected function getMainTranslation(
     int $translationId,
     TaxonomyModel $taxonomyData,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     $table = $taxonomyData->getBaseTable();
@@ -319,7 +319,7 @@ class TranslationRepository implements TranslationRepositoryInterface {
       ->condition($translationField, $translationId)
       ->condition($languageField, $mainLangCode)
       ->execute()
-      ->fetch();
+      ->fetchObject();
 
     $value = $mainTranslationId->{$valueField} ?? FALSE;
     $this->mainTranslationCache[$cacheKey] = $value;

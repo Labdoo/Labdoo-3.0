@@ -1,14 +1,20 @@
 <?php
 
+/**
+ * @file
+ * Integrates wiki entity, view and form alterations.
+ */
+
 declare(strict_types=1);
 
 /**
- * Developed by Natiboo <info@natiboo.es>
+ * Developed by Natiboo <info@natiboo.es>.
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
 
+use Drupal\views\Plugin\views\query\Sql;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
@@ -21,7 +27,7 @@ function labdoo_wiki_form_alter(&$form, FormStateInterface $form_state, $form_id
   if ($form['#id'] === 'views-exposed-form-wiki-page-2') {
     $current_path = \Drupal::service('path.current')->getPath();
     if ($current_path === '/wiki' && isset($form['langcode_1'])) {
-        $form['langcode_1']['#access'] = FALSE;
+      $form['langcode_1']['#access'] = FALSE;
     }
   }
 }
@@ -30,6 +36,9 @@ function labdoo_wiki_form_alter(&$form, FormStateInterface $form_state, $form_id
  * Implements hook_views_query_alter().
  */
 function labdoo_wiki_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
+  if (!$query instanceof Sql) {
+    return;
+  }
   if ($view->id() == 'wiki') {
     $user_id = \Drupal::request()->query->get('u');
     $mine = \Drupal::request()->query->get('mine');
@@ -38,7 +47,7 @@ function labdoo_wiki_views_query_alter(ViewExecutable $view, QueryPluginBase $qu
       $query->addWhere('AND', 'mini_wiki_page_field_data.uid', $user_id, '=');
     }
     elseif (!empty($mine) && (int) $mine === 1) {
-      $query->addWhere('AND', 'mini_wiki_page_field_data.uid', \Drupal::currentUser()->id(), '=');
+      $query->addWhere('AND', 'mini_wiki_page_field_data.uid', (string) \Drupal::currentUser()->id(), '=');
     }
   }
 }

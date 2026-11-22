@@ -1,7 +1,7 @@
 labdoo_edoovillage.export_csv:
   path: '/edoovillage/export/csv/{viewId}/{displayId}'
   defaults:
-    _controller: '\Drupal\labdoo_edoovillage\Controller\ExportController::exportCSV'
+    _controller: '\Drupal\labdoo_edoovillage\Controller\ExportController::exportCsv'
     _title: 'CSV data export'
   requirements:
     _permission: 'access content'

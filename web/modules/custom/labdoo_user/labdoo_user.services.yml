@@ -1,6 +1,7 @@
 services:
   labdoo_user.path_processor:
     class: Drupal\labdoo_user\PathProcessor\UserPathProcessor
+    arguments: ['@entity_type.manager', '@logger.factory']
     tags:
       - { name: path_processor_inbound, priority: 200 }
       - { name: path_processor_outbound, priority: 300 }

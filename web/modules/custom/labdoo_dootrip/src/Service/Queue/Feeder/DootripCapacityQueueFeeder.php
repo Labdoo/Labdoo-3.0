@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootrip\Service\Queue\Feeder;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\queue_manager\Model\QueueDataModel;
 
 /**
@@ -23,14 +23,14 @@ class DootripCapacityQueueFeeder extends AbstractQueueFeeder implements QueueFee
   /**
    * {@inheritDoc}
    */
-  public function getQueueId(): ?string {
+  public function getQueueId(): string {
     return self::QUEUE_ID;
   }
 
   /**
    * {@inheritDoc}
    */
-  public function feedQueue(EntityInterface $dootrip): void {
+  public function feedQueue(NodeInterface $dootrip): void {
     $item = [
       'id' => (int) $dootrip->id(),
       'uid' => (int) $dootrip->getOwnerId(),
@@ -39,8 +39,8 @@ class DootripCapacityQueueFeeder extends AbstractQueueFeeder implements QueueFee
     if (isset($dootrip->original)) {
       $originalDootronicIds = [];
       foreach ($dootrip->original->get('field_laptops') as $fieldItem) {
-        if ($fieldItem->target_id) {
-          $originalDootronicIds[] = (int) $fieldItem->target_id;
+        if ($fieldItem->get('target_id')->getValue()) {
+          $originalDootronicIds[] = (int) $fieldItem->get('target_id')->getValue();
         }
       }
       $item['original_dootronic_ids'] = $originalDootronicIds;

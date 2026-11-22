@@ -1,11 +1,16 @@
 <?php
 
 /**
+ * @file
+ * Provides installation and update hooks for mini wiki.
+ *
  * Developed by Natiboo <info@natiboo.es>
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
+
+use Drupal\mini_wiki\Entity\MiniWikiPage;
 
 /**
  * Uninstalls the entity.
@@ -108,7 +113,7 @@ function _mini_wiki_fix_double_encoding($string) {
   $bytes = @mb_convert_encoding($string, 'Windows-1252', 'UTF-8');
 
   // If the result is valid UTF-8, it means it was double-encoded.
-  if ($bytes !== FALSE && mb_check_encoding($bytes, 'UTF-8')) {
+  if (mb_check_encoding($bytes, 'UTF-8')) {
     return $bytes;
   }
 
@@ -121,11 +126,11 @@ function _mini_wiki_fix_double_encoding($string) {
 function mini_wiki_update_10002() {
   $manager = \Drupal::entityDefinitionUpdateManager();
   if (!$manager->getFieldStorageDefinition('weight', 'mini_wiki_page')) {
-    $fields = \Drupal\mini_wiki\Entity\MiniWikiPage::baseFieldDefinitions(
+    $fields = MiniWikiPage::baseFieldDefinitions(
       $manager->getEntityType('mini_wiki_page')
     );
     $manager->installFieldStorageDefinition(
-      'weight', 'mini_wiki_page', 'mini_wiki', $fields['weight']
+      'weight', 'mini_wiki_page', 'mini_wiki', $fields['weight']->getFieldStorageDefinition()
     );
   }
 }

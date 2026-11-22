@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_notifications\Form;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Component\Utility\EmailValidatorInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -9,6 +11,19 @@ use Drupal\Core\Form\FormStateInterface;
  * Configure test email settings for the Labdoo Notifications module.
  */
 class TestEmailSettingsForm extends ConfigFormBase {
+  /**
+   * The email.validator service.
+   */
+  protected EmailValidatorInterface $emailValidator;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->emailValidator = $container->get('email.validator');
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -53,7 +68,7 @@ class TestEmailSettingsForm extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     $email = $form_state->getValue('test_email');
-    if (!empty($email) && !\Drupal::service('email.validator')->isValid($email)) {
+    if (!empty($email) && !$this->emailValidator->isValid($email)) {
       $form_state->setErrorByName('test_email', $this->t('The email address %mail is not valid.', ['%mail' => $email]));
     }
   }

@@ -2,7 +2,8 @@
 
 namespace Drupal\natiboo_migrate_data\Service;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\paragraphs\ParagraphInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
@@ -75,14 +76,14 @@ class EntityImport implements ImportInterface {
     $entityType = $data['entity_type'];
     $uuid = $data['fields']['uuid'] ?? NULL;
 
-    // If $uuid is an array, extract the first value or use NULL
+    // If $uuid is an array, extract the first value or use NULL.
     if (is_array($uuid) && !empty($uuid)) {
       $this->logger->notice(
         'UUID field is an array, using the first value: @uuid',
         ['@uuid' => print_r($uuid, TRUE)]
       );
       $uuid = reset($uuid);
-      // If the first value is an array too, we can't use it as a UUID
+      // If the first value is an array too, we can't use it as a UUID.
       if (is_array($uuid)) {
         $this->logger->warning(
           'UUID field contains nested arrays, cannot use as entity UUID',
@@ -98,10 +99,13 @@ class EntityImport implements ImportInterface {
 
       if (!empty($existingEntities)) {
         $existingEntity = reset($existingEntities);
+        if (!$existingEntity instanceof ContentEntityInterface) {
+          throw new \UnexpectedValueException('Storage returned an unsupported entity type.');
+        }
         if ($overwrite) {
           // Update the existing entity with new field values.
           foreach ($data['fields'] as $fieldName => $fieldValues) {
-            // Skip the UUID field to avoid conflicts
+            // Skip the UUID field to avoid conflicts.
             if ($fieldName === 'uuid') {
               $this->logger->notice(
                 'Skipping UUID field during update to avoid conflicts',
@@ -137,28 +141,29 @@ class EntityImport implements ImportInterface {
    *   - bundle: The bundle (subtype) of the entity to create.
    *   - fields: An associative array of fields.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    *   The created and saved entity object.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  protected function createEntity(array $data): EntityInterface {
+  protected function createEntity(array $data): ContentEntityInterface {
     $entityType = $data['entity_type'];
     $bundle = $data['bundle'];
     $values = ['type' => $bundle];
 
-    // Check if the data contains an ID that might conflict with existing entities
+    // Check if the data contains an ID that might conflict with existing
+    // entities.
     $id = $data['fields']['id'] ?? NULL;
-    // If $id is an array, extract the first value or use NULL
+    // If $id is an array, extract the first value or use NULL.
     if (is_array($id) && !empty($id)) {
       $this->logger->notice(
         'ID field is an array, using the first value: @id',
         ['@id' => print_r($id, TRUE)]
       );
       $id = reset($id);
-      // If the first value is an array too, we can't use it as an ID
+      // If the first value is an array too, we can't use it as an ID.
       if (is_array($id)) {
         $this->logger->warning(
           'ID field contains nested arrays, cannot use as entity ID',
@@ -168,16 +173,17 @@ class EntityImport implements ImportInterface {
       }
     }
 
-    // Check if the data contains a revision_id that might conflict with existing entities
+    // Check if the data contains a revision_id that might conflict with
+    // existing entities.
     $revision_id = $data['fields']['revision_id'] ?? NULL;
-    // If $revision_id is an array, extract the first value or use NULL
+    // If $revision_id is an array, extract the first value or use NULL.
     if (is_array($revision_id) && !empty($revision_id)) {
       $this->logger->notice(
         'Revision ID field is an array, using the first value: @revision_id',
         ['@revision_id' => print_r($revision_id, TRUE)]
       );
       $revision_id = reset($revision_id);
-      // If the first value is an array too, we can't use it as a revision ID
+      // If the first value is an array too, we can't use it as a revision ID.
       if (is_array($revision_id)) {
         $this->logger->warning(
           'Revision ID field contains nested arrays, cannot use as entity revision ID',
@@ -187,16 +193,17 @@ class EntityImport implements ImportInterface {
       }
     }
 
-    // Check if the data contains a UUID that might conflict with existing entities
+    // Check if the data contains a UUID that might conflict with existing
+    // entities.
     $uuid = $data['fields']['uuid'] ?? NULL;
-    // If $uuid is an array, extract the first value or use NULL
+    // If $uuid is an array, extract the first value or use NULL.
     if (is_array($uuid) && !empty($uuid)) {
       $this->logger->notice(
         'UUID field is an array, using the first value: @uuid',
         ['@uuid' => print_r($uuid, TRUE)]
       );
       $uuid = reset($uuid);
-      // If the first value is an array too, we can't use it as a UUID
+      // If the first value is an array too, we can't use it as a UUID.
       if (is_array($uuid)) {
         $this->logger->warning(
           'UUID field contains nested arrays, cannot use as entity UUID',
@@ -207,61 +214,67 @@ class EntityImport implements ImportInterface {
     }
 
     if ($id && $entityType === 'paragraph') {
-      // Check if a paragraph with this ID already exists
+      // Check if a paragraph with this ID already exists.
       $existingEntity = $this->entityTypeManager
         ->getStorage($entityType)
         ->load($id);
 
       if ($existingEntity) {
         // If entity with this ID already exists, don't use the ID from the data
-        // This will allow Drupal to auto-generate a new ID
+        // This will allow Drupal to auto-generate a new ID.
         $this->logger->notice(
           'Entity of type @type with ID @id already exists. A new ID will be generated.',
           ['@type' => $entityType, '@id' => $id]
         );
         unset($data['fields']['id']);
-      } else {
-        // If the ID doesn't conflict, set it explicitly in the values
+      }
+      else {
+        // If the ID doesn't conflict, set it explicitly in the values.
         $values['id'] = $id;
       }
     }
 
-    // Check if a paragraph with this revision ID already exists
+    // Check if a paragraph with this revision ID already exists.
     if ($revision_id && $entityType === 'paragraph') {
       $query = $this->entityTypeManager->getStorage($entityType)->getQuery()->accessCheck();
       $query->condition('revision_id', $revision_id);
       $result = $query->execute();
 
       if (!empty($result)) {
-        // If entity with this revision ID already exists, don't use the revision_id from the data
-        // This will allow Drupal to auto-generate a new revision ID
+        // If entity with this revision ID already exists, don't use the
+        // revision_id
+        // from the data
+        // This will allow Drupal to auto-generate a new revision ID.
         $this->logger->notice(
           'Entity of type @type with revision ID @revision_id already exists. A new revision ID will be generated.',
           ['@type' => $entityType, '@revision_id' => $revision_id]
         );
         unset($data['fields']['revision_id']);
-      } else {
-        // If the revision ID doesn't conflict, set it explicitly in the values
+      }
+      else {
+        // If the revision ID doesn't conflict, set it explicitly in the values.
         $values['revision_id'] = $revision_id;
       }
     }
 
-    // Check if an entity with this UUID already exists
+    // Check if an entity with this UUID already exists.
     if ($uuid && $entityType === 'paragraph') {
       $existingEntities = $this->entityTypeManager
         ->getStorage($entityType)
         ->loadByProperties(['uuid' => $uuid]);
 
       if (!empty($existingEntities)) {
-        // If entity with this UUID already exists, don't use the UUID from the data
-        // This will allow Drupal to generate a new UUID
+        // If entity with this UUID already exists, don't use the UUID from the
+        // data
+        // This will allow Drupal to generate a new UUID.
         $this->logger->notice(
           'Entity of type @type with UUID @uuid already exists. A new UUID will be generated.',
           ['@type' => $entityType, '@uuid' => $uuid]
         );
         unset($data['fields']['uuid']);
-      } else {
-        // If the UUID doesn't conflict, set it explicitly in the values
+      }
+      else {
+        // If the UUID doesn't conflict, set it explicitly in the values.
         $values['uuid'] = $uuid;
       }
     }
@@ -274,9 +287,13 @@ class EntityImport implements ImportInterface {
         ->getStorage($entityType)
         ->create($values);
     }
+    if (!$entity instanceof ContentEntityInterface) {
+      throw new \UnexpectedValueException('Storage returned an unsupported entity type.');
+    }
 
     foreach ($data['fields'] as $fieldName => $fieldValues) {
-      // Skip the ID, revision_id, and uuid fields as they're handled separately
+      // Skip the ID, revision_id, and uuid fields as they're handled
+      // separately.
       if ($fieldName === 'id' || $fieldName === 'revision_id' || $fieldName === 'uuid') {
         continue;
       }
@@ -397,14 +414,14 @@ class EntityImport implements ImportInterface {
         && $item['entity_type'] === 'paragraph'
       ) {
         $uuid = $item['uuid'] ?? NULL;
-        // If $uuid is an array, extract the first value or use NULL
+        // If $uuid is an array, extract the first value or use NULL.
         if (is_array($uuid) && !empty($uuid)) {
           $this->logger->notice(
             'Paragraph UUID is an array, using the first value: @uuid',
             ['@uuid' => print_r($uuid, TRUE)]
           );
           $uuid = reset($uuid);
-          // If the first value is an array too, we can't use it as a UUID
+          // If the first value is an array too, we can't use it as a UUID.
           if (is_array($uuid)) {
             $this->logger->warning(
               'Paragraph UUID contains nested arrays, cannot use as entity UUID',
@@ -421,8 +438,11 @@ class EntityImport implements ImportInterface {
 
           if (!empty($existingParagraphs)) {
             $paragraph = reset($existingParagraphs);
+            if (!$paragraph instanceof ParagraphInterface) {
+              throw new \UnexpectedValueException('Storage returned an unsupported entity type.');
+            }
             foreach ($item['fields'] as $fieldName => $fieldValues) {
-              // Skip the UUID field to avoid conflicts
+              // Skip the UUID field to avoid conflicts.
               if ($fieldName === 'uuid') {
                 $this->logger->notice(
                   'Skipping UUID field during paragraph update to avoid conflicts',
@@ -444,6 +464,9 @@ class EntityImport implements ImportInterface {
           }
           else {
             $paragraph = $this->createEntity($item);
+            if (!$paragraph instanceof ParagraphInterface) {
+              throw new \UnexpectedValueException('Storage returned an unsupported entity type.');
+            }
           }
 
           $values[] = [
@@ -457,14 +480,14 @@ class EntityImport implements ImportInterface {
       }
       elseif ($fieldType === 'entity_reference') {
         $target_id = $item['target_id'] ?? NULL;
-        // Handle case where target_id is an array
+        // Handle case where target_id is an array.
         if (is_array($target_id) && !empty($target_id)) {
           $this->logger->notice(
             'Target ID is an array, using the first value: @id',
             ['@id' => print_r($target_id, TRUE)]
           );
           $target_id = reset($target_id);
-          // If the first value is an array too, we can't use it as a target_id
+          // If the first value is an array too, we can't use it as a target_id.
           if (is_array($target_id)) {
             $this->logger->warning(
               'Target ID contains nested arrays, cannot use as entity reference',

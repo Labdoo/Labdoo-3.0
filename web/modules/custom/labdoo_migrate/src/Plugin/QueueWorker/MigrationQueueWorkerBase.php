@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Plugin\QueueWorker;
 
+use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -16,6 +17,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base class for migration queue workers.
+ *
+ * @phpstan-consistent-constructor
  */
 abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -65,7 +68,7 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
     DestinationRepositoryInterface $nodeDestinationRepository,
     DestinationRepositoryInterface $userDestinationRepository,
     SourceRepositoryInterface $nodeSourceRepository,
-    SourceRepositoryInterface $userSourceRepository
+    SourceRepositoryInterface $userSourceRepository,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('labdoo_migrate');
@@ -82,7 +85,7 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     return new static(
       $configuration,
@@ -101,7 +104,7 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
    */
   public function processItem($data): void {
     if (empty($GLOBALS['labdoo_incremental_lock_owner']) && !\Drupal::lock()->lockMayBeAvailable('labdoo_migrate.delta')) {
-      throw new \Drupal\Core\Queue\SuspendQueueException('Incremental writer active; retain legacy migration work.');
+      throw new SuspendQueueException('Incremental writer active; retain legacy migration work.');
     }
     $state = \Drupal::state();
     $previousRunning = $state->get('labdoo_migrate_is_running');
@@ -164,7 +167,9 @@ abstract class MigrationQueueWorkerBase extends QueueWorkerBase implements Conta
         }
 
         // For updates, we need the destination entities.
-        // The destinationRepository::getEntities normally takes array of content types and array of nids.
+        // The destinationRepository::getEntities normally takes array of
+        // content
+        // types and array of nids.
         $destinationEntities = $destinationRepository->getEntities([$destinationContentType], [$destinationEntityId]);
         if (empty($destinationEntities)) {
           $this->logger->warning(sprintf('Destination entity %s of type %s not found for update.', $destinationEntityId, $destinationContentType));

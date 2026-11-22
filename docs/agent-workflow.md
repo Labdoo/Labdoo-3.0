@@ -26,14 +26,16 @@ Creating or adapting relevant tests, executing applicable suites and reviewing t
 | Queues or migrations | Exercise the actual producer/consumer or mapping path in an isolated clone, including repeated execution, missing entities and the relevant failure case. |
 | Deployment | Follow the maintained deployment guide on the target branch; validate as the actual web runtime, including PHP-FPM where applicable. |
 
-PHPCS and PHPStan level 5 are intended project quality checks. `phpstan.neon` covers custom modules and themes. Where installed, use:
+PHPCS and PHPStan level 5 are project quality checks. The isolated [quality toolchain](../tools/quality/README.md) has its own Composer manifest and lockfile under `tools/quality`; it does not update the application's dependencies. `phpstan.neon` covers custom modules and themes. From the repository root, use:
 
 ```sh
-vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/modules/custom web/themes/custom
-vendor/bin/phpstan analyse -c phpstan.neon
+make quality-install
+make tests
+make phpcs
+make phpstan
 ```
 
-The earlier audit found no Composer `require-dev` toolchain and no `vendor/bin/phpcs`, `vendor/bin/phpstan` and `vendor/bin/phpunit`. `make tests` invokes PHPUnit; the target alone does not establish that tests can run. Check availability before execution, report missing prerequisites, and distinguish pre-existing failures from regressions. Do not claim a check passed when it was unavailable. Provisioning tools or CI is a separate implementation change.
+The tools live in `tools/quality/vendor/bin`, rather than the application's `vendor/bin`. `make tests` invokes the existing custom unit suite through `tools/quality/phpunit.xml`; it does not run Kernel or browser tests. Check availability before execution, report missing prerequisites, and distinguish existing failures from regressions. Do not claim a check passed merely because a tool was installed or a target exists. Preserve actual failures; do not add suppressions or relax rules to obtain a passing result.
 
 The maintained suites live in `tests`. Use [tests/upgrade/README.md](../tests/upgrade/README.md) and the local `upgrade.config.ts` for current-checkout regression. [local-test-lab.md](local-test-lab.md) describes the Makefile entry points. The application and tests must come from the active checkout; the E2E site and database remain isolated. Historical baseline/integration configurations use different ports and must not silently substitute for current-code results. Record the tested revision, dirty changes, environment, commands and reviewed reports. Lighthouse execution has no automatic score gate; compare its actual metrics and audits. k6 must satisfy both performance thresholds and functional/isolation checks.
 

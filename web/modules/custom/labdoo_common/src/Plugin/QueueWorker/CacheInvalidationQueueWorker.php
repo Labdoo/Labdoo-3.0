@@ -15,6 +15,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   title = @Translation("Labdoo Common Cache Invalidation"),
  *   cron = {"time" = 60}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class CacheInvalidationQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -41,7 +43,7 @@ class CacheInvalidationQueueWorker extends QueueWorkerBase implements ContainerF
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    CacheManagerInterface $cache_manager
+    CacheManagerInterface $cache_manager,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->cacheManager = $cache_manager;

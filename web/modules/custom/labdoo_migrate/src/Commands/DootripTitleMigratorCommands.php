@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
+use Drupal\Core\Database\Statement\FetchAs;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
@@ -14,11 +16,21 @@ class DootripTitleMigratorCommands extends DrushCommands {
 
   /**
    * DootripTitleMigratorCommands constructor.
+   *
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database.
+   * @param \Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface $externalConnectionManager
+   *   The external connection manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cacheInvalidator
+   *   The cache_tags.invalidator service.
    */
   public function __construct(
     protected Connection $database,
     protected ConnectionManagerInterface $externalConnectionManager,
-    protected EntityTypeManagerInterface $entityTypeManager
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected CacheTagsInvalidatorInterface $cacheInvalidator,
   ) {
     parent::__construct();
   }
@@ -30,7 +42,8 @@ class DootripTitleMigratorCommands extends DrushCommands {
    * @aliases lmudt
    * @usage drush labdoo:migrate-update-dootrip-titles
    *   Queries Drupal 10 for empty or incorrectly formatted dootrip titles,
-   *   retrieves the correct titles from Drupal 7, and updates them in Drupal 10.
+   *   retrieves the correct titles from Drupal 7, and updates them in Drupal
+   *   10.
    */
   public function updateDootripTitles(): void {
     try {
@@ -51,7 +64,8 @@ class DootripTitleMigratorCommands extends DrushCommands {
       $nids_to_update = [];
       foreach ($results as $row) {
         $title = $row->title;
-        // Check if title is empty or has an incorrect format (not starting with "Dootrip #" and 9 digits)
+        // Check if title is empty or has an incorrect format (not starting with
+        // "Dootrip #" and 9 digits)
         if ($title === NULL || trim($title) === '' || !preg_match('/^Dootrip\s+#[0-9]{9}/i', $title)) {
           $nids_to_update[] = (int) $row->nid;
         }
@@ -73,7 +87,7 @@ class DootripTitleMigratorCommands extends DrushCommands {
           ->fields('n', ['nid', 'title'])
           ->condition('nid', $chunk, 'IN')
           ->execute()
-          ->fetchAllAssoc('nid', \PDO::FETCH_ASSOC);
+          ->fetchAllAssoc('nid', FetchAs::Associative);
 
         foreach ($d7_results as $nid => $row) {
           $d7_titles[$nid] = $row['title'];
@@ -95,7 +109,7 @@ class DootripTitleMigratorCommands extends DrushCommands {
           continue;
         }
 
-        /** @var \Drupal\node\NodeInterface $node */
+        /** @var \Drupal\node\NodeInterface|null $node */
         $node = $this->entityTypeManager->getStorage('node')->load($nid);
         if ($node) {
           $old_title = $node->getTitle() ?: '[Vacio]';
@@ -112,7 +126,7 @@ class DootripTitleMigratorCommands extends DrushCommands {
 
       // Invalidate cache tags to refresh node views/lists.
       if ($count > 0) {
-        \Drupal::service('cache_tags.invalidator')->invalidateTags(['node_list']);
+        $this->cacheInvalidator->invalidateTags(['node_list']);
       }
 
       $this->io()->success(dt('Process completed successfully. Updated @count dootrip titles from Drupal 7.', [

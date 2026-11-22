@@ -25,6 +25,7 @@ abstract class BaseCsvExport {
    * BaseCsvExport constructor.
    *
    * @param \Drupal\labdoo_common\Service\Repository\ViewRepository $viewRepository
+   *   The view repository.
    */
   public function __construct(ViewRepository $viewRepository) {
     $this->viewRepository = $viewRepository;
@@ -51,7 +52,7 @@ abstract class BaseCsvExport {
     do {
       $results = $this->viewRepository->getResults($viewId, $displayId, $itemsPerPage, $page);
       foreach ($results as $row) {
-        $entity = $row->_entity ?? NULL;
+        $entity = get_object_vars($row)['_entity'] ?? NULL;
         if ($entity) {
           fputcsv($handle, $this->getRowData($entity));
         }

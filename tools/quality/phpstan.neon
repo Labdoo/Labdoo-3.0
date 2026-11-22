@@ -1,0 +1,42 @@
+includes:
+  - ../../phpstan.neon
+  - vendor/mglaman/phpstan-drupal/extension.neon
+
+parameters:
+  tmpDir: .cache/phpstan
+  bootstrapFiles:
+    - autoload.php
+
+services:
+  -
+    class: Labdoo\Quality\FluentSelectReturnTypeExtension
+    tags:
+      - phpstan.broker.dynamicMethodReturnTypeExtension
+  -
+    class: Labdoo\Quality\NullableEntityRelationReturnTypeExtension
+    arguments:
+      className: Drupal\user\EntityOwnerInterface
+      methodName: getOwner
+    tags:
+      - phpstan.broker.dynamicMethodReturnTypeExtension
+  -
+    class: Labdoo\Quality\NullableEntityRelationReturnTypeExtension
+    arguments:
+      className: Drupal\webform\WebformSubmissionInterface
+      methodName: getWebform
+    tags:
+      - phpstan.broker.dynamicMethodReturnTypeExtension
+  -
+    class: Labdoo\Quality\NullableEntityRelationReturnTypeExtension
+    arguments:
+      className: Drupal\Component\Gettext\PoStreamReader
+      methodName: readItem
+    tags:
+      - phpstan.broker.dynamicMethodReturnTypeExtension
+  -
+    class: Labdoo\Quality\NullableEntityRelationReturnTypeExtension
+    arguments:
+      className: Drupal\language\Config\LanguageConfigFactoryOverrideInterface
+      methodName: getLanguage
+    tags:
+      - phpstan.broker.dynamicMethodReturnTypeExtension

@@ -8,7 +8,8 @@ use Drupal\Core\Menu\MenuLinkManager;
 use Drupal\labdoo_translations\Plugin\Menu\CatalogMenuLinkContent;
 use Drupal\menu_link_content\Plugin\Menu\MenuLinkContent;
 
-/** Applies the content-link fallback to runtime, including undiscovered links. */
+/**
+ * Applies the content-link fallback to runtime, including undiscovered links. */
 class CatalogMenuLinkManager extends MenuLinkManager {
 
   /**

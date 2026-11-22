@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_edoovillage\Plugin\QueueWorker;
 
+use Drupal\user\EntityOwnerInterface;
+use Drupal\labdoo_common\Utility\EntityMetadata;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -25,6 +27,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *   title = @Translation("Recompute the edoovillage data"),
  *   cron = {"time" = 10}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class EdooVillageRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -66,7 +70,7 @@ class EdooVillageRecomputeQueueWorker extends QueueWorkerBase implements Contain
     LoggerChannelFactoryInterface $loggerChannelFactory,
     EdooVillageComputeInterface $edoovillageCompute,
     EdooVillageRepositoryInterface $edoovillageRepository,
-    EventDispatcherInterface $eventDispatcher
+    EventDispatcherInterface $eventDispatcher,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('bb_valentina');
@@ -82,7 +86,7 @@ class EdooVillageRecomputeQueueWorker extends QueueWorkerBase implements Contain
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory */
     $loggerChannelFactory = $container->get('logger.factory');
@@ -133,8 +137,8 @@ class EdooVillageRecomputeQueueWorker extends QueueWorkerBase implements Contain
       }
 
       // Flag to prevent recursive enqueuing during background recompute.
-      $edoovillage->skip_geocoding_enqueue = TRUE;
-      $edoovillage->skip_recompute_enqueue = TRUE;
+      EntityMetadata::set($edoovillage, 'skip_geocoding_enqueue', TRUE);
+      EntityMetadata::set($edoovillage, 'skip_recompute_enqueue', TRUE);
 
       // Recompute logic (currently none for EdooVillage, but we clear tags).
       $this->clearCachetag($edoovillage);
@@ -161,10 +165,10 @@ class EdooVillageRecomputeQueueWorker extends QueueWorkerBase implements Contain
   /**
    * Invalidate the node type cache tag.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface&\Drupal\user\EntityOwnerInterface $entity
    *   The entity.
    */
-  protected function clearCachetag(EntityInterface $entity): void {
+  protected function clearCachetag(EntityInterface&EntityOwnerInterface $entity): void {
     $this->clearCachetagById((int) $entity->id(), (int) $entity->getOwnerId());
   }
 

@@ -3,6 +3,7 @@
 namespace Drupal\natiboo_migrate_data\Form;
 
 use Drupal\Core\Form\ConfirmFormBase;
+use Drupal\Core\Form\EnforcedResponseException;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\natiboo_migrate_data\Service\ParagraphDelete;
@@ -15,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class DeleteParagraphsForm extends ConfirmFormBase {
 
@@ -72,24 +75,24 @@ class DeleteParagraphsForm extends ConfirmFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $count = $this->paragraphDeleteService->getParagraphCount();
-    
+
     if ($count === 0) {
       $this->messenger()->addStatus($this->t('There are no paragraphs to delete.'));
-      return $this->redirect('natiboo_migrate_data.entities_list');
+      throw new EnforcedResponseException($this->redirect('natiboo_migrate_data.entities_list'));
     }
-    
+
     $form['count'] = [
       '#type' => 'item',
       '#markup' => $this->t('There are @count paragraphs that will be deleted.', ['@count' => $count]),
     ];
-    
+
     $form['use_batch'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use batch processing'),
       '#description' => $this->t('Recommended for large numbers of paragraphs to prevent timeouts.'),
       '#default_value' => ($count > 100),
     ];
-    
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -99,7 +102,7 @@ class DeleteParagraphsForm extends ConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $useBatch = $form_state->getValue('use_batch');
     $count = $this->paragraphDeleteService->deleteAllParagraphs($useBatch);
-    
+
     if ($useBatch && $count > 100) {
       // If using batch processing, the batch process will handle the messages.
       $form_state->setRedirect('natiboo_migrate_data.entities_list');

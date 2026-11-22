@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Database\Statement\FetchAs;
 use Drupal\Core\Database\Connection;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drush\Commands\DrushCommands;
@@ -56,15 +57,19 @@ class MissingSequenceImportCommands extends DrushCommands {
    * @option dry-run Detect and print what would be imported without importing.
    *
    * @usage drush labdoo:import-missing-sequences
-   *   Detects and imports all missing numeric titles for dootronic, dootrip and edoovillage.
+   *   Detects and imports all missing numeric titles for dootronic, dootrip and
+   *   edoovillage.
    * @usage drush labdoo:import-missing-sequences --bundles=dootronic --dry-run
-   *   Shows missing dootronic titles and matching Drupal 7 nodes without importing.
+   *   Shows missing dootronic titles and matching Drupal 7 nodes without
+   *   importing.
    */
-  public function importMissingSequences(array $options = [
-    'bundles' => 'dootronic,dootrip,edoovillage',
-    'limit' => -1,
-    'dry-run' => FALSE,
-  ]): void {
+  public function importMissingSequences(
+    array $options = [
+      'bundles' => 'dootronic,dootrip,edoovillage',
+      'limit' => -1,
+      'dry-run' => FALSE,
+    ],
+  ): void {
     $requestedBundles = array_filter(array_map('trim', explode(',', (string) $options['bundles'])));
     $invalidBundles = array_diff($requestedBundles, array_keys(self::BUNDLE_MAP));
 
@@ -164,7 +169,7 @@ class MissingSequenceImportCommands extends DrushCommands {
     $query->condition('n.type', $bundle);
     $query->condition('n.status', 1);
 
-    return $query->execute()->fetchAllAssoc('nid', \PDO::FETCH_ASSOC);
+    return $query->execute()->fetchAllAssoc('nid', FetchAs::Associative);
   }
 
   /**
@@ -200,7 +205,7 @@ class MissingSequenceImportCommands extends DrushCommands {
       ->condition('n.type', $sourceBundle)
       ->condition('n.status', 1)
       ->execute()
-      ->fetchAllAssoc('nid', \PDO::FETCH_ASSOC);
+      ->fetchAllAssoc('nid', FetchAs::Associative);
   }
 
   /**

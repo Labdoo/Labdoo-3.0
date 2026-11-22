@@ -210,6 +210,13 @@ test('a large marker collection completes without dropping points @responsive', 
 
 test('a school map initializes its native provider on scroll and keeps trajectory data @responsive', async ({ page }, info) => {
   const errors: string[] = [];
+  const localLeaflet: string[] = [];
+  const externalLeaflet: string[] = [];
+  page.on('request', request => {
+    if (/\/vendor\/leaflet-1\.9\.4\/dist\/leaflet\.(js|css)$/.test(new URL(request.url()).pathname)) localLeaflet.push(request.url());
+    if (request.url().startsWith('https://unpkg.com/leaflet@1.9.4/')) externalLeaflet.push(request.url());
+  });
+  await page.route('https://unpkg.com/leaflet@1.9.4/**', route => route.abort('blockedbyclient'));
   page.on('pageerror', error => errors.push(error.message));
   let trajectoryRequested = false;
   await page.route('**/api/node-trajectory/749*', async route => {
@@ -232,5 +239,9 @@ test('a school map initializes its native provider on scroll and keeps trajector
   await expect(wrapper.locator('.leaflet-overlay-pane path')).toHaveCount(1);
   await expect(wrapper.locator('.leaflet-container')).toHaveCount(1);
   await expect(page.locator('.labdoo-map-container.leaflet-container')).toHaveCount(0);
+  expect(await page.evaluate(() => (window as any).L.version)).toBe('1.9.4');
+  expect(localLeaflet.some(url => url.endsWith('/leaflet.js'))).toBe(true);
+  expect(localLeaflet.some(url => url.endsWith('/leaflet.css'))).toBe(true);
+  expect(externalLeaflet).toEqual([]);
   expect(errors).toEqual([]);
 });

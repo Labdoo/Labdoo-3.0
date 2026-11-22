@@ -2,13 +2,14 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\State\StateInterface;
+use Drupal\paragraphs\ParagraphInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
 use Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface;
 use Drupal\labdoo_migrate\Traits\TextFormatMapperTrait;
 use Drush\Commands\DrushCommands;
-use Drupal\Core\Database\Query\Condition;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 /**
@@ -19,7 +20,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
-class StorySynchronizerCommands extends DrushCommands { 
+class StorySynchronizerCommands extends DrushCommands {
 
   use TextFormatMapperTrait;
 
@@ -65,16 +66,28 @@ class StorySynchronizerCommands extends DrushCommands {
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
    */
-  private $progressBar;
+  private ?ProgressBar $progressBar = NULL;
 
   /**
    * StorySynchronizerCommands constructor.
+   *
+   * @param \Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface $externalConnectionManager
+   *   The external connection manager.
+   * @param \Drupal\labdoo_migrate\Services\Media\FileManagerInterface $fileManager
+   *   The file manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface $migrationTracker
+   *   The migration tracker.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
   public function __construct(
     protected ConnectionManagerInterface $externalConnectionManager,
     protected FileManagerInterface $fileManager,
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected MigrationTrackerInterface $migrationTracker
+    protected MigrationTrackerInterface $migrationTracker,
+    protected StateInterface $state,
   ) {
     parent::__construct();
   }
@@ -102,7 +115,7 @@ class StorySynchronizerCommands extends DrushCommands {
       'limit' => -1,
       'dry-run' => FALSE,
       'from-date' => NULL,
-    ]
+    ],
   ): void {
 
     try {
@@ -126,7 +139,7 @@ class StorySynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
-    \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
+    $this->state->set('labdoo_migrate_is_running', TRUE);
     $this->fromTimestamp = NULL;
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
@@ -154,7 +167,6 @@ class StorySynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function getSourceEntities(): array {
-    /** @var int|null $this->fromTimestamp */
     $this->logger->notice('Retrieving the source entities...');
 
     $storiesResult = [];
@@ -169,7 +181,7 @@ class StorySynchronizerCommands extends DrushCommands {
     if ($this->limit > -1) {
       $storiesQuery->range(0, $this->limit);
     }
-    if (isset($this->fromTimestamp) && $this->fromTimestamp !== NULL) {
+    if (isset($this->fromTimestamp)) {
       $or = $storiesQuery->orConditionGroup()
         ->condition('created', $this->fromTimestamp, '>=')
         ->condition('changed', $this->fromTimestamp, '>=');
@@ -227,7 +239,10 @@ class StorySynchronizerCommands extends DrushCommands {
             ->fields('fm', ['uri', 'filename'])
             ->condition('fid', $picture->field_story_picture_fid)
             ->execute()
-            ->fetch();
+            ->fetchObject();
+          if (!$file) {
+            throw new \RuntimeException('Referenced story picture is missing from source files.');
+          }
           $picture->uri = $file->uri;
           $picture->name = $file->filename;
           $picture->content = $this->fileManager->getFileContents($file->uri, TRUE, TRUE);
@@ -278,7 +293,7 @@ class StorySynchronizerCommands extends DrushCommands {
     $created = 0;
     $updated = 0;
 
-    // Initialize progress bar
+    // Initialize progress bar.
     $this->initProgressBar(count($sourceEntities), 'Processing stories');
 
     foreach ($sourceEntities as $sourceEntity) {
@@ -303,11 +318,11 @@ class StorySynchronizerCommands extends DrushCommands {
         $destinationEntity = reset($destinationEntity);
         $paragraphs = $destinationEntity->get('field_story_section');
         foreach ($paragraphs as $paragraph) {
-          if ($paragraph->entity === NULL) {
+          if (!$paragraph->get('entity')->getValue() instanceof ParagraphInterface) {
             continue;
           }
 
-          $paragraph = $paragraph->entity;
+          $paragraph = $paragraph->get('entity')->getValue();
           if (!$this->dryRun) {
             $paragraph->get('field_story_picture')->delete();
             $this->entityTypeManager
@@ -348,7 +363,10 @@ class StorySynchronizerCommands extends DrushCommands {
             'field_story_text' => $textValue,
             'field_story_picture' => $fid,
           ]);
-        if ($fid !== NULL && is_object($section['picture'])) {
+        if (!$newParagraph instanceof ParagraphInterface) {
+          throw new \UnexpectedValueException('Paragraph storage returned an incompatible entity.');
+        }
+        if ($fid !== NULL) {
           $newParagraph->set(
             'field_story_picture',
             [
@@ -358,7 +376,6 @@ class StorySynchronizerCommands extends DrushCommands {
             ]
           );
         }
-
 
         if (!$this->dryRun) {
           $newParagraph->save();
@@ -378,9 +395,8 @@ class StorySynchronizerCommands extends DrushCommands {
       $destinationEntity->setChangedTime($sourceEntity['changed']);
 
       if (!$this->dryRun) {
-        if (method_exists($destinationEntity, 'setSyncing')) {
-          $destinationEntity->setSyncing(TRUE);
-        }
+        $destinationEntity->setSyncing(TRUE);
+
         $destinationEntity->save();
         $this->migrationTracker->track(
           'node',
@@ -391,7 +407,7 @@ class StorySynchronizerCommands extends DrushCommands {
         );
       }
 
-      // Advance progress bar
+      // Advance progress bar.
       $this->advanceProgressBar();
     }
 
@@ -410,8 +426,8 @@ class StorySynchronizerCommands extends DrushCommands {
    *   The number of updated entities.
    */
   protected function tearDown(int $created, int $updated): void {
-    \Drupal::state()->delete('labdoo_migrate_is_running');
-    // Finish the progress bar if it exists
+    $this->state->delete('labdoo_migrate_is_running');
+    // Finish the progress bar if it exists.
     if ($this->progressBar) {
       $this->progressBar->finish();
       $this->output->writeln('');
@@ -423,7 +439,7 @@ class StorySynchronizerCommands extends DrushCommands {
       . "-- Time elapsed: %s.\n"
       . "-- %d entities created.\n"
       . "-- %d entities updated.",
-      gmdate("H:i:s", $timeElapsedSeconds),
+      gmdate("H:i:s", (int) $timeElapsedSeconds),
       $created,
       $updated
     );
@@ -454,7 +470,6 @@ class StorySynchronizerCommands extends DrushCommands {
     }
   }
 
-
   /**
    * Retrieves a specific field from a collection.
    *
@@ -476,7 +491,7 @@ class StorySynchronizerCommands extends DrushCommands {
     string $table,
     array $fields,
     int $sectionId,
-    bool $fetchField = TRUE
+    bool $fetchField = TRUE,
   ) {
     $result = $this->externalConnectionManager
       ->setConnection()
@@ -487,7 +502,7 @@ class StorySynchronizerCommands extends DrushCommands {
       ->condition('revision_id', $sectionId)
       ->execute();
 
-    return $fetchField ? $result->fetchField() : $result->fetch();
+    return $fetchField ? $result->fetchField() : $result->fetchObject();
   }
 
 }

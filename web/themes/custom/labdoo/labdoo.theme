@@ -1,21 +1,35 @@
 <?php
 
 /**
+ * @file
+ * Prepares Labdoo theme variables and frontend attachments.
+ *
  * Developed by Natiboo <info@natiboo.es>
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
 
+use Drupal\Core\Render\Element;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Asset\AttachedAssetsInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\Component\Utility\Html;
+use Drupal\user\UserInterface;
+
 /**
  * Implements hook_preprocess_HOOK() for html.
  */
 function labdoo_preprocess_html(&$variables) {
   $roles = \Drupal::currentUser()->getRoles();
-  array_walk($roles, function(&$value, $index) {
+  array_walk($roles, function (&$value, $index) {
     $value = sprintf('role-%s', $value);
   });
-  if (in_array(\Drupal::routeMatch()->getRouteName(), ['labdoo_dootronics.print_labels', 'labdoo_dootronics.print_selected_labels', 'labdoo_dootronics.print_legacy_selected_labels'], TRUE)) {
+  if (in_array(\Drupal::routeMatch()->getRouteName(), [
+    'labdoo_dootronics.print_labels',
+    'labdoo_dootronics.print_selected_labels',
+    'labdoo_dootronics.print_legacy_selected_labels',
+  ], TRUE)) {
     $roles[] = 'dootronics-print-label-page';
   }
   $variables['roles'] = implode(' ', $roles);
@@ -25,7 +39,11 @@ function labdoo_preprocess_html(&$variables) {
  * Implements hook_theme_suggestions_page_alter().
  */
 function labdoo_theme_suggestions_page_alter(array &$suggestions, array $variables) {
-  if (in_array(\Drupal::routeMatch()->getRouteName(), ['labdoo_dootronics.print_labels', 'labdoo_dootronics.print_selected_labels', 'labdoo_dootronics.print_legacy_selected_labels'], TRUE)) {
+  if (in_array(\Drupal::routeMatch()->getRouteName(), [
+    'labdoo_dootronics.print_labels',
+    'labdoo_dootronics.print_selected_labels',
+    'labdoo_dootronics.print_legacy_selected_labels',
+  ], TRUE)) {
     $suggestions[] = 'page__dootronics_print_labels';
   }
 }
@@ -34,7 +52,11 @@ function labdoo_theme_suggestions_page_alter(array &$suggestions, array $variabl
  * Implements hook_theme_suggestions_html_alter().
  */
 function labdoo_theme_suggestions_html_alter(array &$suggestions, array $variables) {
-  if (in_array(\Drupal::routeMatch()->getRouteName(), ['labdoo_dootronics.print_labels', 'labdoo_dootronics.print_selected_labels', 'labdoo_dootronics.print_legacy_selected_labels'], TRUE)) {
+  if (in_array(\Drupal::routeMatch()->getRouteName(), [
+    'labdoo_dootronics.print_labels',
+    'labdoo_dootronics.print_selected_labels',
+    'labdoo_dootronics.print_legacy_selected_labels',
+  ], TRUE)) {
     $suggestions[] = 'html__dootronics__print_labels';
   }
 }
@@ -44,8 +66,13 @@ function labdoo_theme_suggestions_html_alter(array &$suggestions, array $variabl
  */
 function labdoo_page_attachments_alter(&$page) {
   $page['#attached']['library'][] = 'labdoo/labdoo_ui';
+  labdoo_attach_search_metadata($page);
 
-  if (in_array(\Drupal::routeMatch()->getRouteName(), ['labdoo_dootronics.print_labels', 'labdoo_dootronics.print_selected_labels', 'labdoo_dootronics.print_legacy_selected_labels'], TRUE)) {
+  if (in_array(\Drupal::routeMatch()->getRouteName(), [
+    'labdoo_dootronics.print_labels',
+    'labdoo_dootronics.print_selected_labels',
+    'labdoo_dootronics.print_legacy_selected_labels',
+  ], TRUE)) {
     $page['#attached']['library'][] = 'labdoo/print_labels';
   }
 }
@@ -99,7 +126,7 @@ function labdoo_has_real_user_picture($userPicture): bool {
   }
 
   if (!empty($userPicture['#user'])
-    && $userPicture['#user'] instanceof \Drupal\user\UserInterface
+    && $userPicture['#user'] instanceof UserInterface
     && $userPicture['#user']->hasField('user_picture')) {
     return !$userPicture['#user']->get('user_picture')->isEmpty();
   }
@@ -122,4 +149,99 @@ function labdoo_default_profile_picture_render_array(): array {
       'loading' => 'lazy',
     ],
   ];
+}
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ */
+function labdoo_preprocess_views_view_field(array &$variables): void {
+  $output = (string) ($variables['output'] ?? '');
+  if (!str_contains($output, '/themes/custom/labdoo/img/')) {
+    return;
+  }
+  // Stored activity bodies predate accessible decorative icon markup. Fix the
+  // rendered field rather than rewriting content or its revision history.
+  $document = Html::load($output);
+  foreach ($document->getElementsByTagName('img') as $image) {
+    $src = $image->getAttribute('src');
+    if (str_starts_with($src, '/themes/custom/labdoo/img/') && !$image->hasAttribute('alt')) {
+      $image->setAttribute('alt', '');
+      $image->setAttribute('loading', 'lazy');
+      $image->setAttribute('decoding', 'async');
+    }
+  }
+  $variables['output'] = Markup::create(Html::serialize($document));
+}
+
+/**
+ * Implements hook_preprocess_pager().
+ */
+function labdoo_preprocess_pager(array &$variables): void {
+  $variables['pagination_heading_level'] = 'h2';
+}
+
+/**
+ * Implements hook_preprocess_views_mini_pager().
+ */
+function labdoo_preprocess_views_mini_pager(array &$variables): void {
+  $variables['pagination_heading_level'] = 'h2';
+}
+
+/**
+ * Implements hook_js_settings_alter().
+ */
+function labdoo_js_settings_alter(array &$settings, AttachedAssetsInterface $assets): void {
+  // Avoid a late animated banner becoming the largest mobile paint.
+  if (isset($settings['eu_cookie_compliance'])) {
+    $settings['eu_cookie_compliance']['popup_delay'] = 0;
+  }
+  // Native selects retain keyboard access and avoid non-navigable Chosen links.
+  foreach (array_keys($settings['lang_dropdown'] ?? []) as $key) {
+    $settings['lang_dropdown'][$key]['widget'] = 'native';
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function labdoo_attach_search_metadata(array &$attachments): void {
+  // Labdoo Next supplies its own metadata and consent-aware asset handling.
+  if (\Drupal::theme()->getActiveTheme()->getName() !== 'labdoo') {
+    return;
+  }
+  $attachments['#cache']['contexts'][] = 'languages:language_interface';
+  $attachments['#cache']['tags'][] = 'config:system.site';
+  $attachments['#attached']['html_head'][] = [
+    ['#tag' => 'meta', '#attributes' => [
+      'name' => 'description',
+      'content' => (string) t('Labdoo connects volunteers worldwide to reuse technology and support education in schools and communities.'),
+    ]],
+    'labdoo_description',
+  ];
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function labdoo_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  if (!\Drupal::currentUser()->isAnonymous()) {
+    return;
+  }
+  labdoo_native_selects($form);
+  foreach (array_keys($form['#attached']['drupalSettings']['lang_dropdown'] ?? []) as $key) {
+    $form['#attached']['drupalSettings']['lang_dropdown'][$key]['widget'] = 'native';
+  }
+}
+
+/**
+ * Keeps public single selects keyboard-accessible without the Chosen wrapper.
+ */
+function labdoo_native_selects(array &$element): void {
+  if (($element['#type'] ?? '') === 'select' && empty($element['#multiple'])) {
+    $element['#chosen'] = FALSE;
+    $element['#attributes']['class'][] = 'chosen-disable';
+  }
+  foreach (Element::children($element) as $key) {
+    labdoo_native_selects($element[$key]);
+  }
 }

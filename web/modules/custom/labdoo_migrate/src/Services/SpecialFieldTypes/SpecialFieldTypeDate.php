@@ -21,13 +21,10 @@ class SpecialFieldTypeDate implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     $value = new \DateTime($value);
-    if (!$value) {
-      return NULL;
-    }
 
     return $value->format($metadata['format']);
   }

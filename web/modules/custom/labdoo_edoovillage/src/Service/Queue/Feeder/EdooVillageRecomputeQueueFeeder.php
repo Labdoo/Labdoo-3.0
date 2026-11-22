@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_edoovillage\Service\Queue\Feeder;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Queue feeder that enqueues the edoovillage recompute.
@@ -26,7 +26,7 @@ class EdooVillageRecomputeQueueFeeder extends AbstractQueueFeeder {
   /**
    * {@inheritDoc}
    */
-  public function feedQueue(EntityInterface $edoovillage): void {
+  public function feedQueue(NodeInterface $edoovillage): void {
     $this->enqueueItem([
       'id' => (int) $edoovillage->id(),
       'uid' => (int) $edoovillage->getOwnerId(),

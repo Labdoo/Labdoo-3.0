@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\labdoo_dootronics\Unit\Plugin\Validation\Constraint;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -16,16 +19,14 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 
 /**
  * Tests the S3 dootronic destination requirement.
- *
- * @group labdoo_dootronics
  */
+#[Group('labdoo_dootronics')]
 class DootronicS3RequiresEdoovillageConstraintValidatorTest extends UnitTestCase {
 
   /**
    * Tests missing and dangling school references are rejected.
-   *
-   * @dataProvider missingDestinationCases
    */
+  #[DataProvider('missingDestinationCases')]
   public function testS3RequiresDestination(bool $empty, bool $dangling): void {
     $validator = new DootronicS3RequiresEdoovillageConstraintValidator();
     $context = $this->createMock(ExecutionContextInterface::class);

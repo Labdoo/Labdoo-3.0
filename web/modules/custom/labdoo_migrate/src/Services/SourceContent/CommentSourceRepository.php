@@ -68,12 +68,14 @@ class CommentSourceRepository implements SourceRepositoryInterface {
    *   The external connection manager.
    * @param \Drupal\labdoo_migrate\Services\DynamicContent\DynamicContentRepositoryInterface $dynamicContentRepository
    *   The dynamic content repository.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   *   The language manager.
    */
   public function __construct(
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ExternalConnectionManager $externalConnectionManager,
     DynamicContentRepositoryInterface $dynamicContentRepository,
-    LanguageManagerInterface $languageManager
+    LanguageManagerInterface $languageManager,
   ) {
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
     $this->externalConnectionManager = $externalConnectionManager;
@@ -88,7 +90,7 @@ class CommentSourceRepository implements SourceRepositoryInterface {
     string $contentType,
     array $mapping,
     ?array $entityIds = NULL,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
     $this->contentType = $contentType;
     $this->mapping = $mapping;
@@ -115,7 +117,7 @@ class CommentSourceRepository implements SourceRepositoryInterface {
     string $contentType,
     array $mapping,
     int $entityId,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
     $this->contentType = $contentType;
     $this->mapping = $mapping;
@@ -135,7 +137,7 @@ class CommentSourceRepository implements SourceRepositoryInterface {
   public function getNodesByType(
     ?string $contentType = NULL,
     ?array $mapping = NULL,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
     if ($contentType !== NULL) {
       $this->contentType = $contentType;
@@ -299,7 +301,6 @@ class CommentSourceRepository implements SourceRepositoryInterface {
       $values[$field->getFieldName()] = $this->getSingleMappingValue($entityId, $field);
     }
 
-    $sourceIdentifier = $mapping->getSourceIdentifier();
     if (count($values) === 1) {
       return reset($values);
     }

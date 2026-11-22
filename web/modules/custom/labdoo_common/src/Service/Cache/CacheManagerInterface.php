@@ -70,7 +70,7 @@ interface CacheManagerInterface {
   public function getCacheableMetadata(
     array $renderArray,
     array $cacheContexts = [],
-    array $cacheTags = []
+    array $cacheTags = [],
   ): CacheableMetadata;
 
 }

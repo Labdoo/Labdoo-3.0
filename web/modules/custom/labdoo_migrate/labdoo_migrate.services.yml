@@ -97,6 +97,12 @@ services:
     arguments: ['@database', '@labdoo_migrate.database.external_connection_manager', '@module_handler', '@date.formatter']
   labdoo_migrate.commands.synchronizer:
     class: Drupal\labdoo_migrate\Commands\SynchronizerCommands
-    arguments: ['@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@labdoo_migrate.tracking.migration_tracker', '@queue_manager.helper']
+    arguments: ['@labdoo_migrate.config.configuration_manager', '@labdoo_migrate.mapper.fields_mapper', '@labdoo_migrate.tracking.migration_tracker', '@queue_manager.helper', '@state', '@labdoo_migrate.repository_registry']
     tags:
       - { name: drush.command }
+
+  labdoo_migrate.repository_registry:
+    class: Drupal\labdoo_migrate\Services\DestinationContent\RepositoryRegistry
+    arguments:
+      - { node: '@labdoo_migrate.source_content.repository.node', user: '@labdoo_migrate.source_content.repository.user', comment: '@labdoo_migrate.source_content.repository.comment' }
+      - { node: '@labdoo_migrate.destination_content.repository.node', user: '@labdoo_migrate.destination_content.repository.user', comment: '@labdoo_migrate.destination_content.repository.comment' }

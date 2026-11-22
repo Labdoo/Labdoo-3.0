@@ -1,26 +1,14 @@
 services:
   labdoo_notifications.notification_manager:
     class: Drupal\labdoo_notifications\Service\NotificationManager
-    arguments:
-      - '@current_user'
-      - '@language_manager'
-      - '@module_handler'
-      - '@file_system'
-      - '@logger.factory'
-      - '@labdoo_notifications.email_processor'
-      - '@entity_type.manager'
-      - '@config.factory'
-      - '@geocoder'
+    arguments: ['@current_user', '@language_manager', '@module_handler', '@file_system', '@logger.factory', '@labdoo_notifications.email_processor', '@entity_type.manager', '@config.factory', '@geocoder', '@state']
 
   labdoo_notifications.email_processor:
     class: Drupal\labdoo_notifications\Service\EmailProcessor
-    arguments:
-      - '@current_user'
-      - '@language_manager'
-      - '@file_system'
-      - '@logger.factory'
-      - '@plugin.manager.mail'
-      - '@config.factory'
+    arguments: ['@current_user', '@language_manager', '@file_system', '@logger.factory', '@plugin.manager.mail', '@config.factory', '@module_handler', '@request_stack']
+
+    calls:
+      - [setStringTranslation, ['@string_translation']]
 
   labdoo_notifications.entity_processor.laptop:
     class: Drupal\labdoo_notifications\Service\EntityProcessor\LaptopProcessor

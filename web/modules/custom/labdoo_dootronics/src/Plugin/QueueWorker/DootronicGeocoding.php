@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_dootronics\Plugin\QueueWorker;
 
+use Drupal\labdoo_common\Utility\GeocoderProviders;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
@@ -17,6 +18,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   title = @Translation("Dootronic Geocoding"),
  *   cron = {"time" = 60}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -88,7 +91,7 @@ class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPlug
    */
   public function processItem($data) {
     $nid = $data['nid'];
-    /** @var \Drupal\node\NodeInterface $node */
+    /** @var \Drupal\node\NodeInterface|null $node */
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
 
     if (
@@ -100,7 +103,7 @@ class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPlug
       $locationData = $node->get('field_locations')->first()->getValue();
       if (isset($locationData['lat']) && isset($locationData['lon'])) {
         // Validation check before reverse lookup (extra safety).
-        if (abs((float)$locationData['lat']) < 0.1 && abs((float)$locationData['lon']) < 0.1) {
+        if (abs((float) $locationData['lat']) < 0.1 && abs((float) $locationData['lon']) < 0.1) {
           return;
         }
 
@@ -126,7 +129,7 @@ class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPlug
           ]);
           return;
         }
-        
+
         if (empty($coordinatesData['country_code'])) {
           $state->delete($attempt_key);
           \Drupal::logger('labdoo_dootronics')->error('Discarding dootronic @nid from geocoding queue: Google Maps and Nominatim returned no country for its coordinates.', [
@@ -167,7 +170,7 @@ class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPlug
 
     try {
       // Use the geocoder service with the 'googlemaps' provider.
-      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, ['googlemaps']);
+      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, GeocoderProviders::load($this->entityTypeManager, ['googlemaps']));
 
       if ($addressCollection && !$addressCollection->isEmpty()) {
         /** @var \Geocoder\Location $address */
@@ -184,7 +187,7 @@ class DootronicGeocoding extends QueueWorkerBase implements ContainerFactoryPlug
       }
     }
     catch (\Exception $e) {
-      $msg = $e->getMessage();
+
       \Drupal::logger('labdoo_dootronics')->warning('Google Maps reverse geocode failed; trying Nominatim fallback (@exception).', ['@exception' => get_class($e)]);
     }
 

@@ -75,7 +75,7 @@ function labdoo_dootronics_update_8001() {
     }
 
     $new_id = $gaps[$index];
-    $new_title = str_pad($new_id, 9, '0', STR_PAD_LEFT);
+    $new_title = str_pad((string) $new_id, 9, '0', STR_PAD_LEFT);
 
     // Update node_field_data.
     $database->update('node_field_data')

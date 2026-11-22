@@ -2,10 +2,15 @@
 
 namespace Drupal\labdoo_common\Plugin\Block;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Extension\ThemeExtensionList;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Block\BlockBase;
 
 /**
  * Provides a 'Footer Acts' block.
+ *
+ * @phpstan-consistent-constructor
  *
  * @Block(
  *   id = "labdoo_footer_acts_block",
@@ -13,7 +18,20 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Labdoo"),
  * )
  */
-class FooterActsBlock extends BlockBase {
+class FooterActsBlock extends BlockBase implements ContainerFactoryPluginInterface {
+  /**
+   * The extension.list.theme service.
+   */
+  protected ThemeExtensionList $themes;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = new static($configuration, $plugin_id, $plugin_definition);
+    $instance->themes = $container->get('extension.list.theme');
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -27,7 +45,7 @@ class FooterActsBlock extends BlockBase {
       ],
       'image' => [
         '#theme' => 'image',
-        '#uri' => '/' . \Drupal::service('extension.list.theme')->getPath('labdoo') . '/img/footer-acts.png',
+        '#uri' => '/' . $this->themes->getPath('labdoo') . '/img/footer-acts.png',
         '#alt' => $this->t('Labdoo Footer Acts'),
         '#attributes' => [
           'class' => ['footer-acts-image'],

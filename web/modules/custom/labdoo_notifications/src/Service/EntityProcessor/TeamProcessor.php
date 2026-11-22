@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_notifications\Service\EntityProcessor;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\labdoo_notifications\Service\NotificationManager;
 
 /**
@@ -35,9 +36,9 @@ class TeamProcessor implements EntityProcessorInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(EntityInterface $entity, string $operation, $comment = null): void {
+  public function process(EntityInterface $entity, string $operation, $comment = NULL): void {
     // Check if this is a team-related entity.
-    if ($entity->getEntityTypeId() !== 'node') {
+    if (!$entity instanceof NodeInterface) {
       return;
     }
 

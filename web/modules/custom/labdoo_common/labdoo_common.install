@@ -113,7 +113,8 @@ function labdoo_common_update_9003(): void {
   $database = \Drupal::database();
   $schema = $database->schema();
 
-  // Index for path_alias (status, langcode, id DESC) to optimize alias lookups and sorting.
+  // Index for path_alias (status, langcode, id DESC) to optimize alias lookups
+  // and sorting.
   if ($schema->tableExists('path_alias')) {
     if (!$schema->indexExists('path_alias', 'path_alias__status_langcode_id')) {
       $schema->addIndex('path_alias', 'path_alias__status_langcode_id', ['status', 'langcode', 'id'], [
@@ -126,10 +127,14 @@ function labdoo_common_update_9003(): void {
     }
   }
 
-  // Index for node__field_location to optimize filtering by field_location_value.
+  // Index for node__field_location to optimize filtering by
+  // field_location_value.
   if ($schema->tableExists('node__field_location')) {
     if (!$schema->indexExists('node__field_location', 'node__field_location__entity_id_value')) {
-      $schema->addIndex('node__field_location', 'node__field_location__entity_id_value', ['entity_id', ['field_location_value', 1]], [
+      $schema->addIndex('node__field_location', 'node__field_location__entity_id_value', ['entity_id', [
+        'field_location_value',
+        1,
+      ]], [
         'fields' => [
           'entity_id' => ['type' => 'int', 'unsigned' => TRUE],
           'field_location_value' => ['type' => 'blob'],
@@ -204,7 +209,9 @@ function labdoo_common_update_9005(): void {
 
   foreach ($destinations as $title => $uri) {
     if (!$uri) {
-      \Drupal::logger('labdoo_common')->warning('Footer update skipped for "%title": published destination was not found.', ['%title' => $title]);
+      \Drupal::logger('labdoo_common')->warning('Footer update skipped for "%title": published destination was not found.', [
+        '%title' => $title,
+      ]);
       continue;
     }
     $links = $menus->loadByProperties([

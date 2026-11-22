@@ -24,6 +24,7 @@ class ActionGeneratorFactory {
    *   The ActionGenerator service.
    *
    * @throws \Drupal\labdoo_global_action\Exception\UnknownServiceException
+   *
    * @codeCoverageIgnore
    */
   public static function get(string $bundle): ActionGeneratorInterface {

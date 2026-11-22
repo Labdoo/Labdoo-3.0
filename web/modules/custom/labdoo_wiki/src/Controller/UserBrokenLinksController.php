@@ -2,6 +2,9 @@
 
 namespace Drupal\labdoo_wiki\Controller;
 
+use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\linkchecker\LinkCheckerLinkInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
@@ -12,6 +15,8 @@ use Drupal\Core\Database\Connection;
 
 /**
  * Controller for user broken links page.
+ *
+ * @phpstan-consistent-constructor
  */
 class UserBrokenLinksController extends ControllerBase {
 
@@ -31,8 +36,22 @@ class UserBrokenLinksController extends ControllerBase {
 
   /**
    * Constructs a UserBrokenLinksController object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database.
+   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatchInjected
+   *   The current_route_match service.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatterInjected
+   *   The date.formatter service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, Connection $database) {
+  public function __construct(
+    EntityTypeManagerInterface $entity_type_manager,
+    Connection $database,
+    protected RouteMatchInterface $routeMatchInjected,
+    protected DateFormatterInterface $dateFormatterInjected,
+  ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->database = $database;
   }
@@ -43,15 +62,22 @@ class UserBrokenLinksController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('database')
+      $container->get('database'),
+      $container->get('current_route_match'),
+      $container->get('date.formatter'),
     );
   }
 
   /**
    * Custom access check.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The account.
+   * @param mixed $user
+   *   The user.
    */
   public function access(AccountInterface $account, $user = NULL) {
-    $route_name = \Drupal::routeMatch()->getRouteName();
+    $route_name = $this->routeMatchInjected->getRouteName();
 
     if ($route_name === 'labdoo_wiki.user_broken_links' && $user === NULL) {
       return AccessResult::allowedIf($account->isAuthenticated());
@@ -69,9 +95,12 @@ class UserBrokenLinksController extends ControllerBase {
 
   /**
    * Displays broken links for user's wiki pages.
+   *
+   * @param \Drupal\user\UserInterface|null $user
+   *   The user.
    */
-  public function brokenLinks(UserInterface $user = NULL): array {
-    if ($user === NULL && \Drupal::routeMatch()->getRouteName() === 'labdoo_wiki.user_broken_links') {
+  public function brokenLinks(?UserInterface $user = NULL): array {
+    if ($user === NULL && $this->routeMatchInjected->getRouteName() === 'labdoo_wiki.user_broken_links') {
       $current_user = $this->entityTypeManager
         ->getStorage('user')
         ->load($this->currentUser()->id());
@@ -129,6 +158,9 @@ class UserBrokenLinksController extends ControllerBase {
     if (!$user) {
       $parent_ids = [];
       foreach ($links as $link) {
+        if (!$link instanceof LinkCheckerLinkInterface) {
+          throw new \UnexpectedValueException('Link storage returned an unsupported entity.');
+        }
         $parent_ids[] = $link->get('parent_entity_id')->value;
       }
       $wiki_pages = $this->entityTypeManager
@@ -138,6 +170,9 @@ class UserBrokenLinksController extends ControllerBase {
 
     $rows = [];
     foreach ($links as $link) {
+      if (!$link instanceof LinkCheckerLinkInterface) {
+        throw new \UnexpectedValueException('Link storage returned an unsupported entity.');
+      }
       $entity_id = $link->get('parent_entity_id')->value;
 
       if (isset($wiki_pages[$entity_id])) {
@@ -160,7 +195,7 @@ class UserBrokenLinksController extends ControllerBase {
           'status' => $this->t('HTTP @code', ['@code' => $link->getStatusCode() ?: 'N/A']),
           'error' => $link->getErrorMessage() ?: $this->t('No response'),
           'last_checked' => [
-            'data' => $last_check ? \Drupal::service('date.formatter')->format($last_check, 'short') : $this->t('Never'),
+            'data' => $last_check ? $this->dateFormatterInjected->format($last_check, 'short') : $this->t('Never'),
           ],
         ];
       }

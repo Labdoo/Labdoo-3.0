@@ -33,7 +33,7 @@ final class QuoteController implements ContainerInjectionInterface {
   }
 
   /**
-   * Returns a quote in an installed interface language without immediate repeats.
+   * Returns a quote in the requested language without immediate repeats.
    */
   public function random(string $langcode, Request $request): JsonResponse {
     $this->killSwitch->trigger();

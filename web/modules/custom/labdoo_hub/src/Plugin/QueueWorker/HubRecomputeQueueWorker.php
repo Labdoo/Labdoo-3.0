@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_hub\Plugin\QueueWorker;
 
+use Drupal\user\EntityOwnerInterface;
+use Drupal\labdoo_common\Utility\EntityMetadata;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -25,6 +27,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *   title = @Translation("Recompute the hub data"),
  *   cron = {"time" = 10}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -66,7 +70,7 @@ class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactor
     LoggerChannelFactoryInterface $loggerChannelFactory,
     HubComputeInterface $hubCompute,
     HubRepositoryInterface $hubRepository,
-    EventDispatcherInterface $eventDispatcher
+    EventDispatcherInterface $eventDispatcher,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('bb_valentina');
@@ -82,7 +86,7 @@ class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactor
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory */
     $loggerChannelFactory = $container->get('logger.factory');
@@ -133,8 +137,8 @@ class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactor
       }
 
       // Flag to prevent recursive enqueuing during background recompute.
-      $hub->skip_geocoding_enqueue = TRUE;
-      $hub->skip_recompute_enqueue = TRUE;
+      EntityMetadata::set($hub, 'skip_geocoding_enqueue', TRUE);
+      EntityMetadata::set($hub, 'skip_recompute_enqueue', TRUE);
 
       // Recompute logic (currently none for Hub, but we clear tags).
       $this->clearCachetag($hub);
@@ -161,10 +165,10 @@ class HubRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactor
   /**
    * Invalidate the node type cache tag.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface&\Drupal\user\EntityOwnerInterface $entity
    *   The entity.
    */
-  protected function clearCachetag(EntityInterface $entity): void {
+  protected function clearCachetag(EntityInterface&EntityOwnerInterface $entity): void {
     $this->clearCachetagById((int) $entity->id(), (int) $entity->getOwnerId());
   }
 

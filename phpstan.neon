@@ -3,3 +3,4 @@ parameters:
   paths:
   - web/modules/custom
   - web/themes/custom
+  - tests/phpunit

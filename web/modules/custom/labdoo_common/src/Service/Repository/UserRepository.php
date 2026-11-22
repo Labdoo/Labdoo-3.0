@@ -21,16 +21,18 @@ class UserRepository {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
+   * @param \Drupal\Core\Session\AccountProxyInterface $accountProxy
+   *   The account proxy.
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected AccountProxyInterface $accountProxy
+    protected AccountProxyInterface $accountProxy,
   ) {}
 
   /**
    * Get the current user entity.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\user\UserInterface|null
    *   The current user entity, or null if not found.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException

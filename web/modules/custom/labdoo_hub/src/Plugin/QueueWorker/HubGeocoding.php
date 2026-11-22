@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_hub\Plugin\QueueWorker;
 
+use Drupal\labdoo_common\Utility\GeocoderProviders;
+use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
@@ -17,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   title = @Translation("Hub Geocoding"),
  *   cron = {"time" = 60}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class HubGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -83,7 +87,7 @@ class HubGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInte
    */
   public function processItem($data) {
     $nid = $data['nid'];
-    /** @var \Drupal\node\NodeInterface $node */
+    /** @var \Drupal\node\NodeInterface|null $node */
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
 
     if (
@@ -95,19 +99,21 @@ class HubGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInte
       $locationData = $node->get('field_locations')->first()->getValue();
       if (isset($locationData['lat']) && isset($locationData['lon'])) {
         // Validation check before reverse lookup (extra safety).
-        if (abs((float)$locationData['lat']) < 0.1 && abs((float)$locationData['lon']) < 0.1) {
+        if (abs((float) $locationData['lat']) < 0.1 && abs((float) $locationData['lon']) < 0.1) {
           return;
         }
 
-        $coordinatesData = $this->reverseLookupCoordinates((float)$locationData['lat'], (float)$locationData['lon']);
-        
+        $coordinatesData = $this->reverseLookupCoordinates((float) $locationData['lat'], (float) $locationData['lon']);
+
         if (empty($coordinatesData['country_code'])) {
-          // If we couldn't get a country code, throw exception to keep in queue for retry.
+          // If we couldn't get a country code, throw exception to keep in queue
+          // for
+          // retry.
           throw new \Exception(sprintf('Failed to reverse geocode hub %d. No results or API error.', $nid));
         }
 
         $modified = FALSE;
-        
+
         if ($node->hasField('field_country')) {
           $node->set('field_country', $coordinatesData['country_code']);
           $modified = TRUE;
@@ -141,7 +147,7 @@ class HubGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInte
 
     try {
       // Use the geocoder service with the 'googlemaps' provider.
-      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, ['googlemaps']);
+      $addressCollection = $this->geocoder->reverse((string) $lat, (string) $lon, GeocoderProviders::load($this->entityTypeManager, ['googlemaps']));
 
       if ($addressCollection && !$addressCollection->isEmpty()) {
         /** @var \Geocoder\Location $address */
@@ -161,7 +167,7 @@ class HubGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInte
       $msg = $e->getMessage();
       \Drupal::logger('labdoo_hub')->warning('Google Maps reverse geocode failed: @message. Trying fallback Nominatim API...', ['@message' => $msg]);
 
-      // Fallback to Nominatim OpenStreetMap API
+      // Fallback to Nominatim OpenStreetMap API.
       try {
         $client = \Drupal::httpClient();
         $response = $client->get("https://nominatim.openstreetmap.org/reverse?lat={$lat}&lon={$lon}&format=json", [
@@ -183,7 +189,8 @@ class HubGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInte
       catch (\Exception $fallbackException) {
         \Drupal::logger('labdoo_hub')->error('Fallback Nominatim reverse geocode failed: @message', ['@message' => $fallbackException->getMessage()]);
 
-        // Circuit Breaker: If API is blocked (403) or rate limited (429), suspend queue.
+        // Circuit Breaker: If API is blocked (403) or rate limited (429),
+        // suspend queue.
         if (
           strpos($msg, 'Access Not Configured') !== FALSE ||
           strpos($msg, 'API keys with referer restrictions') !== FALSE ||
@@ -191,10 +198,11 @@ class HubGeocoding extends QueueWorkerBase implements ContainerFactoryPluginInte
           strpos($msg, '429') !== FALSE ||
           strpos($msg, 'QuotaExceeded') !== FALSE
         ) {
-          throw new \Drupal\Core\Queue\SuspendQueueException('Google Maps API Error: ' . $msg);
+          throw new SuspendQueueException('Google Maps API Error: ' . $msg);
         }
 
-        // Re-throw to ensure the queue item is not deleted for other transient errors.
+        // Re-throw to ensure the queue item is not deleted for other transient
+        // errors.
         throw $e;
       }
     }

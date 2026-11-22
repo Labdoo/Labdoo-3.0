@@ -28,6 +28,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class StatisticsResource extends ResourceBase {
 
@@ -62,7 +64,7 @@ class StatisticsResource extends ResourceBase {
     $plugin_definition,
     array $serializer_formats,
     protected CommonRepository $commonRepository,
-    LoggerInterface $logger
+    LoggerInterface $logger,
   ) {
     parent::__construct(
       $configuration,
@@ -80,7 +82,7 @@ class StatisticsResource extends ResourceBase {
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository */
     $commonRepository = $container->get('labdoo_common.repository.common');

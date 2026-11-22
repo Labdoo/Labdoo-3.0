@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * @file
+ * Provides installation and update hooks for labdoo admin toolbar.
+ *
  * Developed by Natiboo <info@natiboo.es>
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
@@ -16,7 +19,7 @@ function labdoo_admin_toolbar_install() {
   // Check if the block already exists.
   $block_id = 'labdoo_admin_toolbar';
   $existing_block = Block::load($block_id);
-  
+
   if (!$existing_block) {
     // Create a new block.
     $block = Block::create([
@@ -44,9 +47,9 @@ function labdoo_admin_toolbar_install() {
         ],
       ],
     ]);
-    
+
     $block->save();
-    
+
     \Drupal::messenger()->addStatus(t('Labdoo Admin Toolbar block has been placed in the header region.'));
   }
 }
@@ -58,7 +61,7 @@ function labdoo_admin_toolbar_uninstall() {
   // Remove the block when the module is uninstalled.
   $block_id = 'labdoo_admin_toolbar';
   $block = Block::load($block_id);
-  
+
   if ($block) {
     $block->delete();
     \Drupal::messenger()->addStatus(t('Labdoo Admin Toolbar block has been removed.'));

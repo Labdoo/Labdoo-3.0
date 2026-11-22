@@ -2,8 +2,8 @@
 
 namespace Drupal\labdoo_map\Controller;
 
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Cache\CacheableJsonResponse;
@@ -14,15 +14,25 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Provides map data for dashboards.
+ *
+ * @phpstan-consistent-constructor
  */
 class MapDataController extends ControllerBase {
 
   /**
    * Constructs the map controller.
+   *
+   * @param \Drupal\labdoo_map\Service\MapPointRepository $points
+   *   The points.
+   * @param \Drupal\labdoo_map\Service\MapPointClusterer $clusterer
+   *   The clusterer.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatterInjected
+   *   The date.formatter service.
    */
   public function __construct(
     private readonly MapPointRepository $points,
     private readonly MapPointClusterer $clusterer,
+    protected DateFormatterInterface $dateFormatterInjected,
   ) {}
 
   /**
@@ -32,6 +42,7 @@ class MapDataController extends ControllerBase {
     return new static(
       $container->get('labdoo_map.points'),
       $container->get('labdoo_map.clusterer'),
+      $container->get('date.formatter'),
     );
   }
 
@@ -57,10 +68,13 @@ class MapDataController extends ControllerBase {
       return TRUE;
     }
     // Specific coordinates that are known to be "defaults" or incorrect.
-    // E.g. Madrid or Barcelona city centers when only country/region was provided.
+    // E.g. Madrid or Barcelona city centers when only country/region was
+    // provided.
     $defaults = [
-      '40.416775,-3.703790', // Madrid
-      '41.385064,2.173404',  // Barcelona
+    // Madrid.
+      '40.416775,-3.703790',
+    // Barcelona.
+      '41.385064,2.173404',
     ];
     if (in_array(sprintf('%.6f,%.6f', $lat, $lon), $defaults)) {
       return TRUE;
@@ -71,6 +85,11 @@ class MapDataController extends ControllerBase {
 
   /**
    * Returns points for a specific content type.
+   *
+   * @param string $type
+   *   The type.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
    */
   public function getMapPoints(string $type, Request $request): CacheableJsonResponse {
     $zoom = 2;
@@ -79,18 +98,18 @@ class MapDataController extends ControllerBase {
     if ($clustered) {
       $value = (string) $request->query->get('zoom', '2');
       if (!ctype_digit($value) || (int) $value > 18) {
-        throw new BadRequestHttpException((string) $this->t('Map zoom must be between 0 and 18.'));
+        throw new BadRequestHttpException('Map zoom must be between 0 and 18.');
       }
       $zoom = (int) $value;
       if ($request->query->has('bbox')) {
         $parts = explode(',', $request->query->get('bbox'));
         if (count($parts) !== 4 || count(array_filter($parts, 'is_numeric')) !== 4) {
-          throw new BadRequestHttpException((string) $this->t('Map bounds require four coordinates.'));
+          throw new BadRequestHttpException('Map bounds require four coordinates.');
         }
         $viewport = array_map('floatval', $parts);
         [$west, $south, $east, $north] = $viewport;
         if ($west < -180 || $west > 180 || $east < -180 || $east > 180 || $south < -90 || $north > 90 || $south > $north) {
-          throw new BadRequestHttpException((string) $this->t('Map bounds are outside the supported range.'));
+          throw new BadRequestHttpException('Map bounds are outside the supported range.');
         }
       }
     }
@@ -112,29 +131,32 @@ class MapDataController extends ControllerBase {
 
   /**
    * Returns trajectory points for a specific node.
+   *
+   * @param mixed $nid
+   *   The nid.
    */
   public function getNodeTrajectory($nid) {
     $unique_points = [];
-    $node = Node::load($nid);
-    
+    $node = $this->entityTypeManager()->getStorage('node')->load($nid);
+
     if (!$node) {
       return new JsonResponse([]);
     }
 
     // Try both field_location (single) and field_locations (multiple).
     $fields = ['field_location', 'field_locations'];
-    
+
     $created = $node->getCreatedTime();
-    $date_formatter = \Drupal::service('date.formatter');
+    $date_formatter = $this->dateFormatterInjected;
     $formatted_date = $date_formatter->format($created, 'short');
 
     foreach ($fields as $field_name) {
       if ($node->hasField($field_name) && !$node->get($field_name)->isEmpty()) {
         $values = $node->get($field_name)->getValue();
-        foreach ($values as $delta => $value) {
+        foreach ($values as $value) {
           $lat = (float) ($value['lat'] ?? $value['value_lat'] ?? 0);
           $lon = (float) ($value['lon'] ?? $value['value_lon'] ?? 0);
-          
+
           if ($lat && $lon && !self::isSuspiciousLocation($lat, $lon)) {
             $key = sprintf('%.6f,%.6f', $lat, $lon);
             if (!isset($unique_points[$key])) {

@@ -9,6 +9,8 @@ namespace Drupal\labdoo_migrate\Services\Config;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class GlobalConfigurationBag implements ConfigurationBagInterface {
 

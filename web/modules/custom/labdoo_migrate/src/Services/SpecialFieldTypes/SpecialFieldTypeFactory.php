@@ -26,9 +26,8 @@ class SpecialFieldTypeFactory {
   public static function get(string $fieldType): SpecialFieldTypeInterface {
 
     $serviceId = sprintf('labdoo_migrate.special_field_types.%s', $fieldType);
-    /** @var \Drupal\labdoo_migrate\Services\SpecialFieldTypes\SpecialFieldTypeInterface $serviceInstance */
     $serviceInstance = \Drupal::getContainer()->get($serviceId);
-    if (!$serviceInstance) {
+    if (!$serviceInstance instanceof SpecialFieldTypeInterface) {
       $errorMessage = sprintf('Could not instantiate service %s', $serviceId);
       throw new \Exception($errorMessage);
     }

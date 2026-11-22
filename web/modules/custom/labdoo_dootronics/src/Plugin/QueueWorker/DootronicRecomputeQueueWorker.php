@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_dootronics\Plugin\QueueWorker;
 
+use Drupal\user\EntityOwnerInterface;
+use Drupal\labdoo_common\Utility\EntityMetadata;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -30,6 +32,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *   title = @Translation("Recompute heavy dootronics fields"),
  *   cron = {"time" = 20}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class DootronicRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -71,7 +75,7 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
     LoggerChannelFactoryInterface $loggerChannelFactory,
     DootronicComputeInterface $dootronicCompute,
     DootronicRepositoryInterface $dootronicRepository,
-    EventDispatcherInterface $eventDispatcher
+    EventDispatcherInterface $eventDispatcher,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('labdoo_dootronics');
@@ -87,7 +91,7 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory */
     $loggerChannelFactory = $container->get('logger.factory');
@@ -144,13 +148,15 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
       }
 
       // Flag to prevent recursive enqueuing during background recompute.
-      $dootronic->skip_geocoding_enqueue = TRUE;
-      $dootronic->skip_recompute_enqueue = TRUE;
+      EntityMetadata::set($dootronic, 'skip_geocoding_enqueue', TRUE);
+      EntityMetadata::set($dootronic, 'skip_recompute_enqueue', TRUE);
 
       $this->dootronicCompute->computeEdooVillageData($dootronic);
       $this->dootronicCompute->computeHubData($dootronic);
       $this->dootronicCompute->computeRelatedDootrips($dootronic, $originalDootripIds);
-      $this->dootronicRepository->saveEntity($dootronic);
+      if (!$this->dootronicRepository->saveEntity($dootronic)) {
+        throw new \RuntimeException('Unable to save recomputed dootronic.');
+      }
       $this->clearCachetag($dootronic);
     }
     catch (EmptyQueueItemException | InvalidDataTypeException $exception) {
@@ -175,10 +181,10 @@ class DootronicRecomputeQueueWorker extends QueueWorkerBase implements Container
   /**
    * Invalidate the node type cache tag.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface&\Drupal\user\EntityOwnerInterface $entity
    *   The entity.
    */
-  protected function clearCachetag(EntityInterface $entity): void {
+  protected function clearCachetag(EntityInterface&EntityOwnerInterface $entity): void {
     $this->clearCachetagById((int) $entity->id(), (int) $entity->getOwnerId());
   }
 

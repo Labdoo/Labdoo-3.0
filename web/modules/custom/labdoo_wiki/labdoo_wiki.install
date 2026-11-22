@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Provides installation and update hooks for labdoo wiki.
+ */
+
+/**
  * Updates the 'revision_uid' field in the 'mini_wiki_page_revision' table.
  */
 function labdoo_wiki_update_8001() {

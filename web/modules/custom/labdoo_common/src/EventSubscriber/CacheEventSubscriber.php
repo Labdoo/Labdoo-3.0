@@ -35,6 +35,7 @@ class CacheEventSubscriber implements EventSubscriberInterface {
    *   The event.
    *
    * @return void
+   *   The resulting value.
    */
   public function onInvalidatedTags(InvalidateCacheTagsEvent $event): void {
     $cacheTags = $event->getCacheTags();
@@ -43,7 +44,7 @@ class CacheEventSubscriber implements EventSubscriberInterface {
     }
 
     // Filter out tags that are already being processed to avoid infinite loops.
-    $cacheTags = array_filter($cacheTags, function($tag) {
+    $cacheTags = array_filter($cacheTags, function ($tag) {
       return strpos($tag, 'labdoo_common_cache_invalidation') === FALSE;
     });
 

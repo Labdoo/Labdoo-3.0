@@ -2,6 +2,9 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\State\StateInterface;
+use Drupal\node\NodeInterface;
+use Drupal\media\MediaInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
@@ -19,11 +22,12 @@ use Symfony\Component\Console\Helper\ProgressBar;
  * - node_gallery_gallery content types to gallery content types
  * - node_gallery_item content types to media entities referenced by gallery
  * - Preserves the original node IDs
- * - Maps fields between source and destination
+ * - Maps fields between source and destination.
  *
  * Usage:
  * drush labdoo-synchronize-galleries
- * drush labdoo-sync-galleries --nids=123,456,789 --limit=10 --dry-run --from-date="2026-02-01 00:00:00"
+ * drush labdoo-sync-galleries --nids=123,456,789 --limit=10 --dry-run
+ * --from-date="2026-02-01 00:00:00"
  *
  * Developed by Natiboo <info@natiboo.es>
  *
@@ -71,7 +75,7 @@ class GallerySynchronizerCommands extends DrushCommands {
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
    */
-  private $progressBar;
+  private ?ProgressBar $progressBar = NULL;
 
   /**
    * Incremental mode.
@@ -96,13 +100,27 @@ class GallerySynchronizerCommands extends DrushCommands {
 
   /**
    * GallerySynchronizerCommands constructor.
+   *
+   * @param \Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface $externalConnectionManager
+   *   The external connection manager.
+   * @param \Drupal\labdoo_migrate\Services\Media\FileManagerInterface $fileManager
+   *   The file manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database.
+   * @param \Drupal\labdoo_migrate\Services\Tracking\MigrationTrackerInterface $migrationTracker
+   *   The migration tracker.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
   public function __construct(
     protected ConnectionManagerInterface $externalConnectionManager,
     protected FileManagerInterface $fileManager,
     protected EntityTypeManagerInterface $entityTypeManager,
     protected Connection $database,
-    MigrationTrackerInterface $migrationTracker
+    MigrationTrackerInterface $migrationTracker,
+    protected StateInterface $state,
   ) {
     parent::__construct();
     $this->migrationTracker = $migrationTracker;
@@ -132,65 +150,65 @@ class GallerySynchronizerCommands extends DrushCommands {
       'dry-run' => FALSE,
       'from-date' => NULL,
       'incremental' => FALSE,
-    ]
+    ],
   ) {
     try {
       $this->setEnvironment($options);
       $this->logger->notice('Starting gallery synchronization process...');
 
-      // Start measuring memory usage
+      // Start measuring memory usage.
       $initialMemory = memory_get_usage();
 
-      // Disable entity storage caches
+      // Disable entity storage caches.
       $this->disableEntityStorageCache();
 
-      // Migrate galleries
+      // Migrate galleries.
       $this->logger->notice('Step 1: Retrieving and migrating galleries');
       $sourceGalleries = $this->getSourceGalleries();
 
-      // Initialize counters
+      // Initialize counters.
       $totalCreated = 0;
       $totalUpdated = 0;
       $totalSkipped = 0;
 
-      // Initialize progress bar
+      // Initialize progress bar.
       $this->initProgressBar(count($sourceGalleries), 'Processing galleries');
 
-      // Process each gallery
+      // Process each gallery.
       foreach ($sourceGalleries as $sourceGallery) {
-        // Create or update gallery
+        // Create or update gallery.
         $galleryResult = $this->updateDestinationGallery($sourceGallery);
 
-        // Update counters
+        // Update counters.
         $totalCreated += $galleryResult['created'];
         $totalUpdated += $galleryResult['updated'];
         $totalSkipped += $galleryResult['skipped'];
 
-        // If gallery was created or updated successfully
+        // If gallery was created or updated successfully.
         if ($galleryResult['success']) {
-          // Get gallery items for this gallery
+          // Get gallery items for this gallery.
           $sourceGalleryItems = $this->getSourceGalleryItems($sourceGallery['nid']);
 
-          // Process gallery items
+          // Process gallery items.
           if (!empty($sourceGalleryItems)) {
             $galleryItemResult = $this->updateDestinationGalleryItems($sourceGalleryItems, $galleryResult['entity']);
 
-            // Update counters
+            // Update counters.
             $totalCreated += $galleryItemResult['created'];
             $totalUpdated += $galleryItemResult['updated'];
             $totalSkipped += $galleryItemResult['skipped'];
           }
         }
 
-        // Free memory
+        // Free memory.
         $this->externalConnectionManager->restoreConnection();
         gc_collect_cycles();
       }
 
-      // Re-enable entity storage caches
+      // Re-enable entity storage caches.
       $this->enableEntityStorageCache();
 
-      // Log memory usage
+      // Log memory usage.
       $peakMemory = memory_get_peak_usage();
       $memoryUsed = $peakMemory - $initialMemory;
       $this->logger->notice(sprintf(
@@ -204,7 +222,7 @@ class GallerySynchronizerCommands extends DrushCommands {
     catch (\Exception $e) {
       $this->logger->error('Error during synchronization: ' . $e->getMessage());
       if (isset($e->getTrace()[0])) {
-        $this->logger->error('Error location: ' . ($e->getTrace()[0]['file'] ?? 'unknown') . 
+        $this->logger->error('Error location: ' . ($e->getTrace()[0]['file'] ?? 'unknown') .
           ' line ' . ($e->getTrace()[0]['line'] ?? 'unknown'));
       }
     }
@@ -219,7 +237,7 @@ class GallerySynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
-    \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
+    $this->state->set('labdoo_migrate_is_running', TRUE);
     $this->fromTimestamp = NULL;
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
@@ -252,29 +270,29 @@ class GallerySynchronizerCommands extends DrushCommands {
 
     $galleriesResult = [];
 
-    // Establish connection once
+    // Establish connection once.
     $connection = $this->externalConnectionManager->setConnection();
 
-    // Build query with LEFT JOINs to get all data in one query
+    // Build query with LEFT JOINs to get all data in one query.
     $query = $connection->select('node', 'n');
     $query->fields('n', ['nid', 'title', 'uid', 'status', 'created', 'changed']);
 
-    // Join body field
-    $query->leftJoin('field_data_body', 'fdb', 'n.nid = fdb.entity_id AND fdb.entity_type = :entity_type AND fdb.bundle = :bundle', 
+    // Join body field.
+    $query->leftJoin('field_data_body', 'fdb', 'n.nid = fdb.entity_id AND fdb.entity_type = :entity_type AND fdb.bundle = :bundle',
       [':entity_type' => 'node', ':bundle' => self::SOURCE_GALLERY_CONTENT_TYPE]);
     $query->fields('fdb', ['body_value', 'body_summary', 'body_format']);
 
-    // Join edoovillage reference
+    // Join edoovillage reference.
     $query->leftJoin('field_data_field_photo_album_edoovillage', 'fpe', 'n.nid = fpe.entity_id AND fpe.entity_type = :entity_type AND fpe.bundle = :bundle',
       [':entity_type' => 'node', ':bundle' => self::SOURCE_GALLERY_CONTENT_TYPE]);
     $query->fields('fpe', ['field_photo_album_edoovillage_target_id']);
 
-    // Join hub reference
+    // Join hub reference.
     $query->leftJoin('field_data_field_photo_album_hub', 'fph', 'n.nid = fph.entity_id AND fph.entity_type = :entity_type AND fph.bundle = :bundle',
       [':entity_type' => 'node', ':bundle' => self::SOURCE_GALLERY_CONTENT_TYPE]);
     $query->fields('fph', ['field_photo_album_hub_target_id']);
 
-    // Add conditions
+    // Add conditions.
     $query->condition('n.type', self::SOURCE_GALLERY_CONTENT_TYPE);
 
     if ($this->nids !== NULL) {
@@ -292,7 +310,7 @@ class GallerySynchronizerCommands extends DrushCommands {
       $query->condition($or);
     }
 
-    // Execute query
+    // Execute query.
     $galleries = $query->execute()->fetchAll();
 
     if ($this->incremental) {
@@ -343,37 +361,38 @@ class GallerySynchronizerCommands extends DrushCommands {
   protected function getSourceGalleryItems(?int $galleryId = NULL): array {
     if ($galleryId) {
       $this->logger->notice(sprintf('Retrieving gallery items for gallery ID %d...', $galleryId));
-    } else {
+    }
+    else {
       $this->logger->notice('Retrieving all source gallery items...');
     }
 
     $galleryItemsResult = [];
 
-    // Establish connection once
+    // Establish connection once.
     $connection = $this->externalConnectionManager->setConnection();
 
-    // Build query with LEFT JOINs to get all data in one query
+    // Build query with LEFT JOINs to get all data in one query.
     $query = $connection->select('node', 'n');
     $query->fields('n', ['nid', 'title', 'uid', 'status', 'created', 'changed']);
 
-    // Join body field
-    $query->leftJoin('field_data_body', 'fdb', 'n.nid = fdb.entity_id AND fdb.entity_type = :entity_type AND fdb.bundle = :bundle', 
+    // Join body field.
+    $query->leftJoin('field_data_body', 'fdb', 'n.nid = fdb.entity_id AND fdb.entity_type = :entity_type AND fdb.bundle = :bundle',
       [':entity_type' => 'node', ':bundle' => self::SOURCE_GALLERY_ITEM_CONTENT_TYPE]);
     $query->fields('fdb', ['body_value', 'body_summary', 'body_format']);
 
-    // Join gallery reference from node_gallery_relationship table
+    // Join gallery reference from node_gallery_relationship table.
     $query->leftJoin('node_gallery_relationship', 'ngr', 'n.nid = ngr.nid');
     $query->fields('ngr', ['ngid']);
 
-    // Join media file reference
+    // Join media file reference.
     $query->leftJoin('field_data_node_gallery_media', 'fgm', 'n.nid = fgm.entity_id AND fgm.entity_type = :entity_type AND fgm.bundle = :bundle',
       [':entity_type' => 'node', ':bundle' => self::SOURCE_GALLERY_ITEM_CONTENT_TYPE]);
     $query->fields('fgm', ['node_gallery_media_fid']);
 
-    // Add conditions
+    // Add conditions.
     $query->condition('n.type', self::SOURCE_GALLERY_ITEM_CONTENT_TYPE);
 
-    // Filter by gallery ID if provided
+    // Filter by gallery ID if provided.
     if ($galleryId) {
       $query->condition('ngr.ngid', $galleryId);
     }
@@ -389,10 +408,10 @@ class GallerySynchronizerCommands extends DrushCommands {
       $query->condition($or);
     }
 
-    // Execute query
+    // Execute query.
     $galleryItems = $query->execute()->fetchAll();
 
-    // Get all file IDs to fetch in a single query
+    // Get all file IDs to fetch in a single query.
     $fileIds = [];
     foreach ($galleryItems as $galleryItem) {
       if (!empty($galleryItem->node_gallery_media_fid)) {
@@ -400,7 +419,7 @@ class GallerySynchronizerCommands extends DrushCommands {
       }
     }
 
-    // Fetch all files in a single query
+    // Fetch all files in a single query.
     $files = [];
     if (!empty($fileIds)) {
       $fileQuery = $connection->select('file_managed', 'fm')
@@ -413,7 +432,7 @@ class GallerySynchronizerCommands extends DrushCommands {
       }
     }
 
-    // Process gallery items
+    // Process gallery items.
     foreach ($galleryItems as $galleryItem) {
       $mediaFile = NULL;
 
@@ -463,7 +482,8 @@ class GallerySynchronizerCommands extends DrushCommands {
    *   The source gallery.
    *
    * @return array
-   *   Returns the result of the operation including created/updated count and the entity.
+   *   Returns the result of the operation including created/updated count and
+   *   the entity.
    *
    * @throws \Exception
    */
@@ -475,13 +495,13 @@ class GallerySynchronizerCommands extends DrushCommands {
     $entity = NULL;
 
     try {
-      // Check if node exists and is of correct type
+      // Check if node exists and is of correct type.
       $nid = $sourceGallery['nid'];
       $existingNode = $this->entityTypeManager
         ->getStorage('node')
         ->load($nid);
 
-      // If a node with this ID exists but is not a gallery, skip it
+      // If a node with this ID exists but is not a gallery, skip it.
       if ($existingNode && $existingNode->bundle() !== self::GALLERY_CONTENT_TYPE) {
         $this->logger->warning(sprintf(
           'Skipping gallery %s (ID: %d): A node with this ID already exists but is not a gallery (type: %s)',
@@ -499,9 +519,9 @@ class GallerySynchronizerCommands extends DrushCommands {
         ];
       }
 
-      // Create or update entity
+      // Create or update entity.
       if (!$existingNode || $existingNode->bundle() !== self::GALLERY_CONTENT_TYPE) {
-        // Create a new gallery with the original node ID
+        // Create a new gallery with the original node ID.
         $destinationEntity = $this->entityTypeManager
           ->getStorage('node')
           ->create([
@@ -511,22 +531,20 @@ class GallerySynchronizerCommands extends DrushCommands {
         ++$created;
       }
       else {
-        // Update existing gallery
+        // Update existing gallery.
         $destinationEntity = $existingNode;
         ++$updated;
       }
 
-      // Set basic fields
+      // Set basic fields.
       $destinationEntity->set('title', $sourceGallery['title']);
       $destinationEntity->set('uid', $sourceGallery['uid']);
       $destinationEntity->set('status', $sourceGallery['status']);
       $destinationEntity->set('created', $sourceGallery['created']);
       $destinationEntity->set('changed', $sourceGallery['changed']);
-      if (method_exists($destinationEntity, 'setChangedTime')) {
-        $destinationEntity->setChangedTime($sourceGallery['changed']);
-      }
+      $destinationEntity->setChangedTime($sourceGallery['changed']);
 
-      // Set description field
+      // Set description field.
       if (!empty($sourceGallery['body'])) {
         $destinationEntity->set('body', [
           'value' => $sourceGallery['body']['value'],
@@ -548,11 +566,10 @@ class GallerySynchronizerCommands extends DrushCommands {
         $destinationEntity->set('field_parent', $parent);
       }
 
-      // Save the entity
+      // Save the entity.
       if (!$this->dryRun) {
-        if (method_exists($destinationEntity, 'setSyncing')) {
-          $destinationEntity->setSyncing(TRUE);
-        }
+        $destinationEntity->setSyncing(TRUE);
+
         $destinationEntity->save();
         $this->advanceProgressBar();
         $success = TRUE;
@@ -591,7 +608,7 @@ class GallerySynchronizerCommands extends DrushCommands {
     $updated = 0;
     $skipped = 0;
 
-    // Initialize progress bar
+    // Initialize progress bar.
     $this->initProgressBar(count($sourceGalleries), 'Processing galleries');
 
     foreach ($sourceGalleries as $sourceGallery) {
@@ -614,7 +631,8 @@ class GallerySynchronizerCommands extends DrushCommands {
    * @param array $sourceGalleryItems
    *   The source gallery items.
    * @param \Drupal\Core\Entity\EntityInterface|null $galleryEntity
-   *   The gallery entity to update with media references. If NULL, galleries will be loaded by ID.
+   *   The gallery entity to update with media references. If NULL, galleries
+   *   will be loaded by ID.
    *
    * @return array
    *   Returns the number of created/updated entities.
@@ -629,20 +647,20 @@ class GallerySynchronizerCommands extends DrushCommands {
     $skipped = 0;
     $mediaEntities = [];
 
-    // Initialize progress bar
+    // Initialize progress bar.
     $this->initProgressBar(count($sourceGalleryItems), 'Processing gallery items');
 
-    // Batch size for processing
+    // Batch size for processing.
     $batchSize = 20;
     $currentBatch = [];
     $batchCount = 0;
     $processedItems = 0;
 
-    // Process items in batches
+    // Process items in batches.
     foreach ($sourceGalleryItems as $sourceGalleryItem) {
       $processedItems++;
 
-      // Skip if no media file
+      // Skip if no media file.
       if (empty($sourceGalleryItem['media_file'])) {
         $this->logger->warning(sprintf(
           'Skipping gallery item %s (ID: %d): Missing media file',
@@ -654,7 +672,7 @@ class GallerySynchronizerCommands extends DrushCommands {
         continue;
       }
 
-      // Create media entity for the image
+      // Create media entity for the image.
       $mediaFile = $sourceGalleryItem['media_file'];
       $file = $this->fileManager->createFile(
         $mediaFile['uri'],
@@ -673,7 +691,7 @@ class GallerySynchronizerCommands extends DrushCommands {
         continue;
       }
 
-      // Prepare media entity data
+      // Prepare media entity data.
       $mediaData = [
         'file' => $file,
         'title' => $sourceGalleryItem['title'],
@@ -686,18 +704,18 @@ class GallerySynchronizerCommands extends DrushCommands {
         'gallery_ref' => $sourceGalleryItem['gallery_ref'],
       ];
 
-      // Add to current batch
+      // Add to current batch.
       $currentBatch[] = $mediaData;
       $batchCount++;
 
-      // Process batch if we've reached batch size or this is the last item
+      // Process batch if we've reached batch size or this is the last item.
       if ($batchCount >= $batchSize || $processedItems >= count($sourceGalleryItems)) {
-        if (!$this->dryRun && !empty($currentBatch)) {
-          // Use a transaction for batch saving
+        if (!$this->dryRun) {
+          // Use a transaction for batch saving.
           $transaction = $this->database->startTransaction();
           try {
             foreach ($currentBatch as $mediaData) {
-              // Check if media entity already exists
+              // Check if media entity already exists.
               $mediaEntity = $this->fileManager->mediaEntityExists('image', $mediaData['title']);
 
               if ($mediaEntity === NULL) {
@@ -711,9 +729,8 @@ class GallerySynchronizerCommands extends DrushCommands {
                     'created' => $mediaData['created'],
                     'changed' => $mediaData['changed'],
                   ]);
-                if (method_exists($mediaEntity, 'setChangedTime')) {
-                  $mediaEntity->setChangedTime($mediaData['changed']);
-                }
+                $mediaEntity->setChangedTime($mediaData['changed']);
+
                 ++$created;
               }
               else {
@@ -723,20 +740,22 @@ class GallerySynchronizerCommands extends DrushCommands {
                 ++$updated;
               }
 
-              // Set the image field
+              if (!$mediaEntity instanceof MediaInterface) {
+                throw new \UnexpectedValueException('Media storage returned an unsupported entity.');
+              }
+              // Set the image field.
               $mediaEntity->set('field_media_image', [
                 'target_id' => $mediaData['file']->id(),
                 'alt' => $mediaData['alt'],
                 'title' => $mediaData['title_attr'],
               ]);
 
-              // Save the media entity
-              if (method_exists($mediaEntity, 'setSyncing')) {
-                $mediaEntity->setSyncing(TRUE);
-              }
+              // Save the media entity.
+              $mediaEntity->setSyncing(TRUE);
+
               $mediaEntity->save();
 
-              // Store the media entity ID for later use
+              // Store the media entity ID for later use.
               $galleryRef = $mediaData['gallery_ref'];
               if ($galleryRef) {
                 if (!isset($mediaEntities[$galleryRef])) {
@@ -748,31 +767,30 @@ class GallerySynchronizerCommands extends DrushCommands {
               $this->advanceProgressBar();
             }
 
-            // Clear the entity cache after each batch to free memory
+            // Clear the entity cache after each batch to free memory.
             $this->entityTypeManager->getStorage('media')->resetCache();
           }
           catch (\Exception $e) {
-            // If an error occurs, roll back the transaction
-            if (isset($transaction)) {
-              $transaction->rollBack();
-            }
+            // If an error occurs, roll back the transaction.
+            $transaction->rollBack();
+
             $this->logger->error('Error saving media entities: ' . $e->getMessage());
             throw $e;
           }
         }
 
-        // Reset batch
+        // Reset batch.
         $currentBatch = [];
         $batchCount = 0;
       }
     }
 
-    // Update galleries with media references
+    // Update galleries with media references.
     if (!empty($mediaEntities) && !$this->dryRun) {
       $this->logger->notice('Updating galleries with media references...');
 
-      // If a specific gallery entity was provided, update only that one
-      if ($galleryEntity) {
+      // If a specific gallery entity was provided, update only that one.
+      if ($galleryEntity instanceof NodeInterface) {
         $galleryId = $galleryEntity->id();
         if (isset($mediaEntities[$galleryId])) {
           $mediaIds = $mediaEntities[$galleryId];
@@ -788,13 +806,13 @@ class GallerySynchronizerCommands extends DrushCommands {
       }
       else {
         // Otherwise, load and update all galleries with media references
-        // Preload all galleries that need updating
+        // Preload all galleries that need updating.
         $galleryIds = array_keys($mediaEntities);
         $galleries = $this->entityTypeManager
           ->getStorage('node')
           ->loadMultiple($galleryIds);
 
-        // Process galleries in batches
+        // Process galleries in batches.
         $galleryBatchSize = 20;
         $galleryBatch = [];
         $galleryCount = 0;
@@ -818,28 +836,27 @@ class GallerySynchronizerCommands extends DrushCommands {
           $galleryBatch[] = $gallery;
           $galleryCount++;
 
-          // Save batch if we've reached batch size or this is the last gallery
+          // Save batch if we've reached batch size or this is the last gallery.
           if ($galleryCount >= $galleryBatchSize || $processedGalleries >= count($mediaEntities)) {
-            // Use a transaction for batch saving
+            // Use a transaction for batch saving.
             $transaction = $this->database->startTransaction();
             try {
               foreach ($galleryBatch as $galleryEntity) {
                 $galleryEntity->save();
               }
 
-              // Clear the entity cache after each batch to free memory
+              // Clear the entity cache after each batch to free memory.
               $this->entityTypeManager->getStorage('node')->resetCache();
             }
             catch (\Exception $e) {
-              // If an error occurs, roll back the transaction
-              if (isset($transaction)) {
-                $transaction->rollBack();
-              }
+              // If an error occurs, roll back the transaction.
+              $transaction->rollBack();
+
               $this->logger->error('Error updating galleries: ' . $e->getMessage());
               throw $e;
             }
 
-            // Reset batch
+            // Reset batch.
             $galleryBatch = [];
             $galleryCount = 0;
           }
@@ -865,8 +882,8 @@ class GallerySynchronizerCommands extends DrushCommands {
    *   The number of skipped entities.
    */
   protected function tearDown(int $created, int $updated, int $skipped = 0): void {
-    \Drupal::state()->delete('labdoo_migrate_is_running');
-    // Finish the progress bar if it exists
+    $this->state->delete('labdoo_migrate_is_running');
+    // Finish the progress bar if it exists.
     if ($this->progressBar) {
       $this->progressBar->finish();
       $this->output->writeln('');
@@ -879,7 +896,7 @@ class GallerySynchronizerCommands extends DrushCommands {
       . "-- %d entities created.\n"
       . "-- %d entities updated.\n"
       . "-- %d entities skipped.",
-      gmdate("H:i:s", $timeElapsedSeconds),
+      gmdate("H:i:s", (int) $timeElapsedSeconds),
       $created,
       $updated,
       $skipped
@@ -911,11 +928,11 @@ class GallerySynchronizerCommands extends DrushCommands {
     }
   }
 
-
   /**
    * Disables the entity storage cache.
    *
    * @return void
+   *   The resulting value.
    */
   protected function disableEntityStorageCache(): void {
     try {
@@ -939,6 +956,7 @@ class GallerySynchronizerCommands extends DrushCommands {
    * Enables the entity storage cache.
    *
    * @return void
+   *   The resulting value.
    */
   protected function enableEntityStorageCache(): void {
     try {

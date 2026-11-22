@@ -2,9 +2,9 @@
 
 namespace Drupal\labdoo_dootronics\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\file\Entity\File;
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -15,6 +15,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class UpdateDootronicForm extends FormBase {
 
@@ -30,9 +32,12 @@ class UpdateDootronicForm extends FormBase {
    *
    * @param \Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface $dootronicRepository
    *   The dootronic repository.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityManager
+   *   The entity_type.manager service.
    */
   public function __construct(
-    DootronicRepositoryInterface $dootronicRepository
+    DootronicRepositoryInterface $dootronicRepository,
+    protected EntityTypeManagerInterface $entityManager,
   ) {
     $this->dootronicRepository = $dootronicRepository;
   }
@@ -42,7 +47,8 @@ class UpdateDootronicForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('labdoo_dootronics.repository')
+      $container->get('labdoo_dootronics.repository'),
+      $container->get('entity_type.manager'),
     );
   }
 
@@ -102,7 +108,7 @@ class UpdateDootronicForm extends FormBase {
       return;
     }
 
-    $file = File::load(reset($fid));
+    $file = $this->entityManager->getStorage('file')->load(reset($fid));
     if (!$file) {
       $form_state->setErrorByName('file', $this->t('The file could not be loaded'));
 

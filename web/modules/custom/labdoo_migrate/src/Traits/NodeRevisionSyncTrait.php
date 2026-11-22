@@ -65,7 +65,7 @@ trait NodeRevisionSyncTrait {
       }
     }
 
-    // Load mapping for this content type
+    // Load mapping for this content type.
     $config = $this->configurationManager->getContentConfiguration($sourceContentType);
     $mapping = $this->mapper->buildMapping($config->getFieldsMapping());
 
@@ -79,7 +79,7 @@ trait NodeRevisionSyncTrait {
         $uniqueRevisions[$revision->vid] = $revision;
       }
     }
-    // Re-index to ensure the loop works as expected if needed, 
+    // Re-index to ensure the loop works as expected if needed,
     // although foreach doesn't care about keys.
     $revisions = array_values($uniqueRevisions);
 
@@ -90,7 +90,7 @@ trait NodeRevisionSyncTrait {
         }
         continue;
       }
-      // Get revision metadata
+      // Get revision metadata.
       $revisionMetadata = [
         'nid' => $revision->nid,
         'vid' => $revision->vid,
@@ -102,7 +102,7 @@ trait NodeRevisionSyncTrait {
         'log' => $revision->log,
       ];
 
-      // Get field data for this specific revision using mapping
+      // Get field data for this specific revision using mapping.
       $fieldData = $this->revisionSourceRepository->getRevisionFieldData(
         $nid,
         $revision->vid,
@@ -135,14 +135,15 @@ trait NodeRevisionSyncTrait {
     $node->setRevisionCreationTime($metadata['created']);
     $node->setRevisionUserId($metadata['uid']);
 
-    // Set title and status
+    // Set title and status.
     $node->set('title', $metadata['title']);
     $node->set('status', $metadata['status']);
     $node->set('created', $metadata['created']);
     $node->set('changed', $metadata['changed']);
 
     // Ensure is_default is handled.
-    // In Drupal 10, the last saved revision becomes the default one unless specified.
+    // In Drupal 10, the last saved revision becomes the default one unless
+    // specified.
     // Since we process revisions in reverse chronological order (newest first),
     // we want the newest one imported to be the default.
     // The first one we process is the newest D7 revision.
@@ -155,19 +156,17 @@ trait NodeRevisionSyncTrait {
       $node->isDefaultRevision(FALSE);
     }
 
-    if ($node instanceof \Drupal\Core\Entity\EntityChangedInterface) {
-      $node->setChangedTime($metadata['changed']);
-    }
+    $node->setChangedTime($metadata['changed']);
 
-    // Set field values from mapping
+    // Set field values from mapping.
     foreach ($fieldData as $fieldName => $value) {
       if ($node->hasField($fieldName)) {
-        // Special handling for body or formatted text fields if needed
+        // Special handling for body or formatted text fields if needed.
         $fieldDefinition = $node->getFieldDefinition($fieldName);
         $fieldType = $fieldDefinition->getType();
 
         if ($fieldType === 'text_with_summary' || $fieldType === 'text_long') {
-          // Attempt to get format if available, otherwise use default
+          // Attempt to get format if available, otherwise use default.
           $format = 'basic_html';
           if (isset($fieldData[$fieldName . '_format'])) {
             $format = $this->mapFormat($fieldData[$fieldName . '_format']);
@@ -178,17 +177,16 @@ trait NodeRevisionSyncTrait {
           ]);
         }
         else {
-          // Check for multi-value fields (many fields in D7 are migrated as single value but might be arrays)
+          // Check for multi-value fields (many fields in D7 are migrated as
+          // single value but might be arrays)
           // For now, simple set.
           $node->set($fieldName, $value);
         }
       }
     }
 
-    // Force values to be saved in revisions
-    if (method_exists($node, 'setSyncing')) {
-      $node->setSyncing(FALSE); // Try FALSE to see if it makes a difference for revisions
-    }
+    // Force values to be saved in revisions.
+    $node->setSyncing(FALSE);
 
     $node->save();
   }
@@ -232,7 +230,7 @@ trait NodeRevisionSyncTrait {
     $currentVid = $node->getRevisionId();
 
     foreach ($revisionIds as $revisionId) {
-      /** @var \Drupal\node\NodeInterface $revision */
+      /** @var \Drupal\node\NodeInterface|null $revision */
       $revision = $storage->loadRevision($revisionId);
       $logMessage = $revision->getRevisionLogMessage() ?? '';
 
@@ -277,7 +275,7 @@ trait NodeRevisionSyncTrait {
     $existing = [];
 
     foreach ($revisionIds as $vid) {
-      /** @var \Drupal\node\NodeInterface $revision */
+      /** @var \Drupal\node\NodeInterface|null $revision */
       $revision = $storage->loadRevision($vid);
       if (!$revision) {
         continue;

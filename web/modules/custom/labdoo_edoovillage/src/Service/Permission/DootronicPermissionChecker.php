@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_edoovillage\Service\Permission;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Session\AccountInterface;
 
 /**
@@ -29,7 +29,7 @@ class DootronicPermissionChecker {
   /**
    * Checks if a user has permission to change the dootronic status.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity to check permissions for.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user account to check.
@@ -37,15 +37,15 @@ class DootronicPermissionChecker {
    * @return bool
    *   TRUE if the user has permission, FALSE otherwise.
    */
-  public function canChangeDootronicStatus(EntityInterface $entity, AccountInterface $account): bool {
-    // Check if user has one of the allowed roles
+  public function canChangeDootronicStatus(NodeInterface $entity, AccountInterface $account): bool {
+    // Check if user has one of the allowed roles.
     foreach (self::ALLOWED_ROLES as $role) {
       if ($account->hasRole($role)) {
         return TRUE;
       }
     }
 
-    // Check if user is in the additional editors field
+    // Check if user is in the additional editors field.
     if ($entity->hasField('field_edoo_additional_editors') && !$entity->get('field_edoo_additional_editors')->isEmpty()) {
       foreach ($entity->get('field_edoo_additional_editors')->referencedEntities() as $userEntity) {
         if ($userEntity->id() == $account->id()) {

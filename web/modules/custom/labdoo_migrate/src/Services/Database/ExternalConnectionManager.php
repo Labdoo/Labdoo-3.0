@@ -35,20 +35,6 @@ class ExternalConnectionManager implements ConnectionManagerInterface {
   private const DB_KEY = 'external';
 
   /**
-   * The database connection.
-   *
-   * @var \Drupal\Core\Database\Connection
-   */
-  private Connection $connection;
-
-  /**
-   * The default key.
-   *
-   * @var string|null
-   */
-  private ?string $defaultKey = null;
-
-  /**
    * {@inheritDoc}
    */
   public function setConnection(): Connection {
@@ -66,7 +52,7 @@ class ExternalConnectionManager implements ConnectionManagerInterface {
    */
   public function restoreConnection() {
 
-    Database::setActiveConnection($this->defaultKey);
+    Database::setActiveConnection();
   }
 
 }

@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Services\SpecialFieldTypes;
 
+use Drupal\paragraphs\ParagraphInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -45,13 +46,15 @@ class SpecialFieldTypeDynamicParagraph implements SpecialFieldTypeInterface {
    *   The entity type manager.
    * @param \Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface $configurationManager
    *   The configuration manager.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   *   The language manager.
    *
    * @throws \Exception
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     ConfigurationManagerInterface $configurationManager,
-    protected LanguageManagerInterface $languageManager
+    protected LanguageManagerInterface $languageManager,
   ) {
 
     $this->entityTypeManager = $entityTypeManager;
@@ -67,7 +70,7 @@ class SpecialFieldTypeDynamicParagraph implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     if (!is_array($value)) {
@@ -116,7 +119,7 @@ class SpecialFieldTypeDynamicParagraph implements SpecialFieldTypeInterface {
   protected function processBundle(
     string $bundle,
     array $fields,
-    string $mainLangCode
+    string $mainLangCode,
   ): array {
 
     $values = [];
@@ -183,7 +186,7 @@ class SpecialFieldTypeDynamicParagraph implements SpecialFieldTypeInterface {
   protected function filterSpecialFieldTypeValues(
     SpecialFieldTypeInterface $specialTypeProcessor,
     array $values,
-    array $valuesMapping
+    array $valuesMapping,
   ): array {
 
     $valuesMapping = $specialTypeProcessor->filterValue($valuesMapping);
@@ -220,9 +223,12 @@ class SpecialFieldTypeDynamicParagraph implements SpecialFieldTypeInterface {
       ->getStorage('paragraph')
       ->create([
         'type' => $config['destination_paragraph'],
-        'langcode' => $this->entity->language() ? $this->entity->language()->getId() : $this->languageManager->getDefaultLanguage()->getId(),
+        'langcode' => $this->entity->language()->getId(),
       ]);
 
+    if (!$entity instanceof ParagraphInterface) {
+      throw new \UnexpectedValueException('Paragraph storage returned an incompatible entity.');
+    }
     foreach ($values as $fieldName => $value) {
       $entity->set($fieldName, $value);
       if ($entity->get($fieldName)->getFieldDefinition()->getType() === 'text_long') {

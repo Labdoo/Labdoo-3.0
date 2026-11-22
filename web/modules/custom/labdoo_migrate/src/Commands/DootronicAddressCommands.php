@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Entity\Sql\DefaultTableMapping;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -35,12 +36,14 @@ final class DootronicAddressCommands extends DrushCommands {
    * @usage labdoo:backfill-dootronic-addresses --nids=1829
    *   Preview the address recovery for one existing node.
    */
-  public function backfill(array $options = [
-    'apply' => FALSE,
-    'nids' => '',
-    'limit' => 0,
-    'backup-path' => '',
-  ]): void {
+  public function backfill(
+    array $options = [
+      'apply' => FALSE,
+      'nids' => '',
+      'limit' => 0,
+      'backup-path' => '',
+    ],
+  ): void {
     $apply = (bool) $options['apply'];
     $backup = NULL;
     if ($apply) {
@@ -67,7 +70,7 @@ final class DootronicAddressCommands extends DrushCommands {
       Database::setActiveConnection($active);
     }
     $storage = $this->entityTypeManager->getStorage('node');
-    $selected = array_filter(explode(',', (string) $options['nids']), 'strlen');
+    $selected = array_filter(explode(',', (string) $options['nids']), static fn(string $value): bool => $value !== '');
     foreach ($selected as $id) {
       if (!ctype_digit($id) || (int) $id < 1) {
         throw new \InvalidArgumentException('nids must contain positive V3 node IDs.');
@@ -195,6 +198,9 @@ final class DootronicAddressCommands extends DrushCommands {
   private function writeAddresses(array $nodes): void {
     $storage = $this->entityTypeManager->getStorage('node');
     $mapping = $storage->getTableMapping();
+    if (!$mapping instanceof DefaultTableMapping) {
+      throw new \UnexpectedValueException('Address repair requires SQL field table mapping.');
+    }
     $definition = reset($nodes)->getFieldDefinition('field_address')->getFieldStorageDefinition();
     $dataTable = $mapping->getDedicatedDataTableName($definition);
     $revisionTable = $mapping->getDedicatedRevisionTableName($definition);

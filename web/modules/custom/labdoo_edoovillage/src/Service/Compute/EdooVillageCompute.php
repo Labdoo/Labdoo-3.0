@@ -2,7 +2,10 @@
 
 namespace Drupal\labdoo_edoovillage\Service\Compute;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Locale\CountryManagerInterface;
+use Drupal\Core\Database\Connection;
+use Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface;
+use Drupal\node\NodeInterface;
 use Drupal\labdoo_edoovillage\Service\Queue\Feeder\QueueFeederInterface;
 
 /**
@@ -22,15 +25,26 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
    *
    * @param \Drupal\labdoo_edoovillage\Service\Queue\Feeder\QueueFeederInterface $recomputeFeeder
    *   The recompute feeder.
+   * @param \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface $edooRepository
+   *   The labdoo_edoovillage.repository service.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database service.
+   * @param \Drupal\Core\Locale\CountryManagerInterface $countryManager
+   *   The country_manager service.
    */
-  public function __construct(QueueFeederInterface $recomputeFeeder) {
+  public function __construct(
+    QueueFeederInterface $recomputeFeeder,
+    protected EdooVillageRepositoryInterface $edooRepository,
+    protected Connection $database,
+    protected CountryManagerInterface $countryManager,
+  ) {
     $this->recomputeFeeder = $recomputeFeeder;
   }
 
   /**
    * {@inheritDoc}
    */
-  public function setEdooVillageTitle(EntityInterface $entity): void {
+  public function setEdooVillageTitle(NodeInterface $entity): void {
     if ($entity->bundle() !== 'edoovillage' || isset($entity->original_entity_id)) {
       return;
     }
@@ -48,7 +62,7 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
 
     if (!$entity->isNew()) {
       // This is an update of an existing edoovillage.
-      $originalTitle = isset($entity->original) ? $entity->original->getTitle() : '';
+      $originalTitle = $entity->getOriginal()?->getTitle() ?? '';
 
       // Try to extract ID from original title.
       $originalId = NULL;
@@ -57,11 +71,13 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
       }
 
       if ($originalId !== NULL) {
-        // The original title was standard, so we MUST keep the ID regardless of current title.
+        // The original title was standard, so we MUST keep the ID regardless of
+        // current title.
         $edoovillagePrefix = "Edoovillage #" . $originalId . " - ";
       }
       elseif ($extractedId !== NULL) {
-        // The original was legacy but the user is trying to make it standard by adding an ID.
+        // The original was legacy but the user is trying to make it standard by
+        // adding an ID.
         $edoovillagePrefix = "Edoovillage #" . $extractedId . " - ";
       }
       else {
@@ -71,7 +87,8 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
           $edoovillagePrefix = "Edoovillage #" . $this->allocateNewId() . " - ";
         }
         else {
-          // Support legacy naming convention for older edoovillages (name without IDs).
+          // Support legacy naming convention for older edoovillages (name
+          // without IDs).
           $edoovillagePrefix = "";
         }
       }
@@ -93,7 +110,8 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
 
     if ($nodeCountry === "[country not defined]") {
       if (empty($nodeCity)) {
-        // If neither country nor city is defined, we check if geocoding is likely pending.
+        // If neither country nor city is defined, we check if geocoding is
+        // likely pending.
         if ($entity->hasField('field_location') && !$entity->get('field_location')->isEmpty()) {
           $edoovillagePrefix .= "[geocoding...]";
         }
@@ -111,7 +129,8 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
     $summary = $this->getProjectSummary($entity);
 
     if (empty($edoovillagePrefix)) {
-      // For legacy titles, we want to ensure we don't accidentally mess up the title
+      // For legacy titles, we want to ensure we don't accidentally mess up the
+      // title
       // if it was manually edited to something completely different.
       $finalTitle = $title;
       if (mb_strlen($finalTitle) > 255) {
@@ -119,9 +138,11 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
       }
     }
     else {
-      // If we have a prefix (Edoovillage #ID - Country, City), we concatenate the summary.
+      // If we have a prefix (Edoovillage #ID - Country, City), we concatenate
+      // the summary.
       // We also want to make sure the summary isn't already part of the title
-      // in a way that would cause double concatenation, although setEdooVillageTitle
+      // in a way that would cause double concatenation, although
+      // setEdooVillageTitle
       // usually replaces the whole title.
       $prefixWithSeparator = $edoovillagePrefix . ": ";
       $finalTitle = $prefixWithSeparator . $summary;
@@ -144,12 +165,13 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
    */
   private function allocateNewId(): int {
     /** @var \Drupal\labdoo_edoovillage\Service\Repository\EdooVillageRepositoryInterface $edoovillageRepository */
-    $edoovillageRepository = \Drupal::service('labdoo_edoovillage.repository');
+    $edoovillageRepository = $this->edooRepository;
     $id = $edoovillageRepository->generateId();
-    $database = \Drupal::database();
+    $database = $this->database;
     if ($database->inTransaction()) {
       // Releasing in presave/insert allows another request to read the old
-      // sequence before this transaction is visible. Hold until commit/rollback.
+      // sequence before this transaction is visible. Hold until
+      // commit/rollback.
       $database->transactionManager()->addPostTransactionCallback(
         static function () use ($edoovillageRepository): void {
           $edoovillageRepository->commit();
@@ -175,7 +197,7 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
    *   Country name.
    */
   private function countryCodeToName(string $countryCode): string {
-    $countryManager = \Drupal::service('country_manager');
+    $countryManager = $this->countryManager;
     $countries = $countryManager->getList();
     if (isset($countries[strtoupper($countryCode)])) {
       return (string) $countries[strtoupper($countryCode)];
@@ -188,13 +210,13 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
    *
    * Replicated from labdoo_lib_get_field logic.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    *
    * @return string
    *   The project summary.
    */
-  private function getProjectSummary(EntityInterface $entity): string {
+  private function getProjectSummary(NodeInterface $entity): string {
     if ($entity->hasField('field_project_summary') && !$entity->get('field_project_summary')->isEmpty()) {
       return $entity->get('field_project_summary')->value;
     }
@@ -207,7 +229,7 @@ class EdooVillageCompute implements EdooVillageComputeInterface {
   /**
    * {@inheritdoc}
    */
-  public function enqueueRecompute(EntityInterface $entity): void {
+  public function enqueueRecompute(NodeInterface $entity): void {
     if ($entity->bundle() !== 'edoovillage') {
       return;
     }

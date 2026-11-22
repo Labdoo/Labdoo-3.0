@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_map\Controller;
 
+use Drupal\Core\Pager\PagerManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Datetime\DateFormatterInterface;
@@ -11,6 +12,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Controller for suspicious locations report.
+ *
+ * @phpstan-consistent-constructor
  */
 class SuspiciousLocationsController extends ControllerBase {
 
@@ -30,8 +33,19 @@ class SuspiciousLocationsController extends ControllerBase {
 
   /**
    * Constructs a new SuspiciousLocationsController object.
+   *
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   The date formatter.
+   * @param \Drupal\Core\Pager\PagerManagerInterface $pagerManager
+   *   The pager.manager service.
    */
-  public function __construct(Connection $database, DateFormatterInterface $date_formatter) {
+  public function __construct(
+    Connection $database,
+    DateFormatterInterface $date_formatter,
+    protected PagerManagerInterface $pagerManager,
+  ) {
     $this->database = $database;
     $this->dateFormatter = $date_formatter;
   }
@@ -42,7 +56,8 @@ class SuspiciousLocationsController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('database'),
-      $container->get('date.formatter')
+      $container->get('date.formatter'),
+      $container->get('pager.manager'),
     );
   }
 
@@ -92,19 +107,18 @@ class SuspiciousLocationsController extends ControllerBase {
 
     // We can't easily use the Union with the Drupal Query builder for Pager.
     // So we'll use a manual query with UNION and then handle pager.
-    
     $sql = "(" . $query1->__toString() . ") UNION (" . $query2->__toString() . ")";
-    
+
     // Add sorting.
     $sql .= " ORDER BY created DESC";
-    
+
     // Pagination.
     $total = $this->database->query("SELECT COUNT(*) FROM (" . $sql . ") as t")->fetchField();
     $limit = 50;
-    $pager = \Drupal::service('pager.manager')->createPager($total, $limit);
+    $pager = $this->pagerManager->createPager($total, $limit);
     $page = $pager->getCurrentPage();
     $offset = $page * $limit;
-    
+
     $results = $this->database->query($sql . " LIMIT $limit OFFSET $offset");
 
     $rows = [];

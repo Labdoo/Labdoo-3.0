@@ -5,8 +5,7 @@ namespace Drupal\labdoo_dootrip\Service\Compute;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageException;
+use Drupal\node\NodeInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Drupal\labdoo_dootrip\Service\Queue\Feeder\QueueFeederInterface;
@@ -21,6 +20,8 @@ use Drupal\labdoo_dootrip\Service\Repository\DootripRepositoryInterface;
  * @link http://natiboo.es
  */
 class DootripCompute implements DootripComputeInterface {
+
+  use \Drupal\Core\StringTranslation\StringTranslationTrait;
 
   /**
    * The dootrip repository.
@@ -86,7 +87,7 @@ class DootripCompute implements DootripComputeInterface {
     QueueFeederInterface $totalCo2SavingsQueueFeeder,
     QueueFeederInterface $dootripCapacityQueueFeeder,
     StateInterface $state,
-    Connection $database
+    Connection $database,
   ) {
     $this->dootripRepository = $dootripRepository;
     $this->cacheBackend = $cacheBackend;
@@ -129,7 +130,7 @@ class DootripCompute implements DootripComputeInterface {
 
     // Configuration constants for CO2 calculation.
     $dootronicWeightKgms = 2.5;
-    $CO2gramsPerKgmPerKm = 0.5;
+    $co2GramsPerKgmPerKm = 0.5;
 
     foreach ($results as $row) {
       if (empty($row->field_origin_of_the_trip_lat) || empty($row->field_destination_of_the_trip_lat)) {
@@ -147,7 +148,7 @@ class DootripCompute implements DootripComputeInterface {
 
       $distanceKms = round($distanceMeters / 1000);
 
-      $co2Saved += round($CO2gramsPerKgmPerKm *
+      $co2Saved += round($co2GramsPerKgmPerKm *
         $numDootronics *
         $dootronicWeightKgms *
         $distanceKms / 1000, 1);
@@ -163,14 +164,14 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeCo2Savings(EntityInterface $dootrip): void {
+  public function computeCo2Savings(NodeInterface $dootrip): void {
     $co2SavingsKgms = $this->calculateCo2Savings($dootrip);
     $numDootronics = $this->getNumDootronics($dootrip);
     if ($numDootronics == 1) {
-      $result = $co2SavingsKgms . t(' Kgms of CO2 emissions will be saved assuming one laptop is transported');
+      $result = $this->t('@weight Kgms of CO2 emissions will be saved assuming one laptop is transported', ['@weight' => $co2SavingsKgms]);
     }
     else {
-      $result = $co2SavingsKgms . t(' Kgms of CO2 emissions saved');
+      $result = $this->t('@weight Kgms of CO2 emissions saved', ['@weight' => $co2SavingsKgms]);
     }
 
     $dootrip->set('field_co2_savings_dootrip', $result);
@@ -182,7 +183,7 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeDistance(EntityInterface $dootrip): void {
+  public function computeDistance(NodeInterface $dootrip): void {
     $distance = $this->calculateDistance($dootrip);
     if ($distance !== NULL) {
       $dootrip->set('field_distance_dootrip', $distance);
@@ -192,28 +193,16 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeWeight(EntityInterface $dootrip): void {
+  public function computeWeight(NodeInterface $dootrip): void {
     $dootronics = $dootrip->get('field_laptops');
-    if (!$dootronics) {
-      $result = t('No dootronics linked to this dootrip yet');
-      $dootrip->set('field_dootrip_weight', $result);
 
-      return;
-    }
-
-    $suffix = '';
-    $prefix = '';
+    $hasMissingWeight = FALSE;
     $totalWeight = 0;
 
-    foreach ($dootronics as $dootronic) {
-      if (!$dootronic->entity) {
-        continue;
-      }
-
-      $weight = $dootronic->entity->get('field_weight')->value;
+    foreach ($dootronics->referencedEntities() as $dootronic) {
+      $weight = $dootronic->get('field_weight')->value;
       if (!$weight) {
-        $suffix = t('More than ');
-        $prefix = t(' (Please update the weight field in all the doojects for an accurate weight estimation)');
+        $hasMissingWeight = TRUE;
 
         continue;
       }
@@ -221,8 +210,10 @@ class DootripCompute implements DootripComputeInterface {
     }
 
     $result = $totalWeight === 0
-      ? t('Please update the weight of each individual dootronic')
-      : t($suffix . $totalWeight . ' Kgms' . $prefix);
+      ? $this->t('Please update the weight of each individual dootronic')
+      : ($hasMissingWeight
+        ? $this->t('More than @weight Kgms (Please update the weight field in all the doojects for an accurate weight estimation)', ['@weight' => $totalWeight])
+        : $this->t('@weight Kgms', ['@weight' => $totalWeight]));
 
     $dootrip->set('field_dootrip_weight', $result);
   }
@@ -230,7 +221,7 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeDootronicsAssigned(EntityInterface $dootrip): void {
+  public function computeDootronicsAssigned(NodeInterface $dootrip): void {
     $dootronics = $dootrip->get('field_laptops')->getValue();
     $dootrip->set('field_number_of_doojects_assigne', count($dootronics));
   }
@@ -238,7 +229,7 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeDootripCapacity(EntityInterface &$dootrip): void {
+  public function computeDootripCapacity(NodeInterface &$dootrip): void {
     $dootronicsList = $dootrip->get('field_laptops')->getValue();
     $numDootronics = count($dootronicsList);
     $nowDate = new \DateTime();
@@ -267,7 +258,7 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeDootripLocations(EntityInterface &$dootrip): void {
+  public function computeDootripLocations(NodeInterface &$dootrip): void {
     $origin = $dootrip->get('field_origin_of_the_trip')->value;
     $destination = $dootrip->get('field_destination_of_the_trip')->value;
     $dootrip->set('field_locations', [
@@ -279,7 +270,7 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeEdoovillagesAssigned(EntityInterface &$dootrip): void {
+  public function computeEdoovillagesAssigned(NodeInterface &$dootrip): void {
     $dootronics = $dootrip->get('field_laptops')->referencedEntities();
     $edoovillageIds = [];
 
@@ -299,12 +290,11 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeRelatedDootronics(EntityInterface &$dootrip, array $originalDootronicIds = []): void {
+  public function computeRelatedDootronics(NodeInterface &$dootrip, array $originalDootronicIds = []): void {
     if ($dootrip->isNew()) {
       return;
     }
-    foreach ($dootrip->get('field_laptops') as $dootronic) {
-      $dootronic = $dootronic->entity;
+    foreach ($dootrip->get('field_laptops')->referencedEntities() as $dootronic) {
       if (!$dootronic) {
         continue;
       }
@@ -321,7 +311,7 @@ class DootripCompute implements DootripComputeInterface {
         $dootronic->get('field_dootrips')->appendItem($dootrip->id());
         $dootronic->save();
         \Drupal::entityTypeManager()->getStorage('node')->resetCache([$dootronic->id()]);
-        
+
         // Invalidate dootronic cache.
         if (\Drupal::hasService('labdoo_common.queue.feeder.neighbor_invalidation')) {
           \Drupal::service('labdoo_common.queue.feeder.neighbor_invalidation')->invalidateNode((int) $dootronic->id());
@@ -365,14 +355,14 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function enqueueCapacityRecompute(EntityInterface $entity): void {
+  public function enqueueCapacityRecompute(NodeInterface $entity): void {
     $this->dootripCapacityQueueFeeder->feedQueue($entity);
   }
 
   /**
    * {@inheritDoc}
    */
-  public function enqueueGeocoding(EntityInterface $entity): void {
+  public function enqueueGeocoding(NodeInterface $entity): void {
     if ($entity->bundle() !== 'dootrip') {
       return;
     }
@@ -388,24 +378,24 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * Calculates the CO2 savings of a dootrip.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    *
    * @return float
    *   The CO2 savings.
    */
-  protected function calculateCo2Savings(EntityInterface $dootrip): float {
+  protected function calculateCo2Savings(NodeInterface $dootrip): float {
     // The dootronic weight field is textual, so assume here a reasonable value.
     $dootronicWeightKgms = 2.5;
     // See http://timeforchange.org/co2-emissions-shipping-goods
-    $CO2gramsPerKgmPerKm = 0.5;
+    $co2GramsPerKgmPerKm = 0.5;
     $numDootronics = $this->getNumDootronics($dootrip);
     $dootripDistance = $this->calculateDistance($dootrip);
     if (!is_numeric($dootripDistance)) {
       $dootripDistance = 0;
     }
 
-    return round($CO2gramsPerKgmPerKm *
+    return round($co2GramsPerKgmPerKm *
       $numDootronics *
       $dootronicWeightKgms *
       $dootripDistance / 1000, 1);
@@ -414,13 +404,13 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * Calculates the distance between the source and the destination trips.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    *
-   * @return float|NULL
+   * @return float|null
    *   The traveling distance of the dootrip in Kms. NULL in case of exception.
    */
-  protected function calculateDistance(EntityInterface $dootrip): ?float {
+  protected function calculateDistance(NodeInterface $dootrip): ?float {
     $origin = $dootrip->get('field_origin_of_the_trip')->getValue();
     if (empty($origin)) {
       return NULL;
@@ -447,8 +437,7 @@ class DootripCompute implements DootripComputeInterface {
   }
 
   /**
-   * Calculates the great-circle distance between two points, with
-   * the Vincenty formula.
+   * Calculates the distance between two latitude/longitude pairs.
    *
    * @param float $latitudeFrom
    *   Latitude of start point in [deg decimal].
@@ -469,7 +458,7 @@ class DootripCompute implements DootripComputeInterface {
     float $longitudeFrom,
     float $latitudeTo,
     float $longitudeTo,
-    float $earthRadius = 6371000
+    float $earthRadius = 6371000,
   ): float {
     // Converts from degrees to radians.
     $latFrom = deg2rad($latitudeFrom);
@@ -490,13 +479,13 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * Retrieves the number of dootronics of the given dootrip.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    *
    * @return int
    *   The number of dootronics.
    */
-  protected function getNumDootronics(EntityInterface $dootrip): int {
+  protected function getNumDootronics(NodeInterface $dootrip): int {
     $dootronics = $dootrip->get('field_laptops');
 
     return !$dootronics->isEmpty() ? count($dootronics) : 1;
@@ -514,7 +503,7 @@ class DootripCompute implements DootripComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function setDootripTitle(EntityInterface $entity): void {
+  public function setDootripTitle(NodeInterface $entity): void {
     if ($entity->bundle() !== 'dootrip') {
       return;
     }
@@ -528,7 +517,7 @@ class DootripCompute implements DootripComputeInterface {
 
     $suffix = '';
     if (!$entity->isNew()) {
-      $originalTitle = isset($entity->original) ? $entity->original->getTitle() : '';
+      $originalTitle = $entity->getOriginal()?->getTitle() ?? '';
       $originalId = NULL;
       if ($originalTitle && preg_match('/Dootrip\s+#(\d+)(.*)/i', $originalTitle, $matches)) {
         $originalId = (int) $matches[1];

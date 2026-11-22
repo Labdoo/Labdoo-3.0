@@ -36,13 +36,14 @@ class UserProcessor implements EntityProcessorInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(EntityInterface $entity, string $operation, $comment = null): void {
+  public function process(EntityInterface $entity, string $operation, $comment = NULL): void {
     if ($entity->getEntityTypeId() !== 'user') {
       return;
     }
 
     // For user entities, we need the edit array and category from the hook.
-    // Since these are not available in this context, we'll just pass empty values.
+    // Since these are not available in this context, we'll just pass empty
+    // values.
     // The actual implementation will be in the hook_user_insert() function.
     if ($operation === 'insert' && $entity instanceof UserInterface) {
       $this->notificationManager->sendUserCreatedEmail($entity);

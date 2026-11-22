@@ -8,7 +8,8 @@ use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderBase;
 use Drupal\Core\Menu\MenuLinkManager;
 
-/** Extends only Drupal's standard menu manager, preserving specialized managers. */
+/**
+ * Extends only Drupal's standard menu manager, preserving specialized managers. */
 class LabdooTranslationsServiceProvider extends ServiceProviderBase {
 
   /**

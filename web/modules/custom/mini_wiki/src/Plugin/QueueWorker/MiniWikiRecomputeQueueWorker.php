@@ -2,6 +2,7 @@
 
 namespace Drupal\mini_wiki\Plugin\QueueWorker;
 
+use Drupal\user\EntityOwnerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -23,6 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *   title = @Translation("Recompute the mini wiki data"),
  *   cron = {"time" = 60}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class MiniWikiRecomputeQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -56,7 +59,7 @@ class MiniWikiRecomputeQueueWorker extends QueueWorkerBase implements ContainerF
     $plugin_definition,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     MiniWikiRepository $miniWikiRepository,
-    EventDispatcherInterface $eventDispatcher
+    EventDispatcherInterface $eventDispatcher,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('bb_valentina');
@@ -71,7 +74,7 @@ class MiniWikiRecomputeQueueWorker extends QueueWorkerBase implements ContainerF
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory */
     $loggerChannelFactory = $container->get('logger.factory');
@@ -137,10 +140,10 @@ class MiniWikiRecomputeQueueWorker extends QueueWorkerBase implements ContainerF
   /**
    * Invalidate the node type cache tag.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface&\Drupal\user\EntityOwnerInterface $entity
    *   The entity.
    */
-  protected function clearCachetag(EntityInterface $entity): void {
+  protected function clearCachetag(EntityInterface&EntityOwnerInterface $entity): void {
     $this->clearCachetagById((int) $entity->id(), (int) $entity->getOwnerId());
   }
 

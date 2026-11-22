@@ -4,7 +4,6 @@ namespace Drupal\mini_wiki\Plugin\rest\resource;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\rest\ResourceResponse;
 use Symfony\Component\HttpFoundation\Response;
 

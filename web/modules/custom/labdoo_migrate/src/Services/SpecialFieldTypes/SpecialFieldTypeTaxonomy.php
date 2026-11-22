@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Services\SpecialFieldTypes;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\taxonomy\TermInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface;
 
@@ -35,7 +35,7 @@ class SpecialFieldTypeTaxonomy extends AbstractSpecialFieldTypeRelatedEntity {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    TranslationRepositoryInterface $translationRepository
+    TranslationRepositoryInterface $translationRepository,
   ) {
 
     parent::__construct($entityTypeManager);
@@ -69,7 +69,7 @@ class SpecialFieldTypeTaxonomy extends AbstractSpecialFieldTypeRelatedEntity {
     $value,
     array $metadata,
     ?string $langCode,
-    ?string $mainLangCode
+    ?string $mainLangCode,
   ) {
 
     if (!is_array($value)) {
@@ -112,14 +112,14 @@ class SpecialFieldTypeTaxonomy extends AbstractSpecialFieldTypeRelatedEntity {
    * @param string $mainLangCode
    *   The main language code.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|false|int|string|null
+   * @return \Drupal\taxonomy\TermInterface|false
    *   Returns the main term entity.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  protected function getMainTerm($value, array $metadata, string $mainLangCode) {
+  protected function getMainTerm($value, array $metadata, string $mainLangCode): TermInterface|false {
 
     $results = $this->entityTypeManager
       ->getStorage($this->bundle)
@@ -132,29 +132,17 @@ class SpecialFieldTypeTaxonomy extends AbstractSpecialFieldTypeRelatedEntity {
       return FALSE;
     }
 
-    $mainTerm = $this->entityTypeManager
-      ->getStorage($this->bundle)
-      ->load(array_keys($results)[0]);
-    if ($mainTerm) {
-      return $mainTerm;
+    $mainTerm = reset($results);
+    if (!$mainTerm instanceof TermInterface) {
+      throw new \UnexpectedValueException('Taxonomy storage returned an unsupported entity.');
     }
-
-    $isTranslation = $value['langcode'] !== $mainLangCode;
-    if (!$isTranslation) {
-      return FALSE;
-    }
-
-    return $this->saveEntity(
-      $value['original_translation'],
-      $metadata,
-      $mainLangCode
-    );
+    return $mainTerm;
   }
 
   /**
    * Retrieves the new translation entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $mainTerm
+   * @param \Drupal\taxonomy\TermInterface $mainTerm
    *   The main term entity.
    * @param string $value
    *   The value.
@@ -165,19 +153,15 @@ class SpecialFieldTypeTaxonomy extends AbstractSpecialFieldTypeRelatedEntity {
    *   Returns the new translation entity.
    */
   protected function getNewTranslation(
-    EntityInterface $mainTerm,
+    TermInterface $mainTerm,
     string $value,
-    string $langCode
+    string $langCode,
   ) {
 
     $translation = $this->translationRepository->getEntityTranslation(
       $mainTerm,
       $langCode
     );
-    if (!$translation) {
-      return FALSE;
-    }
-
     $translation->set($this->entityValueKey, $value);
 
     return $translation->id();

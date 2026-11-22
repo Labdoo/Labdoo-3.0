@@ -24,7 +24,7 @@ class SpecialFieldTypeFormattedTextWithReplacement implements SpecialFieldTypeIn
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     $value = str_replace($metadata['search'], $metadata['replace'], $value);
@@ -34,7 +34,6 @@ class SpecialFieldTypeFormattedTextWithReplacement implements SpecialFieldTypeIn
       'format' => $this->mapFormat($metadata['format']),
     ];
   }
-
 
   /**
    * {@inheritDoc}

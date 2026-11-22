@@ -66,7 +66,7 @@ class TaxonomyModel {
     string $keyField,
     string $valueField,
     string $langField,
-    string $translationField
+    string $translationField,
   ) {
 
     $this->baseTable = $baseTable;

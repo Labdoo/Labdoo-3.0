@@ -35,7 +35,7 @@ class CacheManager implements CacheManagerInterface {
    */
   public function __construct(
     CacheBackendInterface $cache,
-    CacheTagsInvalidatorInterface $cacheTagsInvalidator
+    CacheTagsInvalidatorInterface $cacheTagsInvalidator,
   ) {
     $this->cache = $cache;
     $this->cacheTagsInvalidator = $cacheTagsInvalidator;
@@ -86,7 +86,7 @@ class CacheManager implements CacheManagerInterface {
   public function getCacheableMetadata(
     array $renderArray,
     array $cacheContexts = [],
-    array $cacheTags = []
+    array $cacheTags = [],
   ): CacheableMetadata {
     $cacheMetadata = CacheableMetadata::createFromRenderArray($renderArray);
     if (!empty($cacheContexts)) {

@@ -5,7 +5,6 @@ namespace Drupal\labdoo_notifications\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -20,6 +19,8 @@ use Drupal\Component\Utility\EmailValidatorInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class ContactForm extends FormBase {
 
@@ -69,13 +70,15 @@ class ContactForm extends FormBase {
    *   The config factory.
    * @param \Drupal\labdoo_notifications\Service\EmailProcessor $email_processor
    *   The email processor service.
+   * @param \Drupal\Component\Utility\EmailValidatorInterface $email_validator
+   *   The email address validator.
    */
   public function __construct(
     AccountInterface $current_user,
     LanguageManagerInterface $language_manager,
     ConfigFactoryInterface $config_factory,
     EmailProcessor $email_processor,
-    EmailValidatorInterface $email_validator
+    EmailValidatorInterface $email_validator,
   ) {
     $this->currentUser = $current_user;
     $this->languageManager = $language_manager;

@@ -1,7 +1,11 @@
 <?php
 
 /**
- * Runtime sequence check: set LABDOO_EXPECTED_NEXT_ID, then run with drush php:script.
+ * @file
+ * Checks generated school identifiers in an isolated regression site.
+ *
+ * Runtime sequence check: set LABDOO_EXPECTED_NEXT_ID, then run with drush
+ * php:script.
  *
  * Uses the installed site's real node table and releases the sequence lock.
  */

@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_global_action\Commands;
 
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\labdoo_global_action\Service\Repository\GlobalActionRepository;
 use Drush\Commands\DrushCommands;
@@ -39,7 +40,8 @@ class GlobalActionCommands extends DrushCommands {
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     GlobalActionRepository $globalActionRepository,
-    Connection $database
+    Connection $database,
+    protected ConfigFactoryInterface $configFactory,
   ) {
     parent::__construct();
     $this->entityTypeManager = $entityTypeManager;
@@ -57,7 +59,7 @@ class GlobalActionCommands extends DrushCommands {
   public function rebuildActions(array $options = ['batch-size' => 200]): void {
     $storage = $this->entityTypeManager->getStorage('node');
     $batchSize = max(1, (int) ($options['batch-size'] ?? 200));
-    $geocoderConfig = \Drupal::configFactory()->getEditable('geocoder.settings');
+    $geocoderConfig = $this->configFactory->getEditable('geocoder.settings');
     $originalGeocoderPresaveDisabled = (bool) $geocoderConfig->get('geocoder_presave_disabled');
 
     if ($originalGeocoderPresaveDisabled === FALSE) {

@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Controller for the migration dashboard.
  */
-class MigrationDashboardController extends ControllerBase {
+final class MigrationDashboardController extends ControllerBase {
 
   /**
    * The migration tracker.
@@ -33,11 +33,8 @@ class MigrationDashboardController extends ControllerBase {
    */
   public static function create(ContainerInterface $container): self {
     $migrationTracker = $container->get('labdoo_migrate.tracking.migration_tracker');
-    if (!$migrationTracker instanceof MigrationTrackerInterface) {
-      throw new \RuntimeException('Invalid migration tracker service.');
-    }
 
-    return new self($migrationTracker);
+    return new static($migrationTracker);
   }
 
   /**

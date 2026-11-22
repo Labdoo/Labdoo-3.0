@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\mini_wiki;
 
+use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\user\EntityOwnerInterface;
@@ -16,6 +17,6 @@ use Drupal\user\EntityOwnerInterface;
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
-interface MiniWikiPageInterface extends ContentEntityInterface, EntityOwnerInterface, EntityChangedInterface {
+interface MiniWikiPageInterface extends RevisionLogInterface, ContentEntityInterface, EntityOwnerInterface, EntityChangedInterface {
 
 }

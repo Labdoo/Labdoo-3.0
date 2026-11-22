@@ -4,10 +4,16 @@ namespace Drupal\labdoo_migrate\Services\Incremental;
 
 use Drupal\Core\Database\Connection;
 
-/** Read-only file identity resolution, including already migrated/renamed URIs. */
+/**
+ * Read-only file identity resolution, including already migrated/renamed URIs.
+ */
 final class ManagedFileIdentity {
+
   public function __construct(private Connection $database) {}
 
+  /**
+   * Resolves a managed file using its source identity and synchronized URI.
+   */
   public function resolve(int $sourceId, string $uri): ?int {
     $ids = [];
     if ($this->database->schema()->tableExists('migrate_map_d7_file')) {
@@ -18,23 +24,36 @@ final class ManagedFileIdentity {
     }
     $ids = array_unique(array_filter(array_map('intval', $ids)));
     if ($ids) {
-      if (count($ids) !== 1 || !($entity = ReadOnlyEntityLoader::storage('file')->load(reset($ids)))) { throw new \RuntimeException('Conflicting or dangling managed file identity.'); }
-      if (parse_url($uri, PHP_URL_SCHEME) !== parse_url($entity->getFileUri(), PHP_URL_SCHEME)) { throw new \RuntimeException('Managed file identity crosses public/private scheme boundaries.'); }
+      if (count($ids) !== 1 || !($entity = ReadOnlyEntityLoader::file(reset($ids)))) {
+        throw new \RuntimeException('Conflicting or dangling managed file identity.');
+      }
+      if (parse_url($uri, PHP_URL_SCHEME) !== parse_url($entity->getFileUri(), PHP_URL_SCHEME)) {
+        throw new \RuntimeException('Managed file identity crosses public/private scheme boundaries.');
+      }
       return reset($ids);
     }
     $ids = \Drupal::entityTypeManager()->getStorage('file')->getQuery()->accessCheck(FALSE)->condition('uri', $uri)->execute();
-    if (count($ids) > 1) { throw new \RuntimeException('Ambiguous managed file URI.'); }
+    if (count($ids) > 1) {
+      throw new \RuntimeException('Ambiguous managed file URI.');
+    }
     return $ids ? (int) reset($ids) : NULL;
   }
-  /** Virtual references keep planning strictly read-only. */
+
+  /**
+   * Virtual references keep planning strictly read-only.
+   */
   public function project(array $file): array {
     $id = $this->resolve((int) $file['fid'], $file['uri']);
     return $id ? ['target_id' => $id] : ['@source_file' => $file];
   }
 
-  /** Only database metadata is created; binary files must be synchronized first. */
+  /**
+   * Only database metadata is created; binary files must be synchronized first.
+   */
   public function materialize(array $item): array {
-    if (!isset($item['@source_file'])) { return $item; }
+    if (!isset($item['@source_file'])) {
+      return $item;
+    }
     $file = $item['@source_file'];
     $id = $this->resolve((int) $file['fid'], $file['uri']);
     if (!$id) {
@@ -50,7 +69,9 @@ final class ManagedFileIdentity {
       }
       $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($path);
       $sourceMime = strtolower($file['filemime'] ?? 'application/octet-stream');
-      if ($sourceMime === 'image/jpg') { $sourceMime = 'image/jpeg'; }
+      if ($sourceMime === 'image/jpg') {
+        $sourceMime = 'image/jpeg';
+      }
       if (!$mime || ($sourceMime !== 'application/octet-stream' && $sourceMime !== strtolower($mime))) {
         throw new \RuntimeException('Source file MIME does not match synchronized binary.');
       }

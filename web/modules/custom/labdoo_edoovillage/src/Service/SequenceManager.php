@@ -50,7 +50,7 @@ class SequenceManager implements SequenceManagerInterface {
    */
   public function __construct(
     LockBackendInterface $lock,
-    Connection $database
+    Connection $database,
   ) {
     $this->lock = $lock;
     $this->database = $database;
@@ -61,7 +61,8 @@ class SequenceManager implements SequenceManagerInterface {
    */
   public function get(): int {
     if (!$this->lock->acquire(self::LOCK_KEY, self::LOCK_TIMEOUT)) {
-      // Another process may be creating/cloning an edoovillage at the same time.
+      // Another process may be creating/cloning an edoovillage at the same
+      // time.
       // Wait briefly and retry once before failing.
       $this->lock->wait(self::LOCK_KEY, self::LOCK_WAIT_TIMEOUT);
 

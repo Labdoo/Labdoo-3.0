@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootronics\Service\Queue\Feeder;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for queue feeders.
@@ -25,9 +25,9 @@ interface QueueFeederInterface {
   /**
    * Feeds the queue.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic.
    */
-  public function feedQueue(EntityInterface $dootronic): void;
+  public function feedQueue(NodeInterface $dootronic): void;
 
 }

@@ -30,13 +30,13 @@ class ScraperReportFilterForm extends FormBase {
     $form['filters']['source_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Source URL'),
-      '#default_value' => \Drupal::request()->query->get('source_url'),
+      '#default_value' => $this->getRequest()->query->get('source_url'),
     ];
 
     $form['filters']['slug'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Slug'),
-      '#default_value' => \Drupal::request()->query->get('slug'),
+      '#default_value' => $this->getRequest()->query->get('slug'),
     ];
 
     $form['filters']['exists'] = [
@@ -47,13 +47,13 @@ class ScraperReportFilterForm extends FormBase {
         '1' => $this->t('Yes'),
         '0' => $this->t('No'),
       ],
-      '#default_value' => \Drupal::request()->query->get('exists'),
+      '#default_value' => $this->getRequest()->query->get('exists'),
     ];
 
     $form['filters']['entity_type'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Entity Type'),
-      '#default_value' => \Drupal::request()->query->get('entity_type'),
+      '#default_value' => $this->getRequest()->query->get('entity_type'),
     ];
 
     $form['filters']['actions'] = [
@@ -80,7 +80,7 @@ class ScraperReportFilterForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $query = [];
     $values = $form_state->getValues();
-    
+
     if (!empty($values['source_url'])) {
       $query['source_url'] = $values['source_url'];
     }

@@ -4,7 +4,7 @@ namespace Drupal\natiboo_migrate_data\Service;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -67,20 +67,23 @@ class EntityExport {
       throw new \Exception("Entity of type $entityType with ID $entityId not found.");
     }
 
+    if (!$entity instanceof ContentEntityInterface) {
+      throw new \InvalidArgumentException('Only content entities can be exported.');
+    }
     return $this->serializeEntity($entity);
   }
 
   /**
    * Serializes a given entity into an array representation.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to be serialized.
    *
    * @return array
    *   An associative array containing the serialized data of the entity,
    *   including the entity type, bundle, ID, UUID, and accessible fields.
    */
-  protected function serializeEntity(EntityInterface $entity): array {
+  protected function serializeEntity(ContentEntityInterface $entity): array {
     $data = [
       'entity_type' => $entity->getEntityTypeId(),
       'bundle' => $entity->bundle(),
@@ -201,7 +204,7 @@ class EntityExport {
   /**
    * Get the source field name of a media entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $media
+   * @param \Drupal\Core\Entity\ContentEntityInterface $media
    *   The media entity.
    *
    * @return string|null
@@ -210,7 +213,7 @@ class EntityExport {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function getMediaSourceFieldName(EntityInterface $media): ?string {
+  protected function getMediaSourceFieldName(ContentEntityInterface $media): ?string {
     $bundle = $media->bundle();
     $fieldDefinitions = $this->entityTypeManager
       ->getStorage('field_config')

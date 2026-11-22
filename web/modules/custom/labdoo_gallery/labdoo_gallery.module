@@ -1,12 +1,16 @@
 <?php
 
 /**
+ * @file
+ * Integrates gallery lifecycle and related media updates.
+ *
  * Developed by Natiboo <info@natiboo.es>
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
 
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Url;
@@ -78,7 +82,7 @@ function labdoo_gallery_node_view_alter(array &$build, EntityInterface $node, En
   }
 
   // Check if field_images exists and is empty.
-  if (!$node->hasField('field_images') || !$node->get('field_images')->isEmpty()) {
+  if (!$node instanceof NodeInterface || !$node->hasField('field_images') || !$node->get('field_images')->isEmpty()) {
     return;
   }
 
@@ -118,7 +122,7 @@ function labdoo_gallery_entity_delete(EntityInterface $entity): void {
 /**
  * Implements hook_cloned_node_alter().
  */
-function labdoo_gallery_cloned_node_alter(\Drupal\node\NodeInterface &$node, \Drupal\node\NodeInterface $original_node): void {
+function labdoo_gallery_cloned_node_alter(NodeInterface &$node, NodeInterface $original_node): void {
   if ($node->bundle() === 'edoovillage' && $node->hasField('field_edoovillage_photo_album')) {
     // The new school's gallery is created by the gallery queue after saving.
     // Never carry the original school's system managed reference into a clone.

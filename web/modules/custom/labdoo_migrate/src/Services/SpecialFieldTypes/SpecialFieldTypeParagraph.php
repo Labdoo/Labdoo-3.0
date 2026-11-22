@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Services\SpecialFieldTypes;
 
+use Drupal\paragraphs\ParagraphInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
@@ -40,7 +41,7 @@ class SpecialFieldTypeParagraph implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     $parameters = [
@@ -61,6 +62,9 @@ class SpecialFieldTypeParagraph implements SpecialFieldTypeInterface {
       ->getStorage('paragraph')
       ->create($parameters);
 
+    if (!$entity instanceof ParagraphInterface) {
+      throw new \UnexpectedValueException('Paragraph storage returned an incompatible entity.');
+    }
     if (
       isset($metadata['formatted_field'])
       && $metadata['formatted_field'] === 'true'

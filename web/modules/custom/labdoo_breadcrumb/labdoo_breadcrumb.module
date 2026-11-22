@@ -12,6 +12,8 @@
  * @link http://natiboo.es
  */
 
+use Drupal\node\NodeInterface;
+
 /**
  * Implements hook_theme().
  */
@@ -29,7 +31,8 @@ function labdoo_breadcrumb_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_page_top().
  *
- * Hides the default Drupal/Gin breadcrumb on routes where we show our custom block.
+ * Hides the default Drupal/Gin breadcrumb on routes where we show our custom
+ * block.
  */
 function labdoo_breadcrumb_page_top(array &$page_top) {
   $route_name = \Drupal::routeMatch()->getRouteName();
@@ -44,7 +47,7 @@ function labdoo_breadcrumb_page_top(array &$page_top) {
   // Hide default breadcrumb for specific node types.
   if ($route_name === 'entity.node.canonical') {
     $node = \Drupal::routeMatch()->getParameter('node');
-    if ($node instanceof \Drupal\node\NodeInterface) {
+    if ($node instanceof NodeInterface) {
       $type = $node->getType();
       if (in_array($type, ['edoovillage', 'hub', 'dootronic', 'dootrip', 'team', 'team_post'])) {
         if (isset($page_top['breadcrumb'])) {
@@ -78,7 +81,7 @@ function labdoo_breadcrumb_preprocess_breadcrumb(&$variables) {
   // Hide for specific node types.
   if ($route_name === 'entity.node.canonical') {
     $node = \Drupal::routeMatch()->getParameter('node');
-    if ($node instanceof \Drupal\node\NodeInterface) {
+    if ($node instanceof NodeInterface) {
       $type = $node->getType();
       if (in_array($type, ['edoovillage', 'hub', 'dootronic', 'dootrip', 'team', 'team_post'])) {
         $variables['breadcrumb'] = [];

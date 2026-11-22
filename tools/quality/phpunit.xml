@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="bootstrap.php" cacheDirectory=".cache/phpunit" colors="true" failOnWarning="true" failOnRisky="true">
+  <testsuites>
+    <testsuite name="custom-unit">
+      <directory>../../web/modules/custom/labdoo_dootronics/tests/src/Unit</directory>
+      <directory>../../web/modules/custom/labdoo_edoovillage/tests/src/Unit</directory>
+      <directory>../../web/modules/custom/mini_wiki/tests/src/Unit</directory>
+      <directory>../../web/modules/custom/labdoo_migrate/tests/src/Unit</directory>
+      <directory>../../tests/phpunit</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

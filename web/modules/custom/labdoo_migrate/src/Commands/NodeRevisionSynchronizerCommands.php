@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
@@ -66,6 +67,23 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
 
   /**
    * Constructor.
+   *
+   * @param \Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface $externalConnectionManager
+   *   The external connection manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\labdoo_migrate\Services\SourceContent\RevisionSourceRepositoryInterface $revisionSourceRepository
+   *   The revision source repository.
+   * @param \Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface $configurationManager
+   *   The configuration manager.
+   * @param \Drupal\labdoo_migrate\Services\Mapper\MapperInterface $mapper
+   *   The mapper.
+   * @param \Drupal\labdoo_migrate\Services\SourceContent\SourceRepositoryInterface $sourceRepository
+   *   The source repository.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   *   The language manager.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
   public function __construct(
     protected ConnectionManagerInterface $externalConnectionManager,
@@ -74,7 +92,8 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
     protected ConfigurationManagerInterface $configurationManager,
     protected MapperInterface $mapper,
     protected SourceRepositoryInterface $sourceRepository,
-    protected LanguageManagerInterface $languageManager
+    protected LanguageManagerInterface $languageManager,
+    protected StateInterface $state,
   ) {
     parent::__construct();
   }
@@ -112,7 +131,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
       'body-field' => 'body',
       'destination-type' => NULL,
       'delete-revisions' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $this->setEnvironment($options);
@@ -145,12 +164,14 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
         }
 
         if (empty($filteredNids)) {
-          $this->logger->success('All nodes have the same number of revisions. Nothing to synchronize.');
+          $this->io()->success('All nodes have the same number of revisions. Nothing to synchronize.');
           return;
         }
 
         $this->logger->notice(sprintf('Found %d nodes that need revision synchronization.', count($filteredNids)));
-        $nodes = array_map(function($nid) { return (object)['nid' => $nid]; }, $filteredNids);
+        $nodes = array_map(function ($nid) {
+          return (object) ['nid' => $nid];
+        }, $filteredNids);
 
         if ($this->limit > -1) {
           $nodes = array_slice($nodes, 0, $this->limit);
@@ -187,7 +208,7 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
         $this->advanceProgressBar();
       }
 
-      $this->logger->success(sprintf('Finished synchronizing revisions for type "%s".', $type));
+      $this->io()->success(sprintf('Finished synchronizing revisions for type "%s".', $type));
     }
     catch (\Exception $e) {
       $this->logger->error($e->getMessage());
@@ -196,9 +217,12 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
 
   /**
    * Sets the environment.
+   *
+   * @param array $options
+   *   The options.
    */
   protected function setEnvironment(array $options): void {
-    \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
+    $this->state->set('labdoo_migrate_is_running', TRUE);
     if ($options['nids'] !== NULL) {
       $this->nids = explode(',', $options['nids']);
     }
@@ -210,6 +234,11 @@ class NodeRevisionSynchronizerCommands extends DrushCommands {
 
   /**
    * Initializes the progress bar.
+   *
+   * @param int $count
+   *   The count.
+   * @param string $message
+   *   The message.
    */
   protected function initProgressBar(int $count, string $message): void {
     $this->output()->writeln($message);

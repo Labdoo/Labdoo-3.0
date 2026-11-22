@@ -18,7 +18,7 @@ function labdoo_map_preprocess_field(&$variables) {
       $variables['attributes']['data-nid'] = $node->id();
       $variables['attributes']['data-labdoo-map-type'] = $node->bundle();
       $variables['attributes']['class'][] = 'labdoo-map-container';
-      
+
       // Ensure our library is attached.
       $variables['#attached']['library'][] = 'labdoo/labdoo_map';
     }

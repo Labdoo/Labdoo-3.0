@@ -2,9 +2,13 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\State\StateInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
+use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
+use Drupal\labdoo_migrate\Services\Mapper\MapperInterface;
 use Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface;
 use Drupal\labdoo_migrate\Services\Media\FileManagerInterface;
 use Drupal\labdoo_migrate\Services\SourceContent\RevisionSourceRepositoryInterface;
@@ -28,6 +32,16 @@ class BasicPageSynchronizerCommands extends DrushCommands {
   use NodeRevisionSyncTrait;
 
   private const CONTENT_TYPE = 'page';
+
+  /**
+   * Whether revision synchronization may remove existing revisions.
+   */
+  protected bool $deleteRevisions = FALSE;
+
+  /**
+   * Whether revision synchronization can skip already synchronized histories.
+   */
+  protected bool $incremental = FALSE;
   private const DESTINATION_CONTENT_TYPE = 'page';
 
   /**
@@ -52,13 +66,6 @@ class BasicPageSynchronizerCommands extends DrushCommands {
   private $limit;
 
   /**
-   * The running mode.
-   *
-   * @var bool
-   */
-  private bool $create;
-
-  /**
    * The dry-run mode.
    *
    * @var mixed
@@ -70,7 +77,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
    *
    * @var \Symfony\Component\Console\Helper\ProgressBar
    */
-  private $progressBar;
+  private ?ProgressBar $progressBar = NULL;
 
   /**
    * The source translation repository.
@@ -102,6 +109,27 @@ class BasicPageSynchronizerCommands extends DrushCommands {
 
   /**
    * BasicPageSynchronizerCommands constructor.
+   *
+   * @param \Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface $externalConnectionManager
+   *   The external connection manager.
+   * @param \Drupal\labdoo_migrate\Services\Media\FileManagerInterface $fileManager
+   *   The file manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\labdoo_migrate\Services\SourceContent\TranslationRepositoryInterface $sourceTranslationRepository
+   *   The source translation repository.
+   * @param \Drupal\labdoo_migrate\Services\DestinationContent\TranslationRepositoryInterface $destinationTranslationRepository
+   *   The destination translation repository.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   *   The language manager.
+   * @param \Drupal\labdoo_migrate\Services\SourceContent\RevisionSourceRepositoryInterface $revisionSourceRepository
+   *   The revision source repository.
+   * @param \Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface $configurationManager
+   *   The configuration manager.
+   * @param \Drupal\labdoo_migrate\Services\Mapper\MapperInterface $mapper
+   *   The mapper.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
   public function __construct(
     protected ConnectionManagerInterface $externalConnectionManager,
@@ -110,7 +138,10 @@ class BasicPageSynchronizerCommands extends DrushCommands {
     SourceTranslationRepositoryInterface $sourceTranslationRepository,
     TranslationRepositoryInterface $destinationTranslationRepository,
     protected LanguageManagerInterface $languageManager,
-    RevisionSourceRepositoryInterface $revisionSourceRepository
+    RevisionSourceRepositoryInterface $revisionSourceRepository,
+    protected ConfigurationManagerInterface $configurationManager,
+    protected MapperInterface $mapper,
+    protected StateInterface $state,
   ) {
     parent::__construct();
     $this->sourceTranslationRepository = $sourceTranslationRepository;
@@ -138,7 +169,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
       'nids' => NULL,
       'limit' => -1,
       'dry-run' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $this->setEnvironment($options);
@@ -213,7 +244,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
       'nids' => NULL,
       'limit' => -1,
       'dry-run' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $this->setEnvironment($options);
@@ -250,17 +281,17 @@ class BasicPageSynchronizerCommands extends DrushCommands {
         $mainLangCode = $page->language ?: $defaultLangcode;
         $entityId = $page->nid;
 
-        // Initialize the entity structure for a single page
+        // Initialize the entity structure for a single page.
         $singlePageData = [
           $entityId => [
             'metadata' => [
-              'main_langcode' => $mainLangCode
+              'main_langcode' => $mainLangCode,
             ],
-            $mainLangCode => $this->getPageData($entityId, $mainLangCode)
-          ]
+            $mainLangCode => $this->getPageData($entityId, $mainLangCode),
+          ],
         ];
 
-        // Get translations
+        // Get translations.
         if ($page->tnid > 0) {
           $translations = $this->sourceTranslationRepository->getTranslations($entityId, $mainLangCode);
           foreach ($translations as $translation) {
@@ -294,7 +325,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(array $options): void {
-    \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
+    $this->state->set('labdoo_migrate_is_running', TRUE);
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
     if ($options['nids'] !== NULL) {
@@ -303,7 +334,6 @@ class BasicPageSynchronizerCommands extends DrushCommands {
     $this->limit = $options['limit'];
     $this->dryRun = $options['dry-run'];
   }
-
 
   /**
    * Gets the page data for a specific node ID and language.
@@ -319,20 +349,20 @@ class BasicPageSynchronizerCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function getPageData(int $nodeId, string $langCode): array {
-    // Get the node data
+    // Get the node data.
     $page = $this->externalConnectionManager
       ->setConnection()
       ->select('node', 'n')
       ->fields('n', ['nid', 'title', 'uid', 'status', 'created', 'changed'])
       ->condition('nid', $nodeId)
       ->execute()
-      ->fetch();
+      ->fetchObject();
 
     if (!$page) {
       return [];
     }
 
-    // Get the body field
+    // Get the body field.
     $body = $this->externalConnectionManager
       ->setConnection()
       ->select('field_data_body', 'fdb')
@@ -341,7 +371,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
       ->condition('entity_type', 'node')
       ->condition('bundle', self::CONTENT_TYPE)
       ->execute()
-      ->fetch();
+      ->fetchObject();
 
     return [
       'nid' => $page->nid,
@@ -375,14 +405,14 @@ class BasicPageSynchronizerCommands extends DrushCommands {
     $skipped = 0;
     $this->translationsCount = 0;
 
-    // Initialize progress bar
+    // Initialize progress bar.
     $this->initProgressBar(count($sourceEntities), 'Processing basic pages');
 
     foreach ($sourceEntities as $entityId => $sourceEntity) {
       $metadata = $sourceEntity['metadata'] ?? [];
-      $defaultLangcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+      $defaultLangcode = $this->languageManager->getDefaultLanguage()->getId();
       $mainLangCode = $metadata['main_langcode'] ?? $defaultLangcode;
-      $mainEntityValues = $sourceEntity[$mainLangCode] ?? null;
+      $mainEntityValues = $sourceEntity[$mainLangCode] ?? NULL;
 
       if (!$mainEntityValues) {
         ++$skipped;
@@ -402,7 +432,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
         continue;
       }
 
-      // Create or load the main entity
+      // Create or load the main entity.
       $destinationEntity = $this->entityTypeManager
         ->getStorage('node')
         ->loadByProperties([
@@ -419,17 +449,18 @@ class BasicPageSynchronizerCommands extends DrushCommands {
             'langcode' => $mainLangCode,
           ]);
         ++$created;
-      } else {
+      }
+      else {
         $destinationEntity = reset($destinationEntity);
         ++$updated;
       }
 
-      // Update the main entity
+      // Update the main entity.
       $this->updateEntityWithValues($destinationEntity, $mainEntityValues, $mainLangCode);
 
-      // Create/update translations
+      // Create/update translations.
       foreach ($sourceEntity as $langCode => $values) {
-        // Skip metadata and main language
+        // Skip metadata and main language.
         if ($langCode === 'metadata' || $langCode === $mainLangCode) {
           continue;
         }
@@ -438,18 +469,18 @@ class BasicPageSynchronizerCommands extends DrushCommands {
           continue;
         }
 
-        // Get or create the translation
+        // Get or create the translation.
         $translation = $this->destinationTranslationRepository->getEntityTranslation(
           $destinationEntity,
           $langCode
         );
 
-        // Update the translation
+        // Update the translation.
         $this->updateEntityWithValues($translation, $values, $langCode);
         ++$this->translationsCount;
       }
 
-      // Advance progress bar
+      // Advance progress bar.
       $this->advanceProgressBar();
     }
 
@@ -463,7 +494,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
   /**
    * Updates an entity with the given values.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity to update.
    * @param array $values
    *   The values to set.
@@ -472,8 +503,8 @@ class BasicPageSynchronizerCommands extends DrushCommands {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  protected function updateEntityWithValues($entity, array $values, string $langCode): void {
-    // Convert Drupal 7 format to Drupal 10 format
+  protected function updateEntityWithValues(NodeInterface $entity, array $values, string $langCode): void {
+    // Convert Drupal 7 format to Drupal 10 format.
     $format = $this->mapFormat($values['body_format']);
 
     $body = [
@@ -486,15 +517,13 @@ class BasicPageSynchronizerCommands extends DrushCommands {
     $entity->set('status', $values['status']);
     $entity->set('created', $values['created']);
     $entity->set('changed', $values['changed']);
-    if (method_exists($entity, 'setChangedTime')) {
-      $entity->setChangedTime($values['changed']);
-    }
+    $entity->setChangedTime($values['changed']);
+
     $entity->set('body', $body);
 
     if (!$this->dryRun) {
-      if (method_exists($entity, 'setSyncing')) {
-        $entity->setSyncing(TRUE);
-      }
+      $entity->setSyncing(TRUE);
+
       $entity->save();
     }
   }
@@ -510,8 +539,8 @@ class BasicPageSynchronizerCommands extends DrushCommands {
    *   The number of skipped entities.
    */
   protected function tearDown(int $created, int $updated, int $skipped): void {
-    \Drupal::state()->delete('labdoo_migrate_is_running');
-    // Finish the progress bar if it exists
+    $this->state->delete('labdoo_migrate_is_running');
+    // Finish the progress bar if it exists.
     if ($this->progressBar) {
       $this->progressBar->finish();
       $this->output->writeln('');
@@ -527,7 +556,7 @@ class BasicPageSynchronizerCommands extends DrushCommands {
       . "-- %d entities skipped.\n"
       . "-- %d translations processed.\n"
       . "-- %d total entities processed (main and translations combined).",
-      gmdate("H:i:s", $timeElapsedSeconds),
+      gmdate("H:i:s", (int) $timeElapsedSeconds),
       $created,
       $updated,
       $skipped,
@@ -560,4 +589,5 @@ class BasicPageSynchronizerCommands extends DrushCommands {
       $this->progressBar->advance();
     }
   }
+
 }

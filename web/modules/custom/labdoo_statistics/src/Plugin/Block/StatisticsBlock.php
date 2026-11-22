@@ -23,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class StatisticsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -49,7 +51,7 @@ class StatisticsBlock extends BlockBase implements ContainerFactoryPluginInterfa
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    CommonRepository $commonRepository
+    CommonRepository $commonRepository,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->commonRepository = $commonRepository;
@@ -64,7 +66,7 @@ class StatisticsBlock extends BlockBase implements ContainerFactoryPluginInterfa
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository */
     $commonRepository = $container->get('labdoo_common.repository.common');

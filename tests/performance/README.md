@@ -104,3 +104,79 @@ It uses five users for 30 seconds and retains the standard latency, HTTP error
 and functional/isolation budgets. It checks positive indexed suggestions for
 Dootrip and Dootronics. This checks backend stability; browser tests cover the
 client's debounce, cancellation, failure recovery and suggestion selection.
+
+## Platform uptime statistics
+
+`platform-uptime-load.js` adds focused coverage for the statistics route, which
+is outside the five routes in the general load profile. It alternates English
+and Spanish with five users for 30 seconds, preserving the standard latency,
+HTTP error and all-checks-passing budgets. It verifies the checkout identity
+and the rendered platform age. Run it only against the isolated clone:
+
+```sh
+k6 run --summary-export tests/performance/.local/k6-platform-uptime.json \
+  -e LABDOO_EXPECTED_ROOT=/absolute/path/to/checkout \
+  tests/performance/platform-uptime-load.js
+```
+
+This checks the existing page with its normal caching, not every database
+fallback under load. `tests/e2e/platform-uptime.spec.ts` separately exercises
+the actual fallback and empty aggregate queries without changing stored data,
+and checks the page in both languages on desktop and mobile. The focused
+profile complements the general load profile; it is not a maximum-capacity
+test or a controlled performance comparison.
+
+## Migrated destination content
+
+`migration-destination-load.js` reads an owned fixture created by
+`tests/e2e/support/migration-destination-contract.php` in the isolated clone.
+Pass its node ID through `LABDOO_MIGRATION_NODE_ID`, its unique fixture token
+through `LABDOO_MIGRATION_TEST_TOKEN`, and this checkout path through
+`LABDOO_EXPECTED_ROOT`. Keep the fixture until the run finishes, then invoke the
+same helper's `cleanup` operation with the same token. The helper's supported
+operations use `LABDOO_MIGRATION_TEST_OP=create` or `cleanup` and the guarded
+`tests/upgrade/.local/tools/drush.py integration php:script` launcher.
+
+The profile uses five users for 30 seconds and checks both language URLs,
+persisted title/body values, published comment content and checkout isolation.
+It also requires unpublished comments to remain hidden from anonymous visitors.
+The browser test verifies both comments with its authorized account. Standard latency,
+HTTP-error and all-checks-passing budgets remain unchanged. This checks normal
+read caching after mapping; save failure/retry behavior is covered by unit
+tests. It does not load-test V2 sources, write throughput or external services.
+
+## Notification previews
+
+`notifications-load.js` exercises English and Spanish contact email previews
+with five users for 30 seconds. It checks checkout isolation, localized
+acknowledgements, preserved message content and resolved tokens, using the same
+latency, HTTP-error and all-checks-passing thresholds as the general profile.
+It performs read-only preview requests; mail delivery and provider throughput
+are outside this profile. Browser coverage is in
+`tests/e2e/notification-preview.spec.ts` for both desktop and mobile.
+
+```sh
+k6 run --summary-export tests/performance/.local/k6-notifications.json \
+  -e LABDOO_EXPECTED_ROOT=/absolute/path/to/checkout \
+  tests/performance/notifications-load.js
+```
+
+## Action stream and owner filter
+
+`actions-load.js` alternates English and Spanish action listings, with and
+without `mine=1`, using five anonymous users for 30 seconds. It retains the
+standard p95, HTTP-error and all-checks-passing thresholds and verifies both
+checkout/isolation headers and rendered activity. Run it only against this
+checkout's isolated clone:
+
+```sh
+k6 run --summary-export tests/performance/.local/k6-actions.json \
+  -e LABDOO_EXPECTED_ROOT=/absolute/path/to/checkout \
+  tests/performance/actions-load.js
+```
+
+Authenticated owner filtering and persisted generator output are checked by
+`tests/e2e/action-contract.spec.ts`, including all four source node bundles,
+navigation and English/Spanish desktop/mobile states. The focused HTTP profile
+uses ordinary page caching; it does not measure creation throughput or replace
+the unchanged general maximum-concurrency profile.

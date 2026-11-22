@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_gallery\Services;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -57,7 +57,7 @@ class LabdooGalleryRepository implements LabdooGalleryRepositoryInterface {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
-    LoggerChannelFactoryInterface $loggerFactory
+    LoggerChannelFactoryInterface $loggerFactory,
   ) {
     $this->entityTypeManager = $entityTypeManager;
     $this->loggerFactory = $loggerFactory;
@@ -67,15 +67,15 @@ class LabdooGalleryRepository implements LabdooGalleryRepositoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function loadById(int $id): ?EntityInterface {
+  public function loadById(int $id): ?NodeInterface {
     try {
       $storage = $this->entityTypeManager->getStorage($this->entityType);
       $entity = $storage->load($id);
-      
-      if ($entity && $entity->bundle() === $this->bundle) {
+
+      if ($entity instanceof NodeInterface && $entity->bundle() === $this->bundle) {
         return $entity;
       }
-      
+
       return NULL;
     }
     catch (\Exception $e) {
@@ -87,7 +87,7 @@ class LabdooGalleryRepository implements LabdooGalleryRepositoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function loadByParentId(int $parentId): ?EntityInterface {
+  public function loadByParentId(int $parentId): ?NodeInterface {
     try {
       $entities = $this->entityTypeManager
         ->getStorage($this->entityType)
@@ -99,8 +99,9 @@ class LabdooGalleryRepository implements LabdooGalleryRepositoryInterface {
       if (empty($entities)) {
         return NULL;
       }
-      
-      return reset($entities);
+
+      $entity = reset($entities);
+      return $entity instanceof NodeInterface ? $entity : NULL;
     }
     catch (\Exception $e) {
       $this->logger->error('Error loading galleries by parent ID: @message', ['@message' => $e->getMessage()]);
@@ -112,20 +113,23 @@ class LabdooGalleryRepository implements LabdooGalleryRepositoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function create(array $data): ?EntityInterface {
+  public function create(array $data): ?NodeInterface {
     try {
       $storage = $this->entityTypeManager->getStorage($this->entityType);
-      
+
       // Set default values for required fields if not provided.
       $data['type'] = $this->bundle;
-      
+
       if (!isset($data['title'])) {
         $data['title'] = 'Gallery ' . time();
       }
-      
+
       $entity = $storage->create($data);
+      if (!$entity instanceof NodeInterface) {
+        throw new \UnexpectedValueException('Storage returned an unsupported entity type.');
+      }
       $entity->save();
-      
+
       return $entity;
     }
     catch (\Exception $e) {
@@ -137,23 +141,23 @@ class LabdooGalleryRepository implements LabdooGalleryRepositoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function update(int $id, array $data): ?EntityInterface {
+  public function update(int $id, array $data): ?NodeInterface {
     try {
       $entity = $this->loadById($id);
-      
+
       if (!$entity) {
         $this->logger->warning('Gallery with ID @id not found for update.', ['@id' => $id]);
         return NULL;
       }
-      
+
       foreach ($data as $field => $value) {
         if ($entity->hasField($field)) {
           $entity->set($field, $value);
         }
       }
-      
+
       $entity->save();
-      
+
       return $entity;
     }
     catch (\Exception $e) {

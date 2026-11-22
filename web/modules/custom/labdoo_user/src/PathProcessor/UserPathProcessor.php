@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_user\PathProcessor;
 
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\PathProcessor\InboundPathProcessorInterface;
 use Drupal\Core\PathProcessor\OutboundPathProcessorInterface;
 use Drupal\Core\Render\BubbleableMetadata;
@@ -16,6 +18,14 @@ use Symfony\Component\HttpFoundation\Request;
  * @link http://natiboo.es
  */
 class UserPathProcessor implements InboundPathProcessorInterface, OutboundPathProcessorInterface {
+
+  /**
+   * Constructs the path processor with user storage and its logger factory.
+   */
+  public function __construct(
+    private readonly EntityTypeManagerInterface $entityManager,
+    private readonly LoggerChannelFactoryInterface $loggerFactory,
+  ) {}
 
   /**
    * Paths that should be processed by this path processor.
@@ -33,7 +43,7 @@ class UserPathProcessor implements InboundPathProcessorInterface, OutboundPathPr
    */
   public function processInbound($path, Request $request) {
     // Pattern to match /user/{username}/{subpath} paths
-    // Note: Language prefix is already stripped by the language path processor
+    // Note: Language prefix is already stripped by the language path processor.
     if (preg_match('|^/user/([^/]+)/([^/]+)$|', $path, $matches)) {
       $username = $matches[1];
       $subpath = $matches[2];
@@ -48,19 +58,19 @@ class UserPathProcessor implements InboundPathProcessorInterface, OutboundPathPr
         return $path;
       }
 
-      // Try to load user by username
+      // Try to load user by username.
       try {
-        $users = \Drupal::entityTypeManager()
+        $users = $this->entityManager
           ->getStorage('user')
           ->loadByProperties(['name' => $username]);
 
         if ($user = reset($users)) {
-          // Replace username with user ID
+          // Replace username with user ID.
           return '/user/' . $user->id() . '/' . $subpath;
         }
       }
       catch (\Exception $e) {
-        \Drupal::logger('labdoo_user')->error('Error processing user path: @message', [
+        $this->loggerFactory->get('labdoo_user')->error('Error processing user path: @message', [
           '@message' => $e->getMessage(),
         ]);
       }
@@ -72,8 +82,8 @@ class UserPathProcessor implements InboundPathProcessorInterface, OutboundPathPr
   /**
    * {@inheritdoc}
    */
-  public function processOutbound($path, &$options = [], Request $request = NULL, BubbleableMetadata $bubbleable_metadata = NULL) {
-    // Pattern to match /user/{user_id}/{subpath} paths
+  public function processOutbound($path, &$options = [], ?Request $request = NULL, ?BubbleableMetadata $bubbleable_metadata = NULL) {
+    // Pattern to match /user/{user_id}/{subpath} paths.
     if (preg_match('|^/user/(\d+)/([^/]+)$|', $path, $matches)) {
       $user_id = $matches[1];
       $subpath = $matches[2];
@@ -83,9 +93,9 @@ class UserPathProcessor implements InboundPathProcessorInterface, OutboundPathPr
         return $path;
       }
 
-      // Load user and replace ID with username
+      // Load user and replace ID with username.
       try {
-        $user = \Drupal::entityTypeManager()
+        $user = $this->entityManager
           ->getStorage('user')
           ->load($user_id);
 
@@ -95,7 +105,7 @@ class UserPathProcessor implements InboundPathProcessorInterface, OutboundPathPr
         }
       }
       catch (\Exception $e) {
-        \Drupal::logger('labdoo_user')->error('Error processing outbound user path: @message', [
+        $this->loggerFactory->get('labdoo_user')->error('Error processing outbound user path: @message', [
           '@message' => $e->getMessage(),
         ]);
       }

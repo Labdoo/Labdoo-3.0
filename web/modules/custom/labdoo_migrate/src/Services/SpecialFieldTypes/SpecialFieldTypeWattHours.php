@@ -21,12 +21,15 @@ class SpecialFieldTypeWattHours implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     return str_replace('wh', '', strtolower($value));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function filterValue($value) {
 
     return $value;

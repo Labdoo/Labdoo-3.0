@@ -2,14 +2,15 @@
 
 namespace Drupal\Tests\mini_wiki\Unit;
 
+use PHPUnit\Framework\Attributes\Group;
+
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * Keeps rich text embeds playable without changing image thumbnails.
- *
- * @group mini_wiki
  */
+#[Group('mini_wiki')]
 class EmbeddedMediaConfigurationTest extends UnitTestCase {
 
   /**
@@ -25,8 +26,10 @@ class EmbeddedMediaConfigurationTest extends UnitTestCase {
       $this->assertSame('embedded_content', $settings['default_view_mode']);
       $this->assertSame([
         'embedded_content' => 'embedded_content',
+        'media_library' => 'media_library',
         'wiki_medium' => 'wiki_medium',
       ], $settings['allowed_view_modes']);
+      $this->assertContains('core.entity_view_mode.media.media_library', $config['dependencies']['config']);
       $this->assertTrue($config['filters']['mini_wiki_legacy_video']['status']);
       $this->assertTrue($editor['settings']['plugins']['media_media']['allow_view_mode_override']);
       if ($format === 'full_html') {

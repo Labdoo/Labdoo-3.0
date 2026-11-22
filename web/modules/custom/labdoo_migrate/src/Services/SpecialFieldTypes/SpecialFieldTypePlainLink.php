@@ -29,7 +29,7 @@ class SpecialFieldTypePlainLink implements SpecialFieldTypeInterface {
    *   The external connection manager.
    */
   public function __construct(
-    ExternalConnectionManager $externalConnectionManager
+    ExternalConnectionManager $externalConnectionManager,
   ) {
 
     $this->externalConnectionManager = $externalConnectionManager;
@@ -42,7 +42,7 @@ class SpecialFieldTypePlainLink implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     $dataSource = $metadata['source_data'];
@@ -79,6 +79,9 @@ class SpecialFieldTypePlainLink implements SpecialFieldTypeInterface {
     return $result;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function filterValue($value) {
 
     return $value;

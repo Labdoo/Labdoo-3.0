@@ -48,7 +48,7 @@ class MappingModel {
   public function __construct(
     array $sourceField,
     FieldModel $destinationField,
-    string $overriddenByField = ''
+    string $overriddenByField = '',
   ) {
 
     $this->sourceField = $sourceField;

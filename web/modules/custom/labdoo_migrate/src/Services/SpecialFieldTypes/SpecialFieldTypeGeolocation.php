@@ -39,7 +39,7 @@ class SpecialFieldTypeGeolocation implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     if ($value === NULL || $value === '' || $value === '0.000000,0.000000' || $value === '0,0') {

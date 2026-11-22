@@ -330,7 +330,17 @@ update-contrib-test: ## 🧪 Simulate core and contrib update.
 .PHONY: tests
 tests: ## 🧪 Run project tests.
 	@echo "$(CYAN)🧪 Running tests...$(RESET)"
-	$(WEB_EXEC_COMMAND) php vendor/bin/phpunit
+	$(WEB_EXEC_COMMAND) php tools/quality/vendor/bin/phpunit -c tools/quality/phpunit.xml $(PHPUNIT_ARGS)
+
+.PHONY: quality-install phpcs phpstan
+quality-install: ## Install isolated PHP quality tools without updating Drupal.
+	COMPOSER_HOME="$(CURDIR)/tools/quality/.cache/composer-home" COMPOSER_CACHE_DIR="$(CURDIR)/tools/quality/.cache/composer-cache" composer --working-dir=tools/quality install --no-interaction
+
+phpcs: ## Check custom code using Drupal and DrupalPractice.
+	php tools/quality/vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml --ignore='*/node_modules/*,*/vendor/*' web/modules/custom web/themes/custom tests/phpunit $(PHPCS_ARGS)
+
+phpstan: ## Analyse custom code at the project's configured level.
+	php tools/quality/vendor/bin/phpstan analyse -c tools/quality/phpstan.neon --memory-limit=1G $(PHPSTAN_ARGS)
 
 .PHONY: e2e e2e-serve e2e-dashboard e2e-deps k6 lighthouse
 e2e-serve: ## 🌐 Serve the isolated Drupal test clone on loopback.

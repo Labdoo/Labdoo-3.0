@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_hub\Service\Repository;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\labdoo_common\Event\InvalidateCacheTagsEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -32,10 +34,13 @@ class HubRepository implements HubRepositoryInterface {
    *   The database connection.
    * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher
    *   The event dispatcher.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityManager
+   *   The entity_type.manager service.
    */
   public function __construct(
     Connection $database,
-    EventDispatcherInterface $eventDispatcher
+    EventDispatcherInterface $eventDispatcher,
+    protected EntityTypeManagerInterface $entityManager,
   ) {
     $this->database = $database;
     $this->eventDispatcher = $eventDispatcher;
@@ -76,14 +81,14 @@ class HubRepository implements HubRepositoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function load(int $id): ?\Drupal\Core\Entity\EntityInterface {
-    return \Drupal::entityTypeManager()->getStorage('node')->load($id);
+  public function load(int $id): ?NodeInterface {
+    return $this->entityManager->getStorage('node')->load($id);
   }
 
   /**
    * {@inheritDoc}
    */
-  public function saveEntity(\Drupal\Core\Entity\EntityInterface $entity): void {
+  public function saveEntity(NodeInterface $entity): void {
     $entity->save();
   }
 

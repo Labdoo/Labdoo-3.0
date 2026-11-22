@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\labdoo_dootronics\Plugin\Validation\Constraint;
 
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Drupal\node\NodeInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -17,6 +18,9 @@ class DootronicS3RequiresEdoovillageConstraintValidator extends ConstraintValida
    * {@inheritdoc}
    */
   public function validate($entity, Constraint $constraint): void {
+    if (!$constraint instanceof DootronicS3RequiresEdoovillageConstraint) {
+      throw new UnexpectedTypeException($constraint, DootronicS3RequiresEdoovillageConstraint::class);
+    }
     if (!$entity instanceof NodeInterface || $entity->bundle() !== 'dootronic') {
       return;
     }

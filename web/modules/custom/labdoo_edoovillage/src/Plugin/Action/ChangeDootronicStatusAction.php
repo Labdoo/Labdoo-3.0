@@ -25,6 +25,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   type = "node",
  *   category = @Translation("Labdoo")
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class ChangeDootronicStatusAction extends ConfigurableActionBase implements ContainerFactoryPluginInterface {
 
@@ -71,7 +73,7 @@ class ChangeDootronicStatusAction extends ConfigurableActionBase implements Cont
     $plugin_definition,
     DootronicPermissionChecker $permission_checker,
     DootronicRepositoryInterface $dootronic_repository,
-    AccountInterface $current_user
+    AccountInterface $current_user,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->permissionChecker = $permission_checker;
@@ -86,7 +88,7 @@ class ChangeDootronicStatusAction extends ConfigurableActionBase implements Cont
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     return new static(
       $configuration,
@@ -111,13 +113,11 @@ class ChangeDootronicStatusAction extends ConfigurableActionBase implements Cont
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    // Get the allowed values for the field_dootronic_status field
+    // Get the allowed values for the field_dootronic_status field.
     $allowedValues = $this->dootronicRepository->getfieldAllowedValues('node', 'dootronic', 'field_dootronic_status');
 
-    // Prepare options for the select field
-    $options = array_map(function($value) {
-      return $this->t($value);
-    }, $allowedValues);
+    // Prepare options for the select field.
+    $options = $allowedValues;
 
     $form['status'] = [
       '#type' => 'select',
@@ -150,7 +150,7 @@ class ChangeDootronicStatusAction extends ConfigurableActionBase implements Cont
   /**
    * {@inheritdoc}
    */
-  public function access($object, AccountInterface $account = NULL, $return_as_object = FALSE) {
+  public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE) {
     $account = $account ?: $this->currentUser;
     $access = AccessResult::forbidden();
 

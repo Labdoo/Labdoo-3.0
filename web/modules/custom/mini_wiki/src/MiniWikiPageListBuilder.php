@@ -38,7 +38,7 @@ final class MiniWikiPageListBuilder extends EntityListBuilder {
     $row['id'] = $entity->id();
     $row['label'] = $entity->toLink();
     $row['status'] = $entity->get('status')->value ? $this->t('Enabled') : $this->t('Disabled');
-    $author = $entity->get('uid')->entity;
+    $author = $entity->getOwner();
     $username_options = [
       'label' => 'hidden',
       'settings' => ['link' => $author ? $author->isAuthenticated() : FALSE],

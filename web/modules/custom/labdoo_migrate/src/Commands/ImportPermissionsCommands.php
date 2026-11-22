@@ -2,8 +2,7 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
-use Drupal\Core\Entity\EntityBase;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\user\PermissionHandlerInterface;
 use Drush\Commands\DrushCommands;
@@ -71,8 +70,13 @@ class ImportPermissionsCommands extends DrushCommands {
    *
    * @param \Drupal\user\PermissionHandlerInterface $permissionHandler
    *   Permissions service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityManager
+   *   The entity_type.manager service.
    */
-  public function __construct(PermissionHandlerInterface $permissionHandler) {
+  public function __construct(
+    PermissionHandlerInterface $permissionHandler,
+    protected EntityTypeManagerInterface $entityManager,
+  ) {
     parent::__construct();
     $this->permissionHandler = $permissionHandler;
     $this->allPermissions = $this->permissionHandler->getPermissions();
@@ -93,7 +97,7 @@ class ImportPermissionsCommands extends DrushCommands {
    */
   public function importPermissions(
     string $file,
-    bool $hasHeader = TRUE
+    bool $hasHeader = TRUE,
   ): void {
     if (!$this->fileExists($file)) {
       return;
@@ -163,7 +167,7 @@ class ImportPermissionsCommands extends DrushCommands {
     while (($data = fgetcsv($handle, 0, ',')) !== FALSE) {
       $lineNumber++;
 
-      // If CSV has a header, skip the first line
+      // If CSV has a header, skip the first line.
       if ($this->hasHeader && $lineNumber === 1) {
         continue;
       }
@@ -202,7 +206,8 @@ class ImportPermissionsCommands extends DrushCommands {
    *   TRUE if the line structure is valid, FALSE otherwise.
    */
   protected function validateLineStructure(array $data, int $lineNumber): bool {
-    // The expected format is $data[0] = rid, $data[1] = permission, $data[2] = module (optional).
+    // The expected format is $data[0] = rid, $data[1] = permission, $data[2] =
+    // module (optional).
     if (count($data) < 2) {
       $this->logger()->error("Line {$lineNumber} has an invalid format. At least 2 columns needed: rid,permission.");
 
@@ -228,7 +233,7 @@ class ImportPermissionsCommands extends DrushCommands {
   protected function validateLineData(
     mixed $rid,
     mixed $permission,
-    int $lineNumber
+    int $lineNumber,
   ): bool {
     if (empty($rid) || empty($permission)) {
       $this->logger()->error("Line {$lineNumber} has no valid data.");
@@ -255,7 +260,7 @@ class ImportPermissionsCommands extends DrushCommands {
   protected function validatePermission(
     string $permission,
     $rid,
-    int $lineNumber
+    int $lineNumber,
   ): bool {
     if (!isset($this->allPermissions[$permission])) {
       $similar = $this->findSimilarPermissions($permission);
@@ -263,7 +268,9 @@ class ImportPermissionsCommands extends DrushCommands {
         $this->logger()->warning("The permission '{$permission}' does not exist for role '{$rid}'. Did you mean: " . implode(', ', $similar) . "? Line: {$lineNumber}");
       }
       else {
-        #$this->logger()->error("The permission '{$permission}' does not exist for role '{$rid}'. Line: {$lineNumber}");
+        // $this->logger()->error("The permission '{$permission}' does not exist
+        // for
+        // role '{$rid}'. Line: {$lineNumber}");
         $this->logger()->error('"' . $permission . '";"' . $rid . '"');
       }
 
@@ -281,13 +288,13 @@ class ImportPermissionsCommands extends DrushCommands {
    * @param int $lineNumber
    *   The current line number.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|\Drupal\Core\Entity\EntityBase|\Drupal\user\Entity\Role|false
+   * @return \Drupal\user\Entity\Role|false
    *   The loaded role object, or FALSE if it doesn't exist.
    */
   protected function loadRole(
     string $rid,
-    int $lineNumber
-  ): Role|EntityBase|EntityInterface|false {
+    int $lineNumber,
+  ): Role|false {
     $roleName = $this->getRoleName($rid);
     if (!$roleName) {
       $this->logger()->error("Role '{$rid}' does not exist. Line: {$lineNumber}");
@@ -295,8 +302,8 @@ class ImportPermissionsCommands extends DrushCommands {
       return FALSE;
     }
 
-    $role = Role::load($roleName);
-    if (!$role) {
+    $role = $this->entityManager->getStorage('user_role')->load($roleName);
+    if (!$role instanceof Role) {
       $this->logger()->error("Role '{$rid}' does not exist. Line: {$lineNumber}");
 
       return FALSE;
@@ -311,7 +318,7 @@ class ImportPermissionsCommands extends DrushCommands {
    * @param string $rid
    *   The role ID to retrieve the name for.
    *
-   * @return string|NULL
+   * @return string|null
    *   The name of the role corresponding to the given role ID.
    *   If the role is a string, the mapped role.
    *   If no role is found, NULL.
@@ -321,7 +328,7 @@ class ImportPermissionsCommands extends DrushCommands {
       ? self::RID_TO_NAME[$rid]
       : self::ROLE_V2_TO_V3[$rid];
 
-    return $roleName ?? NULL;
+    return $roleName;
   }
 
   /**
@@ -337,11 +344,11 @@ class ImportPermissionsCommands extends DrushCommands {
    */
   protected function findSimilarPermissions(string $permission, int $threshold = 60): array {
     $similarPermissions = [];
-    // Compare the given permission with each available one
+    // Compare the given permission with each available one.
     foreach ($this->allPermissions as $existingPermission => $_) {
       $similarity = 0;
       similar_text($permission, $existingPermission, $similarity);
-      // If similarity is above the threshold, consider it a possible match
+      // If similarity is above the threshold, consider it a possible match.
       if ($similarity >= $threshold) {
         $similarPermissions[] = $existingPermission;
       }
@@ -365,12 +372,13 @@ class ImportPermissionsCommands extends DrushCommands {
   protected function addPermissionToRole(
     Role $role,
     string $permission,
-    int $lineNumber
+    int $lineNumber,
   ): void {
     $existingPermissions = $role->getPermissions();
     if (in_array($permission, $existingPermissions)) {
-      #$this->logger()->notice("Role '{$role->id()}' already had the permission '{$permission}'. Line {$lineNumber}.");
-
+      // $this->logger()->notice("Role '{$role->id()}' already had the
+      // permission
+      // '{$permission}'. Line {$lineNumber}.");
       return;
     }
 
@@ -378,13 +386,15 @@ class ImportPermissionsCommands extends DrushCommands {
     $role->set('permissions', $existingPermissions);
     try {
       $role->save();
-    } catch (EntityStorageException $e) {
+    }
+    catch (EntityStorageException $e) {
       $this->logger()->notice("Error adding permission '{$permission}' to role '{$role->id()}'. Line {$lineNumber}. Error: {$e->getMessage()}.");
 
       return;
     }
 
-    #$this->logger()->notice("Permission '{$permission}' added to role '{$role->id()}'. Line {$lineNumber}.");
+    // $this->logger()->notice("Permission '{$permission}' added to role
+    // '{$role->id()}'. Line {$lineNumber}.");
   }
 
 }

@@ -24,7 +24,7 @@ class SpecialFieldTypeFormattedText implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     return [
@@ -32,7 +32,6 @@ class SpecialFieldTypeFormattedText implements SpecialFieldTypeInterface {
       'format' => $this->mapFormat($metadata['format']),
     ];
   }
-
 
   /**
    * {@inheritDoc}

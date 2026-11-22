@@ -39,7 +39,7 @@ class FixUidCommands extends DrushCommands {
   public function __construct(
     Connection $database,
     ConnectionManagerInterface $externalConnectionManager,
-    EntityTypeManagerInterface $entityTypeManager
+    EntityTypeManagerInterface $entityTypeManager,
   ) {
     parent::__construct();
     $this->database = $database;
@@ -62,13 +62,23 @@ class FixUidCommands extends DrushCommands {
    * @option dry-run Only show what would be done, without making changes.
    * @usage drush labdoo:fix-node-uids --type=laptop --limit=100
    */
-  public function fixNodeUids(array $options = ['limit' => -1, 'batch-size' => 1000, 'type' => NULL, 'default-uid' => NULL, 'dry-run' => FALSE]) {
+  public function fixNodeUids(
+    array $options = [
+      'limit' => -1,
+      'batch-size' => 1000,
+      'type' => NULL,
+      'default-uid' => NULL,
+      'dry-run' => FALSE,
+    ],
+  ) {
     // Start with nodes that have uid=0 in node_field_data.
     // Process nodes that have uid=0 in node_field_data.
     $this->io()->title('Stage 1: Fixing nodes with uid=0 in node_field_data');
     $this->doFixNodeUids($options);
 
-    // Process nodes that have uid=0 in node_field_revision but are already fixed in node_field_data.
+    // Process nodes that have uid=0 in node_field_revision but are already
+    // fixed
+    // in node_field_data.
     $this->io()->title('Stage 2: Fixing internal inconsistencies in node_field_revision');
     $this->fixRevisionInconsistencies($options);
   }
@@ -108,7 +118,7 @@ class FixUidCommands extends DrushCommands {
     }
 
     $fixed = 0;
-    $alreadyAnonymous = 0;
+
     $userNotFound = 0;
     $nodeNotFoundInD7 = 0;
     $defaultAssigned = 0;
@@ -268,7 +278,7 @@ class FixUidCommands extends DrushCommands {
             ->condition('nid', $row->nid)
             ->condition('vid', $row->vid)
             ->execute();
-          
+
           $progressBar->advance();
         }
       }

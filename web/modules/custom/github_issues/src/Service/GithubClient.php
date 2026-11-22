@@ -31,19 +31,19 @@ class GithubClient {
    * ListIssuesController constructor.
    *
    * @param ClientInterface $client
-   *   The client interface used for communication
+   *   The client interface used for communication.
    * @param KeyRepositoryInterface $keyRepository
-   *   The key repository interface for managing keys
+   *   The key repository interface for managing keys.
    * @param \Drupal\github_issues\Service\GithubAuth $githubAuth
    *   The GitHub authentication service.
    * @param ConfigFactoryInterface $configFactory
-   *   The config factory interface for obtaining configuration settings
+   *   The config factory interface for obtaining configuration settings.
    */
   public function __construct(
     protected ClientInterface $client,
     protected KeyRepositoryInterface $keyRepository,
     protected GithubAuth $githubAuth,
-    ConfigFactoryInterface $configFactory
+    ConfigFactoryInterface $configFactory,
   ) {
     $this->config = $configFactory->get('github_issues.settings');
   }
@@ -70,6 +70,7 @@ class GithubClient {
 
     return json_decode($response->getBody(), TRUE);
   }
+
   /**
    * Return GitHub issues.
    *
@@ -112,7 +113,8 @@ class GithubClient {
       'headers' => $this->buildHeaders(),
       'query' => [
         'labels' => trim($tag) . ':' . trim($value),
-        'state' => 'all', // Optional: includes open and closed issues.
+    // Optional: includes open and closed issues.
+        'state' => 'all',
       ],
     ]);
 
@@ -126,6 +128,12 @@ class GithubClient {
    *   The title of the new GitHub issue.
    * @param string $body
    *   The body/content of the new GitHub issue.
+   * @param string|null $source
+   *   The source.
+   * @param string|null $author
+   *   The author.
+   * @param string|null $team
+   *   The team.
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
@@ -134,16 +142,16 @@ class GithubClient {
     string $body,
     ?string $source = '',
     ?string $author = '',
-    ?string $team = ''
+    ?string $team = '',
   ): void {
     $user = $this->config->get('user');
     $repo = $this->config->get('repository');
     $url = self::API_URL . self::REPOS_ENDPOINT . "/$user/$repo/issues";
 
     $labels = array_filter([
-      $author ? 'author:' . trim($author) : null,
-      $source ? 'source:' . trim($source) : null,
-      $team ? 'team:' . trim($team) : null,
+      $author ? 'author:' . trim($author) : NULL,
+      $source ? 'source:' . trim($source) : NULL,
+      $team ? 'team:' . trim($team) : NULL,
     ]);
 
     $this->createLabelsIfNotExist($labels);
@@ -166,7 +174,7 @@ class GithubClient {
    * @param string $title
    *   The new title for the issue.
    * @param string $body
-   *   The new body content for the
+   *   The new body content for the.
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
@@ -238,6 +246,12 @@ class GithubClient {
     ];
   }
 
+  /**
+   * Returns the configured color for a recognized label-name prefix.
+   *
+   * @param string $label
+   *   The label.
+   */
   protected function pickColorForLabel(string $label): string {
     $colorsMap = [
       'author' => 'f29513',

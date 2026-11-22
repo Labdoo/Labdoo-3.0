@@ -18,24 +18,27 @@ interface TranslationRepositoryInterface {
    * Tells if the translations have to be created instead of found.
    *
    * @return bool
+   *   Whether missing translations should be created.
    */
   public function isCreateTranslations(): bool;
 
   /**
    * Retrieves a translation of an entity given a language code.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param T $entity
    *   The entity.
    * @param string $langCode
    *   The given language code.
    *
-   * @return mixed
+   * @return T
    *   Returns the translation entity.
+   *
+   * @template T of \Drupal\Core\Entity\EntityInterface
    */
   public function getEntityTranslation(
     EntityInterface $entity,
-    string $langCode
-  );
+    string $langCode,
+  ): EntityInterface;
 
   /**
    * Checks if an entity has a given translation.
@@ -50,7 +53,7 @@ interface TranslationRepositoryInterface {
    */
   public function hasEntityTranslation(
     EntityInterface $entity,
-    string $langCode
+    string $langCode,
   ): bool;
 
 }

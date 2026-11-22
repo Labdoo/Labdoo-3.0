@@ -1,80 +1,52 @@
 <?php
 
+/**
+ * @file
+ * Runs the five local geography contracts with the real Drupal unit framework.
+ */
+
 declare(strict_types=1);
 
-namespace Drupal\Core\Entity {
-  interface EntityInterface {
-    public function hasField($name);
-    public function get($name);
-  }
+use PHPUnit\TextUI\Application;
+
+if (PHP_SAPI !== 'cli') {
+  http_response_code(404);
+  exit;
 }
-
-namespace Drupal\geocoder {
-  interface GeocoderInterface {}
+$qualityRoot = dirname(__DIR__, 5) . '/tools/quality';
+require $qualityRoot . '/autoload.php';
+$reportPath = tempnam(sys_get_temp_dir(), 'labdoo-city-unit-');
+if ($reportPath === FALSE) {
+  throw new RuntimeException('Unable to create the unit result file.');
 }
-
-namespace Drupal\labdoo_common\Service\Repository {
-  class CommonRepository {}
-}
-
-namespace {
-  use Drupal\Core\Entity\EntityInterface;
-  use Drupal\labdoo_global_action\Service\ActionGenerator\AbstractActionGenerator;
-
-  require dirname(__DIR__) . '/src/Service/ActionGenerator/AbstractActionGenerator.php';
-
-  final class TestFieldList {
-    public function __construct(public bool $empty, public string $value = '') {}
-    public function isEmpty(): bool { return $this->empty; }
-  }
-
-  final class TestEntity implements EntityInterface {
-    public function __construct(private array $fields) {}
-    public function hasField($name): bool { return array_key_exists($name, $this->fields); }
-    public function get($name): TestFieldList { return $this->fields[$name]; }
-  }
-
-  final class TestActionGenerator extends AbstractActionGenerator {
-    public int $reverseCalls = 0;
-    public function __construct(private array $reverseResult) {}
-    protected function reverseGeocodeWithFallback(string $lat, string $lon): ?array {
-      $this->reverseCalls++;
-      return $this->reverseResult;
+try {
+  $status = (new Application())->run([
+    __FILE__, '--configuration', $qualityRoot . '/phpunit.xml',
+    '--filter', 'CityCountryResolutionTest', '--no-progress',
+    '--log-junit', $reportPath,
+  ]);
+  if ($status === 0) {
+    $xml = new DOMDocument();
+    if (!$xml->load($reportPath, LIBXML_NONET)) {
+      throw new RuntimeException('Missing geography unit results.');
     }
-    public function resolve(EntityInterface $entity, array $location, &$city, &$country): void {
-      $this->resolveLocalGeoData($entity, $location, $city, $country);
+    $suite = $xml->getElementsByTagName('testsuite')->item(0);
+    if (!$suite instanceof DOMElement || (int) $suite->getAttribute('tests') !== 5) {
+      throw new RuntimeException('Exactly five geography cases must execute.');
+    }
+    foreach (['failures', 'errors', 'skipped'] as $attribute) {
+      if ((int) $suite->getAttribute($attribute) !== 0) {
+        throw new RuntimeException('Every geography case must pass.');
+      }
+    }
+    foreach ($xml->getElementsByTagName('testcase') as $case) {
+      $name = $case->getAttribute('name');
+      preg_match('/with data set "([^"]+)"/', $name, $match);
+      echo 'PASS: ' . ($match[1] ?? $name) . PHP_EOL;
     }
   }
-
-  $testCases = [
-    'fills missing country and preserves city' => [
-      new TestEntity(['field_city' => new TestFieldList(FALSE, 'Madrid'), 'field_country' => new TestFieldList(TRUE)]),
-      ['lat' => '40.4168', 'lon' => '-3.7038'], ['city' => 'Madrid', 'country_code' => 'ES'], 'Madrid', 'ES',
-    ],
-    'fills missing city and preserves country' => [
-      new TestEntity(['field_city' => new TestFieldList(TRUE), 'field_country' => new TestFieldList(FALSE, 'ES')]),
-      ['lat' => '40.4168', 'lon' => '-3.7038'], ['city' => 'Madrid', 'country_code' => 'FR'], 'Madrid', 'ES',
-    ],
-    'does not geocode when both values exist' => [
-      new TestEntity(['field_city' => new TestFieldList(FALSE, 'Madrid'), 'field_country' => new TestFieldList(FALSE, 'ES')]),
-      ['lat' => '40.4168', 'lon' => '-3.7038'], ['city' => 'Other', 'country_code' => 'FR'], 'Madrid', 'ES',
-    ],
-  ];
-
-  $testCases['does not geocode invalid sentinel'] = [new TestEntity([]), ['lat' => '-90', 'lon' => '-180'], ['city' => 'Wrong', 'country_code' => 'XX'], '', ''];
-  $testCases['does not geocode invalid range'] = [new TestEntity([]), ['lat' => '91', 'lon' => '181'], ['city' => 'Wrong', 'country_code' => 'XX'], '', ''];
-
-  foreach ($testCases as $label => [$entity, $location, $geo, $expectedCity, $expectedCountry]) {
-    $generator = new TestActionGenerator($geo);
-    $city = $country = '';
-    $generator->resolve($entity, $location, $city, $country);
-    if ($city !== $expectedCity || $country !== $expectedCountry) {
-      throw new \RuntimeException(sprintf('%s: got %s/%s', $label, $city, $country));
-    }
-    $expectedCalls = str_starts_with($label, 'does not geocode') ? 0 : 1;
-    if ($generator->reverseCalls !== $expectedCalls) {
-      throw new \RuntimeException(sprintf('%s: expected %d geocoder calls, got %d', $label, $expectedCalls, $generator->reverseCalls));
-    }
-    echo "PASS: {$label}\n";
-  }
 }
+finally {
+  unlink($reportPath);
+}
+exit($status);

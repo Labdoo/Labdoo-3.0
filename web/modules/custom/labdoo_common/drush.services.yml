@@ -11,7 +11,7 @@ services:
       - { name: drush.command }
   labdoo_common.cleanup_commands:
     class: \Drupal\labdoo_common\Commands\CleanupCommands
-    arguments: ['@entity_type.manager']
+    arguments: ['@entity_type.manager', '@database']
     tags:
       - { name: drush.command }
   labdoo_common.local_translation_agent:

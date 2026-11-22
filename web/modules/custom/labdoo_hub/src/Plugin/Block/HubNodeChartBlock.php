@@ -19,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Hub progress chart"),
  *   category = @Translation("Labdoo")
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class HubNodeChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -55,7 +57,7 @@ class HubNodeChartBlock extends BlockBase implements ContainerFactoryPluginInter
     if (!$hub instanceof NodeInterface || $hub->bundle() !== 'hub') {
       return AccessResult::forbidden()->addCacheContexts(['route']);
     }
-    return $hub->access('view', $account, TRUE)->addCacheContexts(['route']);
+    return AccessResult::neutral()->addCacheContexts(['route'])->orIf($hub->access('view', $account, TRUE));
   }
 
   /**

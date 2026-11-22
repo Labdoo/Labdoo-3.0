@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\labdoo_common\Service;
 
+use Drupal\user\UserInterface;
+use Drupal\Component\Gettext\PoStreamReader;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -20,12 +23,17 @@ use Drupal\locale\Gettext;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-/** Durable, owner-scoped translation jobs with checkpointed queue work. */
+/**
+ * Durable, owner-scoped translation jobs with checkpointed queue work.
+ */
 final class TranslationJobs {
 
   public const QUEUE = 'labdoo_translation_jobs';
   public const PERMISSION = 'administer labdoo translations';
   public const BATCH = 10;
+  /**
+   * The key-value store containing translation-job records.
+   */
   private KeyValueStoreInterface $store;
 
   public function __construct(
@@ -43,7 +51,9 @@ final class TranslationJobs {
     $this->store = $keyValue->get('labdoo.translation.jobs');
   }
 
-  /** Returns translated labels rather than translating dynamic state input. */
+  /**
+   * Returns translated labels rather than translating dynamic state input.
+   */
   public function label(string $state): TranslatableMarkup {
     return match ($state) {
       'queued' => new TranslatableMarkup('Waiting for worker'),
@@ -58,7 +68,9 @@ final class TranslationJobs {
     };
   }
 
-  /** Gives operators actionable errors without exposing agent diagnostics. */
+  /**
+   * Gives operators actionable errors without exposing agent diagnostics.
+   */
   public function failureMessage(array $job): TranslatableMarkup {
     return match ($job['error_code'] ?? '') {
       'artifact' => new TranslatableMarkup('A private translation file is missing or has changed. Restore the original file or create a new job. Completed batches are preserved.'),
@@ -73,44 +85,65 @@ final class TranslationJobs {
     };
   }
 
-  /** Returns the requesting operator's recent jobs without scanning all jobs. */
+  /**
+   * Returns the requesting operator's recent jobs without scanning all jobs.
+   */
   public function recent(AccountInterface $account): array {
     $result = [];
     foreach ($this->store->get('owner:' . $account->id(), []) as $id) {
-      if ($job = $this->store->get($id)) { $result[] = $job; }
+      if ($job = $this->store->get($id)) {
+        $result[] = $job;
+      }
     }
     return $result;
   }
 
-  /** Enforces both the dedicated permission and ownership on every endpoint. */
+  /**
+   * Enforces both the dedicated permission and ownership on every endpoint.
+   */
   public function load(string $id, AccountInterface $account): array {
     $job = $this->record($id);
-    if (!$job) { throw new NotFoundHttpException(); }
+    if (!$job) {
+      throw new NotFoundHttpException();
+    }
     if (!$account->isAuthenticated() || !$account->hasPermission(self::PERMISSION) || ((int) $job['uid'] !== (int) $account->id() && (int) $account->id() !== 1)) {
       throw new AccessDeniedHttpException();
     }
     return $job;
   }
 
-  /** Deduplicates a submitted form token under an owner-wide lock. */
+  /**
+   * Deduplicates a submitted form token under an owner-wide lock.
+   */
   public function create(AccountInterface $account, array $languages, string $agent, string $model, string $request): string {
-    if (!$account->isAuthenticated() || !$account->hasPermission(self::PERMISSION)) { throw new AccessDeniedHttpException(); }
+    if (!$account->isAuthenticated() || !$account->hasPermission(self::PERMISSION)) {
+      throw new AccessDeniedHttpException();
+    }
     $this->agents->options($agent, $model);
     $allowed = $this->workflow->languages($languages);
     if (!$languages || count($allowed) !== count(array_unique($languages)) || !preg_match('/^[a-f0-9-]{36}$/D', $request)) {
       throw new \InvalidArgumentException('Select target languages and use a valid form.');
     }
     $key = 'create:' . $account->id();
-    if (!$this->lock->acquire($key, 30)) { throw new \RuntimeException('A translation request is already being created.'); }
+    if (!$this->lock->acquire($key, 30)) {
+      throw new \RuntimeException('A translation request is already being created.');
+    }
     try {
       $dedup = 'request:' . hash('sha256', $account->id() . ':' . $request);
-      if ($id = $this->store->get($dedup)) { return $id; }
+      if ($id = $this->store->get($dedup)) {
+        return $id;
+      }
       $id = $this->uuid->generate();
       $this->directory($id, TRUE);
       $job = [
         'id' => $id, 'uid' => (int) $account->id(), 'agent' => $agent, 'model' => $model,
         'agent_label' => $this->agents->profiles()[$agent]['label'] ?? $agent,
-        'languages' => array_fill_keys(array_keys($allowed), ['total' => 0, 'completed' => 0, 'state' => 'queued', 'parts' => []]),
+        'languages' => array_fill_keys(array_keys($allowed), [
+          'total' => 0,
+          'completed' => 0,
+          'state' => 'queued',
+          'parts' => [],
+        ]),
         'state' => 'queued', 'phase' => 'prepare', 'index' => 0, 'offset' => 0,
         'created' => time(), 'updated' => time(), 'error' => FALSE,
       ];
@@ -119,43 +152,71 @@ final class TranslationJobs {
       $recent = $this->store->get('owner:' . $account->id(), []);
       array_unshift($recent, $id);
       $this->store->set('owner:' . $account->id(), array_slice(array_unique($recent), 0, 20));
-      try { $this->enqueue($id); }
-      catch (\Throwable $e) { $job['state'] = 'failed'; $job['error'] = TRUE; $this->save($job); }
+      try {
+        $this->enqueue($id);
+      }
+      catch (\Throwable $e) {
+        $job['state'] = 'failed';
+        $job['error'] = TRUE;
+        $this->save($job);
+      }
       return $id;
     }
-    finally { $this->lock->release($key); }
+    finally {
+      $this->lock->release($key);
+    }
   }
 
-  /** Bounded processing: one preparation, at most one agent call, or one import. */
+  /**
+   * Bounded processing: one preparation, at most one agent call, or one import.
+   */
   public function process(string $id): void {
-    if (!$this->record($id)) { return; }
+    if (!$this->record($id)) {
+      return;
+    }
     $key = 'labdoo.translation:' . $id;
-    if (!$this->lock->acquire($key, 300)) { throw new DelayedRequeueException(10); }
+    if (!$this->lock->acquire($key, 300)) {
+      throw new DelayedRequeueException(10);
+    }
     try {
       $job = $this->record($id);
-      if (!$job || !in_array($job['state'], ['queued', 'running', 'importing'], TRUE)) { return; }
+      if (!$job || !in_array($job['state'], ['queued', 'running', 'importing'], TRUE)) {
+        return;
+      }
       // A long-running worker must observe account changes made by other
       // requests rather than reuse a previously loaded owner from memory.
       $owner = $this->entities->getStorage('user')->loadUnchanged($job['uid']);
-      if (!$owner || !$owner->isActive() || !$owner->hasPermission(self::PERMISSION)) {
+      if (!$owner instanceof UserInterface || !$owner->isActive() || !$owner->hasPermission(self::PERMISSION)) {
         throw new \RuntimeException('The requesting operator is no longer authorized.');
       }
       if (count($this->workflow->languages(array_keys($job['languages']))) !== count($job['languages'])) {
         throw new \RuntimeException('A selected language is no longer available.');
       }
-      if ($job['phase'] === 'prepare') { $this->prepare($job); }
-      elseif ($job['phase'] === 'translate') { $this->translate($job); }
-      elseif ($job['phase'] === 'import') { $this->import($job); }
-      else { throw new \RuntimeException('Unknown translation job phase.'); }
+      if ($job['phase'] === 'prepare') {
+        $this->prepare($job);
+      }
+      elseif ($job['phase'] === 'translate') {
+        $this->translate($job);
+      }
+      elseif ($job['phase'] === 'import') {
+        $this->import($job);
+      }
+      else {
+        throw new \RuntimeException('Unknown translation job phase.');
+      }
       $job['updated'] = time();
       $job['error'] = FALSE;
       $this->save($job);
-      if (in_array($job['state'], ['queued', 'running', 'importing'], TRUE)) { $this->enqueue($id); }
+      if (in_array($job['state'], ['queued', 'running', 'importing'], TRUE)) {
+        $this->enqueue($id);
+      }
     }
     catch (\Throwable $e) {
       // Keep diagnostics and process output out of browser-visible job data.
       if (isset($job) && $job) {
-        $job['state'] = 'failed'; $job['error'] = TRUE; $job['updated'] = time();
+        $job['state'] = 'failed';
+        $job['error'] = TRUE;
+        $job['updated'] = time();
         $languages = array_keys($job['languages']);
         $failedLanguage = $job['phase'] === 'import' ? ($job['import_language'] ?? NULL) : ($languages[$job['index']] ?? NULL);
         if ($failedLanguage !== NULL) {
@@ -166,49 +227,69 @@ final class TranslationJobs {
           str_contains($e->getMessage(), 'translation artifact') => 'artifact',
           str_contains($e->getMessage(), 'operator is no longer') => 'owner',
           $e instanceof \InvalidArgumentException => 'configuration',
-          $e instanceof \Symfony\Component\Process\Exception\ProcessTimedOutException => 'timeout',
+          $e instanceof ProcessTimedOutException => 'timeout',
           str_starts_with($e->getMessage(), 'Agent returned') || str_starts_with($e->getMessage(), 'Agent response') || str_starts_with($e->getMessage(), 'Agent changed') => 'response',
           preg_match('/^(claude|codex|gemini|custom) failed /', $e->getMessage()) === 1 => 'process',
           default => 'worker',
         };
         $this->save($job);
-        $this->loggerFactory->get('labdoo_translations')->error('Translation job @job failed in phase @phase (@class).', ['@job' => $id, '@phase' => $job['phase'], '@class' => get_class($e)]);
+        $this->loggerFactory->get('labdoo_translations')->error('Translation job @job failed in phase @phase (@class).', [
+          '@job' => $id,
+          '@phase' => $job['phase'],
+          '@class' => get_class($e),
+        ]);
       }
     }
-    finally { $this->lock->release($key); }
+    finally {
+      $this->lock->release($key);
+    }
   }
 
-  /** An explicit retry resumes committed batches; failed calls are not looped. */
+  /**
+   * An explicit retry resumes committed batches; failed calls are not looped.
+   */
   public function retry(string $id, AccountInterface $account): void {
     $this->mutate($id, $account, function (array &$job): void {
       if ($job['state'] !== 'failed' && !(in_array($job['state'], ['queued', 'running', 'importing'], TRUE) && $job['updated'] < time() - 360)) {
         throw new \RuntimeException('This job is not ready to retry.');
       }
-      if ($job['phase'] !== 'import') { $this->agents->options($job['agent'], $job['model']); }
+      if ($job['phase'] !== 'import') {
+        $this->agents->options($job['agent'], $job['model']);
+      }
       $job['state'] = $job['phase'] === 'import' ? 'importing' : 'queued';
       if (isset($job['failed_language'])) {
-        $job['languages'][$job['failed_language']]['state'] = match ($job['phase']) { 'prepare' => 'queued', 'import' => 'importing', default => 'prepared' };
+        $job['languages'][$job['failed_language']]['state'] = match ($job['phase']) {
+          'prepare' => 'queued', 'import' => 'importing', default => 'prepared'
+        };
         unset($job['failed_language']);
       }
       $job['error'] = FALSE;
     });
   }
 
-  /** Queues import only after a separate, CSRF-protected confirmation. */
+  /**
+   * Queues import only after a separate, CSRF-protected confirmation.
+   */
   public function requestImport(string $id, string $language, AccountInterface $account): void {
     $this->mutate($id, $account, function (array &$job) use ($language): void {
-      if (($job['languages'][$language]['state'] ?? '') === 'imported' || ($job['state'] === 'importing' && ($job['import_language'] ?? '') === $language)) { return; }
+      if (($job['languages'][$language]['state'] ?? '') === 'imported' || ($job['state'] === 'importing' && ($job['import_language'] ?? '') === $language)) {
+        return;
+      }
       if ($job['state'] !== 'review' || ($job['languages'][$language]['state'] ?? '') !== 'review') {
         throw new \RuntimeException('Only reviewed translation results can be imported.');
       }
       $this->verified($job, $language, 'output');
-      $job['phase'] = 'import'; $job['state'] = 'importing';
-      $job['import_language'] = $language; $job['import_offset'] = 0;
+      $job['phase'] = 'import';
+      $job['state'] = 'importing';
+      $job['import_language'] = $language;
+      $job['import_offset'] = 0;
       $job['languages'][$language]['state'] = 'importing';
     });
   }
 
-  /** Returns only a published, checksum-verified result belonging to the job. */
+  /**
+   * Returns only a published, checksum-verified result belonging to the job.
+   */
   public function result(array $job, string $language): string {
     if (empty($job['languages'][$language]['output_hash'])) {
       throw new NotFoundHttpException();
@@ -216,63 +297,114 @@ final class TranslationJobs {
     return $this->verified($job, $language, 'output');
   }
 
-  /** Parses at most one page of private results for safe, escaped review. */
+  /**
+   * Parses at most one page of private results for safe, escaped review.
+   */
   public function preview(array $job, string $language, int $page = 0): array {
     $path = $this->result($job, $language);
-    // Stop the stream after the requested page rather than rendering a whole PO.
-    $reader = new \Drupal\Component\Gettext\PoStreamReader();
-    $reader->setURI($path); $reader->open(); $rows = []; $index = 0;
+    // Stop the stream after the requested page rather than rendering a whole
+    // PO.
+    $reader = new PoStreamReader();
+    $reader->setURI($path);
+    $reader->open();
+    $rows = [];
+    $index = 0;
     try {
       while ($item = $reader->readItem()) {
-        if ($index++ < max(0, $page) * 20) { continue; }
-        $rows[] = ['source' => implode("\n", (array) $item->getSource()), 'translation' => implode("\n", (array) $item->getTranslation()), 'context' => (string) $item->getContext()];
-        if (count($rows) === 20) { break; }
+        if ($index++ < max(0, $page) * 20) {
+          continue;
+        }
+        $rows[] = [
+          'source' => implode("\n", (array) $item->getSource()),
+          'translation' => implode("\n", (array) $item->getTranslation()),
+          'context' => (string) $item->getContext(),
+        ];
+        if (count($rows) === 20) {
+          break;
+        }
       }
     }
-    finally { $reader->close(); }
+    finally {
+      $reader->close();
+    }
     return $rows;
   }
 
+  /**
+   * Loads a stored translation job after validating its identifier.
+   *
+   * @phpstan-impure
+   */
   private function record(string $id): ?array {
     return preg_match('/^[a-f0-9-]{36}$/D', $id) ? $this->store->get($id) : NULL;
   }
 
-  private function save(array $job): void { $this->store->set($job['id'], $job); }
+  /**
+   * Persists the current translation-job record.
+   */
+  private function save(array $job): void {
+    $this->store->set($job['id'], $job);
+  }
 
+  /**
+   * Queues a translation-job identifier for background processing.
+   */
   private function enqueue(string $id): void {
     if (!$this->queues->get(self::QUEUE)->createItem(['job_id' => $id])) {
       throw new \RuntimeException('Could not queue the translation job.');
     }
   }
 
+  /**
+   * Applies an authorized job change under a lock and queues further work.
+   */
   private function mutate(string $id, AccountInterface $account, callable $change): void {
     $this->load($id, $account);
     $key = 'labdoo.translation:' . $id;
-    if (!$this->lock->acquire($key, 300)) { throw new \RuntimeException('The job is currently being processed.'); }
+    if (!$this->lock->acquire($key, 300)) {
+      throw new \RuntimeException('The job is currently being processed.');
+    }
     try {
       $job = $this->load($id, $account);
-      $before = $job; $change($job);
-      if ($before === $job) { return; }
-      $job['updated'] = time(); $this->save($job); $this->enqueue($id);
+      $before = $job;
+      $change($job);
+      if ($before === $job) {
+        return;
+      }
+      $job['updated'] = time();
+      $this->save($job);
+      $this->enqueue($id);
     }
-    finally { $this->lock->release($key); }
+    finally {
+      $this->lock->release($key);
+    }
   }
 
+  /**
+   * Resolves or creates a job directory outside the document root.
+   */
   private function directory(string $id, bool $create = FALSE): string {
     $uri = 'private://labdoo-translations';
     if ($create && !$this->files->prepareDirectory($uri, FileSystemInterface::CREATE_DIRECTORY)) {
       throw new \RuntimeException('Private file storage is not available.');
     }
     $base = $this->files->realpath($uri);
-    if (!$base || !is_dir($base)) { throw new \RuntimeException('Private file storage is not available.'); }
+    if (!$base || !is_dir($base)) {
+      throw new \RuntimeException('Private file storage is not available.');
+    }
     if (str_starts_with($base . '/', realpath(DRUPAL_ROOT) . '/')) {
       throw new \RuntimeException('Translation files require private storage outside the document root.');
     }
     $path = $base . '/' . $id;
-    if ($create && !is_dir($path) && !mkdir($path, 0700)) { throw new \RuntimeException('Could not create a private job directory.'); }
+    if ($create && !is_dir($path) && !mkdir($path, 0700)) {
+      throw new \RuntimeException('Could not create a private job directory.');
+    }
     return $path;
   }
 
+  /**
+   * Builds a validated path for one private translation artifact.
+   */
   private function path(array $job, string $language, string $kind): string {
     if (!isset($job['languages'][$language]) || !preg_match('/^[a-z][a-z0-9-]{0,19}$/D', $language) || !preg_match('/^(source|output|part-\d+)$/D', $kind)) {
       throw new \RuntimeException('Invalid translation artifact.');
@@ -280,6 +412,9 @@ final class TranslationJobs {
     return $this->directory($job['id']) . '/' . $kind . '.' . $language . '.po';
   }
 
+  /**
+   * Requires a private artifact to match its recorded content hash.
+   */
   private function verified(array $job, string $language, string $kind): string {
     $path = $this->path($job, $language, $kind);
     $hash = $kind === 'source' || $kind === 'output' ? ($job['languages'][$language][$kind . '_hash'] ?? '') : ($job['languages'][$language]['parts'][$kind] ?? '');
@@ -289,8 +424,12 @@ final class TranslationJobs {
     return $path;
   }
 
+  /**
+   * Writes a source-language snapshot and advances job preparation.
+   */
   private function prepare(array &$job): void {
-    $languages = array_keys($job['languages']); $language = $languages[$job['index']];
+    $languages = array_keys($job['languages']);
+    $language = $languages[$job['index']];
     $snapshot = $this->workflow->prepare($language);
     $path = $this->path($job, $language, 'source');
     $this->workflow->writeFile($path, $snapshot['header'], $snapshot['items']);
@@ -298,17 +437,25 @@ final class TranslationJobs {
     $job['languages'][$language]['total'] = count($snapshot['items']);
     $job['languages'][$language]['state'] = $snapshot['items'] ? 'prepared' : 'empty';
     $job['state'] = 'running';
-    if (++$job['index'] === count($languages)) { $job['index'] = 0; $job['phase'] = 'translate'; }
+    if (++$job['index'] === count($languages)) {
+      $job['index'] = 0;
+      $job['phase'] = 'translate';
+    }
   }
 
+  /**
+   * Translates a bounded batch and records verified partial output.
+   */
   private function translate(array &$job): void {
-    $languages = array_keys($job['languages']); $language = $languages[$job['index']];
+    $languages = array_keys($job['languages']);
+    $language = $languages[$job['index']];
     $path = $this->verified($job, $language, 'source');
     [$header, $batch, $seek] = $this->workflow->readBatch($path, $job['seek'] ?? 0, self::BATCH);
     if ($batch) {
       // Ten entries have at most sixty plural variants: one bounded CLI call.
       $translated = $this->workflow->translate($batch, $language, $header, $this->agents->options($job['agent'], $job['model']));
-      $kind = 'part-' . $job['offset']; $part = $this->path($job, $language, $kind);
+      $kind = 'part-' . $job['offset'];
+      $part = $this->path($job, $language, $kind);
       $this->workflow->writeFile($part, $header, $translated);
       $job['languages'][$language]['parts'][$kind] = hash_file('sha256', $part);
       $job['offset'] += count($batch);
@@ -329,10 +476,15 @@ final class TranslationJobs {
       }
       $job['offset'] = 0;
       $job['seek'] = 0;
-      if (++$job['index'] === count($languages)) { $job['state'] = 'review'; }
+      if (++$job['index'] === count($languages)) {
+        $job['state'] = 'review';
+      }
     }
   }
 
+  /**
+   * Imports one reviewed translation part and advances job state.
+   */
   private function import(array &$job): void {
     $language = $job['import_language'];
     $this->verified($job, $language, 'output');
@@ -341,8 +493,13 @@ final class TranslationJobs {
     if ($kind !== NULL) {
       $path = $this->verified($job, $language, $kind);
       $this->modules->loadInclude('locale', 'inc', 'locale.bulk');
-      $report = Gettext::fileToDatabase((object) ['uri' => $path, 'langcode' => $language], ['customized' => LOCALE_CUSTOMIZED, 'overwrite_options' => ['customized' => FALSE, 'not_customized' => FALSE]]);
-      if ($report['skips']) { throw new \RuntimeException('Some translations were rejected by Locale.'); }
+      $report = Gettext::fileToDatabase((object) ['uri' => $path, 'langcode' => $language], ['customized' => LOCALE_CUSTOMIZED, 'overwrite_options' => [
+        'customized' => FALSE,
+        'not_customized' => FALSE,
+      ]]);
+      if ($report['skips']) {
+        throw new \RuntimeException('Some translations were rejected by Locale.');
+      }
       _locale_refresh_translations([$language], $report['strings']);
       $job['import_offset']++;
     }

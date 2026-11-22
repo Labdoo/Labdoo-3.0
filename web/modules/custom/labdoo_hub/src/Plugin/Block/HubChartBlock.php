@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_hub\Plugin\Block;
 
+use Drupal\Core\Session\AccountProxyInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -21,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Hub chart"),
  *   category = @Translation("Hub"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -42,12 +46,18 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
    *   The plugin definition.
    * @param \Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface $hubRepository
    *   The Hub repository.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request_stack service.
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentAccount
+   *   The current_user service.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    HubRepositoryInterface $hubRepository
+    HubRepositoryInterface $hubRepository,
+    protected RequestStack $requestStack,
+    protected AccountProxyInterface $currentAccount,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->hubRepository = $hubRepository;
@@ -62,7 +72,7 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_hub\Service\Repository\HubRepositoryInterface $hubRepository */
     $hubRepository = $container->get('labdoo_hub.repository');
@@ -71,7 +81,9 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $hubRepository
+      $hubRepository,
+      $container->get('request_stack'),
+      $container->get('current_user'),
     );
   }
 
@@ -79,15 +91,15 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
    * {@inheritdoc}
    */
   public function build() {
-    $userId = \Drupal::request()->query->get('u');
-    $mine = \Drupal::request()->query->get('mine');
+    $userId = $this->requestStack->getCurrentRequest()->query->get('u');
+    $mine = $this->requestStack->getCurrentRequest()->query->get('mine');
     $filterUserId = NULL;
 
     if (!empty($userId) && is_numeric($userId)) {
       $filterUserId = (int) $userId;
     }
     elseif (!empty($mine) && (int) $mine === 1) {
-      $filterUserId = (int) \Drupal::currentUser()->id();
+      $filterUserId = (int) $this->currentAccount->id();
     }
 
     $stats = $this->hubRepository->getStats($filterUserId);
@@ -107,7 +119,7 @@ class HubChartBlock extends BlockBase implements ContainerFactoryPluginInterface
           'session',
         ],
         'tags' => [
-          'hub_chart'
+          'hub_chart',
         ],
       ],
     ];

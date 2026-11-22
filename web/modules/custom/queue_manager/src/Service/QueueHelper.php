@@ -42,7 +42,7 @@ class QueueHelper {
    */
   public function __construct(
     QueueFactory $queueFactory,
-    Connection $database
+    Connection $database,
   ) {
     $this->queueFactory = $queueFactory;
     $this->database = $database;
@@ -61,7 +61,8 @@ class QueueHelper {
    */
   public function enqueueData(string $queueId, array $data): ?QueueInterface {
     // Basic deduplication: Check if an item with the same data already exists.
-    // This is useful for recompute queues where we only care about the latest ID.
+    // This is useful for recompute queues where we only care about the latest
+    // ID.
     $serializedData = serialize($data);
     $exists = $this->database->select('queue', 'q')
       ->fields('q', ['item_id'])

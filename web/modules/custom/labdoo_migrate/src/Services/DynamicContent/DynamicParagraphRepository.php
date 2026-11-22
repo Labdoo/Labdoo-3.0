@@ -68,7 +68,7 @@ class DynamicParagraphRepository implements DynamicContentRepositoryInterface {
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ExternalConnectionManager $externalConnectionManager,
     ConfigurationManagerInterface $configurationManager,
-    FileManagerInterface $fileManager
+    FileManagerInterface $fileManager,
   ) {
 
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
@@ -187,7 +187,7 @@ class DynamicParagraphRepository implements DynamicContentRepositoryInterface {
   protected function getParagraphValues(
     int $paragraphId,
     string $paragraphBundle,
-    array $paragraphFieldNames
+    array $paragraphFieldNames,
   ): array {
 
     $keyName = $this->field->getDynamicParagraph()->getValueKey();
@@ -236,7 +236,7 @@ class DynamicParagraphRepository implements DynamicContentRepositoryInterface {
    */
   protected function processFieldSuffixes(
     string $paragraphFieldName,
-    array $conditions
+    array $conditions,
   ) {
 
     $tablePrefix = $this->field->getDynamicParagraph()->getValueTablePrefix();
@@ -273,7 +273,7 @@ class DynamicParagraphRepository implements DynamicContentRepositoryInterface {
   protected function processSourceTransformations(
     string $paragraphBundle,
     string $paragraphFieldName,
-    $value
+    $value,
   ) {
 
     if (!isset($this->dynamicParagraphsMappingConfig[$paragraphBundle])) {
@@ -303,16 +303,21 @@ class DynamicParagraphRepository implements DynamicContentRepositoryInterface {
    * Processes special cases.
    *
    * @param string $paragraphBundle
+   *   The source paragraph bundle.
    * @param string $paragraphFieldName
-   * @param $value
+   *   The paragraph field name.
+   * @param mixed $value
+   *   The source field value.
    *
    * @return mixed
+   *   The transformed field value.
+   *
    * @throws \Exception
    */
   protected function processSpecialCases(
     string $paragraphBundle,
     string $paragraphFieldName,
-    $value
+    $value,
   ) {
 
     if (!isset($this->dynamicParagraphsMappingConfig[$paragraphBundle])) {
@@ -334,7 +339,7 @@ class DynamicParagraphRepository implements DynamicContentRepositoryInterface {
 
     $collection = is_array($value) ? $value : [$value];
     $subParagraphs = [];
-    foreach ($collection as $index => $itemValue) {
+    foreach ($collection as $itemValue) {
       $subParagraphBundle = $this->getParagraphBundle($itemValue);
       $subParagraphFieldNames = $this->getParagraphFieldNames($subParagraphBundle);
       $subParagraphs[$subParagraphBundle][] = $this->getParagraphValues(
@@ -399,7 +404,7 @@ class DynamicParagraphRepository implements DynamicContentRepositoryInterface {
     string $tableName,
     string $fieldName,
     array $conditions,
-    bool $flatten = TRUE
+    bool $flatten = TRUE,
   ) {
 
     $query = $this->externalConnectionManager

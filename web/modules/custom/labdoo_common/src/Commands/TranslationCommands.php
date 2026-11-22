@@ -43,9 +43,11 @@ class TranslationCommands extends DrushCommands {
    * @option dry-run
    *   Report pending strings without writing PO files.
    * @option output-dir
-   *   Output directory. Defaults to the repository's translations/custom folder.
+   *   Output directory. Defaults to the repository's translations/custom
+   *   folder.
    * @option agent
-   *   Translate missing entries with a local CLI: claude, codex, gemini or custom.
+   *   Translate missing entries with a local CLI: claude, codex, gemini or
+   *   custom.
    * @option agent-binary
    *   Optional executable path for the selected CLI.
    * @option agent-model
@@ -57,9 +59,21 @@ class TranslationCommands extends DrushCommands {
    * @usage drush labdoo:translations-update --dry-run
    *   Show how many untranslated strings would be added per language.
    * @usage drush labdoo:translations-update
-   *   Add untranslated strings to translations/custom/labdoo_custom.{langcode}.po.
+   *   Add untranslated strings to
+   *   translations/custom/labdoo_custom.{langcode}.po.
    */
-  public function update(array $options = ['langcodes' => '', 'dry-run' => FALSE, 'output-dir' => '', 'agent' => '', 'agent-binary' => '', 'agent-model' => '', 'batch-size' => 20, 'agent-timeout' => 180]): void {
+  public function update(
+    array $options = [
+      'langcodes' => '',
+      'dry-run' => FALSE,
+      'output-dir' => '',
+      'agent' => '',
+      'agent-binary' => '',
+      'agent-model' => '',
+      'batch-size' => 20,
+      'agent-timeout' => 180,
+    ],
+  ): void {
     $this->io()->title('Untranslated interface strings');
     $workflow = $this->workflow ?? new TranslationWorkflow($this->languageManager, $this->configFactory, $this->moduleHandler, $this->translationAgent, $this->catalog);
     $workflow->update($options, fn(string $message) => $this->io()->text($message));

@@ -13,7 +13,7 @@ use Drupal\queue_manager\Service\QueueHelper;
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
-class AbstractQueueFeeder {
+abstract class AbstractQueueFeeder implements QueueFeederInterface {
 
   /**
    * The queue helper.
@@ -29,7 +29,7 @@ class AbstractQueueFeeder {
    *   The queue helper.
    */
   public function __construct(
-    QueueHelper $queueHelper
+    QueueHelper $queueHelper,
   ) {
     $this->queueHelper = $queueHelper;
   }
@@ -61,8 +61,7 @@ class AbstractQueueFeeder {
   }
 
   /**
-   * Deletes the existing items in the queue because it is enough with the
-   * latest item.
+   * Removes existing queue items superseded by the latest item.
    *
    * @throws \Exception
    */

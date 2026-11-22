@@ -11,6 +11,8 @@ use Drupal\Core\Datetime\DateFormatterInterface;
 
 /**
  * Controller for monitoring queues.
+ *
+ * @phpstan-consistent-constructor
  */
 class QueueMonitorController extends ControllerBase {
 
@@ -112,7 +114,8 @@ class QueueMonitorController extends ControllerBase {
         // Count logs with error severity in the last 24 hours.
         $log_errors = $this->database->select('ultimate_cron_log', 'l')
           ->condition('name', $job_name)
-          ->condition('severity', 3, '<=') // ERROR or worse
+        // ERROR or worse.
+          ->condition('severity', 3, '<=')
           ->condition('start_time', time() - 86400, '>=')
           ->countQuery()
           ->execute()

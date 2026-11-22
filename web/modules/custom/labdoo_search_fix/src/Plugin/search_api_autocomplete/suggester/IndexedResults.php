@@ -11,7 +11,8 @@ use Drupal\search_api_autocomplete\Plugin\search_api_autocomplete\suggester\Live
  * @SearchApiAutocompleteSuggester(
  *   id = "indexed_results",
  *   label = @Translation("Display live results (lightweight)"),
- *   description = @Translation("Display a small number of live results per request."),
+ *   description = @Translation("Display a small number of live results per
+ *   request."),
  * )
  */
 class IndexedResults extends LiveResults {

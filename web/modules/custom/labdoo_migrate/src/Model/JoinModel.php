@@ -46,7 +46,7 @@ class JoinModel {
   public function __construct(
     string $table,
     string $keyField,
-    string $valueField
+    string $valueField,
   ) {
 
     $this->table = $table;

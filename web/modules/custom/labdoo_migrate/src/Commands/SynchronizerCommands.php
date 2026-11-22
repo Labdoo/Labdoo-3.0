@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\labdoo_migrate\Services\DestinationContent\RepositoryRegistry;
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\Database\Database;
 use Drupal\labdoo_migrate\Model\ContentConfigurationModel;
 use Drupal\labdoo_migrate\Services\Config\ConfigurationManagerInterface;
@@ -165,12 +167,18 @@ class SynchronizerCommands extends DrushCommands {
    *   The migration tracker.
    * @param \Drupal\queue_manager\Service\QueueHelper $queueHelper
    *   The queue helper.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
+   * @param \Drupal\labdoo_migrate\Services\DestinationContent\RepositoryRegistry $repositoryRegistry
+   *   The labdoo_migrate.repository_registry service.
    */
   public function __construct(
     ConfigurationManagerInterface $configurationManager,
     MapperInterface $mapper,
     MigrationTrackerInterface $migrationTracker,
-    QueueHelper $queueHelper
+    QueueHelper $queueHelper,
+    protected StateInterface $state,
+    protected RepositoryRegistry $repositoryRegistry,
   ) {
 
     parent::__construct();
@@ -215,9 +223,9 @@ class SynchronizerCommands extends DrushCommands {
       'incremental' => FALSE,
       'queue' => FALSE,
       'profile-picture-only' => FALSE,
-    ]
+    ],
   ): void {
-    $state = \Drupal::state();
+    $state = $this->state;
     $previousRunning = $state->get('labdoo_migrate_is_running');
     $previousIndexing = $state->get('labdoo_migrate.disable_indexing');
     $activeConnection = Database::getConnection()->getKey();
@@ -289,7 +297,7 @@ class SynchronizerCommands extends DrushCommands {
 
     foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
       if ($options['queue']) {
-        $this->enqueueItems($contentType, $sourceIdsChunk, 'create', $destinationContentType);
+        $this->enqueueItems($contentType, $sourceIdsChunk, 'create', $destinationContentType, [], $total);
         continue;
       }
 
@@ -326,7 +334,7 @@ class SynchronizerCommands extends DrushCommands {
 
     foreach (array_chunk($sourceEntitiesIds, self::SYNC_BATCH_SIZE) as $sourceIdsChunk) {
       if ($options['queue']) {
-        $this->enqueueItems($contentType, $sourceIdsChunk, 'update', $destinationContentType, $destinationEntities);
+        $this->enqueueItems($contentType, $sourceIdsChunk, 'update', $destinationContentType, $destinationEntities, $total);
         continue;
       }
 
@@ -391,13 +399,16 @@ class SynchronizerCommands extends DrushCommands {
    *   The destination content type.
    * @param array $destinationEntities
    *   Optional destination entities mapping for updates.
+   * @param int $total
+   *   The total.
    */
   protected function enqueueItems(
     string $contentType,
     array $sourceIdsChunk,
     string $mode,
     string $destinationContentType,
-    array $destinationEntities = []
+    array $destinationEntities = [],
+    int $total = 0,
   ): void {
     $queueId = sprintf('labdoo_migrate_migration_%s', $contentType);
     foreach ($sourceIdsChunk as $sourceId) {
@@ -411,7 +422,7 @@ class SynchronizerCommands extends DrushCommands {
         'mode' => $mode,
         'override' => $this->overrideMode,
         'destination_content_type' => $destinationContentType,
-        'total_count' => $this->total,
+        'total_count' => $total,
       ];
 
       if ($mode === 'update' && isset($destinationEntities[$sourceId])) {
@@ -439,7 +450,7 @@ class SynchronizerCommands extends DrushCommands {
   protected function processCreateChunk(
     string $contentType,
     array $sourceIdsChunk,
-    string $destinationContentType
+    string $destinationContentType,
   ): void {
     $sourceEntities = $this->sourceRepository->getEntities(
       $contentType,
@@ -479,7 +490,7 @@ class SynchronizerCommands extends DrushCommands {
     string $contentType,
     array $sourceIdsChunk,
     string $destinationContentType,
-    array $destinationEntities
+    array $destinationEntities,
   ): void {
     $sourceEntities = $this->sourceRepository->getEntities(
       $contentType,
@@ -518,7 +529,7 @@ class SynchronizerCommands extends DrushCommands {
    */
   protected function setEnvironment(
     string $contentType,
-    array $options
+    array $options,
   ): void {
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
@@ -560,16 +571,8 @@ class SynchronizerCommands extends DrushCommands {
       $this->fromTimestamp = (int) $ts;
     }
 
-    $sourceRepository = sprintf(
-      'labdoo_migrate.source_content.repository.%s',
-      $this->configData->getEntityType()
-    );
-    $this->sourceRepository = \Drupal::getContainer()->get($sourceRepository);
-    $destinationRepository = sprintf(
-      'labdoo_migrate.destination_content.repository.%s',
-      $this->configData->getEntityType()
-    );
-    $this->destinationRepository = \Drupal::getContainer()->get($destinationRepository);
+    $this->sourceRepository = $this->repositoryRegistry->source($this->configData->getEntityType());
+    $this->destinationRepository = $this->repositoryRegistry->destination($this->configData->getEntityType());
 
     if (
       !empty($options['mode'])
@@ -585,7 +588,7 @@ class SynchronizerCommands extends DrushCommands {
     $this->create = $options['mode'] === 'create';
 
     // Set a global state to inform other modules that the migration is running.
-    \Drupal::state()->set('labdoo_migrate_is_running', TRUE);
+    $this->state->set('labdoo_migrate_is_running', TRUE);
 
     $headerMessage = sprintf(
       "=====================\n"
@@ -653,7 +656,7 @@ class SynchronizerCommands extends DrushCommands {
    *   The process summary.
    */
   protected function tearDown(int $updated, array $summary): void {
-    \Drupal::state()->delete('labdoo_migrate_is_running');
+    $this->state->delete('labdoo_migrate_is_running');
     $this->destinationRepository->setIndexingMode(TRUE);
 
     $mainEntitiesCount = $summary['main'] ?? 0;
@@ -673,7 +676,7 @@ class SynchronizerCommands extends DrushCommands {
       . "-- %d total entities created (main and translations combined).\n"
       . "-- Failing IDs: %s",
       $this->contentType,
-      gmdate("H:i:s", $timeElapsedSeconds),
+      gmdate("H:i:s", (int) $timeElapsedSeconds),
       $updated,
       $mainEntitiesCount,
       $translationsCount,

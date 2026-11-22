@@ -4,6 +4,7 @@ labdoo_quotes.random:
     _controller: '\Drupal\labdoo_quotes\Controller\QuoteController::random'
     _format: 'json'
   requirements:
+    # Public landing page; it displays no private account information.
     _access: 'TRUE'
     langcode: '[a-z][a-z0-9-]*'
   methods: [GET]

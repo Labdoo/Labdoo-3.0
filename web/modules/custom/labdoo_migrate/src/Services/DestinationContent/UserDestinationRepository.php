@@ -4,9 +4,7 @@ namespace Drupal\labdoo_migrate\Services\DestinationContent;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageException;
+use Drupal\user\UserInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -22,15 +20,13 @@ use Psr\Log\LoggerAwareTrait;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @implements \Drupal\labdoo_migrate\Services\DestinationContent\DestinationRepositoryInterface<\Drupal\user\UserInterface>
  */
 class UserDestinationRepository implements DestinationRepositoryInterface {
 
   use LoggerAwareTrait;
-
-  /**
-   * The field name of the source ID.
-   */
-  private const SOURCE_ID_FIELD = 'field_d7_nid';
+  use MigrationEntityMetadataTrait;
 
   /**
    * Contains the failing IDs.
@@ -82,13 +78,6 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   private int $mainEntitiesCount = 0;
 
   /**
-   * The summary.
-   *
-   * @var array
-   */
-  private array $summary;
-
-  /**
    * The override mode.
    *
    * @var bool
@@ -125,7 +114,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
     EntityTypeManagerInterface $entityTypeManager,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     MigrationTrackerInterface $migrationTracker,
-    $state
+    $state,
   ) {
 
     $this->entityTypeManager = $entityTypeManager;
@@ -175,7 +164,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
     array $sourceEntities,
     array $mapping,
     string $contentType,
-    bool $dryRun = FALSE
+    bool $dryRun = FALSE,
   ): int {
 
     $this->mapping = $mapping;
@@ -211,19 +200,18 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    */
   protected function createUser(
     array $sourceEntity,
-    ?int $entityId
+    ?int $entityId,
   ): bool {
 
     $startedAt = microtime(TRUE);
-    $result = TRUE;
 
     // Creates the main entity.
     $mainEntity = $this->prepareEntity($entityId);
     if ($entityId !== NULL) {
-      $mainEntity->original_entity_id = $entityId;
+      $this->setMigrationMetadata($mainEntity, 'original_entity_id', $entityId);
     }
 
-    $result = $result && $this->updateEntity(
+    $result = $this->updateEntity(
         $sourceEntity,
         $mainEntity
       );
@@ -259,7 +247,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
     array $sourceEntities,
     array $mapping,
     array $destinationEntities,
-    bool $dryRun = FALSE
+    bool $dryRun = FALSE,
   ): int {
 
     $this->mapping = $mapping;
@@ -284,6 +272,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    * Disables the entity storage cache.
    *
    * @return void
+   *   The resulting value.
    */
   protected function disableEntityStorageCache(): void {
     try {
@@ -307,7 +296,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    *
    * @param array $sourceEntity
    *   The source entities array.
-   * @param \Drupal\Core\Entity\EntityInterface $destinationEntity
+   * @param \Drupal\user\UserInterface $destinationEntity
    *   The destination entity.
    *
    * @return bool
@@ -317,7 +306,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    */
   protected function updateUsers(
     array $sourceEntity,
-    EntityInterface $destinationEntity
+    UserInterface $destinationEntity,
   ): bool {
 
     $startedAt = microtime(TRUE);
@@ -356,7 +345,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    *
    * @param array $sourceEntity
    *   The source entities array.
-   * @param \Drupal\Core\Entity\EntityInterface $destinationEntity
+   * @param \Drupal\user\UserInterface $destinationEntity
    *   The destination entity.
    *
    * @return bool
@@ -366,7 +355,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    */
   protected function updateEntity(
     array $sourceEntity,
-    EntityInterface $destinationEntity
+    UserInterface $destinationEntity,
   ): bool {
 
     if (empty($sourceEntity)) {
@@ -386,7 +375,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
       );
     }
 
-    if ($destinationEntity instanceof EntityChangedInterface && isset($sourceEntity['changed'])) {
+    if (isset($sourceEntity['changed'])) {
       $destinationEntity->setChangedTime($sourceEntity['changed']);
     }
 
@@ -396,7 +385,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   /**
    * Sets the value of the given field.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\user\UserInterface $entity
    *   The entity.
    * @param string $fieldName
    *   The file name.
@@ -405,17 +394,17 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    * @param \Drupal\labdoo_migrate\Model\SpecialTypeModel|null $specialType
    *   The special type model.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\user\UserInterface
    *   Returns the updated entity.
    *
    * @throws \Exception
    */
   protected function setFieldValue(
-    EntityInterface $entity,
+    UserInterface $entity,
     string $fieldName,
     $value,
-    ?SpecialTypeModel $specialType
-  ): EntityInterface {
+    ?SpecialTypeModel $specialType,
+  ): UserInterface {
 
     if (!$specialType) {
       if (is_array($value) && isset($value['value'])) {
@@ -471,7 +460,7 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   /**
    * Sets or appends a value according to the field type.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\user\UserInterface $entity
    *   The entity.
    * @param string $fieldName
    *   The field name.
@@ -479,15 +468,15 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    *   The value.
    */
   protected function setOrAppend(
-    EntityInterface $entity,
+    UserInterface $entity,
     string $fieldName,
-    $value
+    $value,
   ) {
 
     $field = $entity->get($fieldName);
     if ($entity->getFieldDefinition($fieldName)->getFieldStorageDefinition()->isMultiple()) {
       if (!$this->checkIfValueExists($field, $value)) {
-        $entity->{$fieldName}->appendItem($value);
+        $field->appendItem($value);
       }
     }
     else {
@@ -521,20 +510,20 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   /**
    * Saves an entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\user\UserInterface $entity
    *   The entity to be saved.
    *
    * @return bool
    *   Returns the result of the operation.
    */
-  protected function saveEntity(EntityInterface $entity): bool {
+  protected function saveEntity(UserInterface $entity): bool {
 
-    $entity->labdoo_skip_geocoding = TRUE;
+    $this->setMigrationMetadata($entity, 'labdoo_skip_geocoding', TRUE);
 
     try {
-      return $entity->save();
+      return (bool) $entity->save();
     }
-    catch (EntityStorageException | \Exception | \Throwable $e) {
+    catch (\Throwable $e) {
       $errorMessage = sprintf(
         'Error updating content with UID %d: %s',
         $entity->id(),
@@ -549,17 +538,16 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
   /**
    * Adds the source IDs as the array keys.
    *
-   * @param array $entities
+   * @param \Drupal\user\UserInterface[] $entities
    *   The entities array.
    *
-   * @return array
+   * @return array<int, \Drupal\user\UserInterface>
    *   Returns the processed array.
    */
   protected function addSourceIdsAsKeys(array $entities): array {
 
     $processedEntities = [];
 
-    /** @var \Drupal\Core\Entity\EntityInterface $entity */
     foreach ($entities as $entity) {
       $sourceId = $entity->id();
       if ($entity->hasField('original_entity_id') && !empty($entity->get('original_entity_id')->value)) {
@@ -577,19 +565,22 @@ class UserDestinationRepository implements DestinationRepositoryInterface {
    * @param int $entityId
    *   The entity ID.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\user\UserInterface
    *   The entity object.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   protected function prepareEntity(
-    int $entityId
-  ): EntityInterface {
+    int $entityId,
+  ): UserInterface {
     $entity = $this->entityTypeManager
       ->getStorage('user')
       ->load($entityId);
     if ($entity !== NULL) {
+      if (!$this->overrideMode) {
+        throw new \RuntimeException('The destination ID already exists; explicit override is required.');
+      }
       return $entity;
     }
 

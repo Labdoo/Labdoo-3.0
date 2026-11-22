@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_dootronics\Controller;
 
+use Drupal\node\NodeInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class LabelController extends ControllerBase {
 
@@ -59,7 +62,7 @@ class LabelController extends ControllerBase {
   public function __construct(
     DootronicRepositoryInterface $dootronicRepository,
     RendererInterface $renderer,
-    EntityStorageInterface $nodeStorage
+    EntityStorageInterface $nodeStorage,
   ) {
     $this->dootronicRepository = $dootronicRepository;
     $this->renderer = $renderer;
@@ -95,9 +98,9 @@ class LabelController extends ControllerBase {
    */
   public function printLabels(
     string $startingDootronicId,
-    string $endingDootronicId = ''
+    string $endingDootronicId = '',
   ): array {
-    $dootronic = $this->dootronicRepository->load($startingDootronicId);
+    $dootronic = $this->dootronicRepository->load((int) $startingDootronicId);
 
     if (empty($endingDootronicId)) {
       // Fallback to label.
@@ -215,6 +218,9 @@ class LabelController extends ControllerBase {
     $entities = $this->nodeStorage->loadMultiple($query->execute());
     $by_label = [];
     foreach ($entities as $entity) {
+      if (!$entity instanceof NodeInterface) {
+        throw new \UnexpectedValueException('Label storage returned an incompatible entity.');
+      }
       $by_label[$entity->label()] = $entity;
     }
     if ($labels) {
@@ -241,6 +247,7 @@ class LabelController extends ControllerBase {
     ];
     $cache = CacheableMetadata::createFromRenderArray($build);
     foreach ($entities as $entity) {
+
       $access = $entity->access('view', NULL, TRUE);
       $cache->addCacheableDependency($entity)->addCacheableDependency($access);
       if (!$access->isAllowed()) {

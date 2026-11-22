@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootrip\Service\Queue\Feeder;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for queue feeders.
@@ -17,17 +17,17 @@ interface QueueFeederInterface {
   /**
    * Retrieves the queue ID.
    *
-   * @return null|string
+   * @return string
    *   The queue ID.
    */
-  public function getQueueId(): ?string;
+  public function getQueueId(): string;
 
   /**
    * Feeds the queue.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    */
-  public function feedQueue(EntityInterface $dootrip): void;
+  public function feedQueue(NodeInterface $dootrip): void;
 
 }

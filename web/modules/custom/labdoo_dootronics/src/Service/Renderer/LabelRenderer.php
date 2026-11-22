@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootronics\Service\Renderer;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
 
 /**
@@ -29,7 +29,7 @@ class LabelRenderer {
    *   The dootronic repository.
    */
   public function __construct(
-    DootronicRepositoryInterface $dootronicRepository
+    DootronicRepositoryInterface $dootronicRepository,
   ) {
     $this->dootronicRepository = $dootronicRepository;
   }
@@ -40,10 +40,10 @@ class LabelRenderer {
    * @param int $dootronicId
    *   The dootronic ID.
    *
-   * @return EntityInterface|null
+   * @return NodeInterface|null
    *   The dootronic or NULL in case of error.
    */
-  public function loadDootronic(int $dootronicId): ?EntityInterface {
+  public function loadDootronic(int $dootronicId): ?NodeInterface {
     return $this->dootronicRepository->load($dootronicId);
   }
 
@@ -69,12 +69,12 @@ class LabelRenderer {
    * Generates the QR code.
    *
    * @param string $tag
-   *   dooject identifier
+   *   The dooject identifier.
    * @param string $size
-   *   height of the QR code
+   *   The height of the QR code.
    */
   public function getQrCode($tag, $size = '60') {
-    $url = urlencode("http://platform.labdoo.org/laptop/".$tag);
+    $url = urlencode("http://platform.labdoo.org/laptop/" . $tag);
 
     return sprintf(
       '<img src="https://api.qrserver.com/v1/create-qr-code/?size=%sx%s&data=%s"/>',
@@ -87,22 +87,22 @@ class LabelRenderer {
   /**
    * Returns the watt-hours of a dootronic.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootronic
+   * @param \Drupal\node\NodeInterface $dootronic
    *   The dootronic.
    *
    * @return string
    *   The computed watt/hours.
    */
-  public function getWattHours(EntityInterface $dootronic): string {
+  public function getWattHours(NodeInterface $dootronic): string {
     $volts = $dootronic->get('field_volts')->value;
     $ampHours = $dootronic->get('field_amp_hours')->value;
     if (empty($volts) || empty($ampHours)) {
       return 'Not available';
     }
 
-    $Wh = round($volts * $ampHours / 1000, 1);
+    $wattHours = round($volts * $ampHours / 1000, 1);
 
-    return $Wh . 'Wh';
+    return $wattHours . 'Wh';
   }
 
 }

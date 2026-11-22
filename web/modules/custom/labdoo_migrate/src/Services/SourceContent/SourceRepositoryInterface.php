@@ -33,7 +33,7 @@ interface SourceRepositoryInterface {
     string $contentType,
     array $mapping,
     ?array $entityIds = NULL,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array;
 
   /**
@@ -57,7 +57,7 @@ interface SourceRepositoryInterface {
     string $contentType,
     array $mapping,
     int $entityId,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array;
 
   /**
@@ -78,7 +78,7 @@ interface SourceRepositoryInterface {
   public function getNodesByType(
     ?string $contentType = NULL,
     ?array $mapping = NULL,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array;
 
 }

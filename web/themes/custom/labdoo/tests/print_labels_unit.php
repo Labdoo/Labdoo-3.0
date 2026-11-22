@@ -1,6 +1,12 @@
 <?php
 
-// Run with: LABDOO_AUTOLOAD=/path/to/vendor/autoload.php php print_labels_unit.php
+/**
+ * @file
+ * Checks the generated print-label markup.
+ *
+ * Set LABDOO_AUTOLOAD to the Composer autoloader before running this file.
+ */
+
 require getenv('LABDOO_AUTOLOAD') ?: dirname(__DIR__, 5) . '/vendor/autoload.php';
 
 use Twig\Environment;

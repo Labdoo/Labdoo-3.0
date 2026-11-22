@@ -61,7 +61,7 @@ class MigrationTracker implements MigrationTrackerInterface {
     Connection $database,
     ConnectionManagerInterface $externalConnectionManager,
     ModuleHandlerInterface $moduleHandler,
-    DateFormatterInterface $dateFormatter
+    DateFormatterInterface $dateFormatter,
   ) {
     $this->database = $database;
     $this->externalConnectionManager = $externalConnectionManager;
@@ -240,7 +240,8 @@ class MigrationTracker implements MigrationTrackerInterface {
   protected function getTrackingData(string $entityType, string $bundle): array {
     $query = $this->database->select(self::TRACKING_TABLE, 't');
 
-    // Filter to ensure the destination entity still exists and matches the expected bundle.
+    // Filter to ensure the destination entity still exists and matches the
+    // expected bundle.
     if ($entityType === 'node') {
       $query->join('node', 'n', 't.destination_id = n.nid');
       $query->condition('n.type', $bundle);
@@ -273,7 +274,8 @@ class MigrationTracker implements MigrationTrackerInterface {
     $query->condition('t.entity_type', $entityType);
     $query->condition('t.bundle', $bundle);
 
-    // Filter to ensure the destination entity still exists and matches the expected bundle.
+    // Filter to ensure the destination entity still exists and matches the
+    // expected bundle.
     if ($entityType === 'node') {
       $query->join('node', 'n', 't.destination_id = n.nid');
       $query->condition('n.type', $bundle);
@@ -337,7 +339,8 @@ class MigrationTracker implements MigrationTrackerInterface {
     $query->condition('t.bundle', $bundle);
     $query->condition('t.integrity_status', $statuses, 'IN');
 
-    // Filter to ensure the destination entity still exists and matches the expected bundle.
+    // Filter to ensure the destination entity still exists and matches the
+    // expected bundle.
     if ($entityType === 'node') {
       $query->join('node', 'n', 't.destination_id = n.nid');
       $query->condition('n.type', $bundle);

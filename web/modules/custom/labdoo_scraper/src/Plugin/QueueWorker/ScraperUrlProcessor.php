@@ -15,6 +15,8 @@ use Drupal\labdoo_scraper\Service\ScraperService;
  *   title = @Translation("Labdoo Scraper URL Processor"),
  *   cron = {"time" = 60}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class ScraperUrlProcessor extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 

@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 abstract class AbstractResource extends ResourceBase {
 
@@ -42,6 +44,7 @@ abstract class AbstractResource extends ResourceBase {
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    * @param \Drupal\mini_wiki\Service\MiniWikiRepository $miniWikiRepository
+   *   The wiki repository.
    */
   public function __construct(
     array $configuration,
@@ -49,7 +52,7 @@ abstract class AbstractResource extends ResourceBase {
     $plugin_definition,
     array $serializer_formats,
     LoggerInterface $logger,
-    protected MiniWikiRepository $miniWikiRepository
+    protected MiniWikiRepository $miniWikiRepository,
   ) {
     parent::__construct(
       $configuration,
@@ -67,7 +70,7 @@ abstract class AbstractResource extends ResourceBase {
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     return new static(
       $configuration,

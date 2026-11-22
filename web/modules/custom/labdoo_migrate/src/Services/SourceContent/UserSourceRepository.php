@@ -69,7 +69,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
   public function __construct(
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ExternalConnectionManager $externalConnectionManager,
-    DynamicContentRepositoryInterface $dynamicContentRepository
+    DynamicContentRepositoryInterface $dynamicContentRepository,
   ) {
 
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
@@ -84,7 +84,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
     string $contentType,
     array $mapping,
     ?array $entityIds = NULL,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
 
     $this->contentType = $contentType;
@@ -95,7 +95,6 @@ class UserSourceRepository implements SourceRepositoryInterface {
       $entityIds = $this->getNodesByType();
     }
 
-    /** @var \Drupal\labdoo_migrate\Model\FieldModel $field */
     foreach ($entityIds as $entityId) {
       $entities[$entityId] = $this->getEntity($contentType, $mapping, $entityId, $fromTimestamp);
     }
@@ -112,7 +111,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
     string $contentType,
     array $mapping,
     int $entityId,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
 
     $this->contentType = $contentType;
@@ -128,7 +127,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
   public function getNodesByType(
     ?string $contentType = NULL,
     ?array $mapping = NULL,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
 
     if ($contentType !== NULL) {
@@ -149,7 +148,8 @@ class UserSourceRepository implements SourceRepositoryInterface {
       ->fields($field->getTableName(), [$field->getFieldName()]);
     if ($this->fromTimestamp !== NULL) {
       $ts = (int) $this->fromTimestamp;
-      // Drupal 7 users table: use created and access fields as activity markers.
+      // Drupal 7 users table: use created and access fields as activity
+      // markers.
       $or = $query->orConditionGroup()
         ->condition('created', $ts, '>=')
         ->condition('access', $ts, '>=');
@@ -296,7 +296,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
       }
     }
 
-    return count($field);
+    return count($field) > 0;
   }
 
   /**
@@ -314,7 +314,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
    */
   protected function getFieldValue(
     int $entityId,
-    MappingModel $mapping
+    MappingModel $mapping,
   ) {
 
     $values = [];
@@ -353,14 +353,14 @@ class UserSourceRepository implements SourceRepositoryInterface {
    * @param \Drupal\labdoo_migrate\Model\FieldModel $field
    *   The field model.
    *
-   * @return array|string
+   * @return array|string|null
    *   Returns the single mapping value.
    *
    * @throws \Exception
    */
   protected function getSingleMappingValue(
     int $entityId,
-    FieldModel $field
+    FieldModel $field,
   ) {
 
     if ($field->getDefaultValue()) {
@@ -413,7 +413,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
    */
   protected function getQueryResults(
     FieldModel $field,
-    $search = NULL
+    $search = NULL,
   ): array {
 
     $conn = $this->externalConnectionManager->setConnection();
@@ -436,16 +436,15 @@ class UserSourceRepository implements SourceRepositoryInterface {
       $tableName = $field->getTableName();
       $keyName = $field->getKeyName();
       if (strpos($keyName, '.') !== FALSE) {
-          $parts = explode('.', $keyName);
-          $tableName = $parts[0];
-          $keyName = $parts[1];
+        $parts = explode('.', $keyName);
+        $tableName = $parts[0];
+        $keyName = $parts[1];
       }
       $query->condition($tableName . '.' . $keyName, $search, $field->getOperator());
     }
 
     return $query->execute()->fetchAll();
   }
-
 
   /**
    * Processes a single result.
@@ -465,7 +464,7 @@ class UserSourceRepository implements SourceRepositoryInterface {
   protected function processSingleResult(
     int $entityId,
     FieldModel $field,
-    $dbResult
+    $dbResult,
   ) {
 
     if (!$dbResult || !property_exists($dbResult, $field->getFieldName())) {

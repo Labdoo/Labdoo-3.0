@@ -1,7 +1,7 @@
 labdoo_dootronics.export_csv:
   path: '/dootronics/export/csv/{viewId}/{displayId}'
   defaults:
-    _controller: '\Drupal\labdoo_dootronics\Controller\ExportController::exportCSV'
+    _controller: '\Drupal\labdoo_dootronics\Controller\ExportController::exportCsv'
     _title: 'CSV data export'
   requirements:
     _permission: 'access content'

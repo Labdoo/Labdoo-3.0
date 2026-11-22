@@ -21,7 +21,7 @@ class SpecialFieldTypeMetatags implements SpecialFieldTypeInterface {
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     if (!is_array($value)) {
@@ -47,7 +47,7 @@ class SpecialFieldTypeMetatags implements SpecialFieldTypeInterface {
    */
   protected function processSingleValue(string $source): ?array {
 
-    $source = unserialize($source, ['array']);
+    $source = unserialize($source, ['allowed_classes' => FALSE]);
     if (!$source) {
       return NULL;
     }

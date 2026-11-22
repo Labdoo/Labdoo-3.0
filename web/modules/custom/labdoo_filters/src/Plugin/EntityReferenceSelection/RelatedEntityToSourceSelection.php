@@ -24,12 +24,12 @@ class RelatedEntityToSourceSelection extends DefaultSelection {
   protected function buildEntityQuery($match = NULL, $match_operator = 'CONTAINS') {
     $query = parent::buildEntityQuery($match, $match_operator);
 
-    // The settings can be in 'handler_settings' or directly in configuration
+    // The settings can be in 'handler_settings' or directly in configuration.
     $handler_settings = $this->configuration['handler_settings'] ?? $this->configuration;
     $target_type = $handler_settings['target_type'];
     $target_bundles = explode(',', $handler_settings['target_bundles']);
-    if ($target_type && $target_bundles) {
-      // Get the entity type definition from configuration
+    if ($target_type) {
+      // Get the entity type definition from configuration.
       $entity_type = \Drupal::entityTypeManager()->getDefinition($target_type);
       $query->condition($entity_type->getKey('bundle'), $target_bundles, 'IN');
     }

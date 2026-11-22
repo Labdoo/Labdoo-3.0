@@ -17,7 +17,10 @@ use Drupal\geocoder_geofield\Plugin\Field\FieldFormatter\ReverseGeocodeGeofieldF
 final class DootripLocationFormatter extends ReverseGeocodeGeofieldFormatter {
 
   /**
-   * {@inheritdoc}
+   * Builds location elements with shared cache metadata.
+   *
+   * @return array<int|string, array<int|string, mixed>>
+   *   Rendered locations and cache metadata.
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = [];
@@ -25,8 +28,8 @@ final class DootripLocationFormatter extends ReverseGeocodeGeofieldFormatter {
     $stored = \Drupal::keyValue('labdoo_dootrip_location_labels')->get($node->id() . ':' . $items->getName(), []);
     foreach ($items as $delta => $item) {
       // Recovered V2 text is valid only while the coordinates still match.
-      if (!empty($stored['label']) && ($stored['value'] ?? NULL) === $item->value) {
-        $elements[$delta] = ['#plain_text' => $stored['label']];
+      if (!empty($stored['label']) && ($stored['value'] ?? NULL) === $item->get('value')->getValue()) {
+        $elements[(int) $delta] = ['#plain_text' => $stored['label']];
         continue;
       }
       // The parent uses the configured providers and their existing cache.
@@ -38,12 +41,12 @@ final class DootripLocationFormatter extends ReverseGeocodeGeofieldFormatter {
         $resolved = [];
       }
       if (!empty($resolved[$delta]['#markup'])) {
-        $elements[$delta] = $resolved[$delta];
+        $elements[(int) $delta] = $resolved[$delta];
         continue;
       }
-      $geometry = $this->geoPhpWrapper->load($item->value);
+      $geometry = $this->geoPhpWrapper->load($item->get('value')->getValue());
       if ($geometry && ($point = $geometry->getCentroid())) {
-        $elements[$delta] = [
+        $elements[(int) $delta] = [
           '#plain_text' => $this->t('Coordinates: @latitude, @longitude', [
             '@latitude' => number_format($point->y(), 6, '.', ''),
             '@longitude' => number_format($point->x(), 6, '.', ''),

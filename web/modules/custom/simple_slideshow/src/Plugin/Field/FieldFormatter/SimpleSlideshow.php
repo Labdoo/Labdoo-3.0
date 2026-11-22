@@ -2,7 +2,9 @@
 
 namespace Drupal\simple_slideshow\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
+use Drupal\Core\Field\FieldItemBase;
+use Drupal\media\MediaInterface;
+use Drupal\file\FileInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -27,6 +29,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class SimpleSlideshow extends EntityReferenceFormatterBase implements ContainerFactoryPluginInterface {
 
@@ -203,11 +207,6 @@ class SimpleSlideshow extends EntityReferenceFormatterBase implements ContainerF
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $elements = [];
 
-    // Ensure that $items is an instance of EntityReferenceFieldItemListInterface
-    if (!($items instanceof EntityReferenceFieldItemListInterface)) {
-      return $elements;
-    }
-
     $files = $this->getEntitiesToView($items, $langcode);
 
     // Early opt-out if the field is empty.
@@ -236,11 +235,14 @@ class SimpleSlideshow extends EntityReferenceFormatterBase implements ContainerF
       // Extract field item attributes for the theme function, and unset them
       // from the $item so that the field template does not re-render them.
       $item = $items[$delta];
-      $item_attributes = $item->_attributes;
-      unset($item->_attributes);
+      $item_attributes = [];
+      if ($item instanceof FieldItemBase) {
+        $item_attributes = $item->__get('_attributes') ?? [];
+        $item->__unset('_attributes');
+      }
 
       // Handle both media entities and image files.
-      if ($file->getEntityTypeId() === 'media') {
+      if ($file instanceof MediaInterface) {
         // For media entities, we need to get the source field.
         $source_field = $file->getSource()->getConfiguration()['source_field'];
         if (!$file->hasField($source_field)) {
@@ -248,15 +250,19 @@ class SimpleSlideshow extends EntityReferenceFormatterBase implements ContainerF
         }
 
         $media_file = $file->get($source_field)->entity;
-        if (!$media_file) {
+        if (!$media_file instanceof FileInterface) {
           continue;
         }
 
         $uri = $media_file->getFileUri();
       }
-      else {
+      elseif ($file instanceof FileInterface) {
         // Direct file entity.
         $uri = $file->getFileUri();
+      }
+
+      else {
+        continue;
       }
 
       // Apply image style if set.
@@ -268,11 +274,11 @@ class SimpleSlideshow extends EntityReferenceFormatterBase implements ContainerF
       // Build the item for the slideshow.
       $items_for_slideshow[] = [
         'url' => $url,
-        'alt' => $file->hasField('field_media_image') && $file->get('field_media_image')->first() 
-          ? $file->get('field_media_image')->first()->get('alt')->getString() 
+        'alt' => $file->hasField('field_media_image') && $file->get('field_media_image')->first()
+          ? $file->get('field_media_image')->first()->get('alt')->getString()
           : '',
-        'title' => $file->hasField('field_media_image') && $file->get('field_media_image')->first() 
-          ? $file->get('field_media_image')->first()->get('title')->getString() 
+        'title' => $file->hasField('field_media_image') && $file->get('field_media_image')->first()
+          ? $file->get('field_media_image')->first()->get('title')->getString()
           : '',
         'attributes' => $item_attributes,
       ];

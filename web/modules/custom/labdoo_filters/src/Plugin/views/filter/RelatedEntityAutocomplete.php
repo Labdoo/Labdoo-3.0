@@ -2,12 +2,13 @@
 
 namespace Drupal\labdoo_filters\Plugin\views\filter;
 
+use Drupal\views\Plugin\views\query\Sql;
 use Drupal\views\Plugin\views\filter\FilterPluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * entity_autocomplete views filter.
+ * Entity_autocomplete views filter.
  *
  * @ViewsFilter("related_entity_autocomplete")
  */
@@ -194,7 +195,7 @@ class RelatedEntityAutocomplete extends FilterPluginBase {
   public function acceptExposedInput($input) {
     $identifier = $this->options['expose']['identifier'] ?? $this->options['id'];
 
-    if (!isset($input[$identifier]) || $input[$identifier] === '' || $input[$identifier] === NULL) {
+    if (!isset($input[$identifier]) || $input[$identifier] === '') {
       $this->value = [];
       return FALSE;
     }
@@ -215,6 +216,9 @@ class RelatedEntityAutocomplete extends FilterPluginBase {
    * {@inheritdoc}
    */
   public function query() {
+    if (!$this->query instanceof Sql) {
+      return;
+    }
     if (empty($this->value)) {
       return;
     }

@@ -1,0 +1,34 @@
+{
+  "name": "labdoo/development-quality",
+  "description": "Isolated local PHP quality tools for Labdoo",
+  "type": "project",
+  "license": "GPL-2.0-or-later",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    }
+  ],
+  "require": {
+    "php": ">=8.3",
+    "drupal/coder": "^9.0",
+    "phpstan/phpstan": "^2.1",
+    "mglaman/phpstan-drupal": "^2.0",
+    "phpunit/phpunit": "^11.5",
+    "behat/mink": "^1.12",
+    "symfony/phpunit-bridge": "^7.4",
+    "mikey179/vfsstream": "^1.6",
+    "phpspec/prophecy-phpunit": "^2.3"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Labdoo\\Quality\\": "src/"
+    }
+  }
+}

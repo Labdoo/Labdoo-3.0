@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class ExportController extends ControllerBase {
 
@@ -51,7 +53,7 @@ class ExportController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\StreamedResponse
    *   The HTTP response with the CSV content.
    */
-  public function exportCSV(string $viewId, string $displayId = 'default'): StreamedResponse {
+  public function exportCsv(string $viewId, string $displayId = 'default'): StreamedResponse {
     $response = new StreamedResponse(function () use ($viewId, $displayId) {
       $this->csvExport->streamExport($viewId, $displayId);
     });

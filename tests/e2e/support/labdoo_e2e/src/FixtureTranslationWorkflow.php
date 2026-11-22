@@ -7,9 +7,14 @@ namespace Drupal\labdoo_e2e;
 use Drupal\Core\Site\Settings;
 use Drupal\labdoo_common\Service\TranslationWorkflow;
 
-/** Limits agent tests to owned Locale fixtures in the isolated laboratory. */
+/**
+ * Limits agent tests to owned Locale fixtures in the isolated laboratory.
+ */
 final class FixtureTranslationWorkflow extends TranslationWorkflow {
 
+  /**
+   * {@inheritdoc}
+   */
   public function pending(string $language): array {
     $items = parent::pending($language);
     $path = Settings::get('labdoo_e2e_state') . '/translation-ui.json';

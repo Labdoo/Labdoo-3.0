@@ -3,6 +3,7 @@
 namespace Drupal\labdoo_notifications\Service\EntityProcessor;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\labdoo_notifications\Service\NotificationManager;
 
 /**
@@ -35,8 +36,8 @@ class DootripProcessor implements EntityProcessorInterface {
   /**
    * {@inheritdoc}
    */
-  public function process(EntityInterface $entity, string $operation, $comment = null): void {
-    if ($entity->getEntityTypeId() !== 'node' || $entity->bundle() !== 'dootrip') {
+  public function process(EntityInterface $entity, string $operation, $comment = NULL): void {
+    if (!$entity instanceof NodeInterface || $entity->bundle() !== 'dootrip') {
       return;
     }
 

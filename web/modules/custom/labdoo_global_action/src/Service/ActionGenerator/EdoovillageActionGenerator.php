@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_global_action\Service\ActionGenerator;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Edoovillage action generator.
@@ -18,8 +18,8 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
    * {@inheritDoc}
    */
   public function generate(
-    EntityInterface $entity,
-    EntityInterface $globalAction
+    NodeInterface $entity,
+    NodeInterface $globalAction,
   ): void {
     if (!$this->preConditions($entity)) {
       return;
@@ -48,7 +48,7 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
       $title,
       $body,
       $entity->id(),
-      $entity->hasField('field_hub') ? $entity->get('field_hub')->target_id : NULL,
+      $this->referenceNodeId($entity, 'field_hub'),
       $entity->getOwner()->id(),
       $location,
       $city ?? '',
@@ -61,14 +61,14 @@ class EdoovillageActionGenerator extends AbstractActionGenerator implements Acti
   /**
    * Checks the preconditions of this action.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    *
    * @return bool
    *   TRUE if the preconditions match, otherwise FALSE.
    */
-  protected function preConditions(EntityInterface $entity): bool {
-    return $entity->original === NULL;
+  protected function preConditions(NodeInterface $entity): bool {
+    return $entity->getOriginal() === NULL;
   }
 
 }

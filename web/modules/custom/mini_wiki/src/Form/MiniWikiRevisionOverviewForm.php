@@ -2,6 +2,8 @@
 
 namespace Drupal\mini_wiki\Form;
 
+use Drupal\mini_wiki\MiniWikiPageInterface;
+use Drupal\Core\Entity\RevisionableStorageInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
@@ -92,9 +94,11 @@ class MiniWikiRevisionOverviewForm extends RevisionOverviewForm {
     $build['revisions_table']['#attached']['drupalSettings']['diffRevisionRadios'] = $this->getDiffConfig()->get('general_settings.radio_behavior');
 
     $default_revision = $mini_wiki_page->getRevisionId();
+    if (!$storage instanceof RevisionableStorageInterface) {
+      throw new \UnexpectedValueException('Wiki storage must support revisions.');
+    }
     foreach ($vids as $vid) {
-      /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
-      if ($revision = $storage->loadRevision($vid)) {
+      if (($revision = $storage->loadRevision($vid)) instanceof MiniWikiPageInterface) {
         if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
           $username = [
             '#theme' => 'username',

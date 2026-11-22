@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootrip\Service\Repository;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for dootrip repositories.
@@ -36,10 +36,10 @@ interface DootripRepositoryInterface {
    * @param int $dootripId
    *   The dootrip ID.
    *
-   * @return EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The entity or NULL in case of error.
    */
-  public function load(int $dootripId): ?EntityInterface;
+  public function load(int $dootripId): ?NodeInterface;
 
   /**
    * Retrieves all dootrip nids.
@@ -61,8 +61,8 @@ interface DootripRepositoryInterface {
    *       'alias' => 'nff',
    *       'condition' => 'nff.entity_id = n.nid',
    *     ],
-   *   ]
- * @param array $conditions
+   *   ].
+   * @param array $conditions
    *   An array with conditions like:
    *   [
    *     [
@@ -70,20 +70,20 @@ interface DootripRepositoryInterface {
    *       'value' => 'field_value',
    *       'operator' => 'condition_operator',
    *     ],
-   *   ]
+   *   ].
    *
    * @return array
    *   The matching nids.
    */
   public function getNidsByConditions(array $joins, array $conditions): array;
 
-    /**
+  /**
    * Loads dootrips by properties.
    *
    * @param array $properties
    *   The properties array.
    *
-   * @return array
+   * @return \Drupal\node\NodeInterface[]
    *   The loaded dootrips.
    */
   public function loadByProperties(array $properties): array;
@@ -91,13 +91,13 @@ interface DootripRepositoryInterface {
   /**
    * Saves a dootrip.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip to be saved.
    *
    * @return bool
    *   The result of the operation.
    */
-  public function saveEntity(EntityInterface $dootrip): bool;
+  public function saveEntity(NodeInterface $dootrip): bool;
 
   /**
    * Retrieve the edoovillages related to the given dootrip.

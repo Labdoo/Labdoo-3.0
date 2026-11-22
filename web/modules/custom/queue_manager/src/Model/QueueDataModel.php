@@ -113,7 +113,8 @@ class QueueDataModel implements QueueDataModelInterface, DataModelInterface {
       || !array_key_exists('data', $data)
       || !array_key_exists('timestamp', $data)
     ) {
-      // If we have 'data' but not the others, it might be a legacy direct-serialized item.
+      // If we have 'data' but not the others, it might be a legacy
+      // direct-serialized item.
       if (array_key_exists('data', $data)) {
         $this->data = $data['data'];
         $this->queueId = NULL;
@@ -134,7 +135,7 @@ class QueueDataModel implements QueueDataModelInterface, DataModelInterface {
 
     // Hardening: Handle double serialization from legacy producers.
     if (is_string($this->data) && strpos($this->data, 'a:') === 0) {
-      $unserialized = @unserialize($this->data);
+      $unserialized = @unserialize($this->data, ['allowed_classes' => FALSE]);
       if ($unserialized !== FALSE) {
         $this->data = $unserialized;
       }

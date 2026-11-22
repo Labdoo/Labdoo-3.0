@@ -14,6 +14,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class CloneDootronicForm extends FormBase {
 
@@ -31,7 +33,7 @@ class CloneDootronicForm extends FormBase {
    *   The dootronic repository.
    */
   public function __construct(
-    DootronicRepositoryInterface $dootronicRepository
+    DootronicRepositoryInterface $dootronicRepository,
   ) {
     $this->dootronicRepository = $dootronicRepository;
   }

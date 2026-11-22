@@ -2,6 +2,8 @@
 
 namespace Drupal\labdoo_dootronics\Commands;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Queue\QueueFactory;
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
 use Drupal\labdoo_dootronics\Service\Queue\Feeder\QueueFeederInterface;
 use Drush\Commands\DrushCommands;
@@ -63,7 +65,7 @@ class ComputeCommands extends DrushCommands {
    *
    * @var \Drupal\Core\Queue\QueueFactory
    */
-  protected \Drupal\Core\Queue\QueueFactory $queueFactory;
+  protected QueueFactory $queueFactory;
 
   /**
    * ComputeCommands constructor.
@@ -74,11 +76,14 @@ class ComputeCommands extends DrushCommands {
    *   The queue feeder.
    * @param \Drupal\Core\Queue\QueueFactory $queueFactory
    *   The queue factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityManager
+   *   The entity_type.manager service.
    */
   public function __construct(
     DootronicRepositoryInterface $dootronicRepository,
     QueueFeederInterface $queueFeeder,
-    \Drupal\Core\Queue\QueueFactory $queueFactory
+    QueueFactory $queueFactory,
+    protected EntityTypeManagerInterface $entityManager,
   ) {
     parent::__construct();
     $this->dootronicRepository = $dootronicRepository;
@@ -104,7 +109,7 @@ class ComputeCommands extends DrushCommands {
     array $options = [
       'nids' => NULL,
       'dry-run' => FALSE,
-    ]
+    ],
   ): void {
     try {
       $this->setEnvironment($options);
@@ -126,7 +131,7 @@ class ComputeCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function setEnvironment(
-    array $options
+    array $options,
   ): void {
     $this->logger->notice('Setting the environment...');
     $this->startTime = microtime(TRUE);
@@ -178,7 +183,7 @@ class ComputeCommands extends DrushCommands {
    * @throws \Exception
    */
   protected function enqueueEntities(
-    array $entities
+    array $entities,
   ): int {
     $this->logger->notice('Enqueuing the entities...');
     $i = 0;
@@ -222,7 +227,7 @@ class ComputeCommands extends DrushCommands {
       "\n\nPROCESS FINISHED:\n"
       . "-- Time elapsed: %s.\n"
       . "-- %d/%d entities enqueued.\n",
-      gmdate("H:i:s", $timeElapsedSeconds),
+      gmdate("H:i:s", (int) $timeElapsedSeconds),
       $queued,
       $this->total
     );
@@ -238,7 +243,8 @@ class ComputeCommands extends DrushCommands {
    * @command labdoo:dootronic-geocode-enqueue
    * @aliases ld-ge
    * @usage labdoo:dootronic-geocode-enqueue
-   *   Enqueues all dootronics that don't have a country set but have coordinates.
+   *   Enqueues all dootronics that don't have a country set but have
+   *   coordinates.
    */
   public function enqueueGeocoding(array $options = ['dry-run' => FALSE]): void {
     $this->startTime = microtime(TRUE);
@@ -246,7 +252,7 @@ class ComputeCommands extends DrushCommands {
 
     $this->logger->notice('Searching for dootronics without country and with coordinates...');
 
-    $query = \Drupal::entityQuery('node')
+    $query = $this->entityManager->getStorage('node')->getQuery()
       ->condition('type', 'dootronic')
       ->condition('field_country', NULL, 'IS NULL')
       ->exists('field_locations__lat')

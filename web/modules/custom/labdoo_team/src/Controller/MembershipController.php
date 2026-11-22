@@ -17,6 +17,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class MembershipController extends ControllerBase {
 
@@ -37,7 +39,7 @@ class MembershipController extends ControllerBase {
    */
   public function __construct(
     protected MembershipManager $teamMembershipManager,
-    LoggerChannelFactoryInterface $loggerChannelFactory
+    LoggerChannelFactoryInterface $loggerChannelFactory,
   ) {
     $this->logger = $loggerChannelFactory->get('labdoo_team');
   }
@@ -68,17 +70,18 @@ class MembershipController extends ControllerBase {
       $this->messenger()->addStatus($this->t(
         'You have joined to the team.'
       ));
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       $errorMessage = sprintf(
         'There was an error joining to the team %d: %s',
         $teamId,
         $e->getMessage()
-      );
+          );
       $this->logger->error($errorMessage);
 
       $this->messenger()->addError($this->t(
-        'There was an error joining to the team. Please try again later.'
-      ));
+            'There was an error joining to the team. Please try again later.'
+          ));
     }
 
     return new RedirectResponse(
@@ -102,17 +105,18 @@ class MembershipController extends ControllerBase {
       $this->messenger()->addStatus($this->t(
         'You have left the team.'
       ));
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       $errorMessage = sprintf(
         'There was an error leaving the team %d: %s',
         $teamId,
         $e->getMessage()
-      );
+          );
       $this->logger->error($errorMessage);
 
       $this->messenger()->addError($this->t(
-        'There was an error leaving the team. Please try again later.'
-      ));
+            'There was an error leaving the team. Please try again later.'
+          ));
     }
 
     return new RedirectResponse(

@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
-class MiniWikiPageResource  extends AbstractResource {
+class MiniWikiPageResource extends AbstractResource {
 
   /**
    * Retrieves a resource response based on the provided ID.

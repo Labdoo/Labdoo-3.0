@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_team\Plugin\Block;
 
+use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -24,6 +25,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -52,7 +55,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
     protected LinkHelper $linkHelper,
     protected CommonRepository $commonRepository,
     protected AccountProxyInterface $currentUser,
-    protected MembershipManager $teamMembershipManager
+    protected MembershipManager $teamMembershipManager,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -66,7 +69,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Helper\LinkHelper $linkHelper */
     $linkHelper = $container->get('labdoo_common.helper.link');
@@ -92,7 +95,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
    * {@inheritdoc}
    */
   public function getCacheContexts(): array {
-    return \Drupal\Core\Cache\Cache::mergeContexts(
+    return Cache::mergeContexts(
       parent::getCacheContexts(),
       ['route', 'session', 'user.permissions']
     );
@@ -108,7 +111,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
     $empty = [
       '#cache' => [
         'contexts' => $this->getCacheContexts(),
-        'tags' => $team instanceof \Drupal\Core\Cache\CacheableDependencyInterface ? $team->getCacheTags() : [],
+        'tags' => $team instanceof CacheableDependencyInterface ? $team->getCacheTags() : [],
       ],
     ];
     if (!$this->isValidTeam($team)) {
@@ -167,7 +170,7 @@ class TeamActionsBlock extends BlockBase implements ContainerFactoryPluginInterf
       $postLink = $this->linkHelper->generateTeamPostLink($team);
       $tasksLink = $this->linkHelper->generateTasksByTeamLink($team);
       if (
-        (int) $team->id() === TEAM_GLOBAL
+        (int) $team->id() === MembershipManager::GLOBAL_TEAM_ID
         && !$this->currentUser->hasRole('superhub_manager')
       ) {
         $postLink = '';

@@ -2,8 +2,10 @@
 
 namespace Drupal\labdoo_global_action\Service\ActionGenerator;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\geocoder\GeocoderInterface;
+use Drupal\geocoder\GeocoderProviderInterface;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
 
 /**
@@ -42,10 +44,15 @@ abstract class AbstractActionGenerator {
    *
    * @param \Drupal\geocoder\GeocoderInterface $geocoder
    *   The geocoder.
+   * @param \Drupal\labdoo_common\Service\Repository\CommonRepository $commonRepository
+   *   The shared node repository.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager used to resolve configured geocoder providers.
    */
   public function __construct(
     GeocoderInterface $geocoder,
-    CommonRepository $commonRepository
+    CommonRepository $commonRepository,
+    protected EntityTypeManagerInterface $entityTypeManager,
   ) {
     $this->geocoder = $geocoder;
     $this->commonRepository = $commonRepository;
@@ -54,13 +61,13 @@ abstract class AbstractActionGenerator {
   /**
    * Checks the preconditions of this action.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    *
    * @return bool
    *   TRUE if the preconditions match, otherwise FALSE.
    */
-  protected function preConditions(EntityInterface $entity): bool {
+  protected function preConditions(NodeInterface $entity): bool {
     return TRUE;
   }
 
@@ -85,14 +92,14 @@ abstract class AbstractActionGenerator {
       $addressCollection = $this->geocoder->reverse(
         $lat,
         $lon,
-        ['plugin' => 'googlemaps']
+        $this->geocodingProviders()
       );
     }
     catch (\Throwable $exception) {
       return NULL;
     }
 
-    if ($addressCollection === NULL ||  !$addressCollection->get(0)) {
+    if ($addressCollection === NULL || $addressCollection->isEmpty()) {
       return NULL;
     }
 
@@ -103,9 +110,9 @@ abstract class AbstractActionGenerator {
   }
 
   /**
-   * Resolves city and country code locally from the entity and/or location data.
+   * Resolves city and country code from local entity and location data.
    */
-  protected function resolveLocalGeoData(EntityInterface $entity, array $location, &$city, &$countryCode): void {
+  protected function resolveLocalGeoData(NodeInterface $entity, array $location, &$city, &$countryCode): void {
     $city = '';
     $countryCode = '';
 
@@ -148,7 +155,7 @@ abstract class AbstractActionGenerator {
     $city = trim($city);
     $countryCode = trim($countryCode);
 
-    // Normalize country code to 2-character ISO if it's currently a country name.
+    // Normalize country names to their two-character ISO codes.
     if (strlen($countryCode) > 2) {
       $countryList = \Drupal::service('country_manager')->getList();
       foreach ($countryList as $code => $name) {
@@ -191,7 +198,7 @@ abstract class AbstractActionGenerator {
       $addressCollection = $this->geocoder->reverse(
         $lat,
         $lon,
-        ['plugin' => 'googlemaps']
+        $this->geocodingProviders()
       );
       if ($addressCollection && !$addressCollection->isEmpty()) {
         /** @var \Geocoder\Location $address */
@@ -252,6 +259,40 @@ abstract class AbstractActionGenerator {
   }
 
   /**
+   * Resolves configured providers through the current Geocoder API.
+   *
+   * @return \Drupal\geocoder\GeocoderProviderInterface[]
+   *   Existing configured providers, or an empty list when unavailable.
+   */
+  protected function geocodingProviders(): array {
+    $provider = $this->entityTypeManager->getStorage('geocoder_provider')->load('googlemaps');
+    return $provider instanceof GeocoderProviderInterface ? [$provider] : [];
+  }
+
+  /**
+   * Reads a numeric node reference ID while preserving absent values as NULL.
+   */
+  protected function referenceNodeId(NodeInterface $entity, string $field): ?int {
+    if (!$entity->hasField($field)) {
+      return NULL;
+    }
+    $id = $entity->get($field)->getValue()[0]['target_id'] ?? NULL;
+    // SQL-backed reference fields may expose numeric strings.
+    if ($id === NULL) {
+      return NULL;
+    }
+    if (!ctype_digit((string) $id)) {
+      throw new \UnexpectedValueException('Expected a numeric node reference ID.');
+    }
+    $normalized = ltrim((string) $id, '0');
+    $numeric = filter_var($normalized === '' ? '0' : $normalized, FILTER_VALIDATE_INT);
+    if ($numeric === FALSE) {
+      throw new \UnexpectedValueException('Node reference ID exceeds the integer range.');
+    }
+    return $numeric;
+  }
+
+  /**
    * Returns country name from a country code.
    */
   protected function getCountryName(string $countryCode): string {
@@ -259,7 +300,7 @@ abstract class AbstractActionGenerator {
       return 'unknown country';
     }
     $countryList = \Drupal::service('country_manager')->getList();
-    return isset($countryList[strtoupper($countryCode)]) ? (string)$countryList[strtoupper($countryCode)] : $countryCode;
+    return isset($countryList[strtoupper($countryCode)]) ? (string) $countryList[strtoupper($countryCode)] : $countryCode;
   }
 
   /**
@@ -267,12 +308,13 @@ abstract class AbstractActionGenerator {
    *
    * @param array $location
    *   The geolocation.
-   * @param $city
+   * @param string $city
    *   The city variable, passed by reference.
-   * @param $country
+   * @param string $country
    *   The country variable, passed by reference.
    *
    * @return void
+   *   The resulting value.
    */
   protected function setGeoData(array $location, &$city, &$country): void {
     $city = $location['city'] ?? $location['locality'] ?? 'unknown city';
@@ -311,7 +353,7 @@ abstract class AbstractActionGenerator {
   /**
    * Sets the global attributes.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $globalAction
+   * @param \Drupal\node\NodeInterface $globalAction
    *   The global action.
    * @param string $actionType
    *   The action type.
@@ -325,7 +367,7 @@ abstract class AbstractActionGenerator {
    *   The hub ID.
    * @param int $ownerId
    *   The owner ID.
-   * @param $location
+   * @param array $location
    *   The location.
    * @param string $city
    *   The city.
@@ -337,9 +379,10 @@ abstract class AbstractActionGenerator {
    *   The update date.
    *
    * @return void
+   *   The resulting value.
    */
   protected function setGlobalAttributes(
-    EntityInterface $globalAction,
+    NodeInterface $globalAction,
     string $actionType,
     string $title,
     string $body,
@@ -350,7 +393,7 @@ abstract class AbstractActionGenerator {
     string $city,
     string $countryCode,
     int $created,
-    int $changed
+    int $changed,
   ): void {
     $globalAction->set('field_action_type', $actionType);
     $globalAction->set('title', $title);
@@ -395,10 +438,10 @@ abstract class AbstractActionGenerator {
     int $nodeId,
     string $title,
     string $picture,
-    int $width
+    int $width,
   ): string {
     return sprintf(
-      '<a href="/node/%d">%s...</a>&nbsp;<img src="/themes/custom/labdoo/img/%s" width="%d"></a>',
+      '<a href="/node/%d">%s...</a>&nbsp;<img src="/themes/custom/labdoo/img/%s" width="%d" alt="" loading="lazy" decoding="async">',
       $nodeId,
       $title,
       $picture,

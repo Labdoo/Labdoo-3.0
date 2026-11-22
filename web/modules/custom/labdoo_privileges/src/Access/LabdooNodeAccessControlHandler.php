@@ -4,6 +4,7 @@ namespace Drupal\labdoo_privileges\Access;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeAccessControlHandler;
 
@@ -20,7 +21,8 @@ use Drupal\node\NodeAccessControlHandler;
 class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
 
   /**
-   * An associative array that defines bundles and their respective fields.
+   * The entity bundles and their associated access-control fields.
+   *
    * Each key represents a bundle with an array of associated fields.
    */
   private const BUNDLES = [
@@ -48,7 +50,7 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
     EntityInterface $entity,
     $operation,
     ?AccountInterface $account = NULL,
-    $return_as_object = FALSE
+    $return_as_object = FALSE,
   ) {
     $result = parent::access($entity, $operation, $account, TRUE);
     if ($result->isNeutral()) {
@@ -65,7 +67,7 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $node, $operation, AccountInterface $account) {
-    if (!$this->isValidBundle($node)) {
+    if (!$node instanceof NodeInterface || !$this->isValidBundle($node)) {
       return parent::checkAccess($node, $operation, $account);
     }
 
@@ -82,7 +84,8 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
         if ($hasAccess) {
           return AccessResult::allowed();
         }
-        // Allow editing of any nodes for users with 'edit any content' permission.
+        // Allow editing of any nodes for users with 'edit any content'
+        // permission.
         if ($account->hasPermission('edit any content')) {
           return AccessResult::allowed();
         }
@@ -93,7 +96,8 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
         if ($hasAccess && !$this->isContributor($node, $account)) {
           return AccessResult::allowed();
         }
-        // Allow deletion of any nodes for users with 'delete any content' permission.
+        // Allow deletion of any nodes for users with 'delete any content'
+        // permission.
         if ($account->hasPermission('delete any content')) {
           return AccessResult::allowed();
         }
@@ -119,7 +123,7 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
   /**
    * Determines if the user has access to the given node.
    *
-   * @param EntityInterface $node
+   * @param NodeInterface $node
    *   The content entity node being checked.
    * @param AccountInterface $account
    *   The user account for which access is being checked.
@@ -130,8 +134,8 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
    *   as a contributor to the node; otherwise FALSE.
    */
   protected function userHasAccess(
-    EntityInterface $node,
-    AccountInterface $account
+    NodeInterface $node,
+    AccountInterface $account,
   ): bool {
     return $account->isAuthenticated()
       &&
@@ -145,7 +149,7 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
   /**
    * Determines if the given account is the owner of the entity.
    *
-   * @param EntityInterface $node
+   * @param NodeInterface $node
    *   The entity to check ownership for.
    * @param AccountInterface $account
    *   The user account to validate ownership against.
@@ -154,8 +158,8 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
    *   TRUE if the account is the owner of the entity, FALSE otherwise.
    */
   protected function isOwner(
-    EntityInterface $node,
-    AccountInterface $account
+    NodeInterface $node,
+    AccountInterface $account,
   ): bool {
     return $node->getOwnerId() === $account->id();
   }
@@ -163,7 +167,7 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
   /**
    * Determines if the given account is a contributor to the specified entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $node
+   * @param \Drupal\node\NodeInterface $node
    *   The entity to check for contributor access.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user account to verify as a contributor.
@@ -172,8 +176,8 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
    *   TRUE if the account is a contributor, FALSE otherwise.
    */
   protected function isContributor(
-    EntityInterface $node,
-    AccountInterface $account
+    NodeInterface $node,
+    AccountInterface $account,
   ): bool {
     $additionalEditors = $this->getAdditionalEditors($node);
 
@@ -198,20 +202,19 @@ class LabdooNodeAccessControlHandler extends NodeAccessControlHandler {
   /**
    * Retrieves the additional editors associated with the given entity.
    *
-   * @param EntityInterface $node
+   * @param NodeInterface $node
    *   The entity for which to retrieve the additional editors.
    *
    * @return array
    *   A list of editor IDs associated with the entity.
    */
-  protected function getAdditionalEditors(EntityInterface $node): array {
+  protected function getAdditionalEditors(NodeInterface $node): array {
     $editorIds = [];
     $fields = self::BUNDLES[$node->bundle()];
 
     foreach ($fields as $field) {
       if (
         !$node->hasField($field)
-        || !$node->get($field)
       ) {
         continue;
       }

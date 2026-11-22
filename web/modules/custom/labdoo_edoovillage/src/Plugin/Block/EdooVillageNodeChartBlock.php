@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_edoovillage\Plugin\Block;
 
+use Drupal\node\NodeInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
@@ -19,6 +20,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("EdooVillage node chart"),
  *   category = @Translation("EdooVillage"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class EdooVillageNodeChartBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -55,7 +58,7 @@ class EdooVillageNodeChartBlock extends BlockBase implements ContainerFactoryPlu
     $plugin_id,
     $plugin_definition,
     LinkHelper $linkHelper,
-    CommonRepository $commonRepository
+    CommonRepository $commonRepository,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->linkHelper = $linkHelper;
@@ -69,7 +72,7 @@ class EdooVillageNodeChartBlock extends BlockBase implements ContainerFactoryPlu
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Helper\LinkHelper $linkHelper */
     $linkHelper = $container->get('labdoo_common.helper.link');
@@ -92,14 +95,14 @@ class EdooVillageNodeChartBlock extends BlockBase implements ContainerFactoryPlu
     $edooVillage = $this->linkHelper->getActiveNode();
 
     // Fallback for arg_0 (views).
-    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
+    if (!($edooVillage instanceof NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
       $entityId = $this->linkHelper->getActiveNode('arg_0');
       if ($entityId) {
         $edooVillage = $this->linkHelper->loadEntity($entityId);
       }
     }
 
-    if ($edooVillage instanceof \Drupal\node\NodeInterface && $edooVillage->bundle() === 'edoovillage') {
+    if ($edooVillage instanceof NodeInterface && $edooVillage->bundle() === 'edoovillage') {
       return AccessResult::allowed()->addCacheContexts(['url.path']);
     }
 
@@ -113,14 +116,14 @@ class EdooVillageNodeChartBlock extends BlockBase implements ContainerFactoryPlu
     $edooVillage = $this->linkHelper->getActiveNode();
 
     // Fallback for arg_0 (views) or specific routes.
-    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
+    if (!($edooVillage instanceof NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
       $entityId = $this->linkHelper->getActiveNode('arg_0');
       if ($entityId) {
         $edooVillage = $this->linkHelper->loadEntity($entityId);
       }
     }
 
-    if (!($edooVillage instanceof \Drupal\node\NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
+    if (!($edooVillage instanceof NodeInterface) || $edooVillage->bundle() !== 'edoovillage') {
       return [
         '#markup' => '',
       ];
@@ -129,7 +132,7 @@ class EdooVillageNodeChartBlock extends BlockBase implements ContainerFactoryPlu
     $nid = (int) $edooVillage->id();
 
     // 1. Dootronics needed
-    $needed = labdoo_get_demand($edooVillage);
+    $needed = labdoo_edoovillage_get_demand($edooVillage);
 
     // 3. Dootronics in transit: T1, S3
     $in_transit = $this->commonRepository->getDootronicsCountByStatus(['T1', 'S3'], $nid);
@@ -143,7 +146,8 @@ class EdooVillageNodeChartBlock extends BlockBase implements ContainerFactoryPlu
     // 6. Dootronics recycled: S6
     $recycled = $this->commonRepository->getDootronicsCountByStatus('S6', $nid);
 
-    // 2. Dootronics tagged: in_transit + delivered_working + delivered_broken + recycled
+    // 2. Dootronics tagged: in_transit + delivered_working + delivered_broken +
+    // recycled
     $tagged = $in_transit + $delivered_working + $delivered_broken + $recycled;
 
     $cacheTags = [

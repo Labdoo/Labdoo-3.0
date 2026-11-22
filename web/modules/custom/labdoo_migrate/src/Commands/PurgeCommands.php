@@ -2,11 +2,12 @@
 
 namespace Drupal\labdoo_migrate\Commands;
 
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drush\Drush;
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Drush\Exceptions\UserAbortException;
 
 /**
@@ -37,8 +38,22 @@ class PurgeCommands extends DrushCommands {
 
   /**
    * PurgeCommands constructor.
+   *
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cacheTagsInvalidator
+   *   The cache tags invalidator.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundleInfo
+   *   The entity_type.bundle.info service.
    */
-  public function __construct(Connection $database, EntityTypeManagerInterface $entityTypeManager, CacheTagsInvalidatorInterface $cacheTagsInvalidator) {
+  public function __construct(
+    Connection $database,
+    EntityTypeManagerInterface $entityTypeManager,
+    CacheTagsInvalidatorInterface $cacheTagsInvalidator,
+    protected EntityTypeBundleInfoInterface $bundleInfo,
+  ) {
     parent::__construct();
     $this->database = $database;
     $this->entityTypeManager = $entityTypeManager;
@@ -57,7 +72,7 @@ class PurgeCommands extends DrushCommands {
    * @aliases lm-pu,purge-users
    */
   public function purgeUsers(array $options = ['chunk' => 1000, 'dry-run' => FALSE]) {
-    $chunk_size = (int) $options['chunk'];
+
     $dry_run = $options['dry-run'];
 
     // Get total count (excluding uid 0 and 1).
@@ -119,10 +134,10 @@ class PurgeCommands extends DrushCommands {
 
       // Handle path aliases in bulk.
       if (!empty($uids_to_delete) && $this->database->schema()->tableExists('path_alias')) {
-        $paths = array_map(function($uid) {
+        $paths = array_map(function ($uid) {
           return '/user/' . $uid;
         }, $uids_to_delete);
-        
+
         // Chunk path alias deletion if there are many.
         foreach (array_chunk($paths, 1000) as $path_chunk) {
           $this->database->delete('path_alias')
@@ -134,9 +149,8 @@ class PurgeCommands extends DrushCommands {
       $total_deleted = $count;
     }
     catch (\Exception $e) {
-      if (isset($transaction)) {
-        $transaction->rollBack();
-      }
+      $transaction->rollBack();
+
       $this->logger()->error(sprintf('Error during bulk user purge: %s', $e->getMessage()));
       return;
     }
@@ -148,7 +162,7 @@ class PurgeCommands extends DrushCommands {
     $this->cacheTagsInvalidator->invalidateTags(['user_list']);
 
     if ($this->io()->confirm('Would you like to run "drush cr" now?', TRUE)) {
-      \Drush\Drush::drush(\Drush\Drush::aliasManager()->getSelf(), 'cache-rebuild')->run();
+      Drush::drush(Drush::aliasManager()->getSelf(), 'cache-rebuild')->run();
     }
   }
 
@@ -168,18 +182,24 @@ class PurgeCommands extends DrushCommands {
    * @option dry-run Show what would be done without actually doing it.
    * @aliases lm-pb,purge-bundle
    */
-  public function purgeBundle(string $entity_type, string $bundle, array $options = ['chunk' => 1000, 'dry-run' => FALSE]) {
+  public function purgeBundle(
+    string $entity_type,
+    string $bundle,
+    array $options = [
+      'chunk' => 1000,
+      'dry-run' => FALSE,
+    ],
+  ) {
     if ($entity_type !== 'node') {
       throw new \InvalidArgumentException('Currently only "node" entity type is supported.');
     }
 
     // Verify bundle exists.
-    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($entity_type);
+    $bundles = $this->bundleInfo->getBundleInfo($entity_type);
     if (!isset($bundles[$bundle])) {
       throw new \InvalidArgumentException(sprintf('Bundle "%s" does not exist for entity type "%s".', $bundle, $entity_type));
     }
 
-    $chunk_size = (int) $options['chunk'];
     $dry_run = $options['dry-run'];
 
     // Get total count.
@@ -250,17 +270,18 @@ class PurgeCommands extends DrushCommands {
         }
         else {
           $column = $this->database->schema()->fieldExists($table, 'entity_id') ? 'entity_id' : 'nid';
-          
-          // For base tables, we can filter by bundle directly if the column exists.
+
+          // For base tables, we can filter by bundle directly if the column
+          // exists.
           if ($table === 'node_field_data' || $table === 'node_field_revision') {
             $this->database->delete($table)
               ->condition('type', $bundle)
               ->execute();
           }
           elseif ($table === 'node' || $table === 'node_access') {
-             $this->database->delete($table)
-               ->condition('nid', $nids_to_delete, 'IN')
-               ->execute();
+            $this->database->delete($table)
+              ->condition('nid', $nids_to_delete, 'IN')
+              ->execute();
           }
           else {
             // Field tables.
@@ -273,10 +294,10 @@ class PurgeCommands extends DrushCommands {
 
       // Handle path aliases in bulk.
       if ($this->database->schema()->tableExists('path_alias')) {
-        $paths = array_map(function($nid) {
+        $paths = array_map(function ($nid) {
           return '/node/' . $nid;
         }, $nids_to_delete);
-        
+
         foreach (array_chunk($paths, 1000) as $path_chunk) {
           $this->database->delete('path_alias')
             ->condition('path', $path_chunk, 'IN')
@@ -287,9 +308,8 @@ class PurgeCommands extends DrushCommands {
       $total_deleted = count($nids_to_delete);
     }
     catch (\Exception $e) {
-      if (isset($transaction)) {
-        $transaction->rollBack();
-      }
+      $transaction->rollBack();
+
       $this->logger()->error(sprintf('Error during bulk bundle purge (%s): %s', $bundle, $e->getMessage()));
       return;
     }
@@ -301,7 +321,7 @@ class PurgeCommands extends DrushCommands {
     $this->cacheTagsInvalidator->invalidateTags(['node_list', 'node_list:' . $bundle]);
 
     if ($this->io()->confirm('Would you like to run "drush cr" now?', TRUE)) {
-      \Drush\Drush::drush(\Drush\Drush::aliasManager()->getSelf(), 'cache-rebuild')->run();
+      Drush::drush(Drush::aliasManager()->getSelf(), 'cache-rebuild')->run();
     }
   }
 
@@ -320,7 +340,7 @@ class PurgeCommands extends DrushCommands {
     $tables = array_merge($tables, $field_tables);
 
     // Filter out tables that don't exist and remove duplicates.
-    $tables = array_filter($tables, function($table) {
+    $tables = array_filter($tables, function ($table) {
       return $this->database->schema()->tableExists($table);
     });
 
@@ -329,6 +349,9 @@ class PurgeCommands extends DrushCommands {
 
   /**
    * Identify all tables related to the entity type.
+   *
+   * @param string $entity_type
+   *   The entity type.
    */
   protected function identifyTables(string $entity_type): array {
     $tables = [
@@ -342,12 +365,12 @@ class PurgeCommands extends DrushCommands {
     // Find all field tables.
     $field_tables = $this->database->query("SHOW TABLES LIKE 'node__%'")->fetchCol();
     $tables = array_merge($tables, $field_tables);
-    
+
     $revision_field_tables = $this->database->query("SHOW TABLES LIKE 'node_revision__%'")->fetchCol();
     $tables = array_merge($tables, $revision_field_tables);
 
     // Filter out tables that don't exist and remove duplicates.
-    $tables = array_filter($tables, function($table) {
+    $tables = array_filter($tables, function ($table) {
       return $this->database->schema()->tableExists($table);
     });
 
@@ -356,12 +379,15 @@ class PurgeCommands extends DrushCommands {
 
   /**
    * Formats duration in seconds to human readable string.
+   *
+   * @param float $seconds
+   *   The seconds.
    */
   protected function formatDuration(float $seconds): string {
     if ($seconds < 60) {
       return round($seconds, 2) . 's';
     }
-    return gmdate("H:i:s", (int)$seconds);
+    return gmdate("H:i:s", (int) $seconds);
   }
 
 }

@@ -41,11 +41,13 @@ class DootronicImageReferenceMigratorCommands extends DrushCommands {
    * @usage drush labdoo:migrate-dootronic-image-references --dry-run
    *   Shows pending reference changes without writing to database.
    */
-  public function migrateImageReferences(array $options = [
-    'nids' => NULL,
-    'limit' => -1,
-    'dry-run' => FALSE,
-  ]): void {
+  public function migrateImageReferences(
+    array $options = [
+      'nids' => NULL,
+      'limit' => -1,
+      'dry-run' => FALSE,
+    ],
+  ): void {
     $nids = $this->parseNids($options['nids'] ?? NULL);
     $limit = (int) ($options['limit'] ?? -1);
     $dryRun = !empty($options['dry-run']);

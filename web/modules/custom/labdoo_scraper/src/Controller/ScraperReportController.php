@@ -2,14 +2,19 @@
 
 namespace Drupal\labdoo_scraper\Controller;
 
+use Drupal\Core\Datetime\DateFormatterInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Database\Query\PagerSelectExtender;
+use Drupal\Core\Database\Query\TableSortExtender;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Url;
-use Drupal\Core\Link;
 
 /**
  * Controller for the scraper report.
+ *
+ * @phpstan-consistent-constructor
  */
 class ScraperReportController extends ControllerBase {
 
@@ -22,8 +27,19 @@ class ScraperReportController extends ControllerBase {
 
   /**
    * Constructs a new ScraperReportController object.
+   *
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request_stack service.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatterInjected
+   *   The date.formatter service.
    */
-  public function __construct(Connection $database) {
+  public function __construct(
+    Connection $database,
+    protected RequestStack $requestStack,
+    protected DateFormatterInterface $dateFormatterInjected,
+  ) {
     $this->database = $database;
   }
 
@@ -32,7 +48,9 @@ class ScraperReportController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('database')
+      $container->get('database'),
+      $container->get('request_stack'),
+      $container->get('date.formatter'),
     );
   }
 
@@ -43,7 +61,7 @@ class ScraperReportController extends ControllerBase {
     $build = [];
 
     // Add filter form.
-    $build['filter_form'] = \Drupal::formBuilder()->getForm('\Drupal\labdoo_scraper\Form\ScraperReportFilterForm');
+    $build['filter_form'] = $this->formBuilder()->getForm('\Drupal\labdoo_scraper\Form\ScraperReportFilterForm');
 
     $header = [
       ['data' => $this->t('ID'), 'field' => 'id', 'sort' => 'desc'],
@@ -57,13 +75,11 @@ class ScraperReportController extends ControllerBase {
       ['data' => $this->t('Actions')],
     ];
 
-    $query = $this->database->select('labdoo_scraper_results', 'r')
-      ->extend('\Drupal\Core\Database\Query\PagerSelectExtender')
-      ->extend('\Drupal\Core\Database\Query\TableSortExtender');
+    $query = $this->database->select('labdoo_scraper_results', 'r');
     $query->fields('r');
 
     // Apply filters.
-    $request = \Drupal::request();
+    $request = $this->requestStack->getCurrentRequest();
     if ($source_url = $request->query->get('source_url')) {
       $query->condition('source_url', '%' . $this->database->escapeLike($source_url) . '%', 'LIKE');
     }
@@ -78,28 +94,31 @@ class ScraperReportController extends ControllerBase {
       $query->condition('entity_type', $entity_type);
     }
 
+    $sort = new TableSortExtender($query, $this->database);
+    $sort->orderByHeader($header);
+    $query = new PagerSelectExtender($sort, $this->database);
     $query->limit(50);
-    $query->orderByHeader($header);
 
     $results = $query->execute();
 
     $rows = [];
     foreach ($results as $result) {
       $exists_text = $result->exists ? $this->t('Yes') : $this->t('No');
-      
+
       $actions = [];
       if (!$result->exists) {
         $slug = $result->slug;
-        // Strip leading slash for redirect module if present
+        // Strip leading slash for redirect module if present.
         $source_path = ltrim($slug, '/');
-        
+
         $redirect_url = Url::fromUserInput('/admin/config/search/redirect/add', [
           'query' => [
             'source' => $source_path,
-            'destination' => '/admin/reports/labdoo-scraper', // Return here after
+        // Return here after.
+            'destination' => '/admin/reports/labdoo-scraper',
           ],
         ]);
-        
+
         $actions[] = [
           '#type' => 'link',
           '#title' => $this->t('Add redirect'),
@@ -121,7 +140,7 @@ class ScraperReportController extends ControllerBase {
         ],
         $result->entity_type,
         $result->entity_id,
-        \Drupal::service('date.formatter')->format($result->created, 'short'),
+        $this->dateFormatterInjected->format($result->created, 'short'),
         [
           'data' => $actions,
         ],

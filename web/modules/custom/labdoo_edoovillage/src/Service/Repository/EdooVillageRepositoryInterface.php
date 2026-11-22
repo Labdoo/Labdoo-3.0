@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_edoovillage\Service\Repository;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for the EdooVillage repository.
@@ -39,18 +39,18 @@ interface EdooVillageRepositoryInterface {
    * @param int $id
    *   The entity ID.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The entity or null.
    */
-  public function load(int $id): ?EntityInterface;
+  public function load(int $id): ?NodeInterface;
 
   /**
    * Saves an edoovillage.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    */
-  public function saveEntity(EntityInterface $entity): void;
+  public function saveEntity(NodeInterface $entity): void;
 
   /**
    * Invalidates the cache for an edoovillage.
@@ -59,6 +59,7 @@ interface EdooVillageRepositoryInterface {
    *   The edoovillage ID.
    *
    * @return void
+   *   The resulting value.
    */
   public function invalidateCache(int $edoovillageId): void;
 

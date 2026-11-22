@@ -24,7 +24,7 @@ class MiniWikiRepository {
    *   The entity type manager.
    */
   public function __construct(
-    protected EntityTypeManagerInterface $entityTypeManager
+    protected EntityTypeManagerInterface $entityTypeManager,
   ) {
   }
 
@@ -53,7 +53,7 @@ class MiniWikiRepository {
    * Returns data for all items created or modified from a given date.
    *
    * @param string $date
-   *   The date parameter in 'Y-m-d' format
+   *   The date parameter in 'Y-m-d' format.
    *
    * @return array
    *   An array with the entities.
@@ -108,7 +108,7 @@ class MiniWikiRepository {
     $tags = $miniWikiPage->get('field_tags');
 
     foreach ($tags as $tag) {
-      $tagsData[] = $tag->entity?->label();
+      $tagsData[] = $tag->get('entity')->getValue()?->label();
     }
 
     $bodyWithoutTags = $miniWikiPage->get('body')->value ?? '';

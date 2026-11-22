@@ -68,7 +68,7 @@ class AbstractSpecialFieldTypeRelatedEntity implements SpecialFieldTypeInterface
     $value,
     array $metadata,
     EntityInterface $entity,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     if (!$value) {
@@ -78,7 +78,7 @@ class AbstractSpecialFieldTypeRelatedEntity implements SpecialFieldTypeInterface
     $isSourceMultiple = $this->isSourceMultiple($metadata);
     $isDestinationMultiple = $this->isDestinationMultiple($metadata);
 
-    $langCode = $entity->language() ? $entity->language()->getId() : $mainLangCode;
+    $langCode = $entity->language()->getId();
 
     if ($isSourceMultiple) {
       $result = $this->processSourceMultiple(
@@ -110,6 +110,8 @@ class AbstractSpecialFieldTypeRelatedEntity implements SpecialFieldTypeInterface
    *   The metadata array.
    * @param string $langCode
    *   The language code.
+   * @param string $mainLangCode
+   *   The main lang code.
    *
    * @return array
    *   Returns an array with the processed entities.
@@ -122,7 +124,7 @@ class AbstractSpecialFieldTypeRelatedEntity implements SpecialFieldTypeInterface
     $value,
     array $metadata,
     string $langCode,
-    string $mainLangCode
+    string $mainLangCode,
   ): array {
 
     $sourceSeparator = $this->getSourceSeparator($metadata);
@@ -164,7 +166,7 @@ class AbstractSpecialFieldTypeRelatedEntity implements SpecialFieldTypeInterface
     $value,
     array $metadata,
     string $langCode,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     if (($entity = $this->entityExists($value, $metadata, $langCode, $mainLangCode))) {
@@ -240,7 +242,7 @@ class AbstractSpecialFieldTypeRelatedEntity implements SpecialFieldTypeInterface
     $value,
     array $metadata,
     ?string $langCode,
-    ?string $mainLangCode
+    ?string $mainLangCode,
   ) {
 
     $properties = [

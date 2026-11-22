@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootronics\Plugin\Block;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\labdoo_common\Service\Repository\CommonRepository;
 use Drupal\labdoo_dootronics\Service\Repository\DootronicRepositoryInterface;
@@ -25,6 +25,8 @@ use Drupal\labdoo_common\Service\Helper\LinkHelper;
  *   admin_label = @Translation("Dootronics actions"),
  *   category = @Translation("Dootronics"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class DootronicsActionsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -81,7 +83,7 @@ class DootronicsActionsBlock extends BlockBase implements ContainerFactoryPlugin
     LinkHelper $linkHelper,
     CommonRepository $commonRepository,
     DootronicRepositoryInterface $dootronicRepository,
-    AccountProxyInterface $currentUser
+    AccountProxyInterface $currentUser,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->linkHelper = $linkHelper;
@@ -99,7 +101,7 @@ class DootronicsActionsBlock extends BlockBase implements ContainerFactoryPlugin
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Helper\LinkHelper $linkHelper */
     $linkHelper = $container->get('labdoo_common.helper.link');
@@ -126,7 +128,7 @@ class DootronicsActionsBlock extends BlockBase implements ContainerFactoryPlugin
    */
   public function build() {
     $dootronic = $this->linkHelper->getActiveNode();
-    if (!$dootronic instanceof EntityInterface) {
+    if (!$dootronic instanceof NodeInterface) {
       return [
         '#markup' => '',
       ];

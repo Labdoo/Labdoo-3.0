@@ -2,6 +2,9 @@
 
 namespace Drupal\labdoo_common\Service;
 
+use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
+use Drupal\labdoo_common\Entity\GeocodeCache;
+
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -88,6 +91,9 @@ class GeocodeCacheManager {
     $storage = $this->entityTypeManager->getStorage('labdoo_geocode_cache');
     $matches = $storage->loadByProperties(['address_normalized' => $normalized]);
     $entry = reset($matches);
+    if ($entry !== FALSE && !$entry instanceof GeocodeCache) {
+      throw new \UnexpectedValueException('Geocode cache storage returned an incompatible entity.');
+    }
     if (!$entry) {
       return NULL;
     }
@@ -118,6 +124,9 @@ class GeocodeCacheManager {
     $storage = $this->entityTypeManager->getStorage('labdoo_geocode_cache');
     $matches = $storage->loadByProperties(['address_normalized' => $normalized]);
     $entry = reset($matches);
+    if ($entry !== FALSE && !$entry instanceof GeocodeCache) {
+      throw new \UnexpectedValueException('Geocode cache storage returned an incompatible entity.');
+    }
 
     if (!$entry) {
       $entry = $storage->create([
@@ -126,6 +135,9 @@ class GeocodeCacheManager {
       ]);
     }
 
+    if (!$entry instanceof GeocodeCache) {
+      throw new \UnexpectedValueException('Geocode cache creation returned an incompatible entity.');
+    }
     $entry->set('address_original', $address);
     $entry->set('latitude', (float) $coordinates['lat']);
     $entry->set('longitude', (float) $coordinates['lon']);
@@ -146,6 +158,9 @@ class GeocodeCacheManager {
         continue;
       }
 
+      if (!$field_definition instanceof ThirdPartySettingsInterface) {
+        continue;
+      }
       $geocoder_settings = $field_definition->getThirdPartySettings('geocoder_field');
       $source_field_name = $geocoder_settings['field'] ?? NULL;
       if (!$source_field_name || !isset($fields[$source_field_name])) {

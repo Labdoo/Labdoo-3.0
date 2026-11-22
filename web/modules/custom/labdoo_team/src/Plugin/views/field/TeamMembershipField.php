@@ -19,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
+ *
+ * @phpstan-consistent-constructor
  */
 class TeamMembershipField extends FieldPluginBase {
 
@@ -29,7 +31,7 @@ class TeamMembershipField extends FieldPluginBase {
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    protected MembershipManager $teamMembershipManager
+    protected MembershipManager $teamMembershipManager,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -41,7 +43,7 @@ class TeamMembershipField extends FieldPluginBase {
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     return new static(
       $configuration,
@@ -70,6 +72,7 @@ class TeamMembershipField extends FieldPluginBase {
 
   /**
    * Define the form for the options.
+   *
    * @see \Drupal\views\Plugin\views\field\FieldPluginBase::buildOptionsForm()
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
@@ -96,12 +99,12 @@ class TeamMembershipField extends FieldPluginBase {
     if (!$this->teamMembershipManager->checkUserMembership($teamId)) {
       return $this->teamMembershipManager
         ->buildJoinLink($teamId)
-        ->toRenderable();
+        ->toString();
     }
 
     return $this->teamMembershipManager
       ->buildLeaveLink($teamId)
-      ->toRenderable();
+      ->toString();
   }
 
 }

@@ -4,7 +4,6 @@ namespace Drupal\labdoo_migrate\Services\SourceContent;
 
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\labdoo_migrate\Model\FieldModel;
-use Drupal\labdoo_migrate\Model\MappingModel;
 use Drupal\labdoo_migrate\Services\Database\ConnectionManagerInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -32,7 +31,7 @@ class RevisionSourceRepository implements RevisionSourceRepositoryInterface {
    */
   public function __construct(
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    ConnectionManagerInterface $externalConnectionManager
+    ConnectionManagerInterface $externalConnectionManager,
   ) {
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
     $this->externalConnectionManager = $externalConnectionManager;
@@ -121,14 +120,18 @@ class RevisionSourceRepository implements RevisionSourceRepositoryInterface {
   protected function getRevisionFieldValue(int $nid, int $vid, FieldModel $field, string $contentType) {
     $tableName = $field->getTableName();
 
-    // If it's a field table, we should use field_revision_ instead of field_data_
+    // If it's a field table, we should use field_revision_ instead of
+    // field_data_.
     if (strpos($tableName, 'field_data_') === 0) {
       $tableName = str_replace('field_data_', 'field_revision_', $tableName);
     }
     elseif (strpos($tableName, 'field_') === 0 && strpos($tableName, 'field_revision_') === FALSE) {
       // Some mappings might already point to field_revision_ or other tables.
-      // But usually they point to field_data_X or just field_X (which often means field_data_X in D7 if it's a field)
-      // Drupal 7 field tables are field_data_field_name and field_revision_field_name.
+      // But usually they point to field_data_X or just field_X (which often
+      // means
+      // field_data_X in D7 if it's a field)
+      // Drupal 7 field tables are field_data_field_name and
+      // field_revision_field_name.
     }
 
     try {
@@ -152,7 +155,7 @@ class RevisionSourceRepository implements RevisionSourceRepositoryInterface {
       if ($result) {
         $value = $result->{$field->getFieldName()};
 
-        // Handle joins if necessary
+        // Handle joins if necessary.
         if ($field->isJoin()) {
           $value = $this->processJoin($field, $value);
         }
@@ -162,7 +165,7 @@ class RevisionSourceRepository implements RevisionSourceRepositoryInterface {
     }
     catch (\Exception $e) {
       $this->externalConnectionManager->restoreConnection();
-      // Table might not exist for this revision or content type
+      // Table might not exist for this revision or content type.
     }
 
     return NULL;

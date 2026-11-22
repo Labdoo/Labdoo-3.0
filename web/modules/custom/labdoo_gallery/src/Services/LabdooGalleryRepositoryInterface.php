@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_gallery\Services;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * The Labdoo Gallery repository interface.
@@ -20,10 +20,10 @@ interface LabdooGalleryRepositoryInterface {
    * @param int $id
    *   The gallery ID.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The gallery entity, or NULL if not found.
    */
-  public function loadById(int $id): ?EntityInterface;
+  public function loadById(int $id): ?NodeInterface;
 
   /**
    * Loads an entity by its parent ID.
@@ -31,10 +31,10 @@ interface LabdooGalleryRepositoryInterface {
    * @param int $parentId
    *   The parent entity ID.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The entity associated with the parent ID, or NULL if not found.
    */
-  public function loadByParentId(int $parentId): ?EntityInterface;
+  public function loadByParentId(int $parentId): ?NodeInterface;
 
   /**
    * Creates a new gallery.
@@ -42,10 +42,10 @@ interface LabdooGalleryRepositoryInterface {
    * @param array $data
    *   The gallery data.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The created gallery entity, or NULL if creation failed.
    */
-  public function create(array $data): ?EntityInterface;
+  public function create(array $data): ?NodeInterface;
 
   /**
    * Updates an existing gallery.
@@ -55,9 +55,9 @@ interface LabdooGalleryRepositoryInterface {
    * @param array $data
    *   The gallery data to update.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The updated gallery entity, or NULL if update failed.
    */
-  public function update(int $id, array $data): ?EntityInterface;
+  public function update(int $id, array $data): ?NodeInterface;
 
 }

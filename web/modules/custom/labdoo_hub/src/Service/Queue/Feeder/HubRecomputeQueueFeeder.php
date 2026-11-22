@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_hub\Service\Queue\Feeder;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 use Drupal\queue_manager\Model\QueueDataModel;
 
 /**
@@ -27,7 +27,7 @@ class HubRecomputeQueueFeeder extends AbstractQueueFeeder {
   /**
    * {@inheritDoc}
    */
-  public function feedQueue(EntityInterface $hub): void {
+  public function feedQueue(NodeInterface $hub): void {
     $this->enqueueItem([
       'id' => (int) $hub->id(),
       'uid' => (int) $hub->getOwnerId(),

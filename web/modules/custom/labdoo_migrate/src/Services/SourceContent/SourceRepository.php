@@ -79,7 +79,7 @@ class SourceRepository implements SourceRepositoryInterface {
     LoggerChannelFactoryInterface $loggerChannelFactory,
     ExternalConnectionManager $externalConnectionManager,
     TranslationRepositoryInterface $translationRepository,
-    DynamicContentRepositoryInterface $dynamicContentRepository
+    DynamicContentRepositoryInterface $dynamicContentRepository,
   ) {
 
     $this->setLogger($loggerChannelFactory->get('labdoo_migrate'));
@@ -95,7 +95,7 @@ class SourceRepository implements SourceRepositoryInterface {
     string $contentType,
     array $mapping,
     ?array $entityIds = NULL,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
 
     $this->contentType = $contentType;
@@ -106,7 +106,6 @@ class SourceRepository implements SourceRepositoryInterface {
       $entityIds = $this->getNodesByType();
     }
 
-    /** @var \Drupal\labdoo_migrate\Model\FieldModel $field */
     foreach ($entityIds as $entityId) {
       $entities[$entityId] = $this->getEntity($contentType, $mapping, $entityId, $fromTimestamp);
     }
@@ -123,7 +122,7 @@ class SourceRepository implements SourceRepositoryInterface {
     string $contentType,
     array $mapping,
     int $entityId,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
 
     $this->contentType = $contentType;
@@ -164,7 +163,7 @@ class SourceRepository implements SourceRepositoryInterface {
   public function getNodesByType(
     ?string $contentType = NULL,
     ?array $mapping = NULL,
-    ?int $fromTimestamp = NULL
+    ?int $fromTimestamp = NULL,
   ): array {
 
     if ($contentType !== NULL) {
@@ -219,7 +218,7 @@ class SourceRepository implements SourceRepositoryInterface {
     $entityId,
     string $langCode,
     string $mainLangCode,
-    bool $ignoreNid = FALSE
+    bool $ignoreNid = FALSE,
   ): array {
 
     $entity = [];
@@ -337,7 +336,7 @@ class SourceRepository implements SourceRepositoryInterface {
       }
     }
 
-    return count($field);
+    return count($field) > 0;
   }
 
   /**
@@ -361,7 +360,7 @@ class SourceRepository implements SourceRepositoryInterface {
     int $entityId,
     MappingModel $mapping,
     string $langCode,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     $values = [];
@@ -415,7 +414,7 @@ class SourceRepository implements SourceRepositoryInterface {
     int $entityId,
     FieldModel $field,
     string $langCode,
-    string $mainLangCode
+    string $mainLangCode,
   ) {
 
     if ($field->getDefaultValue()) {
@@ -495,7 +494,7 @@ class SourceRepository implements SourceRepositoryInterface {
     bool $bundle = TRUE,
     ?string $langCode = NULL,
     ?string $specialCondition = NULL,
-    bool $ignoreBundle = FALSE
+    bool $ignoreBundle = FALSE,
   ): array {
 
     $query = $this->externalConnectionManager
@@ -534,7 +533,6 @@ class SourceRepository implements SourceRepositoryInterface {
     return $query->execute()->fetchAll();
   }
 
-
   /**
    * Processes a single result.
    *
@@ -559,7 +557,7 @@ class SourceRepository implements SourceRepositoryInterface {
     FieldModel $field,
     string $langCode,
     string $mainLangCode,
-    $dbResult
+    $dbResult,
   ) {
 
     if (!$dbResult || !isset($dbResult->{$field->getFieldName()})) {

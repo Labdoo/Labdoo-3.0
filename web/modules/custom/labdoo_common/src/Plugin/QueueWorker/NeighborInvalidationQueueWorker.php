@@ -22,6 +22,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   title = @Translation("Labdoo Neighbor Cache Invalidation"),
  *   cron = {"time" = 30}
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class NeighborInvalidationQueueWorker extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
@@ -71,7 +73,7 @@ class NeighborInvalidationQueueWorker extends QueueWorkerBase implements Contain
     CommonRepository $commonRepository,
     ?DootronicRepositoryInterface $dootronicRepository = NULL,
     ?EdooVillageRepositoryInterface $edoovillageRepository = NULL,
-    ?HubRepositoryInterface $hubRepository = NULL
+    ?HubRepositoryInterface $hubRepository = NULL,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerChannelFactory->get('labdoo_common');
@@ -88,7 +90,7 @@ class NeighborInvalidationQueueWorker extends QueueWorkerBase implements Contain
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     return new static(
       $configuration,

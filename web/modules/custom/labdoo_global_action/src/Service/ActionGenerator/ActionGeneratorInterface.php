@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_global_action\Service\ActionGenerator;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for action generators.
@@ -17,16 +17,17 @@ interface ActionGeneratorInterface {
   /**
    * Generates the global action.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The source entity.
-   * @param \Drupal\Core\Entity\EntityInterface $globalAction
+   * @param \Drupal\node\NodeInterface $globalAction
    *   The global action entity.
    *
    * @return void
+   *   The resulting value.
    */
   public function generate(
-    EntityInterface $entity,
-    EntityInterface $globalAction
+    NodeInterface $entity,
+    NodeInterface $globalAction,
   ): void;
 
 }

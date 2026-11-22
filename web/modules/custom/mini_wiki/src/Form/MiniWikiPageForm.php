@@ -18,14 +18,13 @@ use Drupal\mini_wiki\Entity\MiniWikiPage;
  */
 final class MiniWikiPageForm extends ContentEntityForm {
 
-
   /**
    * {@inheritDoc}
    */
   public function buildForm(
     array $form,
     FormStateInterface $form_state,
-    ?MiniWikiPage $parent = NULL
+    ?MiniWikiPage $parent = NULL,
   ) {
     $form = parent::buildForm($form, $form_state);
 

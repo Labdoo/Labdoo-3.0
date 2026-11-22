@@ -1,12 +1,20 @@
-<?php declare(strict_types = 1);
+<?php
 
 /**
- * Developed by Natiboo <info@natiboo.es>
+ * @file
+ * Integrates school identifiers, lifecycle and computed fields.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Developed by Natiboo <info@natiboo.es>.
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU AFFERO GENERAL PUBLIC LICENSE
  * @link http://natiboo.es
  */
 
+use Drupal\views\Plugin\views\query\Sql;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
@@ -79,14 +87,15 @@ function labdoo_edoovillage_form_alter(&$form, FormStateInterface $form_state, $
  * Implements hook_entity_presave().
  */
 function labdoo_edoovillage_entity_presave(EntityInterface $entity) {
-  if ($entity->bundle() !== 'edoovillage') {
+  if (!$entity instanceof NodeInterface || $entity->bundle() !== 'edoovillage') {
     return;
   }
 
-  // If this is a new edoovillage node, its title will be set in EdooVillageCompute::setEdooVillageTitle
-  // which is called below. We no longer need to assign the ID here to avoid duplication
+  // If this is a new edoovillage node, its title will be set in
+  // EdooVillageCompute::setEdooVillageTitle
+  // which is called below. We no longer need to assign the ID here to avoid
+  // duplication
   // and ensure consistency between new and existing nodes.
-
   /** @var \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface $edoovillageCompute */
   $edoovillageCompute = \Drupal::service('labdoo_edoovillage.compute');
   $edoovillageCompute->setEdooVillageTitle($entity);
@@ -96,7 +105,7 @@ function labdoo_edoovillage_entity_presave(EntityInterface $entity) {
  * Implements hook_entity_insert().
  */
 function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
-  if ($entity->bundle() === 'edoovillage') {
+  if ($entity instanceof NodeInterface && $entity->bundle() === 'edoovillage') {
     if (!empty($entity->skip_recompute_enqueue) && !empty($entity->skip_geocoding_enqueue)) {
       return;
     }
@@ -110,8 +119,8 @@ function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
       $galleryCompute->enqueueGalleryCreateOrUpdate($entity);
     }
 
-    __labdoo_edoovillage_enqueue_geocoding($entity);
-    __labdoo_edoovillage_invalidate_neighbors($entity);
+    labdoo_edoovillage_enqueue_geocoding($entity);
+    labdoo_edoovillage_invalidate_neighbors($entity);
   }
 }
 
@@ -119,7 +128,7 @@ function labdoo_edoovillage_entity_insert(EntityInterface $entity) {
  * Implements hook_entity_update().
  */
 function labdoo_edoovillage_entity_update(EntityInterface $entity) {
-  if ($entity->bundle() === 'edoovillage') {
+  if ($entity instanceof NodeInterface && $entity->bundle() === 'edoovillage') {
     if (!empty($entity->skip_recompute_enqueue) && !empty($entity->skip_geocoding_enqueue)) {
       return;
     }
@@ -133,7 +142,7 @@ function labdoo_edoovillage_entity_update(EntityInterface $entity) {
       $galleryCompute->enqueueGalleryCreateOrUpdate($entity);
     }
 
-    __labdoo_edoovillage_enqueue_geocoding($entity);
+    labdoo_edoovillage_enqueue_geocoding($entity);
   }
 }
 
@@ -141,18 +150,19 @@ function labdoo_edoovillage_entity_update(EntityInterface $entity) {
  * Implements hook_preprocess_page_title().
  */
 function labdoo_edoovillage_preprocess_page_title(&$variables) {
-  // We no longer need to override the title here as it's correctly persisted in the node.
+  // We no longer need to override the title here as it's correctly persisted
+  // in the node.
 }
 
 /**
  * Implements hook_entity_delete().
  */
 function labdoo_edoovillage_entity_delete(EntityInterface $entity) {
-  if ($entity->bundle() === 'edoovillage') {
+  if ($entity instanceof NodeInterface && $entity->bundle() === 'edoovillage') {
     /** @var \Drupal\labdoo_edoovillage\Service\Compute\EdooVillageComputeInterface $edoovillageCompute */
     $edoovillageCompute = \Drupal::service('labdoo_edoovillage.compute');
     $edoovillageCompute->enqueueRecompute($entity);
-    __labdoo_edoovillage_invalidate_neighbors($entity);
+    labdoo_edoovillage_invalidate_neighbors($entity);
   }
 }
 
@@ -162,17 +172,19 @@ function labdoo_edoovillage_entity_delete(EntityInterface $entity) {
  * @param \Drupal\Core\Entity\EntityInterface $entity
  *   The entity.
  */
-function __labdoo_edoovillage_invalidate_neighbors(EntityInterface $entity): void {
+function labdoo_edoovillage_invalidate_neighbors(EntityInterface $entity): void {
   /** @var \Drupal\labdoo_common\Service\Queue\Feeder\NeighborInvalidationQueueFeederInterface $feeder */
   $feeder = \Drupal::service('labdoo_common.queue.feeder.neighbor_invalidation');
   $feeder->feedQueue('edoovillage', (int) $entity->id());
 }
 
-
 /**
  * Implements hook_views_query_alter().
  */
 function labdoo_edoovillage_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
+  if (!$query instanceof Sql) {
+    return;
+  }
   if ($view->id() == 'edoovillages_dashboard' || $view->id() == 'edoovillages') {
     $query->addField('node_field_data', 'nid', 'nid', ['function' => 'groupby']);
     $query->addGroupBy('node_field_data.nid');
@@ -184,11 +196,10 @@ function labdoo_edoovillage_views_query_alter(ViewExecutable $view, QueryPluginB
       $query->addWhere('AND', 'node_field_data.uid', $user_id, '=');
     }
     elseif (!empty($mine) && (int) $mine === 1) {
-      $query->addWhere('AND', 'node_field_data.uid', \Drupal::currentUser()->id(), '=');
+      $query->addWhere('AND', 'node_field_data.uid', (string) \Drupal::currentUser()->id(), '=');
     }
   }
 }
-
 
 /**
  * Enqueue geocoding task if needed.
@@ -196,8 +207,8 @@ function labdoo_edoovillage_views_query_alter(ViewExecutable $view, QueryPluginB
  * @param \Drupal\Core\Entity\EntityInterface $entity
  *   The entity.
  */
-function __labdoo_edoovillage_enqueue_geocoding(EntityInterface $entity): void {
-  if ($entity->bundle() !== 'edoovillage' || !empty($entity->skip_geocoding_enqueue)) {
+function labdoo_edoovillage_enqueue_geocoding(EntityInterface $entity): void {
+  if (!$entity instanceof NodeInterface || $entity->bundle() !== 'edoovillage' || !empty($entity->skip_geocoding_enqueue)) {
     return;
   }
 
@@ -222,7 +233,7 @@ function __labdoo_edoovillage_enqueue_geocoding(EntityInterface $entity): void {
 }
 
 /**
- * Calculates the demand (number of laptops needed) for a given edoovillage node.
+ * Calculates the number of laptops needed by an Edoovillage.
  *
  * @param \Drupal\node\NodeInterface $node
  *   The edoovillage node.
@@ -230,7 +241,7 @@ function __labdoo_edoovillage_enqueue_geocoding(EntityInterface $entity): void {
  * @return int
  *   The demand/laptops needed.
  */
-function labdoo_get_demand(\Drupal\node\NodeInterface $node): int {
+function labdoo_edoovillage_get_demand(NodeInterface $node): int {
   if ($node->bundle() === 'edoovillage' && $node->hasField('field_number_of_laptops_needed')) {
     return (int) $node->get('field_number_of_laptops_needed')->value;
   }

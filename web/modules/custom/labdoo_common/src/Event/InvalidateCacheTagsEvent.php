@@ -19,6 +19,9 @@ class InvalidateCacheTagsEvent extends Event {
    */
   public const EVENT_NAME = 'labdoo.event.cache_tags';
 
+  /**
+   * The cache tags to invalidate when this event is handled.
+   */
   protected array $cacheTags = [];
 
   /**
@@ -38,6 +41,7 @@ class InvalidateCacheTagsEvent extends Event {
    *   The cache tags.
    *
    * @return void
+   *   The resulting value.
    */
   public function setCacheTags(array $cacheTags): void {
     $this->cacheTags = $cacheTags;

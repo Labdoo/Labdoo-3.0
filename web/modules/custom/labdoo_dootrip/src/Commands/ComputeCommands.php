@@ -2,6 +2,9 @@
 
 namespace Drupal\labdoo_dootrip\Commands;
 
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
+use Drupal\Core\Queue\QueueFactory;
+use Drupal\Core\Database\Connection;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -49,11 +52,20 @@ class ComputeCommands extends DrushCommands {
    *   The queue feeder.
    * @param \Drupal\labdoo_dootrip\Service\Compute\DootripComputeInterface $dootripCompute
    *   The dootrip compute service.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database service.
+   * @param \Drupal\Core\Queue\QueueFactory $queueFactoryInjected
+   *   The queue service.
+   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cacheInvalidator
+   *   The cache_tags.invalidator service.
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     QueueFeederInterface $queueFeeder,
-    DootripComputeInterface $dootripCompute
+    DootripComputeInterface $dootripCompute,
+    protected Connection $database,
+    protected QueueFactory $queueFactoryInjected,
+    protected CacheTagsInvalidatorInterface $cacheInvalidator,
   ) {
 
     parent::__construct();
@@ -89,17 +101,19 @@ class ComputeCommands extends DrushCommands {
   }
 
   /**
-   * Regenerates the titles of dootrips that have an empty title or incorrect format.
+   * Regenerates empty or incorrectly formatted dootrip titles.
    *
    * @command labdoo-regenerate-dootrip-titles
    * @aliases labdoo:reg-dootrip-titles
    * @usage labdoo-regenerate-dootrip-titles
-   *   Regenerates the titles of dootrips that have an empty title or incorrect format.
+   *   Regenerates the titles of dootrips that have an empty title or incorrect
+   *   format.
    */
   public function regenerateDootripTitles(): void {
-    $db = \Drupal::database();
+    $db = $this->database;
 
-    // 1. Fast SQL update for completely empty/null titles to be extremely efficient.
+    // 1. Fast SQL update for completely empty/null titles to be extremely
+    // efficient.
     $empty_count = 0;
     try {
       $empty_count = (int) $db->select('node_field_data', 'n')
@@ -119,7 +133,8 @@ class ComputeCommands extends DrushCommands {
       $this->io()->error('SQL update failed: ' . $e->getMessage());
     }
 
-    // 2. Load and process only those dootrips that are truly malformed (not matching ^Dootrip\s+#[0-9]{9}).
+    // 2. Load and process only those dootrips that are truly malformed (not
+    // matching ^Dootrip\s+#[0-9]{9}).
     $count = 0;
     try {
       $query = $db->select('node_field_data', 'n')
@@ -162,10 +177,11 @@ class ComputeCommands extends DrushCommands {
 
     // Rebuild cache tags to make sure updated nodes are shown correctly.
     if ($empty_count > 0 || $count > 0) {
-      \Drupal::service('cache_tags.invalidator')->invalidateTags(['node_list']);
+      $this->cacheInvalidator->invalidateTags(['node_list']);
     }
 
-    // 3. Enqueue regenerated dootrips (and any others lacking localization) for geocoding.
+    // 3. Enqueue regenerated dootrips (and any others lacking localization) for
+    // geocoding.
     $geocoded_count = 0;
     try {
       $query = $db->select('node_field_data', 'n')
@@ -177,10 +193,11 @@ class ComputeCommands extends DrushCommands {
 
       if (!empty($nids_to_geocode)) {
         /** @var \Drupal\Core\Queue\QueueFactory $queueFactory */
-        $queueFactory = \Drupal::service('queue');
+        $queueFactory = $this->queueFactoryInjected;
         $queue = $queueFactory->get('labdoo_dootrip_geocoding');
 
-        // Delete existing queue items of this queue to avoid duplicate processing.
+        // Delete existing queue items of this queue to avoid duplicate
+        // processing.
         $queue->deleteQueue();
 
         foreach ($nids_to_geocode as $nid) {
@@ -201,35 +218,6 @@ class ComputeCommands extends DrushCommands {
       '@incorrect' => $count + $geocoded_count,
       '@geocoded' => $geocoded_count,
     ]));
-  }
-
-  /**
-   * Checks if a dootrip node has valid coordinates.
-   *
-   * @param \Drupal\node\NodeInterface $dootrip
-   *   The dootrip node.
-   *
-   * @return bool
-   *   True if coordinates are present and non-zero, false otherwise.
-   */
-  private function hasCoordinates($dootrip): bool {
-    if ($dootrip->hasField('field_origin_of_the_trip') && !$dootrip->get('field_origin_of_the_trip')->isEmpty()) {
-      $originData = $dootrip->get('field_origin_of_the_trip')->first()->getValue();
-      if (isset($originData['lat']) && isset($originData['lon'])) {
-        if (abs((float)$originData['lat']) > 0.1 || abs((float)$originData['lon']) > 0.1) {
-          return TRUE;
-        }
-      }
-    }
-    if ($dootrip->hasField('field_destination_of_the_trip') && !$dootrip->get('field_destination_of_the_trip')->isEmpty()) {
-      $destinationData = $dootrip->get('field_destination_of_the_trip')->first()->getValue();
-      if (isset($destinationData['lat']) && isset($destinationData['lon'])) {
-        if (abs((float)$destinationData['lat']) > 0.1 || abs((float)$destinationData['lon']) > 0.1) {
-          return TRUE;
-        }
-      }
-    }
-    return FALSE;
   }
 
 }

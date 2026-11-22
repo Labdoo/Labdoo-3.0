@@ -81,7 +81,7 @@ class FileManager implements FileManagerInterface {
     ConfigurationManagerInterface $configurationManager,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     AccountInterface $currentUser,
-    EntityTypeManagerInterface $entityTypeManager
+    EntityTypeManagerInterface $entityTypeManager,
   ) {
 
     $this->fileSystem = $fileSystem;
@@ -98,9 +98,9 @@ class FileManager implements FileManagerInterface {
   public function createFile(
     string $fileUri,
     string $fileName,
-    string $fileContents
+    string $fileContents,
   ): ?EntityInterface {
-    // Check if file already exists
+    // Check if file already exists.
     $existingFile = $this->fileExists($fileUri, $fileName);
     if ($existingFile !== NULL) {
       return $existingFile;
@@ -149,7 +149,7 @@ class FileManager implements FileManagerInterface {
   public function getFileContents(
     string $fileUri,
     bool $defaultContent = FALSE,
-    bool $suppressErrors = FALSE
+    bool $suppressErrors = FALSE,
   ): string {
 
     $filesConfig = $this->getFilesConfig();
@@ -166,7 +166,7 @@ class FileManager implements FileManagerInterface {
       }
 
       if ($defaultContent) {
-        // Return a default 1x1 transparent PNG image as placeholder
+        // Return a default 1x1 transparent PNG image as placeholder.
         return base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
       }
 
@@ -183,7 +183,7 @@ class FileManager implements FileManagerInterface {
 
     // If no file name is provided, we need to generate a random one.
     if (!$fileUri) {
-      $fileUri = uniqid(random_int(111111, 999999), TRUE);
+      $fileUri = uniqid((string) random_int(111111, 999999), TRUE);
     }
     $filesConfig = $this->getFilesConfig();
     $directory = $filesConfig['media_location'];
@@ -248,11 +248,10 @@ class FileManager implements FileManagerInterface {
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   Thrown when there is an error saving the file.
    */
-
   protected function createOrUpdateFile(
     string $uri,
     string $destination,
-    bool $rename
+    bool $rename,
   ) {
 
     $file = $this->fileRepository->loadByUri($uri);
@@ -276,19 +275,19 @@ class FileManager implements FileManagerInterface {
    */
   public function fileExists(
     string $fileUri,
-    string $fileName
+    string $fileName,
   ): ?EntityInterface {
     try {
-      // Try to load the file by URI first
+      // Try to load the file by URI first.
       $file = $this->fileRepository->loadByUri($fileUri);
       if ($file !== NULL) {
         return $file;
       }
 
-      // If not found by URI, try to find by both URI and filename
+      // If not found by URI, try to find by both URI and filename.
       $fileStorage = $this->entityTypeManager->getStorage('file');
 
-      // First try with both URI and filename for exact match
+      // First try with both URI and filename for exact match.
       $files = $fileStorage->loadByProperties([
         'uri' => $fileUri,
         'filename' => $fileName,
@@ -298,7 +297,7 @@ class FileManager implements FileManagerInterface {
         return reset($files);
       }
 
-      // If not found, try with just the filename
+      // If not found, try with just the filename.
       $files = $fileStorage->loadByProperties([
         'filename' => $fileName,
       ]);
@@ -319,10 +318,10 @@ class FileManager implements FileManagerInterface {
    */
   public function mediaEntityExists(
     string $bundle,
-    string $name
+    string $name,
   ): ?EntityInterface {
     try {
-      // Try to find media entity by bundle and name
+      // Try to find media entity by bundle and name.
       $mediaStorage = $this->entityTypeManager->getStorage('media');
       $mediaEntities = $mediaStorage->loadByProperties([
         'bundle' => $bundle,

@@ -27,6 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Hub actions"),
  *   category = @Translation("Hub"),
  * )
+ *
+ * @phpstan-consistent-constructor
  */
 class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -93,7 +95,7 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     /** @var \Drupal\labdoo_common\Service\Helper\LinkHelper $linkHelper */
     $linkHelper = $container->get('labdoo_common.helper.link');
@@ -145,7 +147,9 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
     // Fallback for arg_0 (views) or specific routes.
     if (!($hub instanceof NodeInterface) || $hub->bundle() !== 'hub') {
       $entityId = $this->linkHelper->getActiveNode('arg_0');
-      // If it's not in arg_0, maybe it's in the route parameters as % (it depends on the route definition)
+      // If it's not in arg_0, maybe it's in the route parameters as % (it
+      // depends
+      // on the route definition)
       // but views usually use arg_0 for the first contextual filter.
       if ($entityId) {
         $hub = $this->linkHelper->loadEntity($entityId);
@@ -224,7 +228,7 @@ class HubActionsBlock extends BlockBase implements ContainerFactoryPluginInterfa
         [
           'query' => [
             'parent_id' => $hub->id(),
-          ]
+          ],
         ]
       );
     }

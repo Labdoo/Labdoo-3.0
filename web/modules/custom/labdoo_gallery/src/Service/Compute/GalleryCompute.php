@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_gallery\Service\Compute;
 
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Database\Connection;
@@ -42,8 +43,15 @@ class GalleryCompute implements GalleryComputeInterface {
    *   The gallery repository.
    * @param \Drupal\Core\Database\Connection $database
    *   The database connection.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
-  public function __construct(QueueFactory $queue_factory, LabdooGalleryRepositoryInterface $gallery_repository, Connection $database) {
+  public function __construct(
+    QueueFactory $queue_factory,
+    LabdooGalleryRepositoryInterface $gallery_repository,
+    Connection $database,
+    protected StateInterface $state,
+  ) {
     $this->queueFactory = $queue_factory;
     $this->galleryRepository = $gallery_repository;
     $this->database = $database;
@@ -53,7 +61,7 @@ class GalleryCompute implements GalleryComputeInterface {
    * {@inheritdoc}
    */
   public function enqueueGalleryCreateOrUpdate(EntityInterface $entity): void {
-    if (\Drupal::state()->get('labdoo_migrate_is_running', FALSE)) {
+    if ($this->state->get('labdoo_migrate_is_running', FALSE)) {
       return;
     }
     // Only enqueue if it's a new entity or the label has changed.

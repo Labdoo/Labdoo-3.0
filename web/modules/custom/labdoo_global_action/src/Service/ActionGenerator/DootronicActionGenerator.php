@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_global_action\Service\ActionGenerator;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Dootronic action generator.
@@ -18,8 +18,8 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
    * {@inheritDoc}
    */
   public function generate(
-    EntityInterface $entity,
-    EntityInterface $globalAction
+    NodeInterface $entity,
+    NodeInterface $globalAction,
   ): void {
     if (!$this->preConditions($entity)) {
       return;
@@ -32,7 +32,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
     $country = $this->getCountryName($countryCode);
 
     // New Dootronic.
-    if ($entity->original === NULL) {
+    if ($entity->getOriginal() === NULL) {
       $this->tagGlobalAction(
         $entity,
         $globalAction,
@@ -50,37 +50,35 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
 
     // Discard no-workflow updates.
     $status = $entity->hasField('field_dootronic_status') ? $entity->get('field_dootronic_status')->value : NULL;
-    if ($entity->original !== NULL) {
-      $prevStatus = $entity->original->hasField('field_dootronic_status') ? $entity->original->get('field_dootronic_status')->value : NULL;
-      if ($prevStatus === $status) {
-        return;
-      }
+    $prevStatus = $entity->getOriginal()->hasField('field_dootronic_status') ? $entity->getOriginal()->get('field_dootronic_status')->value : NULL;
+    if ($prevStatus === $status) {
+      return;
+    }
 
-      // Laptop sanitized.
-      if (
-        ($prevStatus === 'S0' || $prevStatus === 'S1')
-        && ($status === 'S2' || $status === 'S3')
-      ) {
-        $this->tagGlobalAction(
-          $entity,
-          $globalAction,
-          $city,
-          $country,
-          $countryCode,
-          'was sanitized',
-          'laptop-sanitized.png',
-          31,
-          $location ?? ''
-        );
+    // Laptop sanitized.
+    if (
+      ($prevStatus === 'S0' || $prevStatus === 'S1')
+      && ($status === 'S2' || $status === 'S3')
+    ) {
+      $this->tagGlobalAction(
+        $entity,
+        $globalAction,
+        $city,
+        $country,
+        $countryCode,
+        'was sanitized',
+        'laptop-sanitized.png',
+        31,
+        $location
+      );
 
-        return;
-      }
+      return;
     }
 
     // We take the location from the Edoovillage.
     if ($status === 'S4' || $status === 'T1') {
       $edooVillage = $entity->hasField('field_edoovillage_destination') ? $entity->get('field_edoovillage_destination')->entity : NULL;
-      if ($edooVillage === NULL) {
+      if (!$edooVillage instanceof NodeInterface) {
         return;
       }
 
@@ -109,7 +107,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         'was delivered to an edoovillage',
         'laptop-delivered.png',
         31,
-        $location ?? ''
+        $location
       );
 
       return;
@@ -125,7 +123,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         'has started its journey to an edoovillage',
         'laptop-dootripped.png',
         34,
-        $location ?? ''
+        $location
       );
 
       return;
@@ -141,7 +139,7 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
         'has been recycled',
         'laptop-recycled.png',
         27,
-        $location ?? ''
+        $location
       );
     }
   }
@@ -149,22 +147,22 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
   /**
    * Checks the preconditions of this action.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    *
    * @return bool
    *   TRUE if the preconditions match, otherwise FALSE.
    */
-  protected function preConditions(EntityInterface $entity): bool {
+  protected function preConditions(NodeInterface $entity): bool {
     return $entity->hasField('field_locations') && !empty($entity->get('field_locations')->getValue());
   }
 
   /**
    * Tags a global action.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
-   * @param \Drupal\Core\Entity\EntityInterface $globalAction
+   * @param \Drupal\node\NodeInterface $globalAction
    *   The global action entity.
    * @param string|null $city
    *   The city.
@@ -176,21 +174,24 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
    *   The action.
    * @param string $picture
    *   The picture.
-   * @param $location
+   * @param int $pictureWidth
+   *   The rendered picture width.
+   * @param array $location
    *   The geolocation.
    *
    * @return void
+   *   The resulting value.
    */
   protected function tagGlobalAction(
-    EntityInterface $entity,
-    EntityInterface $globalAction,
+    NodeInterface $entity,
+    NodeInterface $globalAction,
     ?string $city,
     string $country,
     string $countryCode,
     string $action,
     string $picture,
     int $pictureWidth,
-    $location
+    $location,
   ): void {
     $title = sprintf(
       'Laptop %s %s in %s, %s',
@@ -212,8 +213,8 @@ class DootronicActionGenerator extends AbstractActionGenerator implements Action
       'Dooject',
       $title,
       $body,
-      $entity->hasField('field_edoovillage_destination') ? $entity->get('field_edoovillage_destination')->target_id : NULL,
-      $entity->hasField('field_hub_laptop') ? $entity->get('field_hub_laptop')->target_id : ($entity->hasField('field_hub') ? $entity->get('field_hub')->target_id : NULL),
+      $this->referenceNodeId($entity, 'field_edoovillage_destination'),
+      $this->referenceNodeId($entity, $entity->hasField('field_hub_laptop') ? 'field_hub_laptop' : 'field_hub'),
       $entity->getOwner()->id(),
       $location,
       $city ?? '',

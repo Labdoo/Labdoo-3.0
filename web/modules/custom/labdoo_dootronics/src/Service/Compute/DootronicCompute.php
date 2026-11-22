@@ -2,7 +2,8 @@
 
 namespace Drupal\labdoo_dootronics\Service\Compute;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\labdoo_common\Utility\EntityMetadata;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -70,7 +71,7 @@ class DootronicCompute implements DootronicComputeInterface {
     CommonRepository $commonRepository,
     DootronicRepositoryInterface $dootronicRepository,
     QueueFeederInterface $recomputeQueueFeeder,
-    LoggerChannelFactoryInterface $loggerChannelFactory
+    LoggerChannelFactoryInterface $loggerChannelFactory,
   ) {
     $this->commonRepository = $commonRepository;
     $this->dootronicRepository = $dootronicRepository;
@@ -81,10 +82,9 @@ class DootronicCompute implements DootronicComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeEdooVillageData(EntityInterface $entity): void {
-    /** @var \Drupal\Core\Entity\EntityInterface $edooVillage */
+  public function computeEdooVillageData(NodeInterface $entity): void {
     $edooVillage = $entity->get('field_edoovillage_destination')->entity;
-    if ($edooVillage === NULL) {
+    if (!$edooVillage instanceof NodeInterface) {
       return;
     }
 
@@ -129,10 +129,9 @@ class DootronicCompute implements DootronicComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeHubData(EntityInterface $entity): void {
-    /** @var \Drupal\Core\Entity\EntityInterface $hub */
+  public function computeHubData(NodeInterface $entity): void {
     $hub = $entity->get('field_hub')->entity;
-    if ($hub === NULL || $hub->bundle() !== 'hub') {
+    if (!$hub instanceof NodeInterface || $hub->bundle() !== 'hub') {
       return;
     }
 
@@ -170,8 +169,8 @@ class DootronicCompute implements DootronicComputeInterface {
     $hub->set('field_dootronics_remaining', $remaining);
     $hub->set('field_dootronics_completed', $completed);
 
-    $hub->skip_geocoding_enqueue = TRUE;
-    $hub->skip_recompute_enqueue = TRUE;
+    EntityMetadata::set($hub, 'skip_geocoding_enqueue', TRUE);
+    EntityMetadata::set($hub, 'skip_recompute_enqueue', TRUE);
 
     try {
       $hub->save();
@@ -190,8 +189,9 @@ class DootronicCompute implements DootronicComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function setDootronicTitle(EntityInterface $entity): void {
-    // If we are migrating nodes, we do not want an automatic ID to be generated.
+  public function setDootronicTitle(NodeInterface $entity): void {
+    // If we are migrating nodes, we do not want an automatic ID to be
+    // generated.
     if (isset($entity->original_entity_id)) {
       $entity->set('field_tagged', TRUE);
       return;
@@ -225,8 +225,8 @@ class DootronicCompute implements DootronicComputeInterface {
   /**
    * {@inheritDoc}
    */
-  function computeWattHours(EntityInterface $entity): void {
-    // If the Wh field is present, then print it in the label
+  public function computeWattHours(NodeInterface $entity): void {
+    // If the Wh field is present, then print it in the label.
     $volts = $entity->get('field_volts')->value;
     $ampHours = $entity->get('field_amp_hours')->value;
     $wattageHour = 'Not available';
@@ -242,12 +242,11 @@ class DootronicCompute implements DootronicComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function computeRelatedDootrips(EntityInterface &$dootronic, array $originalDootripIds = []): void {
+  public function computeRelatedDootrips(NodeInterface &$dootronic, array $originalDootripIds = []): void {
     if ($dootronic->isNew()) {
       return;
     }
-    foreach ($dootronic->get('field_dootrips') as $item) {
-      $dootrip = $item->entity;
+    foreach ($dootronic->get('field_dootrips')->referencedEntities() as $dootrip) {
       if (!$dootrip) {
         continue;
       }
@@ -309,7 +308,7 @@ class DootronicCompute implements DootronicComputeInterface {
   /**
    * {@inheritDoc}
    */
-  public function enqueueRecompute(EntityInterface $entity): void {
+  public function enqueueRecompute(NodeInterface $entity): void {
     $this->recomputeQueueFeeder->feedQueue($entity);
   }
 

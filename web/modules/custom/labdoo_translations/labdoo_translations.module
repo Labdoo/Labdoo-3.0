@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Integrates portable catalogs with Drupal translation hooks.
+ */
+
 declare(strict_types=1);
 
 use Drupal\labdoo_translations\Plugin\Menu\CatalogMenuLinkContent;
@@ -10,7 +15,8 @@ use Drupal\menu_link_content\Plugin\Menu\MenuLinkContent;
  */
 function labdoo_translations_menu_links_discovered_alter(array &$links): void {
   foreach ($links as &$definition) {
-    // Leave static links and specialized dynamic plugins to their own providers.
+    // Leave static links and specialized dynamic plugins to their own
+    // providers.
     if (is_string($definition['class'] ?? NULL) && ltrim($definition['class'], '\\') === MenuLinkContent::class) {
       $definition['class'] = CatalogMenuLinkContent::class;
     }

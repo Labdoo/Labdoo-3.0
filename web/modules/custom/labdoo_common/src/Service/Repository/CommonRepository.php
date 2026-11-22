@@ -15,9 +15,10 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * CommonRepository provides common functionalities and services for various operations within the application.
+ * Provides common repository operations across the application.
  *
- * The class is designed to encapsulate database interactions, caching, logging, and other shared utilities across modules.
+ * The class is designed to encapsulate database interactions, caching, logging,
+ * and other shared utilities across modules.
  */
 class CommonRepository {
 
@@ -82,7 +83,7 @@ class CommonRepository {
     EntityTypeManagerInterface $entityTypeManager,
     CacheBackendInterface $cacheBackend,
     LoggerChannelFactoryInterface $loggerChannelFactory,
-    LanguageManagerInterface $languageManager
+    LanguageManagerInterface $languageManager,
   ) {
     $this->database = $database;
     $this->entityTypeManager = $entityTypeManager;
@@ -155,7 +156,7 @@ class CommonRepository {
     $status = NULL,
     ?int $edooVillageId = NULL,
     ?int $hubId = NULL,
-    bool $useRevisionHistory = FALSE
+    bool $useRevisionHistory = FALSE,
   ): int {
     $tableName = $useRevisionHistory ? 'node_revision__field_dootronic_status' : 'node__field_dootronic_status';
     $query = $this->database->select($tableName, 'nfs');
@@ -341,10 +342,9 @@ class CommonRepository {
    * @param int $dootronicsDelivered
    *   The number of delivered dootronics.
    *
-   * @return int
+   * @return float
    *   The saved CO2.
    */
-
   public function getCo2Saved(int $dootronicsDelivered): float {
     $co2SavingsDootrip = $this->cacheBackend->get(self::CO2_SAVINGS_CID);
     if ($co2SavingsDootrip) {
@@ -497,7 +497,7 @@ class CommonRepository {
   }
 
   /**
-   * Navigates schools by their public number, including legacy unnumbered names.
+   * Navigates schools by public number, including unnumbered legacy names.
    */
   private function getEdoovillageNeighbor(int $nid, int $direction): int {
     $cid = 'edoovillage_numeric_navigation';
@@ -527,7 +527,7 @@ class CommonRepository {
       $this->cacheBackend->set($cid, $ordered, CacheBackendInterface::CACHE_PERMANENT, ['node_list:edoovillage']);
     }
     $index = array_search($nid, $ordered, TRUE);
-    if ($index === FALSE || !$ordered) {
+    if ($index === FALSE) {
       return -1;
     }
     return $ordered[($index + $direction + count($ordered)) % count($ordered)];
@@ -570,8 +570,8 @@ class CommonRepository {
    * @param int $entityId
    *   The entity ID.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
-   *   The entity or NULL in case of error.
+   * @return \Drupal\node\NodeInterface|null
+   *   The node or NULL in case of error.
    */
   public function loadEntity(int $entityId): ?EntityInterface {
     try {
@@ -597,7 +597,7 @@ class CommonRepository {
    * @param int $parentId
    *   The ID of the parent entity.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\node\NodeInterface|null
    *   The story entity if found, or NULL on failure.
    */
   public function getStory(int $parentId): ?EntityInterface {

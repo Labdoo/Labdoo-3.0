@@ -1,7 +1,7 @@
 labdoo_dootrip.export_csv:
   path: '/dootrip/export/csv/{viewId}/{displayId}'
   defaults:
-    _controller: '\Drupal\labdoo_dootrip\Controller\ExportController::exportCSV'
+    _controller: '\Drupal\labdoo_dootrip\Controller\ExportController::exportCsv'
     _title: 'CSV data export'
   requirements:
     _permission: 'access content'

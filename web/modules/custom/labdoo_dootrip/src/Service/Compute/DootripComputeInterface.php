@@ -2,7 +2,7 @@
 
 namespace Drupal\labdoo_dootrip\Service\Compute;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Interface for Compute services.
@@ -25,84 +25,84 @@ interface DootripComputeInterface {
   /**
    * Computes the CO2 savings of this dootrip.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    */
-  public function computeCo2Savings(EntityInterface $dootrip): void;
+  public function computeCo2Savings(NodeInterface $dootrip): void;
 
   /**
    * Computes the dootrip distance.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    */
-  public function computeDistance(EntityInterface $dootrip): void;
+  public function computeDistance(NodeInterface $dootrip): void;
 
   /**
    * Computes the dootrip weight.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    */
-  public function computeWeight(EntityInterface $dootrip): void;
+  public function computeWeight(NodeInterface $dootrip): void;
 
   /**
    * Computes the assigned dootronics.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    */
-  public function computeDootronicsAssigned(EntityInterface $dootrip): void;
+  public function computeDootronicsAssigned(NodeInterface $dootrip): void;
 
   /**
    * Computes the Dootrip capacity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    */
-  public function computeDootripCapacity(EntityInterface &$dootrip): void;
+  public function computeDootripCapacity(NodeInterface &$dootrip): void;
 
   /**
    * Computes the Dootrip locations.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    */
-  public function computeDootripLocations(EntityInterface &$dootrip): void;
+  public function computeDootripLocations(NodeInterface &$dootrip): void;
 
   /**
    * Computes the edoovillages assigned to a dootrip.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip.
    */
-  public function computeEdoovillagesAssigned(EntityInterface &$dootrip): void;
+  public function computeEdoovillagesAssigned(NodeInterface &$dootrip): void;
 
   /**
    * Computes the related dootronics for a dootrip.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $dootrip
+   * @param \Drupal\node\NodeInterface $dootrip
    *   The dootrip object for which the related dootronics need to be computed.
    * @param array $originalDootronicIds
    *   Optional list of original dootronic IDs.
    */
-  public function computeRelatedDootronics(EntityInterface &$dootrip, array $originalDootronicIds = []): void;
+  public function computeRelatedDootronics(NodeInterface &$dootrip, array $originalDootronicIds = []): void;
 
   /**
    * Enqueues the recompute of the dootrip capacity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    */
-  public function enqueueCapacityRecompute(EntityInterface $entity): void;
+  public function enqueueCapacityRecompute(NodeInterface $entity): void;
 
   /**
    * Enqueues the geocoding of the dootrip.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The entity.
    */
-  public function enqueueGeocoding(EntityInterface $entity): void;
+  public function enqueueGeocoding(NodeInterface $entity): void;
 
   /**
    * Enqueues the recompute of the total CO2 savings.
@@ -112,9 +112,9 @@ interface DootripComputeInterface {
   /**
    * Sets the title for the dootrip.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\node\NodeInterface $entity
    *   The dootrip entity.
    */
-  public function setDootripTitle(EntityInterface $entity): void;
+  public function setDootripTitle(NodeInterface $entity): void;
 
 }
