@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "date": "2026-11-22",
+  "task": "AWS-A12",
+  "status": "audit_consumer_active_on_v3",
+  "authorization": "Owner explicitly answered yes to processing real notifications and retiring them after committing a non-PII audit record.",
+  "worker_revision": "a7f1fc55a82464b4a78f3c34fa7aa23f7ab3e8b5",
+  "source_hashes": {
+    "scripts/ses_feedback_worker.py": "f3ff3f9de02e2e37e3a541ac06699bc3a4233e31149e782c44ae2594856edff8",
+    "scripts/runtime/labdoo-ses-feedback.service": "532ff4c72eee9033b2152afed51573f9f007459d756d9752f2f145fc717500d0",
+    "scripts/runtime/labdoo-ses-feedback.timer": "947320976d3e064f7fc11a75d1f905ec01f763634d3f133719ba42370bf526c3",
+    "tests/operations/ses_feedback_test.py": "46ebd073df565deb7413450faab7a2ae875423ea1070a3a266597e993d728dc4"
+  },
+  "runtime": {
+    "host_alias": "v3",
+    "dedicated_nonlogin_user": true,
+    "python": "3.12.3",
+    "aws_cli": "/usr/local/bin/aws",
+    "systemd_native_verify_exit": 0,
+    "timer_enabled": true,
+    "timer_active": true,
+    "service_last_result": "success",
+    "service_last_main_status": 0,
+    "successful_observed_polls": 2,
+    "first_poll_seconds": 22.498110351152718,
+    "batch_results": [
+      {
+        "received": 0,
+        "new": 0,
+        "duplicates": 0,
+        "acknowledged": 0,
+        "failed": 0
+      },
+      {
+        "received": 0,
+        "new": 0,
+        "duplicates": 0,
+        "acknowledged": 0,
+        "failed": 0
+      }
+    ],
+    "ledger_rows_observed": 0,
+    "ledger_columns": [
+      "fingerprint",
+      "kind",
+      "first_seen"
+    ],
+    "config_mode": "0o600",
+    "state_directory_mode": "0o700",
+    "ledger_mode": "0o600",
+    "installed_units_match_repository": true,
+    "per_receive_visibility_seconds": 300,
+    "service_timeout_seconds": 180,
+    "source_global_visibility_seconds": 30,
+    "failed_batch_exits_nonzero": true,
+    "success_heartbeat_skipped_on_failed_batch": true
+  },
+  "permissions": {
+    "new_inline_policy_count": 1,
+    "new_queue_actions": [
+      "sqs:GetQueueAttributes",
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage"
+    ],
+    "queue_scope": "original feedback source only",
+    "heartbeat_namespace": "Labdoo/SESFeedback",
+    "actual_service_user_role_identity_verified": true,
+    "iam_simulation": {
+      "source": {
+        "sqs:GetQueueAttributes": "allowed",
+        "sqs:ReceiveMessage": "allowed",
+        "sqs:DeleteMessage": "allowed",
+        "sqs:PurgeQueue": "implicitDeny",
+        "sqs:SendMessage": "implicitDeny"
+      },
+      "processing_dlq": {
+        "sqs:ReceiveMessage": "implicitDeny",
+        "sqs:DeleteMessage": "implicitDeny"
+      }
+    },
+    "original_inline_policy_names_preserved": true,
+    "managed_policy_attachments_preserved": true,
+    "static_aws_credentials_installed": false
+  },
+  "supervision": {
+    "heartbeat_metric": "PollHeartbeat",
+    "namespace": "Labdoo/SESFeedback",
+    "dimensions": [],
+    "statistic": "Minimum",
+    "comparison": "LessThanThreshold",
+    "threshold": 0,
+    "period_seconds": 60,
+    "evaluation_periods": 5,
+    "datapoints_to_alarm": 5,
+    "missing_data": "breaching",
+    "absence_before_initial_poll": {
+      "state": "ALARM",
+      "actions_enabled": false
+    },
+    "observed_successful_heartbeat_samples": 2,
+    "observed_success_count": 2.0,
+    "transitions": [
+      {
+        "before": "ALARM",
+        "after": "OK"
+      },
+      {
+        "before": "INSUFFICIENT_DATA",
+        "after": "ALARM"
+      }
+    ],
+    "final_heartbeat_state": "OK",
+    "notification_actions_enabled_after_ok": true,
+    "prior_alarm_configs_preserved": 65,
+    "all_alarm_states": {
+      "OK": 66
+    },
+    "exact_five_minute_detection_guaranteed": false
+  },
+  "preserved": {
+    "queue_retention_seconds": 345600,
+    "queue_default_visibility_seconds": 30,
+    "source_sse": true,
+    "source_policy_preserved": true,
+    "separate_delivery_processing_dlqs": true,
+    "ses_suppression_vdm_unchanged": true,
+    "mail_sent_for_validation": false,
+    "drupal_users_preferences_changed": false,
+    "os_patch_reboot_encryption_migrations_executed": false
+  },
+  "validation": {
+    "unit_command": "python3 -B tests/operations/ses_feedback_test.py",
+    "unit_tests_passed": 19,
+    "unit_failures": 0,
+    "isolated_native_sns_sqs_probe": {
+      "worker_totals": {
+        "received": 8,
+        "new": 5,
+        "duplicates": 1,
+        "acknowledged": 6,
+        "failed": 2
+      },
+      "processing_dlq_poison_preserved": true,
+      "delivery_dlq_preserved": true,
+      "persisted_events": 5,
+      "ledger_has_no_synthetic_address": true,
+      "real_queue_received_or_deleted": false,
+      "ses_mail_sent": false,
+      "success": true,
+      "cleanup_failures": []
+    },
+    "real_source_polling_verified": true,
+    "live_notifications_available_in_observed_polls": 0,
+    "live_notifications_acknowledged_in_observed_polls": 0,
+    "production_per_recipient_action": "not implemented by audit-only consumer; existing SES automatic suppression retained",
+    "platform_external_consumer_discovery": "incomplete; none found in reviewed metadata/hosts, historical receives zero",
+    "fresh_live_ses_mail_delivery_test": false,
+    "production_load_capacity_certified": false,
+    "drupal_browser_load_lighthouse": "not run: standalone operations worker only; native operational flow and target FPM deployment checks used",
+    "worker_code_deployment": {
+      "exit": 0,
+      "revision": "a7f1fc55a82464b4a78f3c34fa7aa23f7ab3e8b5",
+      "settings_preserved": true,
+      "fpm_checks": 12,
+      "fpm_all_http200": true,
+      "fpm_error_count": 0,
+      "seven_published_files_exist": true,
+      "consumer_timer_not_enabled": true
+    },
+    "preflight_note": "Initial read-only Git inspection as root exited 128; rerun as deployment owner succeeded before activation mutations.",
+    "worker_code_deployment_phase": "Before service/timer installation; timer was still disabled at that deployment smoke check"
+  },
+  "cost_estimate": {
+    "currency": "USD",
+    "initial_eight_alarms_monthly": 0.8,
+    "added_heartbeat_metric_and_alarm_monthly": 0.4,
+    "total_feedback_monitoring_monthly": 1.2,
+    "excludes": [
+      "tax",
+      "free allowances",
+      "variable API/SNS/SQS/storage usage"
+    ],
+    "additional_ec2_instances": 0
+  }
+}

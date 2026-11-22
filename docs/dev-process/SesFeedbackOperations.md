@@ -1,11 +1,13 @@
 # SES feedback verification and monitoring
 
-AWS-A12, 22 November 2026. Queue protections and monitoring have been applied;
-the audit consumer is prepared but **not activated** on the real queue.
-The task explicitly prohibits receiving/deleting real messages during diagnosis.
-[Sanitized evidence](../../tests/performance/ses-feedback-20261122.json) records
-what was observed and tested. Raw queue URLs, ARNs, policies, identities and
-receipts remain private.
+AWS-A12, 22 November 2026. The owner explicitly approved real notification
+processing after the diagnostic phase. The audit consumer and timer are now
+**active on v3**, with scoped permissions and heartbeat supervision.
+[Activation evidence](../../tests/performance/ses-feedback-activation-20261122.json)
+records the current running state; the
+[initial diagnostic snapshot](../../tests/performance/ses-feedback-20261122.json)
+retains the earlier observations and its then-inactive consumer status. Raw queue
+URLs, ARNs, policies, identities and receipts remain private.
 
 ## What this queue represents
 
@@ -105,7 +107,7 @@ mail test was introduced. The native regional price inventory contains the
 standard USD 0.10/alarm-month rate;
 [CloudWatch pricing](https://aws.amazon.com/cloudwatch/pricing/) is the reference.
 
-## Prepared audit worker
+## Audit worker
 
 [scripts/ses_feedback_worker.py](../../scripts/ses_feedback_worker.py) is a
 standalone operational tool, outside Drupal request handling. It never sends
@@ -118,8 +120,10 @@ python3 -B scripts/ses_feedback_worker.py --config /private/path/config.json
 
 A private config binds one account, region, queue URL/ARN, expected SNS topic
 and absolute ledger path. No config containing live identifiers is committed.
-Receiving and acknowledging requires an explicit **`--apply`** flag, which has
-only been exercised against temporary test resources in this assessment.
+Receiving and acknowledging requires an explicit **`--apply`** flag. After
+owner approval, systemd invokes that mode against the real source queue. Observed
+real polls were successful and empty; no live notification was available to
+acknowledge. Synthetic notifications were tested separately, without mail sends.
 
 The decoder accepts the configured event types in an SNS notification envelope,
 checks its topic, and hashes canonical SES JSON independently of the outer SNS
@@ -137,63 +141,89 @@ must not be exposed as one. Publishing to the authorized topic remains a
 privileged operation. Malformed/unsupported events are left for redrive; the
 worker does not silently discard them.
 
-The source 30-second visibility still applies. Before activation, measure batch
-runtime against this lease and set an appropriate per-receive lease or smaller
-batch if needed. Local commit/delete retry safety does not prove adequate
-throughput or timely DLQ recovery in a future production workload.
+The source retains its global 30-second visibility setting. This worker requests
+a **300-second per-receive lease**, validated within SQS limits, longer than the
+180-second service timeout. The first real empty poll took about 22.5 seconds.
+A failed batch exits unsuccessfully after printing safe counters, preventing
+ExecStartPost from publishing a success heartbeat. A process stopped after a
+commit can retry after the lease without incrementing the audit projection twice.
+[AWS visibility guidance](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html)
+explains the processing-time and retry tradeoff. This does not certify future
+production throughput or eliminate SQS at-least-once duplicate delivery.
 
-The prepared [service](../../scripts/runtime/labdoo-ses-feedback.service) and
-[timer](../../scripts/runtime/labdoo-ses-feedback.timer) are **source templates**.
-They are not installed or enabled by the code deployment. The timer waits one
+The [service](../../scripts/runtime/labdoo-ses-feedback.service) and
+[timer](../../scripts/runtime/labdoo-ses-feedback.timer) were installed explicitly
+under `/etc/systemd/system` after approval and native systemd validation. Their
+bytes match the repository. The timer is enabled and active. Code deployment
+alone still does not install or activate units. The timer waits one
 minute after the previous invocation ends, so it does not overlap its own
 oneshot service. The service uses a dedicated user, private config/state,
 restricted writable path and a post-run CloudWatch PollHeartbeat metric. Native
 v3 inspection confirmed Python 3.12.3 and `/usr/local/bin/aws`; local tests used
 Python 3.12.3. No PHP dependency compatibility claim is involved.
 
-## Activation decision and rollback
+## Activation record and rollback
 
-Activation is a separate step because the current card says not to receive or
-delete real messages during diagnosis. Before approval, keep the timer absent,
-consumer IAM permissions unapplied, and use only the default inspect mode.
+The original task prohibited real ReceiveMessage/DeleteMessage during diagnosis.
+The owner subsequently answered **yes** to activating the prepared audit worker
+and retiring valid notifications after their non-PII audit record is committed.
+That authorization covers the running service below. It does not authorize
+changing Drupal preferences or SES suppression rules.
 
-A concrete activation would:
+Activation completed with these checks:
 
-1. Confirm no competing consumer on platform or externally and accept the
-   audit-only behavior. Existing SES suppression and feedback forwarding stay
-   unchanged; this worker will acknowledge valid notifications after saving
-   their non-PII audit projection, not retain their complete bodies.
-2. Create the dedicated non-login `labdoo-feedback` user and new private
-   `/etc/labdoo-ses-feedback` and `/mnt/data/labdoo-feedback` directories. Review
-   unexpected existing paths instead of overwriting or changing permissions
-   recursively. Install a mode-0600 config and verify source ARN/topic privately.
-3. Review the instance role and attach only the additional queue permissions
-   generated by `consumer_policy()` in
-   [ses_feedback_policy.py](../../scripts/ses_feedback_policy.py): attributes,
-   receive and delete for that queue, plus heartbeat writes restricted to
-   `Labdoo/SESFeedback`. No mail-send, purge or wildcard SQS permissions. Existing
-   role permissions still need review; this does not narrow unrelated grants.
-4. Run inspect under the actual service identity, then one explicitly authorized
-   real poll. Measure runtime, acknowledge counts and lease behavior; inspect
-   the private ledger's aggregate categories and safe logs.
-5. Install/enable the reviewed timer. Configure a heartbeat no-data alarm only
-   after successful heartbeats are observed: `PollHeartbeat`, namespace
-   `Labdoo/SESFeedback`, no dimensions, a threshold below its nonnegative values,
-   five one-minute missing periods treated as breaching. This ninth alarm and
-   custom metric would add about USD 0.40/month before variable charges. They
-   are not created/enabled during this diagnostic task. A heartbeat proves a
-   completed poll, not successful processing of every message.
-6. Observe backlog, DLQs, worker failures and heartbeat through real traffic,
-   then perform a controlled retry exercise without publishing fake bounces to
-   the real SES topic or sending real mail.
+1. A dedicated non-login `labdoo-feedback` user, mode-0700 config/state directories
+   and mode-0600 config and SQLite ledger were created. Existing unexpected paths
+   were checked before creation; no recursive permission change was made.
+2. The additional instance-role policy grants GetQueueAttributes, ReceiveMessage
+   and DeleteMessage for the source queue, plus namespace-scoped heartbeat writes.
+   Native IAM simulation allows those source operations and denies source
+   SendMessage/PurgeQueue and processing-DLQ ReceiveMessage/DeleteMessage. The
+   original inline policy and managed-policy attachments were retained. The
+   actual service user verified its instance-role identity and inspected the
+   queue successfully; no static AWS credentials were installed.
+3. The reviewed worker was deployed to v3. Systemd verified the service/timer;
+   the first actual service invocation completed successfully, created only the
+   expected ledger columns and reported no messages. Repeated scheduled polls
+   and CloudWatch heartbeat samples were observed. A oneshot service can be
+   inactive between polls while its timer remains active; inspect the timer and
+   last Result/ExecMainStatus rather than treating this idle state as a failure.
+4. The ninth alarm, `LabdooFeedbackPollNoData`, watches PollHeartbeat in
+   `Labdoo/SESFeedback`, no dimensions, Minimum below zero, five one-minute
+   missing periods treated as breaching. Before the first poll it reached ALARM
+   with notification actions disabled. Actual successful polls produced metrics
+   and returned it to OK; only then were notifications enabled. CloudWatch can
+   reuse older datapoints, so five periods is not a guaranteed exact five-minute
+   detection time. Failed batches do not publish the success heartbeat; a
+   successful empty poll still does not prove every future message will process.
+5. The previous 65 alarm configurations were preserved. SES sending, account
+   suppression, feedback forwarding and VDM were not modified. Existing queue
+   retention, global visibility, transport protections and separate DLQs remain.
 
-To stop the future consumer, stop/disable its timer, allow the current invocation
+The initial eight alarms cost about USD 0.80/month; the heartbeat metric and
+alarm add about USD 0.40/month, for approximately **USD 1.20/month** before
+allowances, tax and variable API/SNS/SQS/storage usage. No new EC2 was created.
+
+Platform/external consumer discovery remains incomplete. No competing consumer
+was observed in the reviewed hosts or regional metadata, and historical metrics
+showed no receives; neither is a universal exclusion proof. This audit worker
+must remain the single owner of its local ledger when web nodes are replaced.
+Do not publish synthetic bounces into the real SES topic or send mail merely to
+produce a production test event.
+
+To stop the consumer, stop/disable its timer, allow the current invocation
 to finish or stop it deliberately, and preserve the private ledger. A message
 left in flight becomes visible after its lease; a committed item can safely
 replay. Never delete the ledger before replaying a backlog. Do not run independent
 SQLite ledgers on two web nodes or assume SQLite on a network filesystem is the
 future HA design: a shared transactional deduplication store or dedicated worker
 state/recovery plan is required before the proposed web-cluster migration.
+
+To revoke the consumer access, stop its timer/service first and remove only the
+added `LabdooSesFeedbackConsumer` inline policy after reviewing in-flight work.
+Preserve the original role policies and private ledger. During an approved
+shutdown, explicitly manage the task-owned heartbeat alarm notification state;
+otherwise its missing-heartbeat alert is expected and useful.
 
 To roll back protections, first disable only task-owned alarms, restore the
 privately captured original source policy/redrive setting and subscription
@@ -203,10 +233,11 @@ restore/replay is an explicit operation, not part of rollback by default.
 
 ## Validation performed
 
-Run `python3 -B tests/operations/ses_feedback_test.py`. Seventeen tests cover
+Run `python3 -B tests/operations/ses_feedback_test.py`. Nineteen tests cover
 republished notifications, persistence/deletion failures, malformed/untrusted
 payloads, private non-PII storage, configuration binding, inspect-only defaults,
-source-scoped policies, separate DLQ trust, sparse metrics and proposed IAM scope.
+source-scoped policies, separate DLQ trust, sparse metrics, scoped IAM, lease
+validation and unsuccessful batch exits.
 
 The native controlled test used a temporary SNS topic and three encrypted SQS
 queues with no email subscriber. Six valid notifications represented five event
@@ -214,8 +245,10 @@ categories plus a repeated Bounce: **five new, one duplicate, six acknowledgment
 A malformed notification failed processing twice and reached the processing
 DLQ intact. A forced SNS client delivery denial reached the separate delivery
 DLQ intact. The ledger contained no synthetic recipient address. All temporary
-queues, topic and subscription were removed. No real queue message was received
-or deleted; no SES mail was sent.
+queues, topic and subscription were removed. The controlled test did not use the
+real source queue and sent no SES mail.
+The separately approved real service was then polled with its actual identity;
+its observed batches were empty, so no live notification was acknowledged.
 
 The first native attempt passed worker duplicate handling but its controller
 failed while interpreting an empty CLI response during DLQ inspection. Its
@@ -227,6 +260,8 @@ reviewed plan to run. These controller failures are not hidden as passes.
 No Drupal behavior, theme or mail-dispatch code changed. Drupal browser, k6 and
 Lighthouse suites do not exercise this standalone AWS consumer and were not run;
 the operational unit suite and actual isolated SNS/SQS workflow provide the
-relevant evidence. Production consumer activation, account-specific fresh
-SES-to-SNS delivery, platform's processes and production processing throughput
-remain unverified. Publishing these files does not turn those limits into passes.
+relevant evidence. Activation, the actual service identity, real empty polls and
+heartbeat supervision have been verified. Account-specific fresh SES-to-SNS mail delivery,
+processing of a naturally arriving live notification, platform's processes and
+production processing throughput remain unverified. Publishing these files does
+not turn those limits into passes.
