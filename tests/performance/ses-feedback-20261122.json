@@ -1,0 +1,318 @@
+{
+  "schema": 1,
+  "date": "2026-11-22",
+  "task": "AWS-A12",
+  "status": "protections_active_audit_consumer_prepared_not_activated",
+  "region": "eu-central-1",
+  "task_boundary": "Do not receive or delete real messages during diagnosis. Activation requires explicit approval.",
+  "source_role": "SES configuration-set event notification queue, not an outgoing-mail queue",
+  "before": {
+    "sqs_queues": 1,
+    "sns_topics": 3,
+    "sns_subscriptions": 3,
+    "email_alert_subscriptions": 2,
+    "sns_sqs_subscriptions": 1,
+    "ses_verified_identities": 2,
+    "identities_default_configuration_set": true,
+    "identity_feedback_forwarding": true,
+    "lambda_functions": 0,
+    "lambda_event_source_mappings": 0,
+    "eventbridge_rules": 0,
+    "scheduler_schedules": 0,
+    "source_visible_approximate": 0,
+    "source_in_flight_approximate": 0,
+    "source_delayed_approximate": 0,
+    "source_encryption": "SSE-SQS",
+    "source_retention_seconds": 345600,
+    "source_visibility_seconds": 30,
+    "source_redrive_policy": false,
+    "subscription_redrive_policy": false
+  },
+  "ses_unchanged": {
+    "sending_enabled": true,
+    "production_access_enabled": true,
+    "enforcement": "HEALTHY",
+    "automatic_suppression_reasons": [
+      "BOUNCE",
+      "COMPLAINT"
+    ],
+    "vdm_enabled": true,
+    "test_email_sent": false,
+    "recipient_preferences_or_drupal_users_mutated": false
+  },
+  "historical_metrics": {
+    "start": "2026-10-23T18:00:00+00:00",
+    "end": "2026-11-22T18:00:00+00:00",
+    "period_seconds": 3600,
+    "series": [
+      {
+        "id": "q0",
+        "metric": "NumberOfMessagesSent",
+        "samples": 399,
+        "status": "Complete",
+        "sum": 14.0,
+        "max": 8.0,
+        "nonzero_samples": 4,
+        "statistic": "Sum"
+      },
+      {
+        "id": "q1",
+        "metric": "NumberOfMessagesReceived",
+        "samples": 399,
+        "status": "Complete",
+        "sum": 0.0,
+        "max": 0.0,
+        "nonzero_samples": 0,
+        "statistic": "Sum"
+      },
+      {
+        "id": "q2",
+        "metric": "NumberOfMessagesDeleted",
+        "samples": 399,
+        "status": "Complete",
+        "sum": 0.0,
+        "max": 0.0,
+        "nonzero_samples": 0,
+        "statistic": "Sum"
+      },
+      {
+        "id": "q3",
+        "metric": "NumberOfEmptyReceives",
+        "samples": 399,
+        "status": "Complete",
+        "sum": 0.0,
+        "max": 0.0,
+        "nonzero_samples": 0,
+        "statistic": "Sum"
+      },
+      {
+        "id": "q4",
+        "metric": "ApproximateAgeOfOldestMessage",
+        "samples": 399,
+        "status": "Complete",
+        "max": 432013.0,
+        "nonzero_samples": 372,
+        "statistic": "Maximum"
+      },
+      {
+        "id": "q5",
+        "metric": "ApproximateNumberOfMessagesVisible",
+        "samples": 399,
+        "status": "Complete",
+        "max": 10.0,
+        "nonzero_samples": 372,
+        "statistic": "Maximum"
+      },
+      {
+        "id": "t6",
+        "metric": "NumberOfMessagesPublished",
+        "samples": 4,
+        "status": "Complete",
+        "sum": 14.0,
+        "max": 8.0,
+        "nonzero_samples": 4,
+        "statistic": "Sum"
+      },
+      {
+        "id": "t7",
+        "metric": "NumberOfNotificationsDelivered",
+        "samples": 4,
+        "status": "Complete",
+        "sum": 14.0,
+        "max": 8.0,
+        "nonzero_samples": 4,
+        "statistic": "Sum"
+      },
+      {
+        "id": "t8",
+        "metric": "NumberOfNotificationsFailed",
+        "samples": 4,
+        "status": "Complete",
+        "sum": 0.0,
+        "max": 0.0,
+        "nonzero_samples": 0,
+        "statistic": "Sum"
+      }
+    ]
+  },
+  "consumer_discovery": {
+    "published_drupal_ses_worker": "outgoing Drupal mail only",
+    "published_supervisor_script": "read-only attributes only",
+    "v3_config_files_inspected": 37,
+    "www_config_files_inspected": 37,
+    "matching_consumer_configs_v3": 0,
+    "matching_consumer_configs_www": 0,
+    "matching_consumer_processes_v3": 0,
+    "matching_consumer_processes_www": 0,
+    "platform_guest_access": "unavailable",
+    "external_consumers_excluded": false,
+    "existing_consumer_identified": false
+  },
+  "applied": {
+    "source_policy_sns_service_principal": true,
+    "source_topic_account_conditions_preserved": true,
+    "source_tls_deny": true,
+    "aws_service_transport_context_excluded_from_tls_deny": true,
+    "delivery_dlq": "separate encrypted SQS, SNS subscription redrive",
+    "processing_dlq": "separate encrypted SQS, source-queue-only redrive allow policy",
+    "dead_letter_queue_count": 2,
+    "dlq_retention_seconds": 1209600,
+    "processing_max_receive_count": 5,
+    "source_retention_visibility_unchanged": true,
+    "source_envelope_format_unchanged": true,
+    "sns_topic_policy_unchanged": true,
+    "ses_configuration_unchanged": true,
+    "original_queue_receive_calls": 0,
+    "original_queue_delete_calls": 0,
+    "original_queue_purge_calls": 0
+  },
+  "alarms": {
+    "new_count": 8,
+    "previous_configurations_preserved": 57,
+    "resulting_total": 65,
+    "new_all_ok": true,
+    "new_all_actions_enabled": true,
+    "existing_notification_route_preserved": true,
+    "missing_data": "notBreaching; idle OK does not prove consumer health",
+    "definitions": [
+      {
+        "alias": "LabdooFeedbackQueueAge",
+        "namespace": "AWS/SQS",
+        "metric": "ApproximateAgeOfOldestMessage",
+        "threshold": 900,
+        "statistic": "Maximum",
+        "period_seconds": 60,
+        "periods": 3
+      },
+      {
+        "alias": "LabdooFeedbackQueueBacklog",
+        "namespace": "AWS/SQS",
+        "metric": "ApproximateNumberOfMessagesVisible",
+        "threshold": 1,
+        "statistic": "Maximum",
+        "period_seconds": 300,
+        "periods": 3
+      },
+      {
+        "alias": "LabdooFeedbackDeliveryDead",
+        "namespace": "AWS/SQS",
+        "metric": "ApproximateNumberOfMessagesVisible",
+        "threshold": 1,
+        "statistic": "Maximum",
+        "period_seconds": 60,
+        "periods": 1
+      },
+      {
+        "alias": "LabdooFeedbackProcessingDead",
+        "namespace": "AWS/SQS",
+        "metric": "ApproximateNumberOfMessagesVisible",
+        "threshold": 1,
+        "statistic": "Maximum",
+        "period_seconds": 60,
+        "periods": 1
+      },
+      {
+        "alias": "LabdooFeedbackSnsDeliveryFailed",
+        "namespace": "AWS/SNS",
+        "metric": "NumberOfNotificationsFailed",
+        "threshold": 1,
+        "statistic": "Sum",
+        "period_seconds": 300,
+        "periods": 1
+      },
+      {
+        "alias": "LabdooFeedbackSnsRedriveFailed",
+        "namespace": "AWS/SNS",
+        "metric": "NumberOfNotificationsFailedToRedriveToDlq",
+        "threshold": 1,
+        "statistic": "Sum",
+        "period_seconds": 300,
+        "periods": 1
+      },
+      {
+        "alias": "LabdooFeedbackBounceRate",
+        "namespace": "AWS/SES",
+        "metric": "Reputation.BounceRate",
+        "threshold": 0.05,
+        "statistic": "Maximum",
+        "period_seconds": 300,
+        "periods": 1
+      },
+      {
+        "alias": "LabdooFeedbackComplaintRate",
+        "namespace": "AWS/SES",
+        "metric": "Reputation.ComplaintRate",
+        "threshold": 0.001,
+        "statistic": "Maximum",
+        "period_seconds": 300,
+        "periods": 1
+      }
+    ]
+  },
+  "prepared_consumer": {
+    "active": false,
+    "real_receive_delete_iam_granted": false,
+    "service_timer_installed_or_enabled": false,
+    "default_mode": "inspect attributes only",
+    "apply_mode": "receive then commit fingerprint/category/time before acknowledgment",
+    "ledger_contains_addresses_or_bodies": false,
+    "changes_ses_suppression_or_drupal_subscriptions": false,
+    "deduplication_scope": "identical canonical SES JSON, independently of outer SNS MessageId",
+    "sqlite_ledger_ha_shared_store": false,
+    "activation_gates": [
+      "confirm no competing platform/external consumer",
+      "approve audit-only real-message acknowledgment",
+      "create private config/state and dedicated service user",
+      "review scoped additional IAM",
+      "verify actual service identity and batch visibility lease",
+      "install timer and verify heartbeat",
+      "add heartbeat missing-data alarm after actual successful samples"
+    ],
+    "publication_does_not_activate_worker": true
+  },
+  "validation": {
+    "unit_tests": 17,
+    "unit_passed": 17,
+    "unit_failures": 0,
+    "local_python": "3.12.3",
+    "target_python": "3.12.3",
+    "target_aws_path": "/usr/local/bin/aws",
+    "syntax_files": 3,
+    "native_probe": {
+      "worker_totals": {
+        "received": 8,
+        "new": 5,
+        "duplicates": 1,
+        "acknowledged": 6,
+        "failed": 2
+      },
+      "processing_dlq_poison_preserved": true,
+      "delivery_dlq_preserved": true,
+      "persisted_events": 5,
+      "ledger_has_no_synthetic_address": true,
+      "real_queue_received_or_deleted": false,
+      "ses_mail_sent": false,
+      "success": true,
+      "cleanup_failures": []
+    },
+    "initial_native_attempt": "Worker duplicate handling passed, controller failed on empty CLI response during DLQ inspection; private evidence preserved, all temporary resources removed. Corrected second attempt passed.",
+    "apply_initial_preflight": "Stopped on empty queue-list response before mutations; private helper normalized empty AWS CLI results and retry succeeded.",
+    "real_ses_to_sns_fresh_mail_test": false,
+    "production_consumer_processing_verified": false,
+    "drupal_e2e_k6_lighthouse": "not run: standalone operational scripts and infrastructure; no Drupal/UI/mail-dispatch behavior changed",
+    "full_existing_guest_consumer_inventory": "incomplete: platform unavailable and external consumers cannot be excluded"
+  },
+  "cost_estimate": {
+    "currency": "USD",
+    "new_standard_alarms_monthly": 0.8,
+    "rate_per_alarm_month": 0.1,
+    "pricing_source": "Native Frankfurt AWS Price List inventory retrieved 2026-11-22; standard alarm rate",
+    "excludes": [
+      "tax",
+      "allowances",
+      "variable SQS/SNS/API/storage charges"
+    ],
+    "new_fixed_compute": 0,
+    "future_optional_heartbeat_metric_and_alarm_monthly": 0.4
+  }
+}

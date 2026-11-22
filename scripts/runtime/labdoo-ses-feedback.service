@@ -1,0 +1,20 @@
+# Install only after explicit approval to consume the real feedback queue.
+[Unit]
+Description=Labdoo SES feedback audit poll
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=labdoo-feedback
+Group=labdoo-feedback
+UMask=0077
+Environment=PYTHONWARNINGS=ignore
+ExecStart=/usr/bin/python3 -B /mnt/data/labdoo/scripts/ses_feedback_worker.py --config /etc/labdoo-ses-feedback/config.json --apply
+ExecStartPost=/usr/local/bin/aws cloudwatch put-metric-data --region eu-central-1 --namespace Labdoo/SESFeedback --metric-data MetricName=PollHeartbeat,Value=1,Unit=Count
+TimeoutStartSec=180
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/mnt/data/labdoo-feedback

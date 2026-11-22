@@ -1,0 +1,11 @@
+# Source template only; publishing this file does not enable the timer.
+[Unit]
+Description=Poll Labdoo SES feedback after the previous audit run finishes
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=1min
+Unit=labdoo-ses-feedback.service
+
+[Install]
+WantedBy=timers.target
