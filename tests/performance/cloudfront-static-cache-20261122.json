@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "task": "AWS-A08",
+  "date": "2026-11-22",
+  "domain": "v3.labdoo.org",
+  "configuration": {
+    "original_fields_preserved_except_owned_additions": true,
+    "original_origins_preserved": 1,
+    "new_static_origin_cloned_with_guard_marker": true,
+    "original_ordered_behaviors_preserved": 4,
+    "new_static_behaviors": 13,
+    "total_ordered_behaviors": 17,
+    "default_dynamic_behavior_unchanged": true,
+    "waf_and_origin_guard_unchanged": true,
+    "ttl_min_default_max": [
+      0,
+      300,
+      300
+    ],
+    "session_cookies_not_forwarded": true,
+    "auth_and_host_in_cache_key": true,
+    "all_version_queries_keyed": true,
+    "error_ttl_zero_codes": [
+      400,
+      403,
+      404,
+      405,
+      414,
+      500,
+      501,
+      502,
+      503,
+      504
+    ],
+    "final_distribution_status": "Deployed"
+  },
+  "native_validation": {
+    "checks_passed": 16,
+    "checks_failed": 0,
+    "checks": [
+      {
+        "case": "public_fixture_miss_hit",
+        "passed": true,
+        "first_status": 200,
+        "second_status": 200,
+        "first_cache": "Miss from cloudfront",
+        "second_cache": "Hit from cloudfront",
+        "same_body": true
+      },
+      {
+        "case": "wordmark_miss_hit",
+        "passed": true,
+        "first_status": 200,
+        "second_status": 200,
+        "first_cache": "Miss from cloudfront",
+        "second_cache": "Hit from cloudfront",
+        "same_body": true
+      },
+      {
+        "case": "core_js_miss_hit",
+        "passed": true,
+        "first_status": 200,
+        "second_status": 200,
+        "first_cache": "Miss from cloudfront",
+        "second_cache": "Hit from cloudfront",
+        "same_body": true
+      },
+      {
+        "case": "css_miss_hit",
+        "passed": true,
+        "first_status": 200,
+        "second_status": 200,
+        "first_cache": "Miss from cloudfront",
+        "second_cache": "Hit from cloudfront",
+        "same_body": true
+      },
+      {
+        "case": "js_miss_hit",
+        "passed": true,
+        "first_status": 200,
+        "second_status": 200,
+        "first_cache": "Miss from cloudfront",
+        "second_cache": "Hit from cloudfront",
+        "same_body": true
+      },
+      {
+        "case": "unauthenticated_cannot_borrow_warm_object",
+        "passed": true,
+        "status": 401
+      },
+      {
+        "case": "bad_auth_cannot_borrow_warm_object",
+        "passed": true,
+        "status": 401
+      },
+      {
+        "case": "session_cookie_not_forwarded_or_in_cache_key",
+        "passed": true
+      },
+      {
+        "case": "private_not_cached",
+        "passed": true,
+        "statuses": [
+          200,
+          200
+        ]
+      },
+      {
+        "case": "html_mime_not_cached",
+        "passed": true,
+        "statuses": [
+          200,
+          200
+        ]
+      },
+      {
+        "case": "missing_static_not_cached",
+        "passed": true,
+        "statuses": [
+          404,
+          404
+        ]
+      },
+      {
+        "case": "html_en_uncached",
+        "passed": true,
+        "statuses": [
+          200,
+          200
+        ]
+      },
+      {
+        "case": "html_es_uncached",
+        "passed": true,
+        "statuses": [
+          200,
+          200
+        ]
+      },
+      {
+        "case": "private_route_uncached",
+        "passed": true,
+        "statuses": [
+          403,
+          403
+        ]
+      },
+      {
+        "case": "api_uncached",
+        "passed": true,
+        "statuses": [
+          200,
+          200
+        ]
+      },
+      {
+        "case": "acme_uncached",
+        "passed": true,
+        "statuses": [
+          200,
+          200
+        ]
+      }
+    ],
+    "publication": {
+      "versioned_queries_isolated": true,
+      "new_version_miss_hit": true,
+      "old_version_was_cached_before_invalidation": true,
+      "targeted_invalidation_completed": true,
+      "old_url_gets_updated_content_after_invalidation": true,
+      "post_invalidation_miss_hit": true,
+      "paths_invalidated_for_publication": 1
+    },
+    "cleanup": {
+      "owned_theme_fixture_directory_removed": true,
+      "owned_acme_file_removed": true,
+      "other_files_untouched": true,
+      "temporary_identity_removed": true,
+      "existing_identity_entries_preserved": true,
+      "auth_owner_group_mode_preserved": true,
+      "owned_cleanup_timer_stopped": true,
+      "cached_probe_objects_invalidated": true,
+      "revoked_identity_html_status": 401,
+      "revoked_identity_static_status": 401,
+      "removed_acme_status": 404,
+      "all_temporary_probes_cleaned": true
+    },
+    "sensitive_probe_material_removed": {
+      "probe_sensitive_material_removed": true,
+      "cleanup_timer_inactive": true,
+      "installed_guard_matches_reviewed_source": true
+    },
+    "post_finalization_access": {
+      "unauthenticated_static_status": 401,
+      "unauthenticated_html_status": 401,
+      "no_cached_unauthenticated_object": true
+    }
+  },
+  "local_validation": {
+    "runtime": {
+      "php": "8.3.36",
+      "python": "3.12.3",
+      "locked_drupal_core": "11.4.13",
+      "installed_drupal_core": "11.4.13",
+      "tested_checkout": "d714a9dd2fe4d5330f6567dbe405d658085c4a1c plus local task and unrelated changes",
+      "publication_base": "bcd0073910a9021972722dbb1ffb667f219def93",
+      "application_php_js_templates_unchanged_by_this_task": true
+    },
+    "policy_and_real_apache_tests": {
+      "passed": 19,
+      "failed": 0,
+      "command": "python3 -B tests/operations/cloudfront_cache_test.py"
+    },
+    "e2e": {
+      "passed": 44,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "run": "cloudfront-static-20261122",
+      "files": [
+        "global-search.spec.ts",
+        "theme-performance.spec.ts"
+      ],
+      "profiles": [
+        "desktop",
+        "mobile"
+      ],
+      "authentication_setup_passed": true
+    },
+    "k6": {
+      "vus": 5,
+      "duration_seconds": 30,
+      "http_requests": 453,
+      "checks_passed": 900,
+      "checks_failed": 0,
+      "http_failure_rate": 0,
+      "p95_ms": 13.441293399999998,
+      "all_thresholds_passed": true,
+      "first_setup_attempt_failed_no_load": true,
+      "non_loopback_and_missing_checkout_inputs_rejected_before_network": true
+    },
+    "lighthouse": {
+      "audits": [
+        {
+          "route": "home",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 332.263,
+            "largest-contentful-paint": 1045.3774999999998,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 407.7835015324423
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "home",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1363.9776,
+            "largest-contentful-paint": 2067.9776,
+            "total-blocking-time": 31.505600000000186,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1363.9776
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "dashboard",
+          "profile": "desktop",
+          "run": 1,
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 322.7703,
+            "largest-contentful-paint": 948.9648500000001,
+            "total-blocking-time": 0,
+            "cumulative-layout-shift": 0,
+            "speed-index": 418.1095911305732
+          },
+          "failed_audits": [
+            "largest-contentful-paint",
+            "uses-rel-preconnect",
+            "prioritize-lcp-image",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unminified-javascript",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "uses-passive-event-listeners",
+            "cache-insight",
+            "lcp-discovery-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        },
+        {
+          "route": "dashboard",
+          "profile": "mobile",
+          "run": 1,
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "first-contentful-paint": 1360.7273999999998,
+            "largest-contentful-paint": 2192.2273999999998,
+            "total-blocking-time": 86.31815000000006,
+            "cumulative-layout-shift": 0,
+            "speed-index": 1360.7273999999998
+          },
+          "failed_audits": [
+            "first-contentful-paint",
+            "largest-contentful-paint",
+            "total-blocking-time",
+            "max-potential-fid",
+            "interactive",
+            "uses-long-cache-ttl",
+            "render-blocking-resources",
+            "unused-css-rules",
+            "unused-javascript",
+            "dom-size",
+            "cache-insight",
+            "forced-reflow-insight",
+            "network-dependency-tree-insight",
+            "render-blocking-insight"
+          ],
+          "warnings": [],
+          "lighthouse_version": "12.8.2"
+        }
+      ],
+      "count": 4,
+      "runs_per_route_profile": 1,
+      "runtime_errors": 0,
+      "warnings": 0,
+      "local_only_not_cloudfront_benchmark": true,
+      "remaining_optimization_audits_not_hidden": true
+    }
+  },
+  "limits": [
+    "No measured cost saving or representative traffic hit-ratio claim",
+    "General uploads and derivatives remain uncached; their privacy was not broadened",
+    "Basic Auth rotation/revocation requires targeted invalidation or bounded static TTL expiry",
+    "Browser caching still follows origin headers; use versioned URLs",
+    "Local checks do not traverse CloudFront or certify the exact deployed Drupal checkout",
+    "Deferred AWS-A06 Redis-report HTTP500 remains outside this focused validation",
+    "No OS patch/reboot, Redis update/failover or encryption migration performed"
+  ],
+  "invalidation_paths_executed": {
+    "publication_test": 1,
+    "probe_cleanup": 5,
+    "distribution_wide_invalidations": 0
+  }
+}
