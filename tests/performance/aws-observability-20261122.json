@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "task": "AWS-A05",
+  "date": "2026-11-22",
+  "scope": {
+    "alarm_region": "eu-central-1",
+    "waf_log_region": "us-east-1",
+    "audit_trail": "multi-region account management events",
+    "application_code_changed": false,
+    "ssh_changes": false,
+    "encryption_migration_resumed": false
+  },
+  "readback": {
+    "new_alarms": 38,
+    "new_alarms_ok_enabled": 38,
+    "total_alarms": 57,
+    "total_alarm_states": {
+      "OK": 57,
+      "ALARM": 0,
+      "INSUFFICIENT_DATA": 0
+    },
+    "original_alarm_configurations_preserved": 19,
+    "obsolete_alarms_removed": 1,
+    "data_filesystem_samples": 14,
+    "data_filesystem_latest_used_percent": 79.90292738038504,
+    "log_group_retentions_days": [
+      30,
+      30,
+      30,
+      90,
+      90
+    ],
+    "sns_policies_verified": 2,
+    "trail_multiregion": true,
+    "trail_logging": true,
+    "trail_integrity_enabled": true,
+    "waf_block_only_redacted": true
+  },
+  "validation": {
+    "policy_tests": {
+      "passed": 11,
+      "failed": 0,
+      "command": "python3 -B tests/operations/aws_observability_test.py"
+    },
+    "local_runtime": {
+      "python": "3.12.3",
+      "aws_cli": "aws-cli/1.22.34 Python/3.12.3 Linux/6.8.0-138-generic botocore/1.34.46",
+      "locked_core": "11.4.13",
+      "installed_core": "11.4.13",
+      "core_matches": true,
+      "application_dependencies_changed": false
+    },
+    "isolated_cloudwatch_sns_sqs_delivery": true,
+    "production_topics_test_messages": 0,
+    "email_inbox_delivery_tested": false,
+    "temporary_test_cleanup": {
+      "alarm_absent": true,
+      "topic_absent": true,
+      "queue_absent": true
+    },
+    "waf_probe_requests": 3,
+    "waf_probe_http_statuses": [
+      403,
+      403,
+      403
+    ],
+    "waf_correlated_blocked_records_verified": 1,
+    "waf_query_and_synthetic_credentials_redacted": true,
+    "trail_delivery": {
+      "delivered_nonempty_log_objects": 3,
+      "sample_event_count": 48,
+      "sample_events_account_verified": true,
+      "digest_nonempty_count": 0,
+      "sample_object_encryption": "AES256"
+    },
+    "trail_signed_digest_validation": "Pending first nonempty digest; no-digests exit zero is not a pass",
+    "browser_load_quality_suites_rerun": false,
+    "suite_selection_reason": "Operational AWS policies and agent configuration only; no application or runner change"
+  },
+  "retention": {
+    "previously_unbounded_log_groups_days": 90,
+    "existing_thirty_day_groups_preserved": true,
+    "waf_block_logs_days": 30,
+    "cloudtrail_management_and_digest_objects_days": 365
+  },
+  "monthly_incremental_fixed_cost_usd": {
+    "new_standard_alarm_metrics": 3.8,
+    "retired_standard_alarm_metric": -0.1,
+    "new_custom_metric_series": 0.3,
+    "net": 4.0,
+    "basis": "AWS Price List API eu-central-1, 2026-11-22; before free allowances, variable usage and taxes",
+    "excludes": [
+      "S3 requests and storage",
+      "WAF log ingestion and storage",
+      "SNS and API usage",
+      "Pre-existing migration resources"
+    ]
+  },
+  "limits": [
+    "Guest RAM/filesystem telemetry on www and platform not added or certified",
+    "Existing email confirmation and service-chain test do not prove inbox delivery",
+    "First signed CloudTrail digest not yet available for cryptographic validation",
+    "WAF logging best-effort; full CloudFront access logging left disabled",
+    "Private IP/URI request metadata remains in restricted WAF logs for 30 days",
+    "Deferred AWS-A06 Redis-report E2E HTTP500 not repaired by this task",
+    "Migration must remap or retire alarms if target identifiers change"
+  ]
+}
