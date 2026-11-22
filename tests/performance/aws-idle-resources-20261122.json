@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "date": "2026-11-22",
+  "task": "AWS-A10",
+  "status": "recovery_verified_retirement_pending_explicit_approval",
+  "scope": {
+    "regions": [
+      "eu-central-1",
+      "us-east-1",
+      "eu-west-1"
+    ],
+    "original_volume_alias": "idle-legacy-volume",
+    "original_address_alias": "unassociated-address",
+    "original_volume_deleted": false,
+    "original_eip_released": false,
+    "running_web_servers_retired": false,
+    "migrations_or_maintenance_preparations_removed": false
+  },
+  "candidates": {
+    "volume": {
+      "region": "us-east-1",
+      "size_gib": 64,
+      "type": "gp2",
+      "encrypted": false,
+      "state": "available",
+      "attachments": 0,
+      "tags": 0,
+      "creation_date": "2019-06-03",
+      "last_attachment_time_known": false,
+      "business_owner_known": false
+    },
+    "elastic_ip": {
+      "region": "eu-central-1",
+      "association": false,
+      "instance_or_eni": false,
+      "tags": 0,
+      "amazon_pool": true,
+      "external_dns_allowlist_dependencies_excluded": false,
+      "identical_ip_recovery_guaranteed": false
+    }
+  },
+  "address_dependencies": {
+    "route53_zones_in_account": 0,
+    "cloudfront_distribution_count": 1,
+    "origin_count": 2,
+    "origin_literal_or_ec2_hostname_match": 0,
+    "dns_names_checked": 5,
+    "dns_lookup_errors": 0,
+    "dns_candidate_matches": 0,
+    "local_reference_files": 0,
+    "scope": "selected public service/origin DNS names, active checkout scripts/config/docs/custom code and local SSH config/hosts; external DNS/allowlists not excluded"
+  },
+  "baseline_dependencies": {
+    "snapshot_count": 38,
+    "ami_count": 7,
+    "classification": {
+      "ami_reference": 13,
+      "dlm_no_ami": 15,
+      "manual_unclassified": 10
+    },
+    "running_instance_uses_custom_ami_count": 0,
+    "launch_templates": 0,
+    "auto_scaling_groups": 0,
+    "launch_configurations": 0,
+    "cloudformation_stacks": 0,
+    "unreferenced_means_disposable": false
+  },
+  "recovery": {
+    "fresh_source_snapshot_completed": true,
+    "encrypted_copy_completed": true,
+    "copy_region": "eu-central-1",
+    "copy_progress_percent": 100,
+    "volume_size_gib": 64,
+    "kms_key_enabled": true,
+    "snapshot_sharing_grants": 0,
+    "recovery_hold": true,
+    "review_after": "2026-12-22",
+    "automatic_deletion_scheduled": false,
+    "controller_alias": "existing-isolated-inspector",
+    "controller_public_ip": false,
+    "new_ec2_instances": 0,
+    "restored_volume_encrypted": true,
+    "read_only_restore": {
+      "block_device_read_only": true,
+      "filesystem": "ext4",
+      "mount_read_only_no_execution": true,
+      "journal_replay_disabled": true,
+      "standard_os_directories": 0,
+      "sample_target_reached": true,
+      "maximum_prefix_bytes_per_file": 65536,
+      "sample_bytes": 286386,
+      "full_data_integrity_proven": false,
+      "unmounted": true,
+      "temporary_mount_removed": true,
+      "files_sampled": 32,
+      "whole_files_within_sample": 29
+    },
+    "sample_data_and_names_published": false,
+    "comparison_with_original_full_hash": false,
+    "boot_or_complete_application_recovery_tested": false,
+    "initial_sampling_attempt": "OS-directory sampler failed its count assertion because this is a data layout. Receipt retained; mount was cleaned. A data-filesystem sampler then completed 32 bounded file reads without changing the original."
+  },
+  "cleanup": {
+    "temporary_restore_volume_deleted": true,
+    "temporary_source_unencrypted_snapshot_deleted": true,
+    "encrypted_recovery_snapshot_preserved": true,
+    "controller_running": true,
+    "controller_preexisting_volumes_preserved": true,
+    "controller_volume_count": 3,
+    "original_volume_available_untouched": true,
+    "original_eip_still_allocated_unassociated": true,
+    "original_volume_deleted": false,
+    "eip_released": false
+  },
+  "final_inventory": {
+    "region_counts": {
+      "eu-central-1": {
+        "volumes": 8,
+        "snapshots": 35,
+        "images": 7
+      },
+      "us-east-1": {
+        "volumes": 1,
+        "snapshots": 0,
+        "images": 0
+      },
+      "eu-west-1": {
+        "volumes": 0,
+        "snapshots": 4,
+        "images": 0
+      }
+    },
+    "all_baseline_snapshots_still_present": true,
+    "baseline_snapshots": 38,
+    "remaining_snapshot_total": 39,
+    "all_baseline_amis_still_present": true,
+    "baseline_ami_count": 7,
+    "new_permanent_recovery_snapshots": 1,
+    "test_volume_remaining": false
+  },
+  "pricing": {
+    "currency": "USD",
+    "retrieved": "2026-11-22",
+    "source": "Native AWS Price List Query API",
+    "hours_per_month": 730,
+    "rates": {
+      "volume_gib_month": 0.1,
+      "snapshot_gib_month": 0.054,
+      "idle_ipv4_hour": 0.005
+    },
+    "original_volume_monthly": 6.4,
+    "original_idle_ipv4_monthly": 3.65,
+    "gross_candidate_reduction_monthly": 10.05,
+    "retained_snapshot_full_64_gib_envelope_monthly": 3.456,
+    "conservative_combined_net_candidate_monthly": 6.594,
+    "actual_original_resource_savings_realized": 0,
+    "snapshot_exact_billed_bytes_known": false,
+    "excludes": [
+      "tax",
+      "allowances",
+      "cross-region copy transfer",
+      "short-lived snapshot/test-volume storage",
+      "API requests",
+      "other AWS account resources"
+    ]
+  },
+  "remaining_decision": {
+    "approve_exact_original_volume_delete": false,
+    "approve_exact_original_eip_release": false,
+    "original_task_requires_retirement_approval": true,
+    "purpose_ownership_and_external_ip_dependencies_not_fully_established": true,
+    "all_preparation_and_recovery_evidence_ready": true
+  },
+  "validation": {
+    "documentation_and_aggregate_only": true,
+    "drupal_behavior_changed": false,
+    "browser_k6_lighthouse": "not run; no application behavior changed",
+    "native_checks": [
+      "source available and unattached before snapshot",
+      "encrypted copy completed and KMS enabled/private snapshot",
+      "fresh encrypted volume restored and identified by EBS serial",
+      "block/partition read-only, ext4 ro,noload,nodev,nosuid,noexec",
+      "32 bounded file reads and private SHA-256 baselines; 29 whole/3 prefixes",
+      "own mount removed and own test volume/source snapshot deleted",
+      "original volume/address and baseline 38 snapshots/7 AMIs preserved"
+    ],
+    "full_volume_integrity_certified": false,
+    "business_recovery_rto_certified": false
+  }
+}
