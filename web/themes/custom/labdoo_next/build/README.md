@@ -37,3 +37,23 @@ The same command builds the action icons at 30/60/90 pixels and every existing
 English school/hub semaphore at 120/240/360 pixels. Their `picture` elements
 keep the PNG fallback. Rebuild all derivatives after changing their sources;
 publish source and generated files together.
+
+## Immutable publication
+
+After changing any theme image, CSS or JavaScript, run from this directory:
+
+```sh
+python3 build-static.py
+```
+
+Commit the sources, generated `../static` files and manifest together.
+Individual
+assets use SHA-256 content paths; vendor packages use a package digest and keep
+relative CSS/JavaScript/image paths and upstream licenses. Existing hashes are
+retained so cached pages continue to work. Do not overwrite immutable files or
+delete published hashes during routine builds. Rebuild JavaScript bundles and
+responsive artwork first when their source changes.
+
+The manifest is resolved by the shared `labdoo_asset` Twig function and theme
+asset hooks. Drupal 11.4.13 already fingerprints CSS/JavaScript aggregate inputs
+by file content; aggregate URLs need no additional version query parameter.

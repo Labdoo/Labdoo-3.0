@@ -36,7 +36,11 @@ if (is_file($root . $path) && !str_ends_with($path, '.php')) {
   $file = $root . $path;
   $etag = 'W/"' . hash_file('sha256', $file) . '"';
   header('Content-Type: ' . $types[$extension]);
-  if (!$binary_code_asset) {
+  $immutable = preg_match('@^/(?:themes/custom/labdoo_next/static/(?:vendor/)?[a-f0-9]{64}/[A-Za-z0-9_./-]+|sites/labdoo_e2e/files/(?:css/css_[A-Za-z0-9_-]{43}\.css|js/js_[A-Za-z0-9_-]{43}\.js)(?:\.(?:gz|br))?)$@D', $path);
+  if ($immutable) {
+    header('Cache-Control: public, max-age=31536000, s-maxage=300, immutable');
+  }
+  elseif (!$binary_code_asset) {
     header('Cache-Control: public, max-age=31536000');
   }
   header('ETag: ' . $etag);

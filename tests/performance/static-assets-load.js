@@ -31,7 +31,10 @@ export function setup() {
   if (![css, js].every(path => typeof path === 'string' && path.startsWith('/') && !path.startsWith('//'))) {
     throw new Error('Expected actual local static assets');
   }
-  const image = '/themes/custom/labdoo_next/images/photo-album-icon-30.webp';
+  const image = html.find('img[src*="/static/"]').first().attr('src');
+  if (!image || !/^\/themes\/custom\/labdoo_next\/static\/[a-f0-9]{64}\//.test(image)) {
+    throw new Error('Expected an actual immutable theme image');
+  }
   // Compile aggregates and verify the responsive artwork before revalidation.
   for (const path of [css, js, image]) {
     if (http.get(base + path).status !== 200) throw new Error('Asset warmup failed');
@@ -49,6 +52,7 @@ export default function ({ paths }) {
     'asset HTTP 200': r => r.status === 200,
     'asset has CSS, JavaScript or WebP MIME': r => /(?:css|javascript|image\/webp)/i.test(header(r, 'content-type') || ''),
     'asset has an ETag': () => Boolean(etag),
+    'immutable assets keep browser and edge lifetimes distinct': r => /max-age=31536000, s-maxage=300, immutable/.test(header(r, 'cache-control') || ''),
     'asset is not an HTML error': r => !/^\s*(?:<!doctype html|<html)/i.test(r.body),
   });
   const conditional = http.get(base + path, { headers: { 'If-None-Match': etag || 'missing-etag' } });

@@ -51,9 +51,11 @@ function labdoo_next_page_attachments_alter(array &$attachments): void {
   ];
   $attachments['#cache']['tags'][] = 'config:labdoo_theme_preview.palettes';
   $map_script = \Drupal::service('extension.list.theme')->getPath('labdoo') . '/js/labdoo-map.js';
-  $attachments['#attached']['drupalSettings']['labdooNext']['mapBehavior'] = $map_script . '?v=' . substr(hash_file('sha256', DRUPAL_ROOT . '/' . $map_script), 0, 16);
+  $versioned = \Drupal::service('labdoo_common.versioned_assets');
+  $attachments['#attached']['drupalSettings']['labdooNext']['mapBehavior'] = $versioned->path($map_script);
+  $attachments['#attached']['drupalSettings']['labdooNext']['staticAssets'] = array_filter($versioned->all(), static fn(string $path): bool => str_ends_with($path, '.js'));
   if (\Drupal::moduleHandler()->moduleExists('charts_chartjs')) {
-    $attachments['#attached']['drupalSettings']['labdooNext']['chartsBridge'] = '/' . \Drupal::service('extension.list.module')->getPath('charts_chartjs') . '/js/charts_chartjs.js';
+    $attachments['#attached']['drupalSettings']['labdooNext']['chartsBridge'] = '/' . $versioned->path(\Drupal::service('extension.list.module')->getPath('charts_chartjs') . '/js/charts_chartjs.js');
   }
   $attachments['#cache']['contexts'][] = 'user.roles:authenticated';
   // Keep consent controls, but display them without a delayed slide animation.
@@ -165,8 +167,8 @@ function labdoo_next_preprocess_page(array &$variables): void {
       'depth' => 3,
       'expand_all_items' => TRUE,
     ])->build();
-  $variables['next_logo'] = base_path() . 'themes/custom/labdoo_next/images/labdoo-wordmark-240.webp';
-  $variables['next_logo_srcset'] = implode(', ', array_map(static fn(int $width): string => base_path() . 'themes/custom/labdoo_next/images/labdoo-wordmark-' . $width . '.webp ' . $width . 'w', [
+  $variables['next_logo'] = labdoo_next_asset_url('themes/custom/labdoo_next/images/labdoo-wordmark-240.webp');
+  $variables['next_logo_srcset'] = implode(', ', array_map(static fn(int $width): string => labdoo_next_asset_url('themes/custom/labdoo_next/images/labdoo-wordmark-' . $width . '.webp') . ' ' . $width . 'w', [
     120,
     240,
     360,
@@ -181,8 +183,8 @@ function labdoo_next_preprocess_block(array &$variables): void {
     labdoo_next_defer_search_libraries($variables['content']);
   }
   if (($variables['plugin_id'] ?? '') === 'labdoo_footer_acts_block' && isset($variables['content']['image'])) {
-    $variables['content']['image']['#uri'] = base_path() . 'themes/custom/labdoo_next/images/footer-acts-transparent-672.webp';
-    $variables['content']['image']['#attributes']['srcset'] = implode(', ', array_map(static fn(int $width): string => base_path() . 'themes/custom/labdoo_next/images/footer-acts-transparent-' . $width . '.webp ' . $width . 'w', [
+    $variables['content']['image']['#uri'] = labdoo_next_asset_url('themes/custom/labdoo_next/images/footer-acts-transparent-672.webp');
+    $variables['content']['image']['#attributes']['srcset'] = implode(', ', array_map(static fn(int $width): string => labdoo_next_asset_url('themes/custom/labdoo_next/images/footer-acts-transparent-' . $width . '.webp') . ' ' . $width . 'w', [
       336,
       672,
       1342,
@@ -264,13 +266,13 @@ function labdoo_next_preprocess_views_view_field(array &$variables): void {
  */
 function labdoo_next_js_settings_alter(array &$settings, AttachedAssetsInterface $assets): void {
   // These settings bubble from field render arrays after page attachments.
-  $leaflet = base_path() . \Drupal::service('extension.list.theme')->getPath('labdoo_next') . '/vendor/leaflet-1.9.4/dist/';
+  $leaflet = \Drupal::service('extension.list.theme')->getPath('labdoo_next') . '/vendor/leaflet-1.9.4/dist/';
   foreach (array_keys($settings['geolocation']['maps'] ?? []) as $map_id) {
     // Keep Leaflet's version and lazy loader, using local files.
     foreach (['scripts' => 'leaflet.js', 'stylesheets' => 'leaflet.css'] as $type => $file) {
       foreach ($settings['geolocation']['maps'][$map_id][$type] ?? [] as $index => $url) {
         if ($url === 'https://unpkg.com/leaflet@1.9.4/dist/' . $file) {
-          $settings['geolocation']['maps'][$map_id][$type][$index] = $leaflet . $file;
+          $settings['geolocation']['maps'][$map_id][$type][$index] = base_path() . \Drupal::service('labdoo_common.versioned_assets')->path($leaflet . $file);
         }
       }
     }
@@ -285,6 +287,7 @@ function labdoo_next_js_settings_alter(array &$settings, AttachedAssetsInterface
  * Implements hook_css_alter().
  */
 function labdoo_next_css_alter(array &$css, AttachedAssetsInterface $assets): void {
+  labdoo_next_version_assets($css);
   if (!\Drupal::currentUser()->isAnonymous()) {
     return;
   }
@@ -331,6 +334,7 @@ function labdoo_next_css_alter(array &$css, AttachedAssetsInterface $assets): vo
  * Implements hook_js_alter().
  */
 function labdoo_next_js_alter(array &$javascript, AttachedAssetsInterface $assets): void {
+  labdoo_next_version_assets($javascript);
   if (!\Drupal::currentUser()->isAnonymous()) {
     return;
   }
@@ -347,6 +351,20 @@ function labdoo_next_js_alter(array &$javascript, AttachedAssetsInterface $asset
     if (($asset['scope'] ?? '') === 'footer' && ($asset['type'] ?? '') === 'file' && empty($asset['attributes']['async'])) {
       $asset['attributes']['defer'] = TRUE;
     }
+  }
+}
+
+/**
+ * Resolves immutable paths; Drupal fingerprints aggregate inputs by content.
+ */
+function labdoo_next_version_assets(array &$assets): void {
+  $versioned = \Drupal::service('labdoo_common.versioned_assets');
+  foreach ($assets as &$asset) {
+    if (($asset['type'] ?? '') !== 'file') {
+      continue;
+    }
+    $asset['data'] = $versioned->path($asset['data']);
+
   }
 }
 
@@ -388,10 +406,10 @@ function labdoo_next_responsive_images(string $output): string {
       continue;
     }
     $width = $header ? ($width ?: 550) : $width;
-    $base = base_path() . 'themes/custom/labdoo_next/images/' . $name . '-';
+    $base = 'themes/custom/labdoo_next/images/' . $name . '-';
     $widths = $header ? [400, 550, 1100] : [30, 60, 90];
-    $image->setAttribute('src', $base . ($header ? 550 : 60) . '.webp');
-    $image->setAttribute('srcset', implode(', ', array_map(static fn(int $size): string => $base . $size . '.webp ' . $size . 'w', $widths)));
+    $image->setAttribute('src', labdoo_next_asset_url($base . ($header ? 550 : 60) . '.webp'));
+    $image->setAttribute('srcset', implode(', ', array_map(static fn(int $size): string => labdoo_next_asset_url($base . $size . '.webp') . ' ' . $size . 'w', $widths)));
     $image->setAttribute('sizes', $header ? '(max-width: 700px) calc(100vw - 80px), 550px' : $width . 'px');
     if (!$image->hasAttribute('height')) {
       $image->setAttribute('height', (string) round($width * $originals[$name][1] / $originals[$name][0]));
@@ -416,4 +434,11 @@ function labdoo_next_preprocess_views_view(array &$variables): void {
       }
     });
   }
+}
+
+/**
+ * Resolves a versioned public URL while retaining the Drupal base path.
+ */
+function labdoo_next_asset_url(string $path): string {
+  return base_path() . \Drupal::service('labdoo_common.versioned_assets')->path($path);
 }

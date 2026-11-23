@@ -110,7 +110,7 @@ def verify_response(uri, headers, text, errors, expected_theme='labdoo_next'):
         result['next_body'] = 'labdoo-next' in classes.group(1).split()
         assert result['next_body'] == (expected_theme == 'labdoo_next'), result
         if expected_theme == 'labdoo_next':
-            assert re.search(r'/themes/custom/labdoo_next/images/labdoo-wordmark(?:-\d+)?\.webp', text), 'Missing Next wordmark'
+            assert re.search(r'/themes/custom/labdoo_next/(?:images|static/[a-f0-9]{64})/labdoo-wordmark(?:-\d+)?\.webp', text), 'Missing Next wordmark'
             assert 'src=""' not in text, 'Empty image source'
     return result
 

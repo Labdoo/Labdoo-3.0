@@ -54,7 +54,7 @@ for (const role of ['anonymous', 'superadmin'] as const) {
             rendered: element.getBoundingClientRect().width, alt: element.getAttribute('alt'),
             link: element.closest('a')?.getAttribute('href'),
           }));
-          expect(data.url).toMatch(/\/themes\/custom\/labdoo_next\/images\/[^/]+-(30|60|90)\.webp$/);
+          expect(data.url).toMatch(/\/themes\/custom\/labdoo_next\/static\/[a-f0-9]{64}\/[^/]+-(30|60|90)\.webp$/);
           expect(data.width).toBeLessThanOrEqual(90);
           expect(data.rendered).toBeCloseTo(19, 0);
           expect(data.alt).toBe('');

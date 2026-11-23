@@ -1,4 +1,12 @@
 services:
+  labdoo_common.versioned_assets:
+    class: Drupal\labdoo_common\Asset\VersionedAssets
+    arguments: ['%app.root%']
+  labdoo_common.versioned_asset_twig:
+    class: Drupal\labdoo_common\Twig\VersionedAssetExtension
+    arguments: ['@labdoo_common.versioned_assets']
+    tags:
+      - { name: twig.extension }
   labdoo_common.local_translation_agent:
     class: Drupal\labdoo_common\Service\LocalTranslationAgent
   labdoo_common.translation_workflow:

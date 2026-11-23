@@ -18,7 +18,7 @@ class RouterTransportTest(unittest.TestCase):
         cls.temporary = tempfile.TemporaryDirectory()
         root = Path(cls.temporary.name)
         (root / 'index.php').write_text('<?php')
-        for name in ['themes/test/icon.webp', 'themes/test/font.woff2', 'themes/test/main.js', 'sites/default/files/upload.png', 'sites/default/settings.php']:
+        for name in ['themes/custom/labdoo_next/static/' + 'a' * 64 + '/icon.webp', 'themes/test/icon.webp', 'themes/test/font.woff2', 'themes/test/main.js', 'sites/default/files/upload.png', 'sites/default/settings.php']:
             path = root / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b'const example = "transport fixture";' if name.endswith('.js') else b'private-or-binary-fixture')
@@ -60,6 +60,13 @@ class RouterTransportTest(unittest.TestCase):
         self.assertEqual(body, b'private-or-binary-fixture')
         status, _, body = self.get('/themes/test/icon.webp', {'If-None-Match': headers['ETag']})
         self.assertEqual((status, body), (304, b''))
+
+    def test_immutable_image_has_bounded_edge_lifetime(self):
+        path = '/themes/custom/labdoo_next/static/' + 'a' * 64 + '/icon.webp'
+        status, headers, _ = self.get(path)
+        self.assertEqual(status, 200)
+        self.assertEqual(headers['Cache-Control'], 'public, max-age=31536000, s-maxage=300, immutable')
+        self.assertEqual(self.get(path, {'If-None-Match': headers['ETag']})[0], 304)
 
     def test_binary_fonts_are_typed_without_gzip(self):
         status, headers, body = self.get('/themes/test/font.woff2', {'Accept-Encoding': 'gzip'})

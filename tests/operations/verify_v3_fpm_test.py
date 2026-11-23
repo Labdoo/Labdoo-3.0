@@ -11,6 +11,12 @@ NEXT = '<body class="path-frontpage labdoo-next"><img src="/themes/custom/labdoo
 
 
 class VerificationTest(unittest.TestCase):
+    def test_content_addressed_wordmark_is_supported_with_a_valid_hash(self):
+        hashed = NEXT.replace('/images/', '/static/' + 'a' * 64 + '/')
+        self.assertTrue(module.verify_response('/en', {}, hashed, b'')['next_body'])
+        with self.assertRaises(AssertionError):
+            module.verify_response('/en', {}, hashed.replace('a' * 64, 'invalid'), b'')
+
     def test_default_next_and_responsive_logo(self):
         self.assertTrue(module.verify_response('/en', {}, NEXT, b'')['next_body'])
 

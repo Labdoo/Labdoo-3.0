@@ -22,7 +22,7 @@ test('an offscreen dashboard map downloads neither Leaflet nor points before scr
   let points = false;
   let leaflet = false;
   page.on('request', request => {
-    if (request.url().includes('/vendor/leaflet-1.0.3/dist/leaflet.js')) leaflet = true;
+    if (request.url().includes('/vendor/leaflet-1.0.3/dist/leaflet.js') || /\/static\/vendor\/[a-f0-9]{64}\/dist\/leaflet\.js$/.test(new URL(request.url()).pathname)) leaflet = true;
   });
   await page.route('**/api/map-points/**', route => {
     points = true;
@@ -213,7 +213,7 @@ test('a school map initializes its native provider on scroll and keeps trajector
   const localLeaflet: string[] = [];
   const externalLeaflet: string[] = [];
   page.on('request', request => {
-    if (/\/vendor\/leaflet-1\.9\.4\/dist\/leaflet\.(js|css)$/.test(new URL(request.url()).pathname)) localLeaflet.push(request.url());
+    if (/\/(?:vendor\/leaflet-1\.9\.4|static\/(?:vendor\/)?[a-f0-9]{64})\/dist\/leaflet\.(js|css)$/.test(new URL(request.url()).pathname)) localLeaflet.push(request.url());
     if (request.url().startsWith('https://unpkg.com/leaflet@1.9.4/')) externalLeaflet.push(request.url());
   });
   await page.route('https://unpkg.com/leaflet@1.9.4/**', route => route.abort('blockedbyclient'));

@@ -55,3 +55,35 @@ were preserved. Drupal caches were rebuilt and PHP reloaded. Read-only checks
 through PHP-FPM returned HTTP 200 for all six cases without PHP stderr. Future
 checks must use the runtime user and PHP-FPM rather than a PHP server running
 as the deployment user.
+
+## Immutable static-asset headers
+
+After deploying the content-addressed assets, enable the reviewed Apache header
+configuration on V3 (the existing CloudFront maximum TTL stays at 300 seconds):
+
+```sh
+sudo install -m 0644 scripts/runtime/immutable-static-cache.conf /etc/apache2/conf-available/labdoo-immutable-static-cache.conf
+sudo a2enconf labdoo-immutable-static-cache
+sudo apache2ctl -t
+sudo systemctl reload apache2
+```
+
+Reload only after the syntax check succeeds. The configuration requires the
+already enabled `mod_headers`. It grants browser caching for one year only to
+successful content-addressed assets and Drupal's content-fingerprinted CSS/JS
+aggregates, including compressed variants. Shared caches remain bounded at five
+minutes. Existing explicit cache restrictions, authentication errors, HTML and
+ordinary uploads do not receive this policy. Vendor package copies preserve
+relative marker-image paths.
+
+Verify file hashes and runtime readability, real PHP-FPM routes, the effective
+Apache configuration and authenticated/unauthenticated asset headers. Synthetic
+Basic Auth coverage is in `tests/operations/immutable_cache_test.py`. Without
+staging credentials, external authenticated verification remains outstanding;
+never disable staging authentication or WAF rules to complete a check.
+
+Rollback the header change with `sudo a2disconf labdoo-immutable-static-cache`,
+then validate Apache syntax and reload. Retain published content hashes when
+rolling source back. Authentication rotation still requires invalidating cached
+static prefixes at CloudFront under the existing staging policy; browser copies
+of public code are deliberately immutable. No user data is published this way.

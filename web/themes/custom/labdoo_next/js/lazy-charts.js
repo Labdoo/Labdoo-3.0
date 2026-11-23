@@ -8,7 +8,7 @@
     if (!scripts.has(path)) {
       scripts.set(path, new Promise((resolve, reject) => {
         const element = document.createElement('script');
-        element.src = drupalSettings.path.baseUrl + path;
+        element.src = drupalSettings.path.baseUrl + (drupalSettings.labdooNext.staticAssets?.[path] || path);
         // Fetch together while preserving dependency execution order.
         element.async = false;
         element.onload = resolve;

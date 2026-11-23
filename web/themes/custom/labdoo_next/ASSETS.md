@@ -46,3 +46,20 @@ Simple bar charts use the generated Chart.js 4.4.0 subset
 original
 full bundle before loading adapters or plugins. Both retain the upstream MIT
 license. The pinned npm build dependencies live in `build/package-lock.json`.
+
+Content-addressed published copies live in `static`, with their source mapping
+in
+`static/manifest.json`. Vendor copies preserve package-relative marker and font
+paths and licenses. See the build instructions above before changing sources.
+The optional Apache configuration in
+`scripts/runtime/immutable-static-cache.conf`
+grants successful, explicitly versioned code assets a one-year immutable browser
+lifetime while keeping shared-cache lifetime at 300 seconds. Explicit existing
+cache restrictions, HTML, uploaded files and authentication errors are
+preserved.
+The V3 CloudFront maximum TTL remains 300 seconds.
+
+The header search dialog loads its enhanced CSS, autocomplete dependencies and
+JavaScript on first activation through Drupal AJAX attachments. Other forms that
+actually use autocomplete keep their dependencies. The ordinary search link and
+no-JavaScript form remain available if deferred loading fails.

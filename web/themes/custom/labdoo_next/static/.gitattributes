@@ -1,0 +1,4 @@
+# Preserve immutable bytes, including upstream CRLF and binary marker images.
+* -text
+vendor/** -diff
+*.png -diff
