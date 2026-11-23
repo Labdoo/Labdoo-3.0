@@ -54,3 +54,25 @@ analytics_consent:
     - core/jquery
     - core/drupalSettings
     - eu_cookie_compliance/eu_cookie_compliance
+
+search_loader:
+  js:
+    js/lazy-search.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+    - core/drupal.ajax
+
+search_enhanced:
+  js:
+    /themes/custom/labdoo/js/global-search.js: {}
+  css:
+    theme:
+      css/search-dialog.css: { weight: 100 }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+    - search_api_autocomplete/search_api_autocomplete

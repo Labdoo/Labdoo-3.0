@@ -51,7 +51,8 @@ test('the wordmark and activity icons use small responsive artwork @responsive',
   expect((await page.request.get(rendered.src)).headers()['content-type']).toContain('image/webp');
   expect((await (await page.request.get(rendered.src)).body()).length).toBeLessThan(6000);
   const icons = page.locator('.ldn-sidebar img[src*="/labdoo_next/images/"]');
-  expect(await icons.count()).toBeGreaterThan(0);
+  // Mini-missions rotate asynchronously; wait for responsive artwork.
+  await expect(icons).not.toHaveCount(0);
   for (const icon of (await icons.all()).slice(0, 4)) {
     await expect(icon).toHaveAttribute('loading', 'lazy');
     await expect(icon).toHaveAttribute('alt');

@@ -1,0 +1,89 @@
+/* Keep the global search compact and its suggestions in the modal top layer. */
+.labdoo-next.search-overlay-open { overflow: hidden; }
+.labdoo-next dialog.ldn-search-dialog {
+  inset: min(12vh, 100px) 0 auto;
+  width: min(620px, calc(100% - 32px));
+  max-width: calc(100% - 32px);
+  height: auto;
+  max-height: calc(100dvh - 40px);
+  margin: 0 auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--ldn-line);
+  border-radius: 14px;
+  background: var(--ldn-paper);
+  color: var(--ldn-ink);
+  box-shadow: 0 24px 72px #102c2540;
+}
+.labdoo-next .ldn-search-dialog[open] { display: block; }
+.labdoo-next .ldn-search-dialog::backdrop { background: #102c2599; }
+.labdoo-next .ldn-search-dialog .search-overlay-content {
+  width: 100%;
+  max-width: none;
+  padding: 24px;
+  box-sizing: border-box;
+  border-radius: inherit;
+  background: transparent;
+}
+.labdoo-next .ldn-search-heading { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+.labdoo-next .ldn-search-heading h2 { margin: 0; font-size: 1.25rem; }
+.labdoo-next .search-overlay-block .ldn-search-dialog .search-overlay-content .search-overlay-close {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  height: 44px;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 1px solid var(--ldn-control-border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ldn-ink);
+  font: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.labdoo-next .ldn-search-dialog .search-overlay-close:hover { background: var(--ldn-soft); }
+.labdoo-next .ldn-search-dialog form { margin: 0; }
+.labdoo-next .ldn-search-dialog .views-exposed-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.labdoo-next .ldn-search-dialog .form-item { flex: 1 1 220px; width: auto; margin: 0; }
+.labdoo-next .ldn-search-dialog .form-actions { flex: 0 0 auto; margin: 0; }
+.labdoo-next .ldn-search-dialog #views-exposed-form-search-results-page-1 input.form-autocomplete {
+  width: 100%;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding-inline-end: 36px;
+}
+.labdoo-next .ldn-search-dialog .ui-autocomplete {
+  position: static !important;
+  width: 100% !important;
+  max-height: min(45vh, 360px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  margin: 14px 0 0;
+  padding: 6px;
+  border: 1px solid var(--ldn-line);
+  border-radius: 7px;
+  background: var(--ldn-paper);
+  box-shadow: none;
+}
+.labdoo-next .ldn-search-dialog .ui-menu-item-wrapper { padding: 10px; border-radius: 4px; }
+.labdoo-next .ldn-search-dialog .ui-state-active { border-color: var(--ldn-green); background: var(--ldn-green); color: #fff; }
+@media (max-width: 480px) {
+  .labdoo-next .ldn-search-dialog .search-overlay-content { padding: 16px; }
+  .labdoo-next .ldn-search-dialog .form-actions,
+  .labdoo-next .ldn-search-dialog .form-actions input { width: 100%; }
+}

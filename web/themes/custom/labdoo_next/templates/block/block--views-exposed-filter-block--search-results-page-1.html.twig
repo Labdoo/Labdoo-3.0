@@ -1,7 +1,7 @@
 {# Global search keeps the ordinary results page available without JavaScript. #}
-{{ attach_library('labdoo/global_search') }}
+{{ attach_library('labdoo_next/search_loader') }}
 {% set dialog_id = (attributes.id|default('labdoo-global-search')) ~ '-dialog' %}
-<div{{ attributes.removeClass('views-exposed-form').addClass('block', 'block-views', 'block-views-exposed-filter-blocksearch-results-page-1', 'search-overlay-block', 'ldn-search-block') }}>
+<div{{ attributes.removeClass('views-exposed-form').addClass('block', 'block-views', 'block-views-exposed-filter-blocksearch-results-page-1', 'search-overlay-block', 'ldn-search-block').setAttribute('data-search-assets', path('labdoo_common.search_assets')) }}>
   {{ title_prefix }}
   {{ title_suffix }}
   <div class="search-icon-wrapper">

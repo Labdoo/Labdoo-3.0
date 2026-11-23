@@ -58,3 +58,11 @@ labdoo_common.translation_action:
     langcode: '-|[a-z][a-z0-9-]{0,19}'
   options:
     _admin_route: true
+labdoo_common.search_assets:
+  path: '/labdoo/search-assets'
+  defaults:
+    _controller: '\Drupal\labdoo_common\Controller\SearchAssetsController::assets'
+  requirements:
+    # This endpoint returns only public code assets, without data or writes.
+    _access: 'TRUE'
+  methods: [GET]

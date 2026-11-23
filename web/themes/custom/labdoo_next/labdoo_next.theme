@@ -177,6 +177,9 @@ function labdoo_next_preprocess_page(array &$variables): void {
  * Implements hook_preprocess_block().
  */
 function labdoo_next_preprocess_block(array &$variables): void {
+  if (($variables['plugin_id'] ?? '') === 'views_exposed_filter_block:search_results-page_1' && is_array($variables['content'] ?? NULL)) {
+    labdoo_next_defer_search_libraries($variables['content']);
+  }
   if (($variables['plugin_id'] ?? '') === 'labdoo_footer_acts_block' && isset($variables['content']['image'])) {
     $variables['content']['image']['#uri'] = base_path() . 'themes/custom/labdoo_next/images/footer-acts-transparent-672.webp';
     $variables['content']['image']['#attributes']['srcset'] = implode(', ', array_map(static fn(int $width): string => base_path() . 'themes/custom/labdoo_next/images/footer-acts-transparent-' . $width . '.webp ' . $width . 'w', [
@@ -189,6 +192,23 @@ function labdoo_next_preprocess_block(array &$variables): void {
     $variables['content']['image']['#height'] = 74;
     $variables['content']['image']['#attributes']['loading'] = 'lazy';
     $variables['content']['image']['#attributes']['decoding'] = 'async';
+  }
+}
+
+/**
+ * Defers only the header search field's libraries, preserving form metadata.
+ */
+function labdoo_next_defer_search_libraries(array &$element): void {
+  if (isset($element['#attached']['library'])) {
+    $element['#attached']['library'] = array_values(array_diff($element['#attached']['library'], [
+      'core/drupal.autocomplete',
+      'search_api_autocomplete/search_api_autocomplete',
+    ]));
+  }
+  foreach (Element::children($element) as $key) {
+    if (is_array($element[$key])) {
+      labdoo_next_defer_search_libraries($element[$key]);
+    }
   }
 }
 
