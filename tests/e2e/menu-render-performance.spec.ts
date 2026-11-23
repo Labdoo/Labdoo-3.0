@@ -50,13 +50,14 @@ test('the wordmark and activity icons use small responsive artwork @responsive',
   expect(rendered.natural).toBeGreaterThanOrEqual(rendered.rendered);
   expect((await page.request.get(rendered.src)).headers()['content-type']).toContain('image/webp');
   expect((await (await page.request.get(rendered.src)).body()).length).toBeLessThan(6000);
-  const icons = page.locator('.ldn-sidebar img[src*="/labdoo_next/images/"]');
+  const icons = page.locator('.ldn-sidebar img[src*="/labdoo_next/static/"]');
   // Mini-missions rotate asynchronously; wait for responsive artwork.
   await expect(icons).not.toHaveCount(0);
   for (const icon of (await icons.all()).slice(0, 4)) {
     await expect(icon).toHaveAttribute('loading', 'lazy');
     await expect(icon).toHaveAttribute('alt');
     const src = await icon.getAttribute('src');
+    expect(src).toMatch(/\/static\/[a-f0-9]{64}\/[^/]+\.webp$/);
     expect((await (await page.request.get(src!)).body()).length).toBeLessThan(6000);
   }
 });
@@ -92,7 +93,7 @@ test('activity content is available without JavaScript @responsive', async ({ br
 
 test('simple dashboard charts avoid the full optional chart bundle @responsive', async ({ page }, info) => {
   const requests: string[] = [];
-  page.on('request', request => { if (request.url().includes('/chart.js-4.4.0/dist/')) requests.push(request.url()); });
+  page.on('request', request => { if (/\/static\/vendor\/[a-f0-9]{64}\/dist\/chart(?:-bar|\.umd)\.js$/.test(new URL(request.url()).pathname)) requests.push(request.url()); });
   await page.route('**/api/map-points/**', route => route.fulfill({ json: [] }));
   await goto(page, '/en/content/dootronics-dashboard', info);
   await page.locator('.charts-chartjs').first().scrollIntoViewIfNeeded();
