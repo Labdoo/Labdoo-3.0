@@ -275,3 +275,6 @@ msgstr "лис 2025"
 
 msgid "Dec 2025"
 msgstr "гру 2025"
+
+msgid "Cumulative"
+msgstr "Накопичувальний підсумок"

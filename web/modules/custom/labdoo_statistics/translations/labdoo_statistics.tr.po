@@ -275,3 +275,6 @@ msgstr "Kas 2025"
 
 msgid "Dec 2025"
 msgstr "Ara 2025"
+
+msgid "Cumulative"
+msgstr "Birikimli"

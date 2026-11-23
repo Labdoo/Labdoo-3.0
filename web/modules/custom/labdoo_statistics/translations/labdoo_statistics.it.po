@@ -16,7 +16,7 @@ msgid "Advanced Insights & Analytics"
 msgstr "Approfondimenti e Analisi Avanzate"
 
 msgid "Explore deeper metrics about Labdoo's global impact and operational efficiency."
-msgstr "Esplora metriche più approfondite sull\'impatto globale e l\'efficienza operativa di Labdoo."
+msgstr "Esplora metriche più approfondite sull'impatto globale e l'efficienza operativa di Labdoo."
 
 msgid "Platform Activity"
 msgstr "Attività della Piattaforma"
@@ -275,3 +275,6 @@ msgstr "Nov 2025"
 
 msgid "Dec 2025"
 msgstr "Dic 2025"
+
+msgid "Cumulative"
+msgstr "Cumulativo"

@@ -275,3 +275,6 @@ msgstr "نوفمبر 2025"
 
 msgid "Dec 2025"
 msgstr "ديسمبر 2025"
+
+msgid "Cumulative"
+msgstr "تراكمي"

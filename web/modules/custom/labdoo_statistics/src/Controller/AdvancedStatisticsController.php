@@ -270,7 +270,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets general node creation evolution.
+   * Gets cumulative node registrations at each displayed month end.
    */
   protected function getNodeEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
@@ -288,11 +288,10 @@ class AdvancedStatisticsController extends ControllerBase {
 
     for ($i = 11; $i >= 0; $i--) {
       $date = (clone $reference_date)->modify("-$i months");
-      $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('node_field_data', 'n');
-      $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $query->condition('n.created', $end, '<=');
       $query->condition('n.type', 'gallery', '<>');
       $count = $query->countQuery()->execute()->fetchField();
 
@@ -425,7 +424,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets registrations for the last 12 months with dootronic activity.
+   * Gets cumulative dootronic registrations at each displayed month end.
    */
   protected function getDootronicsEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
@@ -445,12 +444,11 @@ class AdvancedStatisticsController extends ControllerBase {
 
     for ($i = 11; $i >= 0; $i--) {
       $date = (clone $reference_date)->modify("-$i months");
-      $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('node_field_data', 'n');
       $query->condition('n.type', 'dootronic');
-      $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $query->condition('n.created', $end, '<=');
       $count = $query->countQuery()->execute()->fetchField();
 
       $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
@@ -505,7 +503,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets comment evolution for the last 12 months.
+   * Gets cumulative comments at each displayed month end.
    */
   protected function getCommentEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
@@ -522,11 +520,10 @@ class AdvancedStatisticsController extends ControllerBase {
 
     for ($i = 11; $i >= 0; $i--) {
       $date = (clone $reference_date)->modify("-$i months");
-      $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('comment_field_data', 'c');
-      $query->condition('c.created', [$start, $end], 'BETWEEN');
+      $query->condition('c.created', $end, '<=');
       $count = $query->countQuery()->execute()->fetchField();
 
       $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
@@ -536,7 +533,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets Dootrip kilometers data (Total and evolution).
+   * Gets total distance and cumulative distance at each displayed year end.
    */
   protected function getDootripKmData(): array {
     $query = $this->database->select('node__field_distance_dootrip', 'nfd');
@@ -546,17 +543,16 @@ class AdvancedStatisticsController extends ControllerBase {
     $evolution = ['labels' => [], 'values' => []];
     for ($i = 4; $i >= 0; $i--) {
       $year = (int) date('Y') - $i;
-      $start = mktime(0, 0, 0, 1, 1, (int) $year);
       $end = mktime(23, 59, 59, 12, 31, (int) $year);
 
       $query = $this->database->select('node__field_distance_dootrip', 'nfd');
       $query->join('node_field_data', 'n', 'nfd.entity_id = n.nid');
-      $query->condition('n.created', [$start, $end], 'BETWEEN');
-      $query->addExpression('SUM(nfd.field_distance_dootrip_value)', 'yearly_km');
-      $yearly_km = $query->execute()->fetchField() ?: 0;
+      $query->condition('n.created', $end, '<=');
+      $query->addExpression('SUM(nfd.field_distance_dootrip_value)', 'cumulative_km');
+      $cumulative_km = $query->execute()->fetchField() ?: 0;
 
       $evolution['labels'][] = (string) $year;
-      $evolution['values'][] = (float) $yearly_km;
+      $evolution['values'][] = (float) $cumulative_km;
     }
 
     return [
@@ -584,7 +580,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets Hub registration evolution for the last 12 months.
+   * Gets cumulative hub registrations at each displayed month end.
    */
   protected function getHubEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
@@ -602,12 +598,11 @@ class AdvancedStatisticsController extends ControllerBase {
 
     for ($i = 11; $i >= 0; $i--) {
       $date = (clone $reference_date)->modify("-$i months");
-      $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('node_field_data', 'n');
       $query->condition('n.type', 'hub');
-      $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $query->condition('n.created', $end, '<=');
       $count = $query->countQuery()->execute()->fetchField();
 
       $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
@@ -663,7 +658,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets Edoovillage registration evolution.
+   * Gets cumulative school registrations at each displayed month end.
    */
   protected function getEdoovillageEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
@@ -681,12 +676,11 @@ class AdvancedStatisticsController extends ControllerBase {
 
     for ($i = 11; $i >= 0; $i--) {
       $date = (clone $reference_date)->modify("-$i months");
-      $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('node_field_data', 'n');
       $query->condition('n.type', 'edoovillage');
-      $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $query->condition('n.created', $end, '<=');
       $count = $query->countQuery()->execute()->fetchField();
 
       $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
@@ -696,7 +690,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets Dootrip registration evolution (last 12 months with activity).
+   * Gets cumulative dootrip registrations at each displayed month end.
    */
   protected function getDootripEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
@@ -714,12 +708,11 @@ class AdvancedStatisticsController extends ControllerBase {
 
     for ($i = 11; $i >= 0; $i--) {
       $date = (clone $reference_date)->modify("-$i months");
-      $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('node_field_data', 'n');
       $query->condition('n.type', 'dootrip');
-      $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $query->condition('n.created', $end, '<=');
       $count = $query->countQuery()->execute()->fetchField();
 
       $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
@@ -896,7 +889,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets wiki activity (Last 12 months with activity).
+   * Gets cumulative wiki pages at each displayed month end.
    */
   protected function getWikiActivityData(): array {
     $data = ['labels' => [], 'values' => []];
@@ -913,11 +906,10 @@ class AdvancedStatisticsController extends ControllerBase {
 
     for ($i = 11; $i >= 0; $i--) {
       $date = (clone $reference_date)->modify("-$i months");
-      $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('mini_wiki_page_field_data', 'w');
-      $query->condition('created', [$start, $end], 'BETWEEN');
+      $query->condition('created', $end, '<=');
       $count = $query->countQuery()->execute()->fetchField();
 
       $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());
@@ -960,7 +952,7 @@ class AdvancedStatisticsController extends ControllerBase {
   }
 
   /**
-   * Gets Team Post registration evolution (Last 12 months with activity).
+   * Gets cumulative team posts at each displayed month end.
    */
   protected function getTeamPostEvolutionData(): array {
     $data = ['labels' => [], 'values' => []];
@@ -978,12 +970,11 @@ class AdvancedStatisticsController extends ControllerBase {
 
     for ($i = 11; $i >= 0; $i--) {
       $date = (clone $reference_date)->modify("-$i months");
-      $start = $date->getTimestamp();
       $end = (clone $date)->modify('last day of this month')->setTime(23, 59, 59)->getTimestamp();
 
       $query = $this->database->select('node_field_data', 'n');
       $query->condition('n.type', 'team_post');
-      $query->condition('n.created', [$start, $end], 'BETWEEN');
+      $query->condition('n.created', $end, '<=');
       $count = $query->countQuery()->execute()->fetchField();
 
       $data['labels'][] = $this->dateFormatter->format($date->getTimestamp(), 'custom', 'M Y', $date->getTimezone()->getName());

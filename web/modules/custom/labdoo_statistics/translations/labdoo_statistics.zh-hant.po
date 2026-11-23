@@ -275,3 +275,6 @@ msgstr "十一月 2025"
 
 msgid "Dec 2025"
 msgstr "十二月 2025"
+
+msgid "Cumulative"
+msgstr "累計"
