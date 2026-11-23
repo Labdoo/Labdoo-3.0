@@ -1,7 +1,8 @@
 # Labdoo Next asset builds
 
-The CSS is maintained directly in `../css/labdoo-next.css`. These builds only
-produce optional JavaScript and responsive artwork; they do not compile CSS.
+The CSS is maintained directly in `../css/labdoo-next.css`. These builds produce
+optional JavaScript, responsive artwork and immutable copies of public assets;
+they do not compile CSS.
 
 ## Bar chart bundle
 
