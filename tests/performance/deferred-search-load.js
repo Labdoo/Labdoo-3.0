@@ -13,7 +13,8 @@ export const options = {
 };
 const base = __ENV.BASE_URL || 'http://127.0.0.1:18411';
 const root = __ENV.LABDOO_EXPECTED_ROOT;
-if (base !== 'http://127.0.0.1:18411' || !root) throw new Error('Use the isolated current-checkout site and set LABDOO_EXPECTED_ROOT');
+const port = __ENV.LABDOO_LOCAL_PORT || '18411';
+if (!['18411', '18421'].includes(port) || base !== `http://127.0.0.1:${port}` || !root) throw new Error('Use the isolated current-checkout site and set LABDOO_EXPECTED_ROOT');
 const identity = crypto.sha256(root, 'hex');
 const fromCheckout = response => Object.entries(response.headers).some(([name, value]) => name.toLowerCase() === 'x-labdoo-e2e-root' && value === identity);
 const isolated = response => Object.entries(response.headers).some(([name, value]) => name.toLowerCase() === 'x-labdoo-e2e' && value === 'integration');
