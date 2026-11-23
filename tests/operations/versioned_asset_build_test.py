@@ -2,6 +2,7 @@
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -13,6 +14,16 @@ spec.loader.exec_module(build)
 
 
 class VersionedAssetBuildTest(unittest.TestCase):
+    def test_template_asset_references_are_published(self):
+        theme = ROOT / 'web/themes/custom/labdoo_next'
+        manifest = json.loads((theme / 'static/manifest.json').read_text())
+        for template in (theme / 'templates').rglob('*.twig'):
+            for source in re.findall(r"labdoo_asset\('([^']+)'\)", template.read_text()):
+                with self.subTest(template=template.name, asset=source):
+                    self.assertTrue((ROOT / 'web' / source).is_file(), source)
+                    self.assertIn(source, manifest)
+                    self.assertTrue((ROOT / 'web' / manifest[source]).is_file())
+
     def test_changed_bytes_get_new_urls_and_keep_old_artifacts(self):
         with tempfile.TemporaryDirectory() as directory:
             web = Path(directory)

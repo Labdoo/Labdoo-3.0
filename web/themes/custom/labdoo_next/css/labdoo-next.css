@@ -1160,3 +1160,9 @@ body.labdoo-next {
 .labdoo-next .ldn-search-fallback input { width: 100%; }
 .labdoo-next .ldn-utilities .search-overlay-block:has(.ldn-search-fallback) { width: min(340px, 100%); min-width: 0; }
 .labdoo-next .ldn-utilities:has(.ldn-search-fallback) { flex-wrap: wrap; }
+
+/* Long URLs in formatted content must not impose a wider comment column. */
+.labdoo-next .comment .text-formatted {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

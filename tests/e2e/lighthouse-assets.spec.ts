@@ -37,7 +37,7 @@ test('public navigation starts without a blocking script request or administrati
 for (const role of ['anonymous', 'superadmin'] as const) {
   test.describe(`responsive action artwork as ${role}`, () => {
     test.use({ role });
-    for (const target of ['School', 'Hub Alpha', 'Laptop Main']) {
+    for (const target of ['School', 'Hub Alpha', 'Laptop Main', 'Team Post', 'Hub Story', 'School Story']) {
       test(`${target} loads small artwork and preserves links and accessible labels @responsive`, async ({ page }, info) => {
         await goto(page, `/en/node/${fixtures(info).nodes[target].id}`, info);
         const panel = page.locator('.ldn-sidebar .block-actions-block-block').first();
@@ -54,14 +54,14 @@ for (const role of ['anonymous', 'superadmin'] as const) {
             rendered: element.getBoundingClientRect().width, alt: element.getAttribute('alt'),
             link: element.closest('a')?.getAttribute('href'),
           }));
-          expect(data.url).toMatch(/\/themes\/custom\/labdoo_next\/static\/[a-f0-9]{64}\/[^/]+-(30|60|90)\.webp$/);
+          expect(data.url).toMatch(/\/themes\/custom\/labdoo_next\/static\/[a-f0-9]{64}\/[^/]+-(16|30|60|90)\.webp$/);
           expect(data.width).toBeLessThanOrEqual(90);
           expect(data.rendered).toBeCloseTo(19, 0);
           expect(data.alt).toBe('');
           if (data.link !== undefined) expect(data.link).not.toBe('');
         }
         const semaphore = panel.locator('img.semaphore');
-        if (target !== 'Laptop Main') {
+        if (target === 'School' || target === 'Hub Alpha') {
           await semaphore.scrollIntoViewIfNeeded();
           await expect(semaphore).toHaveAccessibleName(/Project semaphore:/);
           await expect.poll(() => semaphore.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)).toBe(true);

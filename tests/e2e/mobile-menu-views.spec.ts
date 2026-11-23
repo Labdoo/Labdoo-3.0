@@ -11,6 +11,20 @@ const routes = [...new Set<string>(inventory.menus
     && !/\/admin(?:\/|$)|[?&](?:token|destination)=|\.xml$/.test(entry.path))
   .map((entry: any) => entry.path))];
 
+test.afterEach(async ({ page }, info) => {
+  if (info.status !== info.expectedStatus) {
+    const overflow = await page.evaluate(() => ({
+      viewport: innerWidth, scroll: document.documentElement.scrollWidth,
+      elements: [...document.querySelectorAll('body *')].map(element => ({
+        tag: element.tagName, classes: element.getAttribute('class'),
+        width: element.getBoundingClientRect().width, right: element.getBoundingClientRect().right,
+        text: element.textContent?.trim().slice(0, 120),
+      })).filter(element => element.right > innerWidth + 1 || element.width > innerWidth),
+    }));
+    await info.attach('horizontal-overflow', { body: JSON.stringify(overflow), contentType: 'application/json' });
+  }
+});
+
 test.describe('public menu view parity', () => {
   test.use({ role: 'superadmin' });
   for (const route of routes) {
@@ -24,11 +38,11 @@ test.describe('public menu view parity', () => {
       await expect(page.locator('main').first()).toBeVisible();
       expect(await page.locator('h1').allTextContents()).toEqual(heading);
       // Wide result tables must scroll within their own region, not the page.
-      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
       const mobile = await goto(page, route, info);
       expect(mobile.status()).toBe(desktop.status());
       expect(await page.locator('h1').allTextContents()).toEqual(heading);
-      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
     });
   }
   for (const type of ['dootronic', 'hub']) {
