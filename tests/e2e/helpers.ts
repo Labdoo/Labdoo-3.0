@@ -27,7 +27,7 @@ export async function networkGuard(context: BrowserContext) {
 export async function goto(page: Page, url: string, info: TestInfo) {
   const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
   expect(response, 'A Drupal response is required').not.toBeNull();
-  if (process.env.E2E_LOCAL_PORT === '18411') {
+  if (process.env.E2E_LOCAL_PORT) {
     const expectedRoot = createHash('sha256').update(path.resolve(__dirname, '../..')).digest('hex');
     expect(response!.headers()['x-labdoo-e2e-root'], 'The server must run the checkout containing these tests').toBe(expectedRoot);
   }

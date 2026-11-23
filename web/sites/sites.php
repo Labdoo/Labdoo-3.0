@@ -7,4 +7,6 @@ declare(strict_types=1);
 if (getenv('LABDOO_E2E_SITE') === '1') {
   $sites['18411.127.0.0.1'] = 'labdoo_e2e';
   $sites['18411.localhost'] = 'labdoo_e2e';
+  $sites['18421.127.0.0.1'] = 'labdoo_e2e';
+  $sites['18421.localhost'] = 'labdoo_e2e';
 }

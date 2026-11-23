@@ -13,7 +13,8 @@ export const options = {
 };
 const base = __ENV.BASE_URL || 'http://127.0.0.1:18411';
 const root = __ENV.LABDOO_EXPECTED_ROOT;
-if (base !== 'http://127.0.0.1:18411' || !root) throw new Error('Use the isolated local checkout only');
+const port = __ENV.LABDOO_LOCAL_PORT || '18411';
+if (!['18411', '18421'].includes(port) || base !== `http://127.0.0.1:${port}` || !root) throw new Error('Use the isolated local checkout only');
 const identity = crypto.sha256(root, 'hex');
 const header = (response, name) => Object.entries(response.headers).find(([key]) => key.toLowerCase() === name)?.[1];
 const guarded = response => response.status === 200

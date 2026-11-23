@@ -4,7 +4,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 LAB = ROOT / 'tests/upgrade/.local'
 STATE = LAB / 'state'
-PORT = 18411
+PORT = int(os.environ.get('LABDOO_E2E_PORT', '18411'))
+if PORT not in [18411, 18421]: raise RuntimeError('Use an approved isolated loopback port')
 DB = 'labdoo_e2e_' + hashlib.sha256(str(ROOT).encode()).hexdigest()[:12]
 DB_USER = DB
 os.umask(0o077)

@@ -102,3 +102,17 @@ The default Lighthouse school route uses its canonical alias. The legacy node
 URL's permanent redirect remains covered in `tests/e2e/lighthouse-assets.spec.ts`;
 an explicit `--path` still audits the exact URL supplied by the caller and keeps
 all actual warnings in the report.
+
+## Concurrent checkouts
+
+Prepare each checkout with its own database, dependencies and fixture state.
+A second independent checkout can use `LABDOO_E2E_PORT=18421` with
+`make e2e-serve` and `make e2e`; the default remains 18411. Both ports retain
+the checkout identity, database, mail and external-provider guards. Do not run
+two agents against the same checkout or database.
+
+For Lighthouse on the second checkout, pass
+`LAB_BASE_URL=http://127.0.0.1:18421`. The focused static-assets k6 profile
+accepts `BASE_URL=http://127.0.0.1:18421` with `LABDOO_LOCAL_PORT=18421` and
+that checkout's `LABDOO_EXPECTED_ROOT`; its isolation checks and budgets remain
+mandatory. Never stop another checkout's server to claim its port.
