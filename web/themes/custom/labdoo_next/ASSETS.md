@@ -65,5 +65,6 @@ actually use autocomplete keep their dependencies. The ordinary search link and
 no-JavaScript form remain available if deferred loading fails.
 
 Team action artwork includes the existing home, all-teams, wall, team-members,
-check and conversation icons at 30/60/90 pixels. The feed icon retains its native 16-pixel resolution. Each
+check and conversation icons at 30/60/90 pixels. The feed icon retains its
+native 16-pixel resolution. Each
 WebP source keeps the original PNG fallback and translated link label.
