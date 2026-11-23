@@ -1137,6 +1137,17 @@ body.labdoo-next {
   aspect-ratio: 2 / 1;
 }
 
+.labdoo-next .ldn-chart-frame {
+  position: relative;
+  width: 100%;
+  min-height: 360px;
+}
+
+.labdoo-next .ldn-chart-frame > div.charts-chartjs {
+  height: 100%;
+  aspect-ratio: auto;
+}
+
 .labdoo-next .ldn-sidebar a:not(.button),
 .labdoo-next .ldn-sidebar a:not(.button):visited {
   color: var(--ldn-green);

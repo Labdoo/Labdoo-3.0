@@ -149,3 +149,23 @@ body.has-labdoo-admin-toolbar .toolbar-tray {
     padding-left: 16px;
   }
 }
+@media (max-width: 600px) {
+  /* Multi-value location controls retain their columns inside the form. */
+  body.gin--edit-form .field--name-field-locations {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  body.gin--edit-form .horizontal-tabs-panes {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+  /* Keep Gin's shortcut tooltip within narrow account and editing pages. */
+  body.has-labdoo-admin-toolbar .shortcut-action__message {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    max-width: calc(100vw - 32px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

@@ -104,7 +104,21 @@
           element.dataset.chart = JSON.stringify(config);
         }
         const square = ['pie', 'doughnut', 'polarArea', 'radar'].includes(config.type);
-        element.style.aspectRatio = String(options.aspectRatio || (square ? 1 : 2));
+        const aspectRatio = String(options.aspectRatio || (square ? 1 : 2));
+        if (options.responsive !== false && options.maintainAspectRatio !== false) {
+          // Legends wrap on narrow screens. Give the plot a minimum height
+          // instead of letting a width-derived canvas height consume all of it.
+          const frame = document.createElement('div');
+          frame.className = 'ldn-chart-frame';
+          frame.style.aspectRatio = aspectRatio;
+          element.before(frame);
+          frame.append(element);
+          options.maintainAspectRatio = false;
+          config.options = options;
+          element.dataset.chart = JSON.stringify(config);
+        } else {
+          element.style.aspectRatio = aspectRatio;
+        }
         function render() {
           if (!element.isConnected || !element.parentElement) return;
           loadCharts(element.parentElement).then(() => {
