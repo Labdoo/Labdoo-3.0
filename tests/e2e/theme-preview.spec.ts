@@ -209,6 +209,7 @@ async function languageFocus(page: any) {
   const select = page.locator('.ldn-utilities .chosen-single, .ldn-utilities select:visible').first();
   await select.click();
   await expect(select).toHaveCSS('outline-style', 'none');
-  await expect(select).toHaveCSS('border-top-color', 'rgb(36, 92, 64)');
+  const primary = await page.locator('.ldn-metric strong').first().evaluate((el: Element) => getComputedStyle(el).color);
+  await expect(select).toHaveCSS('border-top-color', primary);
   await page.keyboard.press('Escape');
 }

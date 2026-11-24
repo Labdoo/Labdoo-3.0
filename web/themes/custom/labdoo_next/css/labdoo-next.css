@@ -92,7 +92,7 @@ body.labdoo-next {
 .labdoo-next .ldn-quote figcaption {
   font-size: .8rem;
   font-weight: 600;
-  color: var(--ldn-green);
+  color: var(--ldn-supporting, var(--ldn-green));
   white-space: nowrap;
 }
 .labdoo-next .ldn-brand img {
@@ -375,18 +375,28 @@ body.labdoo-next {
   white-space: normal;
   text-overflow: unset;
   overflow-wrap: anywhere;
-  color: var(--ldn-ink);
+  color: var(--ldn-title, var(--ldn-green));
+}
+/* Give color a stable role in the content hierarchy, away from the metrics. */
+.labdoo-next h1.page-title::after {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 4px;
+  margin-block-start: 14px;
+  border-radius: 2px;
+  background: var(--ldn-highlight, var(--ldn-orange));
 }
 .labdoo-next h2 {
   font-size: 1.35rem;
   line-height: 1.35;
   letter-spacing: -.025em;
-  color: var(--ldn-ink);
+  color: var(--ldn-supporting, var(--ldn-green));
 }
 .labdoo-next h3 {
   font-size: 1.1rem;
   line-height: 1.4;
-  color: var(--ldn-ink);
+  color: var(--ldn-orange);
 }
 .labdoo-next .ldn-layout {
   display: grid;
@@ -456,7 +466,7 @@ body.labdoo-next {
   border-color: var(--ldn-line);
 }
 .labdoo-next .ldn-sidebar .block-title {
-  color: var(--ldn-green);
+  color: var(--ldn-supporting, var(--ldn-green));
   font-size: .8rem;
   font-weight: 700;
   line-height: 1.5;
@@ -1165,4 +1175,14 @@ body.labdoo-next {
 .labdoo-next .text-formatted {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+/* Filter groups repeat the section color; yellow remains a decorative accent. */
+.labdoo-next .ldn-sidebar .views-exposed-form {
+  border-block-start: 4px solid var(--ldn-highlight, var(--ldn-orange));
+}
+.labdoo-next .ldn-sidebar .views-exposed-form label,
+.labdoo-next .ldn-sidebar .views-exposed-form legend,
+.labdoo-next .ldn-sidebar .block-title a {
+  color: var(--ldn-supporting, var(--ldn-green));
 }

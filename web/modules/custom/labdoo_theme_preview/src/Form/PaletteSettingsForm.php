@@ -2,6 +2,7 @@
 
 namespace Drupal\labdoo_theme_preview\Form;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\labdoo_theme_preview\PaletteManager;
@@ -76,7 +77,10 @@ final class PaletteSettingsForm extends ConfigFormBase {
     ];
     $labels = [
       'green' => $this->t('Primary color (links and buttons)'),
+      'title' => $this->t('Title'),
       'orange' => $this->t('Accent color'),
+      'supporting' => $this->t('Supporting color'),
+      'highlight' => $this->t('Highlight color'),
       'ink' => $this->t('Text'),
       'muted' => $this->t('Secondary text'),
       'canvas' => $this->t('Page background'),
@@ -137,6 +141,7 @@ final class PaletteSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config('labdoo_theme_preview.palettes');
+    $was_new = $config->isNew();
     $active = $form_state->getValue('active');
     if ($form_state->getValue('create')) {
       $active = 'custom_' . bin2hex(random_bytes(6));
@@ -148,6 +153,11 @@ final class PaletteSettingsForm extends ConfigFormBase {
     ];
     $config->set('custom', $custom);
     $config->set('active', $active)->save();
+    if ($was_new) {
+      // Core invalidates config tags on updates, but not on the first save.
+      // Anonymous pages may already cache the fallback Forest palette.
+      Cache::invalidateTags($config->getCacheTags());
+    }
     parent::submitForm($form, $form_state);
     $form_state->setRedirect('labdoo_theme_preview.palettes');
   }

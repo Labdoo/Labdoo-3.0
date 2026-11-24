@@ -33,6 +33,56 @@ test('anonymous visitors cannot administer palettes or override the site choice'
 test.describe('site palette administration', () => {
   test.use({ role: 'admin' });
 
+  test('Learning palette uses colored headings and quiet metrics in both languages @responsive', async ({ page, browser, baseURL }, info) => {
+    await php('\\Drupal::configFactory()->getEditable("labdoo_theme_preview.palettes")->delete();');
+    const context = await browser.newContext({ baseURL, storageState: { cookies: [], origins: [] }, viewport: info.project.use.viewport });
+    await networkGuard(context);
+    const visitor = await context.newPage();
+    try {
+      // Warm the fallback while the configuration does not exist yet.
+      await goto(visitor, '/en', info);
+      await expect(visitor.locator('body')).toHaveAttribute('data-ldn-palette', 'forest');
+      const cached = await goto(visitor, '/en', info);
+      expect(cached.headers()['x-drupal-cache']).toBe('HIT');
+      await goto(page, admin, info);
+      await page.getByLabel('Active palette', { exact: true }).selectOption('learning');
+      await expect(page.getByLabel('Palette name', { exact: true })).toHaveValue('Learning');
+      await expect(page.getByLabel('Title', { exact: true })).toHaveValue('#c5221f');
+      await expect(page.getByLabel('Supporting color', { exact: true })).toHaveValue('#188038');
+      await expect(page.getByLabel('Highlight color', { exact: true })).toHaveValue('#fbbc04');
+      await page.getByRole('button', { name: 'Save configuration', exact: true }).click();
+      await expect(page.locator('.messages--status')).toContainText('saved');
+      for (const language of ['en', 'es']) {
+        await goto(visitor, `/${language}`, info);
+        await expect(visitor.locator('body')).not.toHaveClass(/user-logged-in/);
+        await expect(visitor.locator('body')).toHaveAttribute('data-ldn-palette', 'learning');
+        const metrics = visitor.locator('.ldn-metric');
+        const colors = await metrics.locator('strong').evaluateAll(nodes => [...new Set(nodes.map(el => getComputedStyle(el).color))]);
+        expect(colors).toEqual(['rgb(25, 103, 210)']);
+        expect(await metrics.first().evaluate(el => getComputedStyle(el, '::before').content)).toBe('none');
+        await expect(visitor.locator('h1.page-title')).toHaveCSS('color', 'rgb(197, 34, 31)');
+        expect(await visitor.locator('h1.page-title').evaluate(el => getComputedStyle(el, '::after').backgroundColor)).toBe('rgb(251, 188, 4)');
+        await expect(visitor.locator('.ldn-quote figcaption')).toHaveCSS('color', 'rgb(24, 128, 56)');
+        expect(await visitor.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+        await visitor.screenshot({ path: info.outputPath(`learning-home-${language}.png`) });
+        await goto(visitor, `/${language}/content/dootronics-dashboard`, info);
+        await expect(visitor.locator('body')).not.toHaveClass(/user-logged-in/);
+        await expect(visitor.locator('body')).toHaveAttribute('data-ldn-palette', 'learning');
+        await expect(visitor.locator('.ldn-sidebar .views-exposed-form').first()).toBeVisible();
+        const filters = visitor.locator('.ldn-sidebar .views-exposed-form').first();
+        await expect(filters).toHaveCSS('border-top-color', 'rgb(251, 188, 4)');
+        await expect(filters.locator('label').first()).toHaveCSS('color', 'rgb(24, 128, 56)');
+        await visitor.screenshot({ path: info.outputPath(`learning-dashboard-${language}.png`) });
+        await goto(visitor, `/${language}/statistics/advanced`, info);
+        await expect(visitor.locator('.advanced-statistics-wrapper > h2')).toHaveCSS('color', 'rgb(24, 128, 56)');
+        await expect(visitor.locator('.chart-container h3').first()).toHaveCSS('color', 'rgb(180, 83, 9)');
+      }
+    }
+    finally {
+      await context.close();
+    }
+  });
+
   test('create a named palette and select it for all visitors @responsive', async ({ page, browser, baseURL }, info) => {
     await goto(page, admin, info);
     await expect(page.getByLabel('Active palette', { exact: true })).toBeVisible();
@@ -40,6 +90,9 @@ test.describe('site palette administration', () => {
     await page.getByLabel('Create a new palette', { exact: true }).check();
     await page.getByLabel('Palette name', { exact: true }).fill(name);
     await page.getByLabel('Primary color (links and buttons)', { exact: true }).fill('#135a83');
+    await page.getByLabel('Title', { exact: true }).fill('#a32323');
+    await page.getByLabel('Supporting color', { exact: true }).fill('#167443');
+    await page.getByLabel('Highlight color', { exact: true }).fill('#efb321');
     await page.getByLabel('Page background', { exact: true }).fill('#f0f7fc');
     await page.getByLabel('Card background', { exact: true }).fill('#fef7ef');
     await page.getByLabel('Card background', { exact: true }).blur();
@@ -52,7 +105,7 @@ test.describe('site palette administration', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await page.screenshot({ path: info.outputPath('admin-palette-created.png') });
 
-    const context = await browser.newContext({ baseURL, javaScriptEnabled: false, viewport: info.project.use.viewport });
+    const context = await browser.newContext({ baseURL, storageState: { cookies: [], origins: [] }, javaScriptEnabled: false, viewport: info.project.use.viewport });
     await networkGuard(context);
     const visitor = await context.newPage();
     try {
@@ -60,9 +113,9 @@ test.describe('site palette administration', () => {
       await expect(visitor.locator('body')).toHaveAttribute('data-ldn-palette', selected);
       const colors = await visitor.locator('body').evaluate(el => {
         const css = getComputedStyle(el);
-        return [css.getPropertyValue('--ldn-green').trim(), css.getPropertyValue('--ldn-canvas').trim()];
+        return ['green', 'canvas', 'supporting', 'highlight', 'title'].map(key => css.getPropertyValue(`--ldn-${key}`).trim());
       });
-      expect(colors).toEqual(['#135a83', '#f0f7fc']);
+      expect(colors).toEqual(['#135a83', '#f0f7fc', '#167443', '#efb321', '#a32323']);
       expect(await visitor.locator('.ldn-sidebar .views-exposed-form').first().evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(254, 247, 239)');
       await expect(visitor.locator('.ldn-palette')).toHaveCount(0);
       await visitor.screenshot({ path: info.outputPath('custom-palette-public.png') });

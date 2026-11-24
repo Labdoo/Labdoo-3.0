@@ -27264,6 +27264,18 @@
           "declared_language": "en"
         }
       ]
+    },
+    "fb758c5dd836a171877788c7028ba1e94b3539241b0f5aebd195099eafb624a6": {
+      "source": "Supporting color",
+      "context": "",
+      "usage_count": 1,
+      "examples": []
+    },
+    "cb7fa1eedc02c47aa95a5aa0c4570d8c6bcf2b96c0fb5b56824edafc0af6b5d1": {
+      "source": "Highlight color",
+      "context": "",
+      "usage_count": 1,
+      "examples": []
     }
   },
   "plurals": {

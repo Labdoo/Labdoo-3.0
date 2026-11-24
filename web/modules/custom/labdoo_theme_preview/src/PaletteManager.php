@@ -18,7 +18,25 @@ final class PaletteManager {
    * Returns the built-in palettes.
    */
   public static function presets(): array {
-    return [
+    $palettes = [
+      'learning' => [
+        'label' => 'Learning',
+        'colors' => [
+          'ink' => '#202124',
+          'muted' => '#5f6368',
+          'green' => '#1967d2',
+          'orange' => '#b45309',
+          'title' => '#c5221f',
+          'supporting' => '#188038',
+          'highlight' => '#fbbc04',
+          'line' => '#dadce0',
+          'paper' => '#ffffff',
+          'canvas' => '#f8fafd',
+          'primary-hover' => '#174ea6',
+          'soft' => '#e8f0fe',
+          'control-border' => '#80868b',
+        ],
+      ],
       'forest' => [
         'label' => 'Forest',
         'colors' => [
@@ -80,6 +98,15 @@ final class PaletteManager {
         ],
       ],
     ];
+    foreach ($palettes as &$palette) {
+      $palette['colors'] += [
+        'supporting' => $palette['colors']['green'],
+        'highlight' => $palette['colors']['orange'],
+        'title' => $palette['colors']['green'],
+      ];
+    }
+    unset($palette);
+    return $palettes;
   }
 
   /**
@@ -98,7 +125,14 @@ final class PaletteManager {
       }
       $colors = [];
       foreach ($keys as $key) {
-        $value = $palette['colors'][$key] ?? NULL;
+        $value = $palette['colors'][$key] ?? match ($key) {
+          'supporting' => $palette['colors']['green'] ?? NULL,
+          'highlight' => $palette['colors']['orange'] ?? NULL,
+          'title' => $id === 'learning'
+            ? $palettes['learning']['colors']['title']
+            : ($palette['colors']['green'] ?? NULL),
+          default => NULL,
+        };
         if (!is_string($value) || !preg_match('/^#[a-f0-9]{6}$/iD', $value)) {
           continue 2;
         }
